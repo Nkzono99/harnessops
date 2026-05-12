@@ -5,19 +5,19 @@
 
 ## スコア
 
-- impact: 3
-- mechanism_clarity: 0
-- evaluability: 0
-- minimality: 0
-- regression_risk: 0
-- operator_burden: 0
+- impact: 4
+- mechanism_clarity: 4
+- evaluability: 5
+- minimality: 4
+- regression_risk: 3
+- operator_burden: 4
 - anti_theater: 4
-- maintainability: 0
-- privacy_sanitization_risk: 0
+- maintainability: 4
+- privacy_sanitization_risk: 2
 
 ## メモ
 
-Implemented the first GitHub bridge increment: feedback import --issue captures title, body, labels, author, timestamps, comments, and falls back to placeholder behavior when gh context is unavailable. Draft/create workflow remains follow-up.
+Implemented the GitHub issue bridge helper: sanitized github-issue bundles can be previewed with title/body, duplicate searched via gh, created only with --confirm-create, blocked on duplicates unless --allow-duplicate, and successful creates write the Issue URL back to source records. gh-unavailable fallback writes a markdown draft.
 
 ## 評価ケーススナップショット
 

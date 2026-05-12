@@ -318,6 +318,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops add-feedback --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
 | `hops route --record <id>` | はい | record dispositionの分類保存。 |
 | `hops feedback export --sanitize` | はい | サニタイズ済みフィードバックバンドル生成。`--format github-issue` はローカルの公開Issue下書きのみ生成し、リモートIssueは作らない。 |
+| `hops feedback issue create <bundle> --repo <owner/repo>` | `--confirm-create` のみ | サニタイズ済み `--format github-issue` バンドルを表示し、重複候補を検索する。`--confirm-create` 付きでのみ GitHub Issue を作成し、成功時に元レコードへIssue URLを書き戻す。 |
 | `hops feedback import <bundle>` | はい | `harness-lab` へフィードバックをインポート。 |
 | `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにする。 |
 | `hops lab new-eval-case --from <FBid>` | はい | imported feedback を評価ケース化。 |
@@ -401,7 +402,7 @@ private_terms:
 - 未リンクなら `hops detect` と `hops init --profile <id>` を使う。
 - `.harnessops/`, `harness-feedback/`, `harness-lab/` の構造を直接再編しない。
 - レコード作成・更新はCLIに委譲する。
-- リモートIssue/PRは自動作成しない。
+- リモートIssue/PRは自動作成しない。Issue作成は `hops feedback issue create --confirm-create` のような明示確認付きコマンドに限定する。
 - holdoutや非公開文脈を通常ワークフローへ露出しない。
 
 ## ロックとマイグレーション
@@ -427,6 +428,7 @@ private_terms:
 - `hops add-failure` が有効なfailureレコードを作る。
 - `hops route` が分類値を保存する。
 - `hops feedback export --sanitize` がサニタイズ済みバンドルを書く。公開GitHub Issue下書きが必要な場合は `--format github-issue` を使い、`--allow-private` は併用できない。
+- `hops feedback issue create` が `--confirm-create` なしではリモートIssueを作らず、重複候補とtitle/bodyを表示する。作成成功時は元レコードへIssue URLを書き戻す。
 - `hops feedback import` が `harness-lab` にfeedbackレコードを作る。
 - `hops lab capture` が issue や bundle のないローカル改善観測を `harness-lab` に記録する。
 - `hops lab new-eval-case` が評価ケースとfixture directoryを作る。

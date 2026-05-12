@@ -7,15 +7,24 @@ from typing import Any, Optional
 
 import typer
 
+from harnessops.core import yamlio
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import create_imported_feedback, next_id, read_record
+from harnessops.core.records import (
+    create_imported_feedback,
+    dump_record,
+    next_id,
+    read_record,
+)
 from harnessops.core.render import refresh_views
-from harnessops.core.sanitize import sanitize_text
+from harnessops.core.sanitize import DEFAULT_PATTERNS, sanitize_text
 from harnessops.profiles.registry import load_profile
 
 feedback_app = typer.Typer(
     help="フィードバックバンドルをエクスポート/インポートします。"
+)
+issue_app = typer.Typer(
+    help="サニタイズ済みフィードバックをGitHub Issueへ橋渡しします。"
 )
 
 
@@ -141,6 +150,241 @@ def _load_github_issue(issue: int, repo: str | None) -> tuple[dict[str, Any], st
     return source, "\n".join(body_parts).strip(), str(issue_data["title"])
 
 
+def _resolve_bundle_path(root: Path, bundle: Path) -> Path:
+    return bundle if bundle.is_absolute() else root / bundle
+
+
+def _validate_repo(repo: str) -> None:
+    parts = repo.split("/")
+    if len(parts) != 2 or not all(parts) or any(char.isspace() for char in repo):
+        typer.echo("--repo は owner/repo 形式で指定してください")
+        raise typer.Exit(1)
+
+
+def _configured_private_terms(root: Path) -> list[str]:
+    path = root / ".harnessops" / "sanitize.yml"
+    if not path.exists():
+        return []
+    config = yamlio.safe_load(path.read_text(encoding="utf-8")) or {}
+    return [str(term) for term in config.get("private_terms", [])]
+
+
+def _remaining_private_markers(
+    root: Path, profile: dict[str, Any], body: str
+) -> list[str]:
+    markers: list[str] = []
+    for root_text in {str(root), root.as_posix()}:
+        if root_text and root_text in body:
+            markers.append("project-root")
+    for pattern, _ in DEFAULT_PATTERNS:
+        if pattern.search(body):
+            markers.append(pattern.pattern)
+    for term in _configured_private_terms(root):
+        if term and term in body:
+            markers.append("private-term")
+    for key in ["private_paths", "protected_paths"]:
+        for pattern in profile.get(key, []) or []:
+            literal = str(pattern).replace("**", "").replace("*", "")
+            if literal and literal in body:
+                markers.append(key)
+    return sorted(set(markers))
+
+
+def _load_issue_bundle(
+    root: Path, profile: dict[str, Any], bundle_path: Path
+) -> tuple[dict[str, Any], str]:
+    if not bundle_path.exists():
+        typer.echo(f"バンドルが見つかりません: {bundle_path}")
+        raise typer.Exit(1)
+    source, body = read_record(bundle_path)
+    if source.get("record_type") not in {"upstream_feedback", "meta_feedback"}:
+        typer.echo(
+            "GitHub Issue化には upstream_feedback または meta_feedback が必要です"
+        )
+        raise typer.Exit(1)
+    if not source.get("sanitized", False):
+        typer.echo("GitHub Issue化にはサニタイズ済みバンドルが必要です")
+        raise typer.Exit(1)
+    if source.get("format") not in {"issue", "github-issue"}:
+        typer.echo("GitHub Issue化には --format github-issue のバンドルが必要です")
+        raise typer.Exit(1)
+    markers = _remaining_private_markers(root, profile, body)
+    if markers:
+        typer.echo(
+            "GitHub Issue化する前に再サニタイズが必要です: " + ", ".join(markers)
+        )
+        raise typer.Exit(1)
+    return source, body.strip()
+
+
+def _issue_title(source: dict[str, Any], body: str, override: str | None) -> str:
+    if override:
+        return override
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("# "):
+            return stripped[2:].strip()
+    target = source.get("target") or "feedback"
+    return f"{target} feedback"
+
+
+def _run_gh(args: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["gh", *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _search_duplicate_issues(
+    repo: str, title: str
+) -> tuple[list[dict[str, Any]], str | None]:
+    try:
+        result = _run_gh(
+            [
+                "issue",
+                "list",
+                "--repo",
+                repo,
+                "--state",
+                "open",
+                "--search",
+                f"{title} in:title",
+                "--limit",
+                "5",
+                "--json",
+                "number,title,url,state",
+            ]
+        )
+        payload = json.loads(result.stdout)
+    except FileNotFoundError:
+        return [], "gh が見つかりません"
+    except (json.JSONDecodeError, subprocess.CalledProcessError) as exc:
+        return [], f"GitHub Issue検索に失敗しました: {exc}"
+    if not isinstance(payload, list):
+        return [], "GitHub Issue検索の応答形式が不正です"
+    return [item for item in payload if isinstance(item, dict)], None
+
+
+def _write_fallback_issue_draft(bundle_path: Path, title: str, body: str) -> Path:
+    base = bundle_path.with_name(f"{bundle_path.stem}-github-issue-draft.md")
+    candidate = base
+    index = 2
+    while candidate.exists():
+        candidate = bundle_path.with_name(
+            f"{bundle_path.stem}-github-issue-draft-{index}.md"
+        )
+        index += 1
+    candidate.write_text(f"# {title}\n\n{body.strip()}\n", encoding="utf-8")
+    return candidate
+
+
+def _source_record_paths(
+    project_root: Path,
+    project_overlay: Path,
+    bundle_path: Path,
+    source: dict[str, Any],
+) -> list[Path]:
+    paths: list[Path] = []
+    records_root = (project_overlay / "records").resolve()
+    for rel_path in source.get("source_record_paths", []) or []:
+        if not isinstance(rel_path, str):
+            continue
+        candidate = (project_root / rel_path).resolve()
+        if candidate.exists() and candidate.is_relative_to(records_root):
+            paths.append(candidate)
+    for record_id in source.get("source_records", []) or []:
+        if not isinstance(record_id, str):
+            continue
+        for candidate in sorted((project_overlay / "records").rglob("*.md")):
+            frontmatter, _ = read_record(candidate)
+            if frontmatter.get("id") == record_id or candidate.name.startswith(
+                record_id
+            ):
+                paths.append(candidate)
+                break
+    try:
+        if bundle_path.is_relative_to(project_overlay / "records"):
+            paths.append(bundle_path)
+    except ValueError:
+        pass
+    unique_paths: list[Path] = []
+    seen: set[Path] = set()
+    for path in paths:
+        resolved = path.resolve()
+        if resolved not in seen:
+            unique_paths.append(path)
+            seen.add(resolved)
+    return unique_paths
+
+
+def _write_issue_url_to_records(
+    root: Path,
+    bundle_path: Path,
+    source: dict[str, Any],
+    *,
+    repo: str,
+    url: str,
+) -> int:
+    project = load_project(root)
+    updated = 0
+    for path in _source_record_paths(root, project.overlay_dir, bundle_path, source):
+        frontmatter, body = read_record(path)
+        record_type = frontmatter.get("record_type")
+        if record_type in {"upstream_feedback", "meta_feedback"}:
+            issue = frontmatter.setdefault("issue", {})
+            if isinstance(issue, dict):
+                issue["provider"] = "github"
+                issue["repo"] = repo
+                issue["url"] = url
+            else:
+                frontmatter["issue"] = {"provider": "github", "repo": repo, "url": url}
+        elif record_type == "imported_feedback":
+            links = frontmatter.setdefault("links", {})
+            if isinstance(links, dict):
+                links["issue_url"] = url
+            else:
+                frontmatter["links"] = {"issue_url": url}
+        elif record_type == "failure":
+            links = frontmatter.setdefault("links", {})
+            if isinstance(links, dict):
+                links["issue_url"] = url
+            else:
+                frontmatter["links"] = {"issue_url": url}
+        else:
+            continue
+        path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+        updated += 1
+    refresh_views(root, project.overlay_path)
+    return updated
+
+
+def _create_github_issue(repo: str, title: str, body: str) -> str:
+    try:
+        result = _run_gh(
+            [
+                "issue",
+                "create",
+                "--repo",
+                repo,
+                "--title",
+                title,
+                "--body",
+                body,
+            ]
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("gh が見つかりません") from exc
+    except subprocess.CalledProcessError as exc:
+        message = exc.stderr.strip() or str(exc)
+        raise RuntimeError(f"GitHub Issue作成に失敗しました: {message}") from exc
+    url = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+    if not url.startswith("https://"):
+        raise RuntimeError("GitHub Issue URLを取得できませんでした")
+    return url
+
+
 @feedback_app.command("export")
 def export_feedback(
     target: Optional[str] = typer.Option(None, "--target"),
@@ -227,6 +471,7 @@ def export_feedback(
         "visibility": "sanitized" if sanitize else "private-until-sanitized",
         "format": format,
         "included_targets": resolved_targets,
+        "source_records": [record[1].get("id") for record in records],
     }
     text = (
         "---\n"
@@ -240,6 +485,72 @@ def export_feedback(
     out_path.write_text(text, encoding="utf-8")
     refresh_views(root, project.overlay_path)
     typer.echo(out_path.relative_to(root).as_posix())
+
+
+@issue_app.command("create")
+def create_issue(
+    bundle: Path = typer.Argument(...),
+    repo: str = typer.Option(..., "--repo"),
+    confirm_create: bool = typer.Option(False, "--confirm-create"),
+    allow_duplicate: bool = typer.Option(False, "--allow-duplicate"),
+    title: Optional[str] = typer.Option(None, "--title"),
+) -> None:
+    """サニタイズ済みGitHub Issue下書きからIssueを作成します。"""
+    root = find_root()
+    project = load_project(root)
+    profile = load_profile(project.profile_id)
+    _validate_repo(repo)
+    bundle_path = _resolve_bundle_path(root, bundle)
+    source, body = _load_issue_bundle(root, profile, bundle_path)
+    issue_title = _issue_title(source, body, title)
+
+    typer.echo("Issue title:")
+    typer.echo(issue_title)
+    typer.echo("\nIssue body:")
+    typer.echo(body)
+
+    duplicates, search_error = _search_duplicate_issues(repo, issue_title)
+    if search_error:
+        draft_path = _write_fallback_issue_draft(bundle_path, issue_title, body)
+        typer.echo(f"\n重複検索をスキップしました: {search_error}")
+        typer.echo(
+            f"Markdown下書きを書きました: {draft_path.relative_to(root).as_posix()}"
+        )
+        if confirm_create:
+            raise typer.Exit(1)
+    elif duplicates:
+        typer.echo("\n重複候補:")
+        for item in duplicates:
+            number = item.get("number", "?")
+            found_title = item.get("title", "")
+            url = item.get("url", "")
+            typer.echo(f"- #{number} {found_title} {url}")
+        if confirm_create and not allow_duplicate:
+            typer.echo("--allow-duplicate なしでは重複候補があるIssueは作成しません")
+            raise typer.Exit(1)
+    else:
+        typer.echo("\n重複候補は見つかりませんでした")
+
+    if not confirm_create:
+        typer.echo(
+            "\nリモートIssueは作成していません。作成するには --confirm-create を指定してください。"
+        )
+        return
+
+    try:
+        issue_url = _create_github_issue(repo, issue_title, body)
+    except RuntimeError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(1) from exc
+    updated = _write_issue_url_to_records(
+        root,
+        bundle_path,
+        source,
+        repo=repo,
+        url=issue_url,
+    )
+    typer.echo(f"\nGitHub Issueを作成しました: {issue_url}")
+    typer.echo(f"Issue URLを書き戻したレコード数: {updated}")
 
 
 @feedback_app.command("import")
@@ -279,4 +590,5 @@ def import_feedback(
 
 
 def register(app: typer.Typer) -> None:
+    feedback_app.add_typer(issue_app, name="issue")
     app.add_typer(feedback_app, name="feedback")

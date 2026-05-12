@@ -40,9 +40,10 @@ hops route --record F0001
 hops add-feedback --from F0001 --target <target> --summary "<要約>"
 hops feedback export --target <target> --sanitize
 hops feedback export --target <target> --sanitize --format github-issue
+hops feedback issue create harness-feedback/views/exported-feedback/UF0001-<target>-feedback.md --repo owner/repo
 ```
 
-`--format github-issue` はローカルのMarkdown下書きだけを作り、リモートIssueは作成しません。未サニタイズ出力は共有しないでください。`--allow-private` は、人間が明示的に非公開出力を求めた場合だけ使います。GitHub Issue下書きでは `--allow-private` を使えません。
+`--format github-issue` は公開Issue用のMarkdown下書きを作ります。`hops feedback issue create` は title/body と重複候補を表示しますが、`--confirm-create` なしではリモートIssueを作成しません。作成に成功した場合は、元の feedback record へ Issue URL を書き戻します。未サニタイズ出力は共有しないでください。`--allow-private` は、人間が明示的に非公開出力を求めた場合だけ使います。GitHub Issue下書きでは `--allow-private` を使えません。
 
 ## ターゲット側で改善を評価する
 

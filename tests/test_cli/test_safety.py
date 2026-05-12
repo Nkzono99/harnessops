@@ -1,6 +1,11 @@
+import json
+import subprocess
+
 from typer.testing import CliRunner
 
+from harnessops.cli import feedback as feedback_cli
 from harnessops.cli.main import app
+from harnessops.core.records import read_record
 
 
 runner = CliRunner()
@@ -108,6 +113,312 @@ def test_github_issue_draft_requires_strict_sanitize(copy_fixture, monkeypatch):
     assert "## Issue下書き" in draft_text
     assert "HarnessOps はリモートIssueを自動作成しません" in draft_text
     assert str(root) not in draft_text
+
+
+def test_feedback_issue_create_previews_and_searches_without_confirm(
+    copy_fixture, monkeypatch
+):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "runops-project"]).exit_code == 0
+    assert (
+        runner.invoke(
+            app,
+            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+        ).exit_code
+        == 0
+    )
+    assert (
+        runner.invoke(
+            app,
+            [
+                "add-feedback",
+                "--from",
+                "F0001",
+                "--target",
+                "runops",
+                "--summary",
+                "GitHub issue helper feedback",
+            ],
+        ).exit_code
+        == 0
+    )
+    exported = runner.invoke(
+        app,
+        [
+            "feedback",
+            "export",
+            "--target",
+            "runops",
+            "--sanitize",
+            "--format",
+            "github-issue",
+        ],
+    )
+    assert exported.exit_code == 0
+    calls = []
+
+    def fake_run(args, check, capture_output, text):
+        calls.append(args)
+        assert check is True
+        assert capture_output is True
+        assert text is True
+        if args[:3] == ["gh", "issue", "list"]:
+            payload = [
+                {
+                    "number": 7,
+                    "title": "runops へのフィードバック",
+                    "url": "https://github.com/example/repo/issues/7",
+                    "state": "OPEN",
+                }
+            ]
+            return subprocess.CompletedProcess(
+                args=args, returncode=0, stdout=json.dumps(payload), stderr=""
+            )
+        raise AssertionError(f"unexpected gh call: {args}")
+
+    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+
+    result = runner.invoke(
+        app,
+        [
+            "feedback",
+            "issue",
+            "create",
+            exported.output.strip(),
+            "--repo",
+            "example/repo",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Issue title:" in result.output
+    assert "Issue body:" in result.output
+    assert "重複候補" in result.output
+    assert "https://github.com/example/repo/issues/7" in result.output
+    assert "リモートIssueは作成していません" in result.output
+    assert not any(args[:3] == ["gh", "issue", "create"] for args in calls)
+
+
+def test_feedback_issue_create_requires_sanitized_issue_bundle(
+    copy_fixture, monkeypatch
+):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "runops-project"]).exit_code == 0
+    assert (
+        runner.invoke(
+            app,
+            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+        ).exit_code
+        == 0
+    )
+    exported = runner.invoke(
+        app,
+        ["feedback", "export", "--target", "runops", "--sanitize"],
+    )
+    assert exported.exit_code == 0
+
+    result = runner.invoke(
+        app,
+        [
+            "feedback",
+            "issue",
+            "create",
+            exported.output.strip(),
+            "--repo",
+            "example/repo",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "--format github-issue" in result.output
+
+
+def test_feedback_issue_create_rejects_remaining_private_markers(
+    copy_fixture, monkeypatch
+):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "runops-project"]).exit_code == 0
+    assert (
+        runner.invoke(
+            app,
+            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+        ).exit_code
+        == 0
+    )
+    exported = runner.invoke(
+        app,
+        [
+            "feedback",
+            "export",
+            "--target",
+            "runops",
+            "--sanitize",
+            "--format",
+            "github-issue",
+        ],
+    )
+    assert exported.exit_code == 0
+    draft = root / exported.output.strip()
+    draft.write_text(
+        draft.read_text(encoding="utf-8") + f"\nleaked path: {root}/private.md\n",
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        [
+            "feedback",
+            "issue",
+            "create",
+            exported.output.strip(),
+            "--repo",
+            "example/repo",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "再サニタイズが必要" in result.output
+
+
+def test_feedback_issue_create_writes_fallback_draft_when_gh_unavailable(
+    copy_fixture, monkeypatch
+):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "runops-project"]).exit_code == 0
+    assert (
+        runner.invoke(
+            app,
+            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+        ).exit_code
+        == 0
+    )
+    exported = runner.invoke(
+        app,
+        [
+            "feedback",
+            "export",
+            "--target",
+            "runops",
+            "--sanitize",
+            "--format",
+            "github-issue",
+        ],
+    )
+    assert exported.exit_code == 0
+
+    def fake_run(args, check, capture_output, text):
+        raise FileNotFoundError("gh")
+
+    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+
+    result = runner.invoke(
+        app,
+        [
+            "feedback",
+            "issue",
+            "create",
+            exported.output.strip(),
+            "--repo",
+            "example/repo",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Markdown下書きを書きました" in result.output
+    drafts = list(
+        (root / "harness-feedback/views/exported-feedback").glob(
+            "*github-issue-draft.md"
+        )
+    )
+    assert len(drafts) == 1
+    assert "HarnessOps はリモートIssueを自動作成しません" in drafts[0].read_text(
+        encoding="utf-8"
+    )
+
+
+def test_feedback_issue_create_writes_back_created_issue_url(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "runops-project"]).exit_code == 0
+    assert (
+        runner.invoke(
+            app,
+            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+        ).exit_code
+        == 0
+    )
+    feedback = runner.invoke(
+        app,
+        [
+            "add-feedback",
+            "--from",
+            "F0001",
+            "--target",
+            "runops",
+            "--summary",
+            "GitHub issue helper feedback",
+        ],
+    )
+    assert feedback.exit_code == 0
+    feedback_path = root / feedback.output.strip()
+    exported = runner.invoke(
+        app,
+        [
+            "feedback",
+            "export",
+            "--target",
+            "runops",
+            "--sanitize",
+            "--format",
+            "github-issue",
+        ],
+    )
+    assert exported.exit_code == 0
+
+    def fake_run(args, check, capture_output, text):
+        assert check is True
+        assert capture_output is True
+        assert text is True
+        if args[:3] == ["gh", "issue", "list"]:
+            return subprocess.CompletedProcess(
+                args=args, returncode=0, stdout="[]", stderr=""
+            )
+        if args[:3] == ["gh", "issue", "create"]:
+            return subprocess.CompletedProcess(
+                args=args,
+                returncode=0,
+                stdout="https://github.com/example/repo/issues/9\n",
+                stderr="",
+            )
+        raise AssertionError(f"unexpected gh call: {args}")
+
+    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+
+    result = runner.invoke(
+        app,
+        [
+            "feedback",
+            "issue",
+            "create",
+            exported.output.strip(),
+            "--repo",
+            "example/repo",
+            "--confirm-create",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "GitHub Issueを作成しました" in result.output
+    frontmatter, _ = read_record(feedback_path)
+    assert frontmatter["issue"] == {
+        "provider": "github",
+        "repo": "example/repo",
+        "url": "https://github.com/example/repo/issues/9",
+    }
 
 
 def test_add_failure_rejects_invalid_disposition(copy_fixture, monkeypatch):
