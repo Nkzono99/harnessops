@@ -106,6 +106,26 @@ def validate_record(path: Path) -> list[str]:
     return errors
 
 
+def _validate_unique_improvement_sources(project: Project) -> list[str]:
+    errors: list[str] = []
+    seen: dict[str, Path] = {}
+    for path in sorted((project.overlay_dir / "improvements").glob("IMP*.md")):
+        frontmatter, _ = read_record(path)
+        if frontmatter.get("record_type") != "improvement_dossier":
+            continue
+        source_feedback = frontmatter.get("source_feedback")
+        if not source_feedback:
+            continue
+        source_key = str(source_feedback)
+        if source_key in seen:
+            first = seen[source_key].relative_to(project.root).as_posix()
+            second = path.relative_to(project.root).as_posix()
+            errors.append(f"duplicate improvement dossier source_feedback {source_key}: {first}, {second}")
+        else:
+            seen[source_key] = path
+    return errors
+
+
 def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -138,4 +158,7 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     if check_records and project.overlay_dir.exists():
         for path in project.overlay_dir.glob("records/**/*.md"):
             errors.extend(validate_record(path))
+        for path in sorted((project.overlay_dir / "improvements").glob("IMP*.md")):
+            errors.extend(validate_record(path))
+        errors.extend(_validate_unique_improvement_sources(project))
     return {"ok": not errors, "errors": errors, "warnings": warnings}

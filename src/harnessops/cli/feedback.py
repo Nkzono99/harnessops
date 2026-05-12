@@ -283,7 +283,7 @@ def _write_fallback_issue_draft(bundle_path: Path, title: str, body: str) -> Pat
             f"{bundle_path.stem}-github-issue-draft-{index}.md"
         )
         index += 1
-    candidate.write_text(f"# {title}\n\n{body.strip()}\n", encoding="utf-8")
+    candidate.write_text(f"# {title}\n\n{body.strip()}\n", encoding="utf-8", newline="\n")
     return candidate
 
 
@@ -361,7 +361,7 @@ def _write_issue_url_to_records(
                 frontmatter["links"] = {"issue_url": url}
         else:
             continue
-        path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+        path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
         updated += 1
     refresh_views(root, project.overlay_path)
     return updated
@@ -489,7 +489,7 @@ def export_feedback(
         + bundle_body
     )
     out_path = out_dir / f"{export_id}-{export_target}-feedback.md"
-    out_path.write_text(text, encoding="utf-8")
+    out_path.write_text(text, encoding="utf-8", newline="\n")
     refresh_views(root, project.overlay_path)
     typer.echo(out_path.relative_to(root).as_posix())
 

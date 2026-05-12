@@ -2,7 +2,7 @@
 id: IMP0009
 record_type: improvement_dossier
 created_at: '2026-05-13T02:03:24+09:00'
-updated_at: '2026-05-13T02:03:25+09:00'
+updated_at: '2026-05-13T02:22:13+09:00'
 status: active
 source_type: dry-run
 scope: harnessops-core
@@ -22,14 +22,8 @@ guard:
 investigation:
 - created_at: '2026-05-13T02:03:24+09:00'
   kind: external-benchmark
-  summary: 'External practices suggest the research result should be more structured
-    than a prose note: SRE postmortem tooling captures sections/tables for repository
-    analysis; Open Practice Library experiment design requires explicit hypothesis,
-    current condition, target condition, pass, measures, and learning; Technology
-    Radar uses visible maturity rings that can move over time.'
-  evidence_ref: https://sre.google/workbook/postmortem-culture/ ;
-    https://openpracticelibrary.com/practice/design-of-experiments/ ;
-    https://www.thoughtworks.com/radar/faq
+  summary: 'External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, current condition, target condition, pass, measures, and learning; Technology Radar uses visible maturity rings that can move over time.'
+  evidence_ref: https://sre.google/workbook/postmortem-culture/ ; https://openpracticelibrary.com/practice/design-of-experiments/ ; https://www.thoughtworks.com/radar/faq
 links:
   issue_url:
 ---
@@ -72,7 +66,7 @@ Add a lightweight structured research-scan record or command, for example a lab 
 
 ## Investigation
 
-- 2026-05-13T02:03:24+09:00 [external-benchmark] External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, current condition, target condition, pass, measures, and learning; Technology Radar uses visible maturity rings that can move over time.
+- 2026-05-13T02:03:24+09:00 [external-benchmark] External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, current condition, target condition, pass, measures, and learning; Technology Radar uses visible maturity rings that can move over time. (evidence: https://sre.google/workbook/postmortem-culture/ ; https://openpracticelibrary.com/practice/design-of-experiments/ ; https://www.thoughtworks.com/radar/faq)
 
 ## Evaluation
 

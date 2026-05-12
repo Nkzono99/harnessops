@@ -20,13 +20,14 @@ def safe_load(text: str) -> Any:
 
 def safe_dump(data: Any, *, sort_keys: bool = False, allow_unicode: bool = False) -> str:
     if _pyyaml is not None:
-        return _pyyaml.safe_dump(data, sort_keys=sort_keys, allow_unicode=allow_unicode)
+        return _pyyaml.safe_dump(data, sort_keys=sort_keys, allow_unicode=allow_unicode, width=4096)
     from ruamel.yaml import YAML
 
     output = StringIO()
     dumper = YAML()
     dumper.default_flow_style = False
     dumper.allow_unicode = allow_unicode
+    dumper.width = 4096
     if sort_keys:
         data = _sort_mapping(data)
     dumper.dump(data, output)

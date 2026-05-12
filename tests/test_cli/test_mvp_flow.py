@@ -1,5 +1,6 @@
 import json
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 
 try:
     import tomllib
@@ -12,7 +13,8 @@ from harnessops.cli import feedback as feedback_cli
 from harnessops.cli.main import app
 from harnessops.core.agent_bridge import packaged_bridge_files
 from harnessops.core.lock import sha256_file
-from harnessops.core.records import read_record
+from harnessops.core.project import load_project
+from harnessops.core.records import create_or_update_improvement_dossier, dump_record, read_record
 
 
 runner = CliRunner()
@@ -457,6 +459,7 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     assert frontmatter["investigation"][0]["kind"] == "external-benchmark"
     assert "## Investigation" in updated_text
     assert "Compared with an external improvement loop" in updated_text
+    assert "evidence: docs/design-principles.md" in updated_text
     view = (root / "harness-lab/views/improvements.md").read_text(encoding="utf-8")
     assert "maturity=investigated" in view
     assert "promotion=target-lab-case" in view
@@ -464,6 +467,60 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     second = run_cli(["lab", "dossier", "--from", "FB0001"])
 
     assert second.output.strip() == result.output.strip()
+
+
+def test_parallel_lab_dossier_creation_is_source_feedback_idempotent(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Concurrent dossier calls duplicate records",
+            "--summary",
+            "Parallel lab commands should not create two dossiers for one feedback record.",
+            "--expected-change",
+            "Dossier creation is source-feedback-idempotent.",
+        ]
+    )
+    project = load_project(root)
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        paths = list(executor.map(lambda _: create_or_update_improvement_dossier(project, source_ref="FB0001"), range(4)))
+
+    assert {path.name for path in paths} == {paths[0].name}
+    assert len(list((root / "harness-lab/improvements").glob("IMP*.md"))) == 1
+
+
+def test_doctor_rejects_duplicate_improvement_dossier_source_feedback(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Duplicate source feedback",
+            "--summary",
+            "Duplicate improvement dossiers should be detected.",
+            "--expected-change",
+            "Doctor reports duplicate source_feedback mappings.",
+        ]
+    )
+    result = run_cli(["lab", "dossier", "--from", "FB0001"])
+    dossier_path = root / result.output.strip()
+    frontmatter, body = read_record(dossier_path)
+    frontmatter["id"] = "IMP0002"
+    duplicate_path = root / "harness-lab/improvements/IMP0002-duplicate-source-feedback.md"
+    duplicate_path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+
+    doctor = runner.invoke(app, ["doctor", "--check-overlay", "--check-records"])
+
+    assert doctor.exit_code == 1
+    assert "duplicate improvement dossier source_feedback FB0001" in doctor.output
 
 
 def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):
@@ -542,3 +599,50 @@ expected
     result = run_cli(["eval", "--experiment", "X0001", "--manual", "--score", "impact=3"])
 
     assert "eval-results/E0001-manual-score.yml" in result.output
+
+
+def test_eval_case_lookup_prefers_record_over_generated_eval_view(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+    eval_path = root / "harness-lab/records/eval-cases/E0001-example.md"
+    eval_path.write_text(
+        """---
+id: E0001
+record_type: eval_case
+created_at: 2026-05-12T00:00:00+09:00
+status: active
+capability: routing
+failure_class: routing_gap
+source_feedback: FB0001
+---
+
+# E0001: Example
+
+## フィクスチャ
+
+fixture
+
+## タスク
+
+task
+
+## 期待される挙動
+
+expected
+
+## 合格基準
+
+- pass
+
+## 不合格基準
+
+- fail
+""",
+        encoding="utf-8",
+    )
+
+    run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=3"])
+    second = run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=4"])
+
+    assert "eval-results/E0001-manual-score.yml" in second.output

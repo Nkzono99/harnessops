@@ -57,7 +57,7 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
     }
     yml_path = result_dir / f"{eval_id}-manual-score.yml"
     md_path = result_dir / f"{eval_id}-manual-score.md"
-    yml_path.write_text(yamlio.safe_dump(data, sort_keys=False), encoding="utf-8")
+    yml_path.write_text(yamlio.safe_dump(data, sort_keys=False), encoding="utf-8", newline="\n")
     dimensions = "\n".join(f"- {key}: {value}" for key, value in scores.items())
     md_path.write_text(
         GENERATED_MARKER
@@ -71,5 +71,6 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
         + body.strip()
         + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     return yml_path, md_path

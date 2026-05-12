@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-import re
+from contextlib import contextmanager
 from datetime import datetime, timezone
+import os
 from pathlib import Path
+import re
+import time
 from typing import Any
 
 from harnessops.core import yamlio
@@ -32,6 +35,7 @@ RECORD_DIRS = {
     "imported_feedback": "records/feedback",
     "eval_case": "records/eval-cases",
     "hypothesis": "records/hypotheses",
+    "experiment": "records/experiments",
     "decision": "records/decisions",
     "improvement_dossier": "improvements",
 }
@@ -81,10 +85,22 @@ def record_path(project: Project, record_type: str, record_id: str, title: str) 
     return project.overlay_dir / rel_dir / f"{record_id}-{slugify(title)}.md"
 
 
+def _canonical_record_dirs(record_or_path: str) -> list[Path]:
+    dirs: list[Path] = []
+    for record_type, prefix in sorted(ID_PREFIXES.items(), key=lambda item: len(item[1]), reverse=True):
+        if record_or_path.startswith(prefix):
+            dirs.append(Path(RECORD_DIRS[record_type]))
+    return dirs
+
+
 def find_record(project: Project, record_or_path: str) -> Path:
     candidate = Path(record_or_path)
     if candidate.exists():
         return candidate
+    for rel_dir in _canonical_record_dirs(record_or_path):
+        directory = project.overlay_dir / rel_dir
+        for path in sorted(directory.glob(f"{record_or_path}*.md")):
+            return path
     for path in project.overlay_dir.rglob("*.md"):
         if path.name.startswith(record_or_path):
             return path
@@ -150,7 +166,7 @@ def create_failure(
     if path.exists():
         raise FileExistsError(f"レコードは既に存在します: {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -202,7 +218,7 @@ def create_imported_feedback(project: Project, *, source_record: dict[str, Any],
 """
     path = record_path(project, "imported_feedback", record_id, title)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_record(frontmatter, record_body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, record_body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -254,7 +270,7 @@ def create_lab_feedback(
 """
     path = record_path(project, "imported_feedback", record_id, title)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_record(frontmatter, record_body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, record_body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -314,13 +330,13 @@ def create_feedback_from_failure(
 """
     path = record_path(project, record_type, record_id, feedback_title)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     links = failure_frontmatter.setdefault("links", {})
     if record_type == "meta_feedback":
         links["meta_feedback"] = record_id
     else:
         links["upstream_feedback"] = record_id
-    failure_path.write_text(dump_record(failure_frontmatter, failure_body), encoding="utf-8")
+    failure_path.write_text(dump_record(failure_frontmatter, failure_body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -365,7 +381,7 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
 - 再現に非公開文脈が必要になる。
 """
     path = record_path(project, "eval_case", record_id, title)
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -429,7 +445,7 @@ def create_hypothesis(
 {kill_criteria or "紐づく評価ケースを改善しない、プライバシーリスクを増やす、または失敗クラスを減らさずにガバナンス構造だけを追加する場合、この仮説を却下または保留する。"}
 """
     path = record_path(project, "hypothesis", record_id, title)
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -476,6 +492,41 @@ def _find_existing_dossier(project: Project, source_feedback: str) -> Path | Non
     return None
 
 
+@contextmanager
+def _dossier_source_lock(project: Project, source_feedback: str):
+    lock_dir = project.overlay_dir / ".locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = lock_dir / f"improvement-dossier-{slugify(source_feedback)}.lock"
+    stale_after_seconds = 30
+    timeout_seconds = 10
+    start = time.monotonic()
+    fd: int | None = None
+    while fd is None:
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode("ascii"))
+        except FileExistsError:
+            try:
+                age = time.time() - lock_path.stat().st_mtime
+                if age > stale_after_seconds:
+                    lock_path.unlink()
+                    continue
+            except FileNotFoundError:
+                continue
+            if time.monotonic() - start > timeout_seconds:
+                raise TimeoutError(f"dossier lock timed out: {lock_path}")
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        if fd is not None:
+            os.close(fd)
+        try:
+            lock_path.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def _dossier_defaults() -> dict[str, Any]:
     return {
         "source_type": "observation",
@@ -500,6 +551,23 @@ def _derived_maturity(decision_status: str, eval_ids: list[str], hypothesis_ids:
 
 def create_or_update_improvement_dossier(project: Project, *, source_ref: str) -> Path:
     feedback_path, feedback_frontmatter, feedback_body = _feedback_for_record(project, source_ref)
+    feedback_id = str(feedback_frontmatter.get("id"))
+    with _dossier_source_lock(project, feedback_id):
+        return _create_or_update_improvement_dossier_from_feedback(
+            project,
+            feedback_path=feedback_path,
+            feedback_frontmatter=feedback_frontmatter,
+            feedback_body=feedback_body,
+        )
+
+
+def _create_or_update_improvement_dossier_from_feedback(
+    project: Project,
+    *,
+    feedback_path: Path,
+    feedback_frontmatter: dict[str, Any],
+    feedback_body: str,
+) -> Path:
     feedback_id = str(feedback_frontmatter.get("id"))
     classification = feedback_frontmatter.get("classification", {})
     eval_records = [
@@ -649,7 +717,7 @@ Source: `{feedback_rel}`
 {linked_record_section("Decision Log", decision_records, "判断レコードはまだありません。")}
 """
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -666,6 +734,9 @@ def _format_investigation(items: Any) -> str:
             + f"[{item.get('kind', 'note')}] "
             + str(item.get("summary", "")).strip()
         )
+        evidence_ref = item.get("evidence_ref")
+        if evidence_ref:
+            rows[-1] += f" (evidence: {evidence_ref})"
     return "\n".join(rows) if rows else "調査メモはまだありません。"
 
 
@@ -700,7 +771,7 @@ def update_improvement_dossier_metadata(
         guard["status"] = guard_status
     if guard_path:
         guard["path"] = guard_path
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return create_or_update_improvement_dossier(project, source_ref=str(frontmatter["source_feedback"]))
 
 
@@ -728,7 +799,7 @@ def add_improvement_investigation(
     )
     if frontmatter.get("maturity") == "raw":
         frontmatter["maturity"] = "investigated"
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return create_or_update_improvement_dossier(project, source_ref=str(frontmatter["source_feedback"]))
 
 
@@ -781,5 +852,5 @@ def create_decision(
 {guard_path or "ガードパスは指定されていません。非採用判断では省略できますが、採用済み判断では必須です。"}
 """
     path = record_path(project, "decision", record_id, title)
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path

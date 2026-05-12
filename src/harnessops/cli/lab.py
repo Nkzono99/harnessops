@@ -223,7 +223,7 @@ def _write_issue_url(path: Path, frontmatter: dict, body: str, *, repo: str, url
         frontmatter["links"] = links
     links["issue_url"] = url
     links["issue_repo"] = repo
-    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
 
 
 def _write_lab_issue_url(root: Path, project, source_path: Path, repo: str, url: str) -> int:
@@ -256,7 +256,7 @@ def issue_draft(
     project = load_project(root)
     source_path, _, issue_title, body = _lab_issue_body(root, project, from_id, title)
     draft_path = _lab_issue_draft_path(project, source_path)
-    draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8")
+    draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8", newline="\n")
     typer.echo("Issue title:")
     typer.echo(issue_title)
     typer.echo("\nIssue body:")
@@ -285,7 +285,7 @@ def issue_create(
     duplicates, search_error = _search_duplicate_issues(repo, issue_title)
     if search_error:
         draft_path = _lab_issue_draft_path(project, source_path)
-        draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8")
+        draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8", newline="\n")
         typer.echo(f"\n重複検索をスキップしました: {search_error}")
         typer.echo(f"Markdown下書きを書きました: {draft_path.relative_to(root).as_posix()}")
         if confirm_create:

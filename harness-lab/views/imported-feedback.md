@@ -15,3 +15,4 @@
 - `FB0012` triaged meta_improvement_research missing_research_skill
 - `FB0013` triaged meta_improvement_research unstructured_research_scan_results
 - `FB0014` triaged lab_record_consistency duplicate_improvement_dossier_race
+- `FB0015` triaged record_lookup generated_view_shadowed_record_id
