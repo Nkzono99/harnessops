@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-13T03:20:55+09:00'
+updated_at: '2026-05-13T03:38:14+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,18 +9,19 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 143
-    byte_count: 237678
-    record_count: 66
+    file_count: 152
+    byte_count: 253630
+    record_count: 70
     feedback_count: 17
-    eval_case_count: 16
-    hypothesis_count: 16
-    decision_count: 17
+    eval_case_count: 17
+    hypothesis_count: 17
+    decision_count: 18
+    research_scan_count: 1
     improvement_count: 13
-    manual_eval_count: 16
+    manual_eval_count: 17
   triggers: []
 sources:
-  source_digest: 09a5c34cd2a64170b02de38557677837c4b5334b4018287457ba773369b77c7e
+  source_digest: 23d26796b16ad6759d1f087546bebe4132d5d7ed77d88ec1c06eca01973b2d65
   improvements:
   - IMP0001
   - IMP0002
@@ -39,8 +40,7 @@ knowledge:
   summary:
     improvement_count: 13
     status_counts:
-      active: 1
-      adopted: 12
+      adopted: 13
     capability_count: 10
   capabilities:
   - capability: github_issue_import
@@ -241,16 +241,25 @@ knowledge:
       improvements:
       - IMP0009
       status_counts:
-        active: 1
-      average_scores: {}
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 3.0
       guards:
       - source: IMP0009
-        status: planned
-        path: tests/test_agent_harness_contract.py
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
       lessons:
       - source: IMP0009
-        status: active
-        lesson: 'External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, curr...'
+        status: adopted
+        lesson: Research scans now persist deliberate meta-improvement research as RS records with structured evidence, candidates, relation, recommendation, next command, and a generated view. The implementation keeps existing investigate/capture/propose actions as downstre...
   - capability: record_lookup
     failure_classes:
     - failure_class: generated_view_shadowed_record_id
@@ -306,6 +315,21 @@ knowledge:
       - source: IMP0004
         status: adopted
         lesson: 'Implemented lab-first GitHub issue promotion: hops lab issue draft/create --from <FB/E/H/D/IMP> builds a sanitized issue body from the generated dossier, writes local markdown drafts, searches duplicates, requires --confirm-create for remote creation, and wri...'
+  research_scans:
+  - id: RS0001
+    title: 'RS0001: Structure meta improvement research scan outputs'
+    path: harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md
+    status: captured
+    scope: harnessops-core deliberate meta improvement research
+    capability: meta_improvement_research
+    failure_class: unstructured_research_scan_results
+    recommendation: 'adopt: use research-scan for deliberate multi-candidate meta-improvement research before routing candidates to investigate/capture/propose/park/reject.'
+    candidate_count: 1
+    candidates:
+    - title: Add RS research_scan record and view
+      relation: extends
+      recommendation: propose
+      next_command: hops lab new-eval-case --from FB0013
   guard_index:
   - source: IMP0006
     capability: improvement_loop_design
@@ -325,8 +349,8 @@ knowledge:
   - source: IMP0009
     capability: meta_improvement_research
     failure_class: unstructured_research_scan_results
-    status: planned
-    path: tests/test_agent_harness_contract.py
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
   - source: IMP0011
     capability: lab_record_consistency
     failure_class: duplicate_improvement_dossier_race
@@ -370,9 +394,4 @@ knowledge:
     summary: MemGPT and recent agent-memory surveys emphasize hierarchical context, write-manage-read loops, contradiction handling, privacy, and learned forgetting; HarnessOps compaction should be deterministic, source-linked, local, and reviewable.
     evidence_ref: https://arxiv.org/abs/2310.08560; https://arxiv.org/abs/2603.07670
   contradiction_watch: []
-  open_questions:
-  - source: IMP0009
-    maturity: investigated
-    status: active
-    next: evaluation-or-decision-needed
-    path: harness-lab/improvements/IMP0009-fb0013-structure-meta-improvement-research-scan-outputs.md
+  open_questions: []

@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-13T03:20:55+09:00
+- updated_at: 2026-05-13T03:38:14+09:00
 - mode: forced
 - triggers: forced-or-none
-- file_count: 143 / threshold 256
-- byte_count: 237678 / threshold 2000000
+- file_count: 152 / threshold 256
+- byte_count: 253630 / threshold 2000000
 - improvement_count: 13 / threshold 50
-- source_digest: `09a5c34cd2a64170b02de38557677837c4b5334b4018287457ba773369b77c7e`
+- source_digest: `23d26796b16ad6759d1f087546bebe4132d5d7ed77d88ec1c06eca01973b2d65`
 
 ## How To Use
 
@@ -85,10 +85,10 @@
 
 #### unstructured_research_scan_results
 - sources: `IMP0009`
-- status_counts: active=1
-- average_scores: none
-- guards: IMP0009:planned:tests/test_agent_harness_contract.py
-- lesson IMP0009 (active): External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, curr...
+- status_counts: adopted=1
+- average_scores: anti_theater=4.0, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=4.0, operator_burden=4.0, privacy_sanitization_risk=5.0, regression_risk=3.0
+- guards: IMP0009:implemented:tests/test_cli/test_mvp_flow.py
+- lesson IMP0009 (adopted): Research scans now persist deliberate meta-improvement research as RS records with structured evidence, candidates, relation, recommendation, next command, and a generated view. The implementation keeps existing investigate/capture/propose actions as downstre...
 
 ### record_lookup
 #### generated_view_shadowed_record_id
@@ -112,11 +112,15 @@
 - `IMP0006` improvement_loop_design/ambiguous_improvement_workflow: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0007` meta_hypothesis_scan/missed_second_order_observation: implemented tests/test_agent_harness_contract.py
 - `IMP0008` meta_improvement_research/missing_research_skill: implemented tests/test_agent_harness_contract.py
-- `IMP0009` meta_improvement_research/unstructured_research_scan_results: planned tests/test_agent_harness_contract.py
+- `IMP0009` meta_improvement_research/unstructured_research_scan_results: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0011` lab_record_consistency/duplicate_improvement_dossier_race: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0012` record_lookup/generated_view_shadowed_record_id: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0013` lab_evaluation_review/eval_template_noise_in_dossier: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0014` lab_memory_compaction/record_sprawl_without_knowledge_consolidation: implemented tests/test_cli/test_mvp_flow.py
+
+## Research Scans
+
+- `RS0001` meta_improvement_research/unstructured_research_scan_results: adopt: use research-scan for deliberate multi-candidate meta-improvement research before routing candidates to investigate/capture/propose/park/reject. (1 candidates)
 
 ## External Evidence
 
@@ -134,7 +138,7 @@
 
 ## Open Questions
 
-- `IMP0009` status=active maturity=investigated: evaluation-or-decision-needed
+未判断の改善テーマはありません。
 
 ## Curator Notes
 <!-- harnessops:curator-notes:start -->

@@ -20,6 +20,7 @@ ID_PREFIX_BY_TYPE = {
     "experiment": "X",
     "decision": "D",
     "improvement_dossier": "IMP",
+    "research_scan": "RS",
 }
 
 REQUIRED_SECTIONS = {
@@ -39,6 +40,7 @@ REQUIRED_SECTIONS = {
         "中止基準",
     ],
     "decision": ["判断", "理由", "証拠", "回帰リスク", "フォローアップ", "回帰ガード"],
+    "research_scan": ["Scope", "Evidence", "Candidates", "Recommendation", "Next Commands"],
     "improvement_dossier": [
         "Status",
         "Source Observation",
@@ -94,6 +96,10 @@ def validate_record(path: Path) -> list[str]:
             evidence = frontmatter.get("evidence", {})
             if not evidence.get("summary") or not evidence.get("guard_path"):
                 errors.append(f"{path}: adopted decision には evidence summary と guard_path が必要です")
+    if record_type == "research_scan":
+        for key in ["scope", "classification", "evidence", "candidates", "recommendation"]:
+            if key not in frontmatter:
+                errors.append(f"{path}: research scan に {key} がありません")
     if record_type == "improvement_dossier":
         for key in ["source_feedback", "maturity", "scope", "promotion_level", "classification"]:
             if key not in frontmatter:
@@ -138,7 +144,15 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     required_dirs = (
         ["records/failures", "records/local-workarounds", "records/upstream-feedback", "records/meta-feedback", "views"]
         if project.overlay_mode in {"feedback-source", "local-and-feedback"}
-        else ["records/feedback", "records/eval-cases", "records/hypotheses", "records/experiments", "records/decisions", "views"]
+        else [
+            "records/feedback",
+            "records/eval-cases",
+            "records/hypotheses",
+            "records/experiments",
+            "records/decisions",
+            "records/research-scans",
+            "views",
+        ]
     )
     for rel in required_dirs:
         if not (project.overlay_dir / rel).exists():

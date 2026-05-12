@@ -21,6 +21,7 @@ description: HarnessOps のメタ改善案を調査するときに使う。コ�
 ```bash
 hops lab investigate --from IMP0001 --kind external-benchmark --summary "<比較結果>" --evidence-ref "<url-or-path>"
 hops lab classify --from IMP0001 --source-type external-benchmark --scope harnessops-core --maturity investigated --relation extends
+hops lab research-scan --title "<title>" --scope "<scope>" --capability "<capability>" --failure-class "<failure>" --candidate "<candidate>|<relation>|<recommendation>|<next command>" --recommendation "<recommendation>"
 hops lab capture --title "<title>" --summary "<observation>" --expected-change "<expected>"
 hops lab new-eval-case --from FB0001
 hops lab compact --force
@@ -35,6 +36,8 @@ hops propose --from E0001 --hypothesis "<hypothesis>" --mechanism "<mechanism>" 
 - Evidence: local path、コード上の根拠、外部URL、反例。
 - Candidates: 改善候補、既存テーマとの relation、推奨コマンド。
 - Recommendation: note、classify、capture、propose、park、reject のどれにするか。
+
+複数候補があり、後からルーティングや比較評価に戻りそうな場合は、回答だけで終えず `hops lab research-scan` を使う。`--local-evidence`、`--codebase-evidence`、`--external-benchmark`、`--risk` は `summary|ref`、`--candidate` は `title|relation|recommendation|next command` の形で渡す。
 
 ## 判断基準
 

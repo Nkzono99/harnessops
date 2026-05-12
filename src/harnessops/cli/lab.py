@@ -24,6 +24,7 @@ from harnessops.core.records import (
     create_eval_case,
     create_lab_feedback,
     create_or_update_improvement_dossier,
+    create_research_scan,
     dump_record,
     find_record,
     read_record,
@@ -157,6 +158,44 @@ def investigate(
         summary=summary,
         kind=kind,
         evidence_ref=evidence_ref,
+    )
+    refresh_views(root, project.overlay_path)
+    typer.echo(path.relative_to(root).as_posix())
+
+
+@lab_app.command("research-scan")
+def research_scan(
+    title: str = typer.Option(..., "--title"),
+    scope: str = typer.Option(..., "--scope"),
+    capability: str = typer.Option("unclassified", "--capability"),
+    failure_class: str = typer.Option("unclassified", "--failure-class"),
+    existing_dossier: str | None = typer.Option(None, "--existing-dossier"),
+    local_evidence: list[str] = typer.Option(None, "--local-evidence"),
+    codebase_evidence: list[str] = typer.Option(None, "--codebase-evidence"),
+    external_benchmark: list[str] = typer.Option(None, "--external-benchmark"),
+    risk: list[str] = typer.Option(None, "--risk"),
+    candidate: list[str] = typer.Option(None, "--candidate"),
+    recommendation: str = typer.Option(..., "--recommendation"),
+) -> None:
+    """メタ改善調査の結果を構造化した research scan として保存します。"""
+    root = find_root()
+    project = load_project(root)
+    if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
+        typer.echo("lab research-scan には upstream-lab または meta-lab mode が必要です")
+        raise typer.Exit(1)
+    path = create_research_scan(
+        project,
+        title=title,
+        scope=scope,
+        capability=capability,
+        failure_class=failure_class,
+        existing_dossier=existing_dossier,
+        local_evidence=local_evidence or [],
+        codebase_evidence=codebase_evidence or [],
+        external_benchmark=external_benchmark or [],
+        risk=risk or [],
+        candidate=candidate or [],
+        recommendation=recommendation,
     )
     refresh_views(root, project.overlay_path)
     typer.echo(path.relative_to(root).as_posix())

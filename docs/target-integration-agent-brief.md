@@ -217,7 +217,7 @@ harness-lab/knowledge/
 harness-lab/views/
 ```
 
-`harness-lab/` は上流改善の評価と判断の記憶です。通常のタスク管理はGitHub Issuesなど既存の仕組みに残します。lab が大きくなったら `hops lab compact` または `hops lab compact --force` で、records/dossier を残したまま `harness-lab/knowledge/` の作業記憶を更新します。
+`harness-lab/` は上流改善の評価と判断の記憶です。通常のタスク管理はGitHub Issuesなど既存の仕組みに残します。メタ改善調査で複数候補が出た場合は `hops lab research-scan` で evidence、candidate、recommendation、next command を構造化します。lab が大きくなったら `hops lab compact` または `hops lab compact --force` で、records/dossier を残したまま `harness-lab/knowledge/` の作業記憶を更新します。
 外部バンドルや issue がまだないローカル改善観測は、`hops lab capture --title <title> --summary <summary> --expected-change <expected>` で `FB` レコードにしてから、評価ケース、仮説、判断へ進めます。
 
 ## プライバシー設定

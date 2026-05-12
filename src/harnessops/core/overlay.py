@@ -48,6 +48,7 @@ LAB_README = """# harness-lab
 - メカニズムと中止基準を持つ改善仮説
 - 実験と評価スコアカード
 - 証拠を伴う採用/却下判断
+- メタ改善調査の構造化 research scan
 - 一定サイズを超えた lab から圧縮した mutable knowledge layer
 
 GitHub Issues は引き続きタスクトラッカーです。`harness-lab/` は評価と判断の記憶です。
@@ -135,6 +136,7 @@ def overlay_dirs(overlay_mode: str) -> list[str]:
         "records/hypotheses",
         "records/experiments",
         "records/decisions",
+        "records/research-scans",
         "improvements",
         "knowledge",
         "views",
@@ -154,6 +156,7 @@ def generated_overlay_files(overlay_mode: str, overlay_rel: str) -> dict[str, st
         f"{overlay_rel}/views/imported-feedback.md": GENERATED_MARKER + "# インポート済みフィードバック\n\nインポート済みフィードバックレコードはまだありません。\n",
         f"{overlay_rel}/views/backlog.md": GENERATED_MARKER + "# バックログ\n\n評価ケースのない受理済みフィードバックはありません。\n",
         f"{overlay_rel}/views/improvements.md": GENERATED_MARKER + "# 改善dossier\n\n改善dossierはまだありません。\n",
+        f"{overlay_rel}/views/research-scans.md": GENERATED_MARKER + "# Research scans\n\nresearch scan はまだありません。\n",
         f"{overlay_rel}/views/score-trajectory.md": GENERATED_MARKER + "# スコア推移\n\nスコア履歴はまだありません。\n",
     }
 

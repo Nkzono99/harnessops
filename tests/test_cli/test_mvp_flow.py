@@ -477,6 +477,59 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     assert second.output.strip() == result.output.strip()
 
 
+def test_lab_research_scan_records_structured_candidates(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    result = run_cli(
+        [
+            "lab",
+            "research-scan",
+            "--title",
+            "Structure meta improvement research scan outputs",
+            "--scope",
+            "harnessops-core meta improvement research",
+            "--capability",
+            "meta_improvement_research",
+            "--failure-class",
+            "unstructured_research_scan_results",
+            "--existing-dossier",
+            "IMP0009",
+            "--local-evidence",
+            "Dry run produced useful candidates only in chat prose|harness-lab/improvements/IMP0009.md",
+            "--codebase-evidence",
+            "Research skill asks for candidates but has no structured artifact command|.agents/skills/hops-research-improvements/SKILL.md",
+            "--external-benchmark",
+            "Postmortem and experiment practices preserve structured action items and learning|https://sre.google/workbook/postmortem-culture/",
+            "--risk",
+            "Too many speculative records would create meta-noise|docs/design-principles.md",
+            "--candidate",
+            "Add research scan record|extends|propose|hops lab new-eval-case --from FB0001",
+            "--recommendation",
+            "propose structured research scan support before converting candidates to lab actions.",
+        ]
+    )
+
+    scan_path = root / result.output.strip()
+    frontmatter, body = read_record(scan_path)
+    assert frontmatter["id"] == "RS0001"
+    assert frontmatter["record_type"] == "research_scan"
+    assert frontmatter["classification"]["capability"] == "meta_improvement_research"
+    assert frontmatter["evidence"]["codebase"][0]["ref"] == ".agents/skills/hops-research-improvements/SKILL.md"
+    assert frontmatter["candidates"][0]["relation"] == "extends"
+    assert frontmatter["candidates"][0]["next_command"] == "hops lab new-eval-case --from FB0001"
+    assert "## Candidates" in body
+    assert "| Add research scan record | extends | propose | hops lab new-eval-case --from FB0001 |" in body
+    assert "## Next Commands" in body
+
+    view = (root / "harness-lab/views/research-scans.md").read_text(encoding="utf-8")
+    assert "RS0001" in view
+    assert "meta_improvement_research unstructured_research_scan_results" in view
+    doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "警告" not in doctor.output
+
+
 def test_lab_compact_force_writes_mutable_knowledge(copy_fixture, monkeypatch):
     root = copy_fixture("harnessops-core-minimal")
     monkeypatch.chdir(root)

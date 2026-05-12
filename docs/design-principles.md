@@ -219,13 +219,14 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 
 | 出力 | 意味 |
 |---|---|
+| `hops lab research-scan` | 複数候補を含むメタ改善調査結果を、scope、evidence、candidate、relation、recommendation、next command 付きの `RS` レコードにする。 |
 | `hops lab investigate` | 既存 dossier へコード調査、外部比較、反例、追加観測を足す。 |
 | `hops lab classify` | maturity、relation、promotion、guard を更新する。 |
 | `hops lab capture` | 既存 dossier に入らない新しい failure class や cross-project pattern を記録する。 |
 | `hops lab new-eval-case` + `hops propose` | 評価可能な改善仮説へ進める。 |
 | `park` / `reject` | 証拠不足、過剰一般化、評価不能、既存構造で足りるものを増殖させない。 |
 
-手動調査は非定期に行います。定期実行だけにすると棚卸し儀式になりやすいため、強い発火条件、release前、または人間の依頼で起動します。将来的に自動化する場合も、即実装や即Issue化ではなく、まず候補一覧と lab への追記案を出すだけに留めます。
+手動調査は非定期に行います。定期実行だけにすると棚卸し儀式になりやすいため、強い発火条件、release前、または人間の依頼で起動します。将来的に自動化する場合も、即実装や即Issue化ではなく、まず `research-scan` として候補一覧と lab への追記案を出すだけに留めます。
 
 ## 3種類の改善を混ぜない
 

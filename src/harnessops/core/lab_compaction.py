@@ -38,6 +38,7 @@ def lab_metrics(project: Project) -> dict[str, int]:
         "eval_case_count": len(list((overlay / "records/eval-cases").glob("E*.md"))),
         "hypothesis_count": len(list((overlay / "records/hypotheses").glob("H*.md"))),
         "decision_count": len(list((overlay / "records/decisions").glob("D*.md"))),
+        "research_scan_count": len(list((overlay / "records/research-scans").glob("RS*.md"))),
         "improvement_count": len(list((overlay / "improvements").glob("IMP*.md"))),
         "manual_eval_count": len(list((overlay / "views/eval-results").glob("E*-manual-score.yml"))),
     }
@@ -238,6 +239,42 @@ def _capability_knowledge(improvements: list[dict[str, Any]]) -> list[dict[str, 
     return capabilities
 
 
+def _collect_research_scans(project: Project) -> list[dict[str, Any]]:
+    scans: list[dict[str, Any]] = []
+    for path in sorted((project.overlay_dir / "records/research-scans").glob("RS*.md")):
+        frontmatter, body = read_record(path)
+        classification = frontmatter.get("classification", {})
+        if not isinstance(classification, dict):
+            classification = {}
+        candidates = frontmatter.get("candidates", [])
+        if not isinstance(candidates, list):
+            candidates = []
+        scans.append(
+            {
+                "id": str(frontmatter.get("id")),
+                "title": _record_heading(body, path.stem),
+                "path": path.relative_to(project.root).as_posix(),
+                "status": str(frontmatter.get("status", "captured")),
+                "scope": str(frontmatter.get("scope", "")),
+                "capability": str(classification.get("capability", "unclassified")),
+                "failure_class": str(classification.get("failure_class", "unclassified")),
+                "recommendation": _one_line(frontmatter.get("recommendation"), limit=260),
+                "candidate_count": len(candidates),
+                "candidates": [
+                    {
+                        "title": _one_line(item.get("title"), limit=160),
+                        "relation": item.get("relation"),
+                        "recommendation": item.get("recommendation"),
+                        "next_command": item.get("next_command"),
+                    }
+                    for item in candidates
+                    if isinstance(item, dict)
+                ],
+            }
+        )
+    return scans
+
+
 def _build_knowledge(
     project: Project,
     *,
@@ -247,6 +284,7 @@ def _build_knowledge(
     mode: str,
 ) -> dict[str, Any]:
     improvements = _collect_improvements(project)
+    research_scans = _collect_research_scans(project)
     status_counts = Counter(item["status"] for item in improvements)
     guard_index = [
         {
@@ -307,6 +345,7 @@ def _build_knowledge(
                 "capability_count": len({item["capability"] for item in improvements}),
             },
             "capabilities": _capability_knowledge(improvements),
+            "research_scans": research_scans,
             "guard_index": guard_index,
             "external_evidence": external_evidence,
             "contradiction_watch": contradiction_watch,
@@ -384,6 +423,15 @@ def _render_markdown(data: dict[str, Any], curator_notes: str) -> str:
             )
     else:
         parts.append("ガード付きの改善はまだありません。")
+    parts.append("\n## Research Scans\n")
+    if knowledge.get("research_scans"):
+        for scan in knowledge["research_scans"]:
+            parts.append(
+                f"- `{scan['id']}` {scan['capability']}/{scan['failure_class']}: "
+                f"{scan['recommendation']} ({scan['candidate_count']} candidates)"
+            )
+    else:
+        parts.append("research scan はまだありません。")
     parts.append("\n## External Evidence\n")
     if knowledge["external_evidence"]:
         for evidence in knowledge["external_evidence"]:

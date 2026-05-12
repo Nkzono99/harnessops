@@ -188,6 +188,7 @@ def test_lab_capture_contract_is_documented() -> None:
     for path in docs:
         assert "hops lab capture" in path.read_text(encoding="utf-8")
         assert "hops lab compact" in path.read_text(encoding="utf-8")
+        assert "hops lab research-scan" in path.read_text(encoding="utf-8")
     for host in ("codex", "claude"):
         text = (ROOT / f"plugins/{host}/harnessops/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
         assert "hops lab capture" in text
@@ -204,6 +205,7 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
     assert "rg" in repo_skill
     assert "hops lab investigate" in repo_skill
     assert "hops lab classify" in repo_skill
+    assert "hops lab research-scan" in repo_skill
     assert "hops lab capture" in repo_skill
     assert "hops propose" in repo_skill
     assert "メタ仮説スキャン" in repo_skill

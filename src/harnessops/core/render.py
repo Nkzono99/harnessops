@@ -83,5 +83,24 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             newline="\n",
         )
         written.append(improvements_view)
+        research_rows = []
+        for path in sorted((overlay / "records/research-scans").glob("RS*.md")):
+            frontmatter, _ = read_record(path)
+            classification = frontmatter.get("classification", {})
+            recommendation = str(frontmatter.get("recommendation", "")).replace("\n", " ")
+            research_rows.append(
+                f"- `{frontmatter.get('id')}` {frontmatter.get('status')} "
+                f"{classification.get('capability')} {classification.get('failure_class')} "
+                f"scope={frontmatter.get('scope')} recommendation={recommendation}\n"
+            )
+        research_view = overlay / "views" / "research-scans.md"
+        research_view.write_text(
+            GENERATED_MARKER
+            + "# Research scans\n\n"
+            + ("".join(research_rows) or "research scan はまだありません。\n"),
+            encoding="utf-8",
+            newline="\n",
+        )
+        written.append(research_view)
     _refresh_managed_hashes(root, written)
     return written

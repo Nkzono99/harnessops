@@ -24,6 +24,7 @@ ID_PREFIXES = {
     "experiment": "X",
     "decision": "D",
     "improvement_dossier": "IMP",
+    "research_scan": "RS",
 }
 
 
@@ -38,6 +39,7 @@ RECORD_DIRS = {
     "experiment": "records/experiments",
     "decision": "records/decisions",
     "improvement_dossier": "improvements",
+    "research_scan": "records/research-scans",
 }
 
 
@@ -289,6 +291,155 @@ def create_lab_feedback(
     path = record_path(project, "imported_feedback", record_id, title)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(dump_record(frontmatter, record_body), encoding="utf-8", newline="\n")
+    return path
+
+
+def _split_structured_option(value: str, field_count: int) -> list[str]:
+    parts = [part.strip() for part in value.split("|")]
+    if len(parts) > field_count:
+        head = parts[: field_count - 1]
+        tail = "|".join(parts[field_count - 1 :]).strip()
+        parts = [*head, tail]
+    return [*parts, *([""] * (field_count - len(parts)))]
+
+
+def _parse_evidence_items(values: list[str]) -> list[dict[str, str | None]]:
+    items: list[dict[str, str | None]] = []
+    for value in values:
+        summary, ref = _split_structured_option(value, 2)
+        if summary:
+            items.append({"summary": summary, "ref": ref or None})
+    return items
+
+
+def _parse_candidate_items(values: list[str]) -> list[dict[str, str | None]]:
+    items: list[dict[str, str | None]] = []
+    for value in values:
+        title, relation, recommendation, next_command = _split_structured_option(value, 4)
+        if title:
+            items.append(
+                {
+                    "title": title,
+                    "relation": relation or "new",
+                    "recommendation": recommendation or "note",
+                    "next_command": next_command or None,
+                }
+            )
+    return items
+
+
+def _format_evidence_group(items: list[dict[str, str | None]]) -> str:
+    if not items:
+        return "- なし"
+    rows = []
+    for item in items:
+        ref = item.get("ref")
+        suffix = f" (ref: {ref})" if ref else ""
+        rows.append(f"- {item.get('summary')}{suffix}")
+    return "\n".join(rows)
+
+
+def _format_candidate_table(items: list[dict[str, str | None]]) -> str:
+    if not items:
+        return "候補は記録されていません。"
+    rows = ["| candidate | relation | recommendation | next_command |", "|---|---|---|---|"]
+    for item in items:
+        rows.append(
+            "| "
+            + f"{item.get('title')} | "
+            + f"{item.get('relation')} | "
+            + f"{item.get('recommendation')} | "
+            + f"{item.get('next_command') or ''} |"
+        )
+    return "\n".join(rows)
+
+
+def create_research_scan(
+    project: Project,
+    *,
+    title: str,
+    scope: str,
+    capability: str,
+    failure_class: str,
+    existing_dossier: str | None,
+    local_evidence: list[str],
+    codebase_evidence: list[str],
+    external_benchmark: list[str],
+    risk: list[str],
+    candidate: list[str],
+    recommendation: str,
+) -> Path:
+    directory = project.overlay_dir / "records/research-scans"
+    record_id = next_id(directory, "RS")
+    evidence = {
+        "local": _parse_evidence_items(local_evidence),
+        "codebase": _parse_evidence_items(codebase_evidence),
+        "external": _parse_evidence_items(external_benchmark),
+        "risk": _parse_evidence_items(risk),
+    }
+    candidates = _parse_candidate_items(candidate)
+    frontmatter = {
+        "id": record_id,
+        "record_type": "research_scan",
+        "created_at": now_iso(),
+        "status": "captured",
+        "scope": scope,
+        "existing_dossier": existing_dossier,
+        "classification": {
+            "capability": capability,
+            "failure_class": failure_class,
+        },
+        "evidence": evidence,
+        "candidates": candidates,
+        "recommendation": recommendation,
+    }
+    next_commands = [
+        str(item.get("next_command"))
+        for item in candidates
+        if item.get("next_command")
+    ]
+    body = f"""# {record_id}: {title}
+
+## Scope
+
+- scope: {scope}
+- existing_dossier: {existing_dossier or "未設定"}
+- capability: {capability}
+- failure_class: {failure_class}
+
+## Evidence
+
+### Local
+
+{_format_evidence_group(evidence["local"])}
+
+### Codebase
+
+{_format_evidence_group(evidence["codebase"])}
+
+### External
+
+{_format_evidence_group(evidence["external"])}
+
+### Risk And Counterexample
+
+{_format_evidence_group(evidence["risk"])}
+
+## Candidates
+
+{_format_candidate_table(candidates)}
+
+## Recommendation
+
+{recommendation}
+
+## Next Commands
+
+{chr(10).join(f"- `{command}`" for command in next_commands) if next_commands else "次のCLIコマンドは未設定です。"}
+"""
+    path = record_path(project, "research_scan", record_id, title)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path
 
 
@@ -681,6 +832,12 @@ def _create_or_update_improvement_dossier_from_feedback(
         title = _record_heading(feedback_body, feedback_path.stem)
         path = record_path(project, "improvement_dossier", record_id, title)
         existing_frontmatter = {}
+    research_scan_records = [
+        item
+        for item in _records_in(project, "research_scan")
+        if item[1].get("existing_dossier") in {record_id, feedback_id}
+    ]
+    research_scan_ids = [str(frontmatter.get("id")) for _, frontmatter, _ in research_scan_records]
 
     links = feedback_frontmatter.get("links", {})
     source = feedback_frontmatter.get("source", {})
@@ -709,6 +866,7 @@ def _create_or_update_improvement_dossier_from_feedback(
         "eval_cases": eval_ids,
         "hypotheses": hypothesis_ids,
         "decisions": [str(item[1].get("id")) for item in decision_records],
+        "research_scans": research_scan_ids,
         "classification": {
             "capability": classification.get("capability", "unclassified"),
             "failure_class": classification.get("failure_class", "unclassified"),
@@ -740,7 +898,7 @@ def _create_or_update_improvement_dossier_from_feedback(
         for eval_id in eval_ids
         if (project.overlay_dir / "views" / "eval-results" / f"{eval_id}-manual-score.md").exists()
     ]
-    linked_records = [feedback_id, *eval_ids, *hypothesis_ids, *frontmatter["decisions"]]
+    linked_records = [feedback_id, *research_scan_ids, *eval_ids, *hypothesis_ids, *frontmatter["decisions"]]
     body = f"""# {record_id}: {_record_heading(feedback_body, feedback_path.stem)}
 
 ## Status
@@ -768,6 +926,8 @@ Source: `{feedback_rel}`
 ## Investigation
 
 {_format_investigation(frontmatter["investigation"])}
+
+{linked_record_section("Research Scans", research_scan_records, "research scan はまだありません。")}
 
 {_evaluation_section(project, eval_records)}
 

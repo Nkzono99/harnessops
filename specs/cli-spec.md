@@ -27,6 +27,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops lab dossier --from <FB/E/H/D id>` | はい | 正規化済み `FB/E/H/D` レコードから、1つの改善履歴を読むための `harness-lab/improvements/IMPxxxx-*.md` を作成または更新します。Evaluation は eval case 本文ではなく、source、manual eval yml/md、score、notes を要約します。 |
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新します。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記します。 |
+| `hops lab research-scan` | はい | メタ改善調査の scope、evidence、candidate、relation、recommendation、next command を `RS` レコードとして保存し、`views/research-scans.md` を更新します。 |
 | `hops lab compact [--force]` | はい | `harness-lab` が閾値を超えた時、または `--force` 時に、正本レコードを残したまま `harness-lab/knowledge/lab-memory.yml` と `.md` を更新し、再利用しやすい mutable knowledge layer を作ります。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済みGitHub Issue下書きを作り、重複確認後に明示確認付きでIssueを作成します。成功時はlab recordへIssue URLを書き戻します。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新します。 |

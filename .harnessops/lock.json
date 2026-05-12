@@ -7,7 +7,7 @@
       ".agents/skills/hops-export-feedback/SKILL.md": "sha256:80b89fc8a315d9e15b11d06a2c68fdd56c4b113a866e27536f92095bf936aba1",
       ".agents/skills/hops-import-feedback/SKILL.md": "sha256:58bebe65702fc09548eb9528603468580b6191943ecc1a71ab94cfafecf6a86d",
       ".agents/skills/hops-issue-triage/SKILL.md": "sha256:067042d67234a200d051db8de6192ca8df617c790e45150929c15da120e50df3",
-      ".agents/skills/hops-research-improvements/SKILL.md": "sha256:8de11d434c0ad19242418ea6ab344654562a90ee145712f5ffc12c98db3e52ac",
+      ".agents/skills/hops-research-improvements/SKILL.md": "sha256:b0eee2af1fd9c3cf7e7796eccbee5a75c94b34166ce88cf6bf57d13c1c17ad48",
       ".agents/skills/hops-route-feedback/SKILL.md": "sha256:e1e1ae93e3f8e2487481284883d1ac7052d6ad6a017d9d08b17268ae4b07eef3",
       ".agents/skills/hops-run-lab/SKILL.md": "sha256:10216222ad4bb27fc346f675543aead9342f079dff3f5a480bb006d6a2416885",
       ".agents/skills/hops-update-harness/SKILL.md": "sha256:55186be4580b5e455b60d548bc26e7a39264b6432a0f2ab4b100917430ca132a"
@@ -16,10 +16,11 @@
   "harnessops_version": "0.1.2",
   "layout_version": "0.1",
   "managed_files": {
-    "harness-lab/README.md": "sha256:9f724a28ed886618f5a0cc57173d1229c3e419d526f698d9c6e848e71ae4da76",
+    "harness-lab/README.md": "sha256:37beb859eb131e8f95e3a43295b03f8c0fb1c614e5040060b39c8fe7cd7cd447",
     "harness-lab/views/backlog.md": "sha256:0ed4436872ad24f9c73737b7f84290306dc4baaf36154b7e36be521e985b791c",
     "harness-lab/views/imported-feedback.md": "sha256:110594ad2c5cc11ce7e6d2be46dc9ef84890883df38c87e2f53e31297ed8401f",
-    "harness-lab/views/improvements.md": "sha256:73b0e92505cff9d5ad2b08b4af450a86755afaf72bba1382eb52978ce917f50a",
+    "harness-lab/views/improvements.md": "sha256:ea8df64037223e3f5561a416c5b324072716f9918435bd5bfd12dba07e29a2db",
+    "harness-lab/views/research-scans.md": "sha256:ad0eff60a8eca9ea41bc15436d2612fddadb7b4503a66ea068c70fd631f7ab77",
     "harness-lab/views/score-trajectory.md": "sha256:a3d2f445609e5e9da0269ece3b10aff2414f3830bd185ad257d32ae19026b616"
   },
   "migrations": [],

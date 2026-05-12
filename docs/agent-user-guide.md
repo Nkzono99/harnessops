@@ -75,6 +75,7 @@ hops lab new-eval-case --from FB0001
 ```bash
 hops lab dossier --from FB0001
 hops lab investigate --from IMP0001 --kind external-benchmark --summary "<外部比較や調査結果>"
+hops lab research-scan --title "<調査名>" --scope "<対象>" --candidate "<候補>|<relation>|<recommendation>|<next command>" --recommendation "<推奨>"
 hops lab classify --from IMP0001 --source-type friction --scope harnessops-core --maturity investigated
 ```
 
@@ -89,7 +90,7 @@ hops lab compact --force
 
 `harness-lab/knowledge/lab-memory.yml` と `.md` は mutable な作業記憶です。records と dossier は正本として残し、knowledge layer は capability、failure class、score、guard、外部比較、open question を source ID 付きで圧縮します。`lab-memory.md` の `Curator Notes` は手編集してよく、次回 compaction でも保持されます。
 
-メタ改善案を意図的に調査する時は `hops-research-improvements` skill を使います。これは作業中の短いメタ仮説スキャンとは別の調査モードで、コードベース、既存 dossier、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。調査結果は新規レコード乱立ではなく、まず `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。
+メタ改善案を意図的に調査する時は `hops-research-improvements` skill を使います。これは作業中の短いメタ仮説スキャンとは別の調査モードで、コードベース、既存 dossier、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。調査結果は、まず `hops lab research-scan` で scope、evidence、candidate、relation、recommendation、next command を構造化できます。その後、新規レコード乱立を避けながら `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。
 
 lab 起点の改善を GitHub Issue に昇格する時は、まず下書きで title/body を確認します。
 

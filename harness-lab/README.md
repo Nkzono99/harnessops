@@ -9,6 +9,7 @@
 - メカニズムと中止基準を持つ改善仮説
 - 実験と評価スコアカード
 - 証拠を伴う採用/却下判断
+- メタ改善調査の構造化 research scan
 - 一定サイズを超えた lab から圧縮した mutable knowledge layer
 
 GitHub Issues は引き続きタスクトラッカーです。`harness-lab/` は評価と判断の記憶です。
