@@ -49,6 +49,7 @@ hops feedback export --target <target> --sanitize
 
 - サニタイズ済みフィードバックバンドルを受け取った。
 - 上流ハーネスや HarnessOps 自身の改善候補を評価する。
+- issue や外部バンドルになる前のローカル改善観測を、評価可能な形で残したい。
 
 手順:
 
@@ -58,6 +59,13 @@ hops feedback import path/to/UF0001-target-feedback.md
 hops lab new-eval-case --from FB0001
 hops propose --from E0001
 hops eval --case E0001 --manual --score impact=4 --score anti-theater=5
+```
+
+外部バンドルや issue がないローカル改善は、まず capture します。
+
+```bash
+hops lab capture --title "<題名>" --summary "<観測>" --expected-change "<期待する変更>"
+hops lab new-eval-case --from FB0001
 ```
 
 判断は、証拠の成熟度に合わせて作ります。

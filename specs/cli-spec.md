@@ -21,7 +21,9 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |
 | `hops feedback export --sanitize` | はい | 生成ビュー配下にサニタイズ済み外部向けバンドルを書き出します。 |
 | `hops feedback import <bundle>` | はい | サニタイズ済みバンドルを `harness-lab` にインポートします。 |
+| `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにします。 |
 | `hops lab new-eval-case --from <FBid>` | はい | インポート済みフィードバックを評価ケースに変換します。 |
+| `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新します。 |
 | `hops propose --from <Eid>` | はい | メカニズムと中止基準を含む仮説を作成します。 |
 | `hops eval --case <Eid> --manual` | はい | 多軸の手動スコアカードを保存します。 |
 | `hops decide --from <id> --status <status>` | はい | 採用、却下、保留の判断を記録します。 |

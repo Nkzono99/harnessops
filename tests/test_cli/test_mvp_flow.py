@@ -201,6 +201,43 @@ def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatc
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
 
 
+def test_lab_capture_records_local_improvement(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    captured = run_cli(
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Local improvements were not captured in lab",
+            "--summary",
+            "HarnessOps changes could be implemented and released without a harness-lab record.",
+            "--reproduction",
+            "Implement a nontrivial CLI or skill change without an existing issue or feedback bundle.",
+            "--expected-change",
+            "Provide a first-class command to capture local improvement work before evaluation.",
+            "--capability",
+            "harness_lab_traceability",
+            "--failure-class",
+            "missing_lab_capture",
+        ]
+    )
+
+    feedback_path = root / captured.output.strip()
+    frontmatter, body = read_record(feedback_path)
+    assert frontmatter["record_type"] == "imported_feedback"
+    assert frontmatter["source"]["type"] == "local-capture"
+    assert frontmatter["classification"]["capability"] == "harness_lab_traceability"
+    assert "期待する上流変更" in body
+
+    eval_case = run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    assert (root / eval_case.output.strip()).exists()
+    doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "警告" not in doctor.output
+
+
 def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):
     root = copy_fixture("harnessops-core-minimal")
     monkeypatch.chdir(root)

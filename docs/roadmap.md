@@ -38,6 +38,10 @@
 
 目的: Agent と人間が自然に `harness-feedback/` と `harness-lab/` を使えるようにする。
 
+導入済みの足場:
+
+- `hops lab capture` から始まるローカル改善記録
+
 候補機能:
 
 - `hops profiles discover`

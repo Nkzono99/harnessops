@@ -217,6 +217,7 @@ harness-lab/views/
 ```
 
 `harness-lab/` は上流改善の評価と判断の記憶です。通常のタスク管理はGitHub Issuesなど既存の仕組みに残します。
+外部バンドルや issue がまだないローカル改善観測は、`hops lab capture --title <title> --summary <summary> --expected-change <expected>` で `FB` レコードにしてから、評価ケース、仮説、判断へ進めます。
 
 ## プライバシー設定
 

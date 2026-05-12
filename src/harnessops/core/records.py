@@ -159,7 +159,9 @@ def create_imported_feedback(project: Project, *, source_record: dict[str, Any],
         "failure_class": source_record.get("classification", {}).get("failure_class")
         or source_record.get("failure_class")
         or "unclassified",
-        "capability": source_record.get("classification", {}).get("capability") or source_record.get("capability") or "unclassified",
+        "capability": source_record.get("classification", {}).get("capability")
+        or source_record.get("capability")
+        or "unclassified",
     }
     frontmatter = {
         "id": record_id,
@@ -172,7 +174,12 @@ def create_imported_feedback(project: Project, *, source_record: dict[str, Any],
             "source_project": "redacted",
         },
         "classification": classification,
-        "links": {"eval_case": None, "issue_url": source_record.get("issue", {}).get("url") if isinstance(source_record.get("issue"), dict) else None},
+        "links": {
+            "eval_case": None,
+            "issue_url": source_record.get("issue", {}).get("url")
+            if isinstance(source_record.get("issue"), dict)
+            else None,
+        },
     }
     record_body = f"""# {record_id}: {title}
 
@@ -187,6 +194,58 @@ def create_imported_feedback(project: Project, *, source_record: dict[str, Any],
 ## 期待する上流変更
 
 送信元フィードバックバンドルを参照してください。
+"""
+    path = record_path(project, "imported_feedback", record_id, title)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dump_record(frontmatter, record_body), encoding="utf-8")
+    return path
+
+
+def create_lab_feedback(
+    project: Project,
+    *,
+    title: str,
+    summary: str,
+    reproduction: str,
+    expected_change: str,
+    capability: str,
+    failure_class: str,
+    source_ref: str | None = None,
+) -> Path:
+    directory = project.overlay_dir / "records/feedback"
+    record_id = next_id(directory, "FB")
+    frontmatter = {
+        "id": record_id,
+        "record_type": "imported_feedback",
+        "created_at": now_iso(),
+        "status": "triaged",
+        "source": {
+            "type": "local-capture",
+            "original_id": source_ref,
+            "source_project": project.data.get("project", {}).get("name", "local"),
+        },
+        "classification": {
+            "capability": capability,
+            "failure_class": failure_class,
+        },
+        "links": {
+            "eval_case": None,
+            "issue_url": source_ref if source_ref and source_ref.startswith("http") else None,
+        },
+    }
+    record_body = f"""# {record_id}: {title}
+
+## 概要
+
+{summary}
+
+## 再現
+
+{reproduction}
+
+## 期待する上流変更
+
+{expected_change}
 """
     path = record_path(project, "imported_feedback", record_id, title)
     path.parent.mkdir(parents=True, exist_ok=True)

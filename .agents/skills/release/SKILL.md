@@ -10,8 +10,9 @@ description: HarnessOps repository を GitHub release するときに使う repo
 手順:
 
 1. `git status --short --branch`、`git log --oneline --decorate -5`、`git tag --list` を確認する。
-2. `pyproject.toml` の version から tag `v<version>` を決める。既存 tag/release がある場合は上書きしない。
-3. release 前に次を実行する。
+2. 非自明な HarnessOps 改善を含む場合、`hops lab capture`、`hops lab new-eval-case`、`hops propose`、`hops eval`、`hops decide` のいずれかで `harness-lab` に判断根拠があるか確認する。無い場合は release 前に `hops lab capture` で記録する。
+3. `pyproject.toml` の version から tag `v<version>` を決める。既存 tag/release がある場合は上書きしない。
+4. release 前に次を実行する。
 
 ```bash
 PYTHONPATH="$PWD/src" python3.11 -m pytest -q
@@ -19,9 +20,9 @@ uv run --with-editable . hops doctor --check-overlay --check-records
 uv run --with-editable . hops migrate --check
 ```
 
-4. `main` がリリース対象なら必要な commit を作り、`git push origin main` で remote に反映する。
-5. この repository は published GitHub release で PyPI publish workflow が走る。PyPI Trusted Publisher の environment は `pypi` なので、workflow の publish job は `environment: pypi` を持つ必要がある。
-6. `gh release create v<version> --target main --title "harnessops v<version>" --notes <notes>` で release を作る。
-7. 作成後に `gh release view v<version>`、`gh run list --limit 5`、`git status --short --branch` を確認する。
+5. `main` がリリース対象なら必要な commit を作り、`git push origin main` で remote に反映する。
+6. この repository は published GitHub release で PyPI publish workflow が走る。PyPI Trusted Publisher の environment は `pypi` なので、workflow の publish job は `environment: pypi` を持つ必要がある。
+7. `gh release create v<version> --target main --title "harnessops v<version>" --notes <notes>` で release を作る。
+8. 作成後に `gh release view v<version>`、`gh run list --limit 5`、`git status --short --branch` を確認する。
 
 追加の GitHub Actions workflow dispatch は、ユーザーが明示した場合だけ行う。

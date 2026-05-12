@@ -26,6 +26,7 @@ def test_generated_bridge_explains_hops_contract() -> None:
     assert_harness_contract(BRIDGE_TEXT)
     assert "uv run --with-editable . hops <command>" in BRIDGE_TEXT
     assert "hops feedback export --sanitize" in BRIDGE_TEXT
+    assert "hops lab capture" in BRIDGE_TEXT
 
 
 def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
@@ -42,6 +43,8 @@ def test_harnessops_repo_has_repo_local_hops_skills() -> None:
     for skill_name in ("hops-add-failure", "hops-issue-triage", "hops-run-lab", "hops-update-harness"):
         text = (ROOT / f".agents/skills/{skill_name}/SKILL.md").read_text(encoding="utf-8")
         assert_harness_contract(text)
+    run_lab = (ROOT / ".agents/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
+    assert "hops lab capture" in run_lab
 
 
 def test_packaged_plugin_skills_explain_hops_contract() -> None:
@@ -134,6 +137,7 @@ def test_release_skill_is_repo_local() -> None:
     text = release_skill.read_text(encoding="utf-8")
     assert "repo-local skill" in text
     assert "gh release create" in text
+    assert "hops lab capture" in text
     assert "hops doctor --check-overlay --check-records" in text
     assert not (ROOT / "plugins/codex/harnessops/skills/hops-release/SKILL.md").exists()
     assert not (ROOT / "plugins/claude/harnessops/skills/hops-release/SKILL.md").exists()
@@ -162,4 +166,19 @@ def test_update_harness_skill_is_packaged() -> None:
         text = skill.read_text(encoding="utf-8")
         assert "hops update-harness" in text
         assert ".new" in text
+        assert_harness_contract(text)
+
+
+def test_lab_capture_contract_is_documented() -> None:
+    docs = [
+        ROOT / "SPEC.md",
+        ROOT / "specs/cli-spec.md",
+        ROOT / "docs/agent-user-guide.md",
+        ROOT / "docs/target-integration-agent-brief.md",
+    ]
+    for path in docs:
+        assert "hops lab capture" in path.read_text(encoding="utf-8")
+    for host in ("codex", "claude"):
+        text = (ROOT / f"plugins/{host}/harnessops/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
+        assert "hops lab capture" in text
         assert_harness_contract(text)

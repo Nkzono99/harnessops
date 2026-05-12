@@ -319,7 +319,9 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops route --record <id>` | はい | record dispositionの分類保存。 |
 | `hops feedback export --sanitize` | はい | サニタイズ済みフィードバックバンドル生成。 |
 | `hops feedback import <bundle>` | はい | `harness-lab` へフィードバックをインポート。 |
+| `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにする。 |
 | `hops lab new-eval-case --from <FBid>` | はい | imported feedback を評価ケース化。 |
+| `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新する。 |
 | `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |
 | `hops eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
 | `hops decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
@@ -426,7 +428,9 @@ private_terms:
 - `hops route` が分類値を保存する。
 - `hops feedback export --sanitize` がサニタイズ済みバンドルを書く。
 - `hops feedback import` が `harness-lab` にfeedbackレコードを作る。
+- `hops lab capture` が issue や bundle のないローカル改善観測を `harness-lab` に記録する。
 - `hops lab new-eval-case` が評価ケースとfixture directoryを作る。
+- `hops lab refresh-views` が生成ビュー更新後の doctor warning を残さない。
 - `hops propose` が中止基準を含むhypothesisレコードを作る。
 - `hops eval --manual` がscorecardを保存する。
 - `hops decide --status adopted` は証拠、回帰リスク、ガードパスなしでは失敗する。
