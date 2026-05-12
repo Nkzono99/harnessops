@@ -34,6 +34,17 @@ recommended_profile = "runops-project"
 | `commands.*` | 任意 | プロバイダコマンド契約。 |
 | `harnessops.recommended_profile` | 任意 | HarnessOps 検出ヒント。 |
 
+## HarnessOps lifecycle連携
+
+target harness の `init`、`setup`、`update-harness` などは、HarnessOps の管理対象状態を直接書かず、`hops` を呼び出します。
+
+- project repository 生成後: `hops init --profile <target-project-profile>` と `hops doctor --check-overlay --check-records`
+- target repository setup時: `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records`
+- update時: `hops doctor --check-overlay --check-records` と `hops migrate --check`
+- migration適用時: 人間確認または明示フラグ付きで `hops migrate --apply`
+- user領域のAgent plugin installは暗黙に実行せず、明示的に `hops agent install --codex --scope user` などを案内する
+- repo-local bridgeは、明示オプションで `hops agent bridge --codex` または `hops init --with-agent-bridge` を呼んでよい
+
 ## 検出優先順位
 
 `hops detect` は次の順序でリポジトリの同一性を解決します。

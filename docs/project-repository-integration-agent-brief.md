@@ -96,6 +96,37 @@ hops doctor --check-overlay --check-records
 hops migrate --check
 ```
 
+## target CLIから生成される場合
+
+project repository が target CLI の `init` や `update-harness` で作られる場合も、HarnessOps の状態は target CLI が直接書かず、生成先で `hops` を呼びます。
+
+初回生成後:
+
+```bash
+hops init --profile <target-project-profile>
+hops doctor --check-overlay --check-records
+```
+
+更新時:
+
+```bash
+hops doctor --check-overlay --check-records
+hops migrate --check
+```
+
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `hops migrate --apply` を呼びます。user領域のAgent plugin installは暗黙に行わず、repo-local bridgeは明示オプションで `hops agent bridge --codex` を使います。
+
+## target固有triageとの分担
+
+project repository で観測した feedback は HarnessOps に記録します。runops や paper-harness の domain skill は、原因分類や再現観点の補助に使いますが、`harness-feedback/` の records、routing、sanitize、export は `hops` が行います。
+
+```bash
+hops add-failure --target <target> ...
+hops route --record F0001
+hops add-feedback --from F0001 --target <target>
+hops feedback export --target <target> --sanitize
+```
+
 ## 作成されるべき構造
 
 project repository の場合、次があることを確認します。

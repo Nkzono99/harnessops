@@ -42,6 +42,7 @@
 
 - `hops profiles discover`
 - `hops profiles validate <profile-id-or-path>`
+- `hops feedback add --target <target>` as alias for the add-failure/add-feedback flow
 - `hops lab inbox`
 - `hops lab triage <feedback-id>`
 - `hops lab new-hypothesis --from <eval-case-id>`
@@ -50,6 +51,7 @@
 - `hops views status`
 - adapter-specific doctor checks
 - harness-owned profiles via entry points
+- profile `domain_triage` hooks for target-specific diagnostic skills
 
 0.2の設計では、pluginをfirst-classにします。ただし、pluginは状態を持たず、必ず `hops` CLIへ委譲します。
 

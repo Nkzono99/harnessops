@@ -136,6 +136,70 @@ hops migrate --check
 
 生成ファイルが編集済みで `init` が拒否した場合は、拒否を尊重して停止し、どのファイルが競合したか報告します。
 
+## target CLIのlifecycleへ組み込む場合
+
+target repository の `init`、`setup`、`update-harness` などに HarnessOps 連携を入れる場合は、target CLI が `.harnessops/`、`harness-feedback/`、`harness-lab/` を直接書かず、`hops` を呼び出す境界にします。
+
+project repository を生成する `init` の後処理:
+
+```bash
+hops init --profile <target-project-profile>
+hops doctor --check-overlay --check-records
+```
+
+target repository 自身の `setup`:
+
+```bash
+hops init --profile <target-upstream-profile>
+hops doctor --check-overlay --check-records
+```
+
+`update-harness`:
+
+```bash
+hops doctor --check-overlay --check-records
+hops migrate --check
+```
+
+未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `hops migrate --apply` を呼びます。`hops init --force` や `hops migrate --apply` を暗黙に実行しないでください。
+
+Agent plugin のユーザー領域インストールはグローバル副作用なので、target/project lifecycle から暗黙に実行しません。必要なら別コマンドとして案内します。
+
+```bash
+hops agent install --codex --scope user
+```
+
+repo-local bridge は対象repoの状態なので、明示オプションで入れてかまいません。
+
+```bash
+hops agent bridge --codex
+```
+
+## feedback/triageを移行する場合
+
+target repository に既存の `feedback` や `triage` skill がある場合、共通処理は HarnessOps へ寄せます。
+
+- record schema、routing、sanitize、export/import は `hops` に委譲する。
+- target skill は domain diagnosis に限定する。
+- 既存 skill は移行期だけ thin wrapper として残す。
+- domain-specific failure class、protected path、triage skill 名は profile の `domain_triage` に置く。
+
+悪い例:
+
+```text
+feedback-runops が独自に records/ を作る。
+feedback-paper-harness が独自 sanitizer を持つ。
+```
+
+良い例:
+
+```bash
+hops add-failure --target runops ...
+hops route --record F0001
+hops add-feedback --from F0001 --target runops
+hops feedback export --target runops --sanitize
+```
+
 ## target repositoryで確認すること
 
 target repository の場合、次があることを確認します。

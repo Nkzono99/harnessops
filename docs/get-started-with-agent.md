@@ -27,6 +27,28 @@ hops doctor --check-overlay
 
 すでに初期化済みなら、doctor だけで状態を確認します。
 
+## Agent向けスキルの入れ方
+
+同じAgentで複数リポジトリの HarnessOps を扱うなら、同梱プラグインをユーザー領域へ入れます。
+
+```bash
+uv run --with-editable . hops agent install --codex --scope user
+```
+
+Claude 用も同じ考え方です。
+
+```bash
+uv run --with-editable . hops agent install --claude --scope user
+```
+
+特定リポジトリだけに最小限の案内を残したい場合は、repo-local bridge を使います。
+
+```bash
+hops agent bridge --codex
+```
+
+どちらの場合も、スキルやブリッジは薄い案内に限定します。状態変更の正本は常に `hops` CLI です。
+
 ## 失敗を記録したいとき
 
 人間はCLI引数を組み立てる必要はありません。次の情報をAgentに渡します。

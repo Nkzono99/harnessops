@@ -10,17 +10,24 @@ description: プロジェクト失敗の記録、上流フィードバックの�
 
 このリポジトリは HarnessOps にリンクされています。
 
-`.harnessops/`、`harness-feedback/`、`harness-lab/` を直接組み替えないでください。
-CLI を使います。
+ハーネス状態の正本は `hops` CLI です。まず `.harnessops/project.toml` を読み、profile、overlay mode、overlay path を確認してください。
+PATH に `hops` がない環境では `uv run --with-editable . hops <command>` を使います。
 
-- `hops doctor`
+`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えないでください。レコード作成、ルーティング、エクスポート/インポート、ラボ評価、採用判断は CLI に委譲します。
+
+- `hops doctor --check-overlay`
 - `hops add-failure`
 - `hops route`
-- `hops feedback export`
-- `hops feedback import`
+- `hops add-feedback`
+- `hops feedback export --sanitize`
+- `hops feedback import <bundle-path>`
+- `hops lab new-eval-case --from <FBid>`
+- `hops propose --from <Eid>`
+- `hops eval --case <Eid> --manual`
+- `hops decide --from <id> --status <status>`
 - `hops migrate --check`
 
-ハーネスフィードバックやラボ変更を提案する前に `.harnessops/project.toml` を読んでください。
+外部共有前にサニタイズ済みバンドルを確認し、ローカルパス、非公開語、未公開研究の文脈を残さないでください。
 """
 
 

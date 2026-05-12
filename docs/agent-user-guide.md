@@ -88,6 +88,18 @@ hops decide --from H0001 --status adopted \
 - `external-candidate`: クラスタ、シミュレータ、ジャーナルなど外部システムの問題。
 - `do-not-upstream`: 明示的にローカルまたは非公開。
 
+## Feedbackとtriageの分担
+
+feedback の記録、routing、sanitize、export/import は HarnessOps の責務です。target 固有の skill は、runops や paper-harness の domain 判断だけを担当し、`harness-feedback/` や `harness-lab/` の records を直接作りません。
+
+使い分け:
+
+- meta routing triage: `hops route --record <id>` で project-local / target-upstream / meta-harness / external / private を分類する。
+- domain diagnosis triage: target 側 skill が Slurm、campaign、claim、citation、venue などの固有判断を補助する。
+- lab triage: `hops feedback import` 後に、評価ケース化、backlog、reject、issue draft のどれに進めるかを判断する。
+
+既存の `feedback-runops` や `feedback-paper-harness` のような target 側 skill は、移行期には `hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize` を呼ぶ thin wrapper として扱います。
+
 ## プライバシー確認
 
 外部共有前に次を確認します。

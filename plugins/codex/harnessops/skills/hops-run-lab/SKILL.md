@@ -3,7 +3,7 @@ name: hops-run-lab
 description: harness-lab で評価ケース、仮説、判断を扱うときに使う。
 ---
 
-`hops doctor --check-overlay` を実行する。`hops lab new-eval-case`、`hops propose --manual-template`、`hops eval --manual`、`hops decide` を使う。
+`hops doctor --check-overlay` を実行する。`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えない。`hops lab new-eval-case`、`hops propose --manual-template`、`hops eval --manual`、`hops decide` を使う。
 
 ガードレール:
 

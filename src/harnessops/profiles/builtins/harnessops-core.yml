@@ -33,4 +33,17 @@ failure_classes:
 protected_paths: []
 private_paths: []
 upstream_targets: {}
-
+domain_triage:
+  skill: hops-triage
+  scope: meta-routing
+  responsibilities:
+    - routing_gap
+    - schema_gap
+    - plugin_bridge
+    - migration_safety
+  delegates_to_harnessops:
+    - feedback_record_schema
+    - routing_disposition
+    - sanitize
+    - export_import
+    - lab_triage

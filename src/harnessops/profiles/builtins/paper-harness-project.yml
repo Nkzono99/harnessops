@@ -51,4 +51,17 @@ upstream_targets:
     type: target-harness
   harnessops:
     type: meta-harness
-
+domain_triage:
+  skill: paper-triage
+  scope: domain-diagnosis
+  responsibilities:
+    - claim_evidence_alignment
+    - citation_grounding
+    - public_terminology
+    - venue_fit
+    - reviewer_comment_strategy
+  delegates_to_harnessops:
+    - feedback_record_schema
+    - routing_disposition
+    - sanitize
+    - export_import

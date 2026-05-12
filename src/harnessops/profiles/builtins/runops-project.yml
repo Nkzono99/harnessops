@@ -63,4 +63,17 @@ upstream_targets:
     repo: Nkzono99/runops
   harnessops:
     type: meta-harness
-
+domain_triage:
+  skill: runops-triage
+  scope: domain-diagnosis
+  responsibilities:
+    - campaign_case_run_separation
+    - slurm_safety_gate
+    - manifest_provenance_gap
+    - adapter_boundary_violation
+    - update_harness_impact
+  delegates_to_harnessops:
+    - feedback_record_schema
+    - routing_disposition
+    - sanitize
+    - export_import

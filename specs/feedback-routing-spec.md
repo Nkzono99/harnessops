@@ -18,6 +18,34 @@
 
 1つの観測イベントから複数のレコードが生まれる場合があります。研究方針の転換は `research/decisions/` に置きます。一方、runops に方針転換ワークフローが不足しているなら `harness-feedback/records/upstream-feedback/` になり、ルーティングの曖昧さは `meta-feedback` になります。
 
+## 責務境界
+
+HarnessOps は feedback の状態管理と運搬を担当します。target harness は domain 固有の診断材料を提供します。
+
+HarnessOps の責務:
+
+- failure / feedback / imported feedback の record schema。
+- disposition、routing evidence、sanitize、export/import。
+- `harness-feedback/` と `harness-lab/` の管理。
+- imported feedback から eval case、hypothesis、decision へ進む共通フロー。
+
+target repository の責務:
+
+- profile、failure class、capability、protected/private path。
+- domain-specific triage skill。
+- target CLI から `hops` を呼ぶ lifecycle hook。
+- 既存 feedback skill を残す場合は、HarnessOps CLI への thin wrapper にする。
+
+triage は分割します。
+
+| triage | 管理者 | 例 |
+|---|---|---|
+| meta routing triage | HarnessOps | project-local か、target-upstream か、meta-harness かを分類する。 |
+| domain diagnosis triage | target repository | runops の Slurm/campaign/manifest 問題、paper-harness の claim/citation/venue 問題を判定する。 |
+| lab triage | HarnessOps + target profile | imported feedback を eval case、backlog、reject、issue draft に分ける。 |
+
+target 側の `feedback/triage` は独自に `records/` を作らず、`hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize`、`hops feedback import` を呼びます。
+
 ## ルーティング証拠
 
 `hops route --record <id>` はdispositionを保存します。人間のレビュアーは次を確認します。
@@ -31,3 +59,5 @@
 ## 現在の実装
 
 MVP は決定的ヒューリスティックと明示的な `--target` / `--disposition` 上書きを使います。アダプタ固有のルーティングは、同じレコードスキーマを迂回せず、この規則から拡張します。
+
+`hops feedback add --target <target>` は将来の alias 候補です。現行実装では、観測は `hops add-failure`、上流/メタ下書きは `hops add-feedback --from <Fid>` を正本にします。

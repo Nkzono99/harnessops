@@ -2,7 +2,7 @@ schema_version = "0.1"
 layout_version = "0.1"
 
 [project]
-name = "HarnessOps"
+name = "harnessops"
 root = "."
 kind = "harnessops-repository"
 

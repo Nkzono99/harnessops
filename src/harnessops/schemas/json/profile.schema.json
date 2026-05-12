@@ -17,6 +17,7 @@
     "failure_classes": {"type": "array"},
     "protected_paths": {"type": "array"},
     "private_paths": {"type": "array"},
-    "upstream_targets": {"type": "object"}
+    "upstream_targets": {"type": "object"},
+    "domain_triage": {"type": "object"}
   }
 }

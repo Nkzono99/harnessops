@@ -23,4 +23,15 @@ private_paths: []
 upstream_targets:
   harnessops:
     type: meta-harness
-
+domain_triage:
+  skill: target-harness-triage
+  scope: domain-diagnosis
+  responsibilities:
+    - target_specific_failure_classification
+    - target_specific_capability_mapping
+  delegates_to_harnessops:
+    - feedback_record_schema
+    - routing_disposition
+    - sanitize
+    - export_import
+    - lab_triage

@@ -26,6 +26,8 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops decide --from <id> --status <status>` | はい | 採用、却下、保留の判断を記録します。 |
 | `hops agent bridge/install/verify` | bridge/installのみ | 薄いエージェント入口を管理します。 |
 
+将来の互換 alias として `hops feedback add --target <target>` を予約できます。ただし現行の正本コマンドは、観測記録の `hops add-failure` と、上流/メタ下書きの `hops add-feedback --from <Fid>` です。
+
 ## 安全ルール
 
 1. どのコマンドも GitHub Issue、プルリクエスト、リモート変更を作成しません。

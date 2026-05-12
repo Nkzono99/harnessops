@@ -13,7 +13,7 @@
     "path": "harness-lab"
   },
   "profile": {
-    "fingerprint": "sha256:11788a3e51ad0698bda346d9d200b17164384918b16df75d75b3240d49b4234e",
+    "fingerprint": "sha256:55f93b1f90fa336209e503a4770f4cae5693ed2eda315d9798a893ec16678594",
     "id": "harnessops-core",
     "source": "builtin",
     "version": "0.1.0"

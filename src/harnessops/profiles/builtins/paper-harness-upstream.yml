@@ -37,4 +37,17 @@ private_paths: []
 upstream_targets:
   harnessops:
     type: meta-harness
-
+domain_triage:
+  skill: paper-triage
+  scope: domain-diagnosis
+  responsibilities:
+    - claim_evidence_alignment
+    - citation_grounding
+    - public_terminology
+    - venue_fit
+    - reviewer_comment_strategy
+  delegates_to_harnessops:
+    - imported_feedback_schema
+    - lab_triage
+    - eval_case_conversion
+    - decision_record

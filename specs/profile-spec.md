@@ -29,6 +29,7 @@ failure_classes:
 - `protected_paths`: 公開フィードバックへコピーしてはいけないパス。
 - `private_paths`: サニタイザが伏せるべきパス。
 - `upstream_targets`: ターゲットハーネスとメタハーネスの行き先。
+- `domain_triage`: target固有の診断skillと責務。HarnessOps のroutingを置き換えず、判断材料を提供する。
 
 ## 解決順序
 
@@ -54,3 +55,5 @@ HarnessOps には次のプロファイルが含まれます。
 ## ガードレール
 
 プロファイルは、プロジェクト発展ルートとハーネスフィードバックルートを区別しなければなりません。論文主張の転換を `notes/` に置くべきなら、上流テンプレートを汚染しないよう、そのことをプロファイルで明確にします。
+
+`domain_triage` は target-specific な診断に限定します。record schema、routing、sanitize、export/import を target profile や target skill が再実装してはいけません。

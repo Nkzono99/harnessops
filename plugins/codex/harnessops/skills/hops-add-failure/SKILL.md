@@ -3,7 +3,7 @@ name: hops-add-failure
 description: プロジェクト失敗、ハーネス摩擦、ローカル回避策、上流フィードバック候補を HarnessOps 経由で記録するときに使う。
 ---
 
-HarnessOps を使う。`harness-feedback/` または `harness-lab/` の構造を手作業で編集しない。
+HarnessOps を使う。`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えない。
 
 1. `hops doctor --check-overlay` を実行する。
 2. リポジトリがリンクされていなければ、`hops detect` を実行して `hops init --profile <id>` を提案する。

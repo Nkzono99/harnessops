@@ -265,6 +265,39 @@ ID規約:
 
 1つのイベントが複数の意味を持つ場合は、1つの分類値へ押し込まず、プロジェクトレコードと上流/メタフィードバックに分割します。
 
+## Feedbackとtriageの責務境界
+
+feedback の記録、分類、サニタイズ、エクスポート/インポートは HarnessOps の共通責務です。target harness はこの流れを再実装せず、domain 固有の判断材料と thin wrapper だけを提供します。
+
+HarnessOps が管理するもの:
+
+- `harness-feedback/` と `harness-lab/` のレコードスキーマ。
+- failure、upstream/meta feedback、imported feedback の作成・検証。
+- disposition の保存、routing evidence、local/upstream/meta/external/private の分離。
+- sanitizer、feedback bundle、export/import。
+- imported feedback から eval case、hypothesis、decision へ進む共通ラボフロー。
+- Codex / Claude plugin の共通スキルと repo-local bridge のCLI委譲契約。
+
+target repository が提供するもの:
+
+- `runops-project`、`paper-harness-project` などの profile。
+- domain-specific failure class、capability、protected/private path。
+- runops や paper-harness 固有の triage skill。
+- target CLI の `init` / `setup` / `update-harness` から `hops` を呼ぶ lifecycle hook。
+- 必要なら既存 `feedback-*` skill を HarnessOps CLI へ委譲する thin wrapper。
+
+triage は次の3層に分けます。
+
+| 層 | 正本 | 目的 |
+|---|---|---|
+| meta routing triage | HarnessOps | project-local、target-upstream、meta-harness、protocol、external、private の分類。 |
+| domain diagnosis triage | target repository | runops の campaign/Slurm/manifest/adapter 判断や paper-harness の claim/citation/venue/terminology 判断。 |
+| lab triage | HarnessOps + target profile | imported feedback を eval case、backlog、reject、issue draft へ振り分ける。 |
+
+target 側の `feedback` / `triage` skill は、独自に `records/` を作ったり sanitizer を持ったりしません。移行期は `hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize` を呼ぶ wrapper として残します。
+
+`hops feedback add --target <target>` は将来の ergonomic alias として予約できますが、現行の正本コマンドは `hops add-failure` と `hops add-feedback --from <Fid>` です。
+
 ## CLI
 
 `hops` が主要エイリアス、`harnessops` が長いエイリアスです。状態変更はCLIが正本です。
@@ -291,6 +324,36 @@ ID規約:
 | `hops decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
 | `hops agent bridge/install/verify` | bridge/installのみ | Agent bridge/plugin成果物の管理。 |
 | `hops report` | いいえ | 簡潔なrepository report表示。 |
+
+## Target harness lifecycle連携
+
+target harness の `init`、`setup`、`update-harness` などのライフサイクルコマンドは、HarnessOps を直接内包せず、`hops` を呼び出す委譲境界として実装します。
+
+原則:
+
+- target harness は `.harnessops/`、`harness-feedback/`、`harness-lab/` を直接生成・再編しない。
+- project repository を生成する `init` は、生成先で `hops init --profile <target-project-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
+- target repository 自身の `setup` は、target repo で `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
+- `update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` を基本にし、migration適用は明示オプションまたは人間確認後に `hops migrate --apply` で行う。
+- target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
+- user領域のAgent plugin installはグローバル副作用なので、target/project lifecycleの暗黙処理に含めない。明示コマンドとして `hops agent install --codex --scope user` などを案内する。
+- repo-local bridge は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
+
+例:
+
+```bash
+# target CLI が project repository を生成した後、生成先で実行する
+hops init --profile runops-project
+hops doctor --check-overlay --check-records
+
+# target repository 自身のsetupで実行する
+hops init --profile runops-upstream
+hops doctor --check-overlay --check-records
+
+# update-harnessで実行する
+hops doctor --check-overlay --check-records
+hops migrate --check
+```
 
 終了コード:
 

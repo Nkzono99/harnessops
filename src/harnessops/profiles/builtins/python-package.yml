@@ -27,4 +27,14 @@ private_paths: []
 upstream_targets:
   harnessops:
     type: meta-harness
-
+domain_triage:
+  skill: python-package-triage
+  scope: domain-diagnosis
+  responsibilities:
+    - package_health_classification
+    - test_failure_boundary
+  delegates_to_harnessops:
+    - feedback_record_schema
+    - routing_disposition
+    - sanitize
+    - export_import
