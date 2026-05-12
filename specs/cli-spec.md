@@ -15,6 +15,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops link --profile <id>` | はい | 既存リポジトリを HarnessOps に関連付けるエイリアスです。 |
 | `hops doctor` | いいえ | プロジェクトリンク、オーバーレイ、ロック、レコードを検証します。 |
 | `hops migrate --check/--apply` | `--apply` のみ | スキーマ/レイアウトマイグレーションを確認または適用します。 |
+| `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。編集済みmanaged fileは `<path>.new` に書きます。 |
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
 | `hops add-feedback --from <Fid>` | はい | 非公開の上流/メタフィードバック下書きを作成します。 |
 | `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |
@@ -32,7 +33,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 
 1. どのコマンドも GitHub Issue、プルリクエスト、リモート変更を作成しません。
 2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。
-3. `init` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、コマンドは上書きを拒否するか、安全な競合コピーを書きます。
+3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。
 4. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
 5. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 

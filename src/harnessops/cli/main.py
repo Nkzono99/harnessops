@@ -3,7 +3,23 @@ from __future__ import annotations
 import typer
 
 from harnessops import __version__
-from harnessops.cli import add_failure, agent, decide, detect, doctor, eval, feedback, init, lab, migrate, profiles, propose, report, route
+from harnessops.cli import (
+    add_failure,
+    agent,
+    decide,
+    detect,
+    doctor,
+    eval,
+    feedback,
+    init,
+    lab,
+    migrate,
+    profiles,
+    propose,
+    report,
+    route,
+    update_harness,
+)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True, help="HarnessOps のフィードバックルーティングと改善実験CLI。")
 
@@ -28,6 +44,7 @@ decide.register(app)
 report.register(app)
 agent.register(app)
 route.register(app)
+update_harness.register(app)
 
 
 if __name__ == "__main__":

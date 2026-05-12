@@ -39,7 +39,7 @@ def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
 
 
 def test_harnessops_repo_has_repo_local_hops_skills() -> None:
-    for skill_name in ("hops-add-failure", "hops-issue-triage", "hops-run-lab"):
+    for skill_name in ("hops-add-failure", "hops-issue-triage", "hops-run-lab", "hops-update-harness"):
         text = (ROOT / f".agents/skills/{skill_name}/SKILL.md").read_text(encoding="utf-8")
         assert_harness_contract(text)
 
@@ -153,4 +153,13 @@ def test_issue_triage_skill_is_packaged() -> None:
         text = skill.read_text(encoding="utf-8")
         assert "hops feedback import --issue" in text
         assert "hops lab new-eval-case" in text
+        assert_harness_contract(text)
+
+
+def test_update_harness_skill_is_packaged() -> None:
+    for host in ("codex", "claude"):
+        skill = ROOT / f"plugins/{host}/harnessops/skills/hops-update-harness/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        assert "hops update-harness" in text
+        assert ".new" in text
         assert_harness_contract(text)

@@ -313,6 +313,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops link --profile <id>` | はい | 既存リポジトリを HarnessOps にリンク。 |
 | `hops doctor` | いいえ | link、overlay、lock、recordの検証。 |
 | `hops migrate --check/--apply` | `--apply` のみ | layout migrationの確認または適用。 |
+| `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせる。編集済みmanaged fileは `<path>.new` に退避。 |
 | `hops add-failure` | はい | project側失敗レコード作成。 |
 | `hops add-feedback --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
 | `hops route --record <id>` | はい | record dispositionの分類保存。 |
@@ -334,7 +335,8 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 - target harness は `.harnessops/`、`harness-feedback/`、`harness-lab/` を直接生成・再編しない。
 - project repository を生成する `init` は、生成先で `hops init --profile <target-project-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
 - target repository 自身の `setup` は、target repo で `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
-- `update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` を基本にし、migration適用は明示オプションまたは人間確認後に `hops migrate --apply` で行う。
+- `update-harness` は `hops update-harness` を基本にする。これは `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含み、編集済みmanaged fileは runops と同様に `<path>.new` へ退避する。
+- migration適用は明示オプションまたは人間確認後に `hops update-harness --apply-migrations` または `hops migrate --apply` で行う。
 - target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
 - repo-local skill展開は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
 - user領域のAgent plugin installはグローバル副作用なので、target/project lifecycleの暗黙処理に含めない。複数repoで同じglobal pluginを使う場合だけ、任意手順として案内する。
@@ -351,8 +353,7 @@ hops init --profile runops-upstream
 hops doctor --check-overlay --check-records
 
 # update-harnessで実行する
-hops doctor --check-overlay --check-records
-hops migrate --check
+hops update-harness
 ```
 
 終了コード:

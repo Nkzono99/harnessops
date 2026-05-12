@@ -1,5 +1,5 @@
 {
-  "harnessops_version": "0.1.0",
+  "harnessops_version": "0.1.1",
   "layout_version": "0.1",
   "managed_files": {
     "harness-lab/README.md": "sha256:440eea30a3b85b64a5b79ea8a8e9f497f029328ca1b18e96fb9bf13a372348b5",

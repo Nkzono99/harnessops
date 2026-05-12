@@ -147,6 +147,58 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     assert "直接組み替えない" in text
     assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
     assert (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
+
+
+def test_update_harness_preserves_edited_managed_file_as_new(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    readme = root / "harness-feedback/README.md"
+    readme.write_text("# Custom feedback notes\n", encoding="utf-8")
+
+    result = run_cli(["update-harness"])
+
+    assert ".new" in result.output
+    assert readme.read_text(encoding="utf-8") == "# Custom feedback notes\n"
+    assert (root / "harness-feedback/README.md.new").exists()
+
+
+def test_update_harness_force_overwrites_edited_managed_file(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    readme = root / "harness-feedback/README.md"
+    readme.write_text("# Custom feedback notes\n", encoding="utf-8")
+
+    run_cli(["update-harness", "--force"])
+
+    assert "harness-feedback" in readme.read_text(encoding="utf-8")
+    assert not (root / "harness-feedback/README.md.new").exists()
+
+
+def test_update_harness_recreates_missing_lock(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    (root / ".harnessops/lock.json").unlink()
+
+    run_cli(["update-harness"])
+
+    lock = json.loads((root / ".harnessops/lock.json").read_text(encoding="utf-8"))
+    assert lock["overlay"] == {"mode": "feedback-source", "path": "harness-feedback"}
+    assert "harness-feedback/README.md" in lock["managed_files"]
+
+
+def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+
+    run_cli(["update-harness", "--agent-bridge", "--codex"])
+
+    assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
 
 
 def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):

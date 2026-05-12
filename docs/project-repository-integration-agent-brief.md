@@ -110,11 +110,12 @@ hops doctor --check-overlay --check-records
 更新時:
 
 ```bash
-hops doctor --check-overlay --check-records
-hops migrate --check
+hops update-harness
 ```
 
-未適用migrationを適用する場合は、人間確認または明示フラグ付きで `hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
+`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
+
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `hops update-harness --apply-migrations` または `hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `hops update-harness --agent-bridge --codex` または `hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
 
 ## target固有triageとの分担
 

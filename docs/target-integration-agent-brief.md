@@ -157,11 +157,12 @@ hops doctor --check-overlay --check-records
 `update-harness`:
 
 ```bash
-hops doctor --check-overlay --check-records
-hops migrate --check
+hops update-harness
 ```
 
-未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `hops migrate --apply` を呼びます。`hops init --force` や `hops migrate --apply` を暗黙に実行しないでください。
+`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
+
+未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `hops update-harness --apply-migrations` または `hops migrate --apply` を呼びます。`hops init --force` や migration 適用を暗黙に実行しないでください。
 
 repo-local skill 展開は対象repoの状態なので、明示オプションで入れてかまいません。
 
