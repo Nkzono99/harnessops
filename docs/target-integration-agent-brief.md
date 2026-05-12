@@ -74,23 +74,23 @@ git status --short --branch
 
 ## HarnessOps CLIの実行方法
 
-対象環境に `hops` が入っているなら、そのまま使います。
+対象環境に `hops` が入っているなら、そのまま使います。未導入またはクリーンな一回実行が必要なら、PyPI の `harnessops` パッケージから `uvx` で実行します。
 
 ```bash
 hops --help
 ```
 
-HarnessOps のソースディレクトリを渡されている場合は、対象リポジトリから次の形式で実行します。ディレクトリ名は原則として `harnessops` を使います。
+対象リポジトリから次の形式で実行します。
 
 ```bash
-uvx --isolated --from /path/to/harnessops hops --help
-uvx --isolated --from /path/to/harnessops hops detect
+uvx --isolated --from harnessops hops --help
+uvx --isolated --from harnessops hops detect
 ```
 
 以降の例で `hops` と書かれている箇所は、必要に応じて次に読み替えます。
 
 ```bash
-uvx --isolated --from /path/to/harnessops hops <command>
+uvx --isolated --from harnessops hops <command>
 ```
 
 ## Profile選択
@@ -248,11 +248,11 @@ Python packageやテスト環境がある場合は、そのリポジトリの通
 python -m pytest -q
 ```
 
-HarnessOpsのローカルソースから実行している場合:
+PyPI の `harnessops` パッケージから実行する場合:
 
 ```bash
-uvx --isolated --from /path/to/harnessops hops doctor --check-overlay --check-records
-uvx --isolated --from /path/to/harnessops hops migrate --check
+uvx --isolated --from harnessops hops doctor --check-overlay --check-records
+uvx --isolated --from harnessops hops migrate --check
 ```
 
 ## 受け入れ条件

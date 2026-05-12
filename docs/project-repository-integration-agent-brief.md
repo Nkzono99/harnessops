@@ -51,17 +51,17 @@ hops detect --json
 hops --help
 ```
 
-HarnessOps のソースディレクトリを渡されている場合は、対象リポジトリから次の形式で実行します。ディレクトリ名は原則として `harnessops` を使います。
+未導入またはクリーンな一回実行が必要なら、PyPI の `harnessops` パッケージから `uvx` で実行します。対象リポジトリから次の形式で実行します。
 
 ```bash
-uvx --isolated --from /path/to/harnessops hops --help
-uvx --isolated --from /path/to/harnessops hops detect
+uvx --isolated --from harnessops hops --help
+uvx --isolated --from harnessops hops detect
 ```
 
 以降の例で `hops` と書かれている箇所は、必要に応じて次に読み替えます。
 
 ```bash
-uvx --isolated --from /path/to/harnessops hops <command>
+uvx --isolated --from harnessops hops <command>
 ```
 
 ## Profile選択
