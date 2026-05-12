@@ -19,7 +19,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
 | `hops add-feedback --from <Fid>` | はい | 非公開の上流/メタフィードバック下書きを作成します。 |
 | `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |
-| `hops feedback export --sanitize` | はい | 生成ビュー配下にサニタイズ済み外部向けバンドルを書き出します。 |
+| `hops feedback export --sanitize` | はい | 生成ビュー配下にサニタイズ済み外部向けバンドルを書き出します。`--format github-issue` は公開Issue用Markdown下書きだけを書き、リモートIssueは作りません。 |
 | `hops feedback import <bundle>` | はい | サニタイズ済みバンドルを `harness-lab` にインポートします。 |
 | `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにします。 |
 | `hops lab new-eval-case --from <FBid>` | はい | インポート済みフィードバックを評価ケースに変換します。 |
@@ -34,7 +34,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 ## 安全ルール
 
 1. どのコマンドも GitHub Issue、プルリクエスト、リモート変更を作成しません。
-2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。
+2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。`--format github-issue` は公開共有前提のため、`--sanitize` を必須とし、`--allow-private` との併用を拒否します。
 3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。
 4. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
 5. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
@@ -60,4 +60,5 @@ hops migrate --check
 hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001 --json
 hops feedback export --sanitize
+hops feedback export --sanitize --format github-issue
 ```

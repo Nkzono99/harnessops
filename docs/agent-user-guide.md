@@ -39,9 +39,10 @@ hops route --record F0001
 ```bash
 hops add-feedback --from F0001 --target <target> --summary "<要約>"
 hops feedback export --target <target> --sanitize
+hops feedback export --target <target> --sanitize --format github-issue
 ```
 
-未サニタイズ出力は共有しないでください。`--allow-private` は、人間が明示的に非公開出力を求めた場合だけ使います。
+`--format github-issue` はローカルのMarkdown下書きだけを作り、リモートIssueは作成しません。未サニタイズ出力は共有しないでください。`--allow-private` は、人間が明示的に非公開出力を求めた場合だけ使います。GitHub Issue下書きでは `--allow-private` を使えません。
 
 ## ターゲット側で改善を評価する
 

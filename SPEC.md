@@ -317,7 +317,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops add-failure` | はい | project側失敗レコード作成。 |
 | `hops add-feedback --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
 | `hops route --record <id>` | はい | record dispositionの分類保存。 |
-| `hops feedback export --sanitize` | はい | サニタイズ済みフィードバックバンドル生成。 |
+| `hops feedback export --sanitize` | はい | サニタイズ済みフィードバックバンドル生成。`--format github-issue` はローカルの公開Issue下書きのみ生成し、リモートIssueは作らない。 |
 | `hops feedback import <bundle>` | はい | `harness-lab` へフィードバックをインポート。 |
 | `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにする。 |
 | `hops lab new-eval-case --from <FBid>` | はい | imported feedback を評価ケース化。 |
@@ -426,7 +426,7 @@ private_terms:
 - `hops doctor --check-overlay --check-records` が初期化直後に通る。
 - `hops add-failure` が有効なfailureレコードを作る。
 - `hops route` が分類値を保存する。
-- `hops feedback export --sanitize` がサニタイズ済みバンドルを書く。
+- `hops feedback export --sanitize` がサニタイズ済みバンドルを書く。公開GitHub Issue下書きが必要な場合は `--format github-issue` を使い、`--allow-private` は併用できない。
 - `hops feedback import` が `harness-lab` にfeedbackレコードを作る。
 - `hops lab capture` が issue や bundle のないローカル改善観測を `harness-lab` に記録する。
 - `hops lab new-eval-case` が評価ケースとfixture directoryを作る。
