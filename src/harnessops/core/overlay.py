@@ -179,24 +179,25 @@ def refresh_managed_files(
             if not dry_run:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(text, encoding="utf-8")
-                managed[rel] = template_hash
+                managed[rel] = sha256_file(path)
             updated.append(rel)
             continue
         current_hash = sha256_file(path)
         if path.read_text(encoding="utf-8") == text:
-            managed[rel] = template_hash
+            managed[rel] = current_hash
             unchanged.append(rel)
             continue
         if force or (old_hash is not None and current_hash == old_hash):
             if not dry_run:
                 path.write_text(text, encoding="utf-8")
+                managed[rel] = sha256_file(path)
+            else:
                 managed[rel] = template_hash
             updated.append(rel)
         else:
             conflict = _conflict_path(path, text)
             if not dry_run:
                 conflict.write_text(text, encoding="utf-8")
-                managed[rel] = template_hash
             written_new.append({"path": rel, "new": conflict.relative_to(root).as_posix()})
     if not dry_run:
         old_lock.setdefault("schema_version", "0.1")

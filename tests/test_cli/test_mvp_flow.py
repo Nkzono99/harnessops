@@ -1,7 +1,14 @@
 import json
+import subprocess
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover
+    import tomli as tomllib  # type: ignore
 
 from typer.testing import CliRunner
 
+from harnessops.cli import feedback as feedback_cli
 from harnessops.cli.main import app
 from harnessops.core.records import read_record
 
@@ -38,6 +45,22 @@ def test_init_doctor_migrate_upstream(copy_fixture, monkeypatch):
     assert (root / "harness-lab/records/feedback").is_dir()
     run_cli(["doctor", "--check-overlay", "--check-records"])
     run_cli(["migrate", "--check"])
+
+
+def test_paper_harness_upstream_manifest_uses_pops(copy_fixture, monkeypatch):
+    root = copy_fixture("paper-harness-upstream-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "paper-harness-upstream"])
+
+    manifest = tomllib.loads((root / ".harness/manifest.toml").read_text(encoding="utf-8"))
+    assert manifest["commands"] == {
+        "doctor": "pops doctor",
+        "update": "pops update-harness",
+        "migrate": "pops migrate",
+        "feedback": "pops feedback",
+        "version": "pops version",
+    }
 
 
 def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_path, monkeypatch):
@@ -199,6 +222,67 @@ def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatc
 
     assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
+
+
+def test_update_harness_preserves_dynamic_imported_feedback_view(copy_fixture, monkeypatch):
+    root = copy_fixture("paper-harness-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "paper-harness-upstream"])
+
+    run_cli(["feedback", "import", "--issue", "1"])
+    before = (root / "harness-lab/views/imported-feedback.md").read_text(encoding="utf-8")
+    assert "FB0001" in before
+
+    run_cli(["update-harness"])
+
+    after = (root / "harness-lab/views/imported-feedback.md").read_text(encoding="utf-8")
+    assert "FB0001" in after
+    doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "警告" not in doctor.output
+
+
+def test_feedback_import_issue_captures_github_context(copy_fixture, monkeypatch):
+    root = copy_fixture("paper-harness-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "paper-harness-upstream"])
+
+    payload = {
+        "number": 42,
+        "title": "Import records should include issue context",
+        "body": "The importer needs enough context for lab evaluation.",
+        "author": {"login": "alice"},
+        "labels": [{"name": "enhancement"}, {"name": "feedback"}],
+        "createdAt": "2026-05-12T01:02:03Z",
+        "updatedAt": "2026-05-12T04:05:06Z",
+        "url": "https://github.com/example/repo/issues/42",
+        "comments": [
+            {
+                "author": {"login": "bob"},
+                "createdAt": "2026-05-12T04:00:00Z",
+                "body": "A useful follow-up comment.",
+            }
+        ],
+    }
+
+    def fake_run(args, check, capture_output, text):
+        assert args[:4] == ["gh", "issue", "view", "42"]
+        assert check is True
+        assert capture_output is True
+        assert text is True
+        return subprocess.CompletedProcess(args=args, returncode=0, stdout=json.dumps(payload), stderr="")
+
+    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+
+    imported = run_cli(["feedback", "import", "--issue", "42", "--repo", "example/repo"])
+    frontmatter, body = read_record(root / imported.output.strip())
+
+    issue = frontmatter["source"]["issue"]
+    assert issue["title"] == "Import records should include issue context"
+    assert issue["author"] == "alice"
+    assert issue["labels"] == ["enhancement", "feedback"]
+    assert frontmatter["links"]["issue_url"] == "https://github.com/example/repo/issues/42"
+    assert "The importer needs enough context" in body
+    assert "A useful follow-up comment" in body
 
 
 def test_lab_capture_records_local_improvement(copy_fixture, monkeypatch):

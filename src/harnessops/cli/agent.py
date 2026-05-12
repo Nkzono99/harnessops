@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -83,14 +84,13 @@ def install(
     """repo-local skillを生成するか、任意の同梱プラグインをユーザー領域へコピーします。"""
     if not codex and not claude:
         codex = True
-    root = find_root()
     if scope == "repo":
         bridge(codex=codex, claude=claude, force=force)
         return
     if scope != "user":
         typer.echo("scope は repo または user で指定してください")
         raise typer.Exit(1)
-    home = Path.home()
+    home = Path(os.environ.get("HOME") or Path.home())
     installed: list[dict[str, str]] = []
     for enabled, host, plugin_dir in [
         (codex, "codex", home / ".codex" / "plugins" / PLUGIN_NAME),

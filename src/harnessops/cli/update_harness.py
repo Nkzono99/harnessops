@@ -9,6 +9,7 @@ from harnessops.core.migration import apply_migrations as apply_pending_migratio
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
+from harnessops.core.render import refresh_views
 from harnessops.core.validation import doctor as doctor_project
 
 
@@ -43,6 +44,8 @@ def update_harness_command(
         force=force,
         dry_run=dry_run,
     )
+    if not dry_run:
+        refresh_views(root, project.overlay_path)
 
     existing_codex = (
         root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md"

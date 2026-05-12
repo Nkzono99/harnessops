@@ -163,16 +163,19 @@ def create_imported_feedback(project: Project, *, source_record: dict[str, Any],
         or source_record.get("capability")
         or "unclassified",
     }
+    source = {
+        "type": "harness-feedback-export",
+        "original_id": source_record.get("id"),
+        "source_project": "redacted",
+    }
+    if isinstance(source_record.get("issue"), dict):
+        source["issue"] = source_record["issue"]
     frontmatter = {
         "id": record_id,
         "record_type": "imported_feedback",
         "created_at": now_iso(),
         "status": "triaged",
-        "source": {
-            "type": "harness-feedback-export",
-            "original_id": source_record.get("id"),
-            "source_project": "redacted",
-        },
+        "source": source,
         "classification": classification,
         "links": {
             "eval_case": None,

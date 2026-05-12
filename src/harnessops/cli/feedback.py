@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import typer
 
@@ -14,6 +15,120 @@ from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile
 
 feedback_app = typer.Typer(help="フィードバックバンドルをエクスポート/インポートします。")
+
+
+def _placeholder_issue_source(issue: int, repo: str | None) -> tuple[dict[str, Any], str, str]:
+    source = {
+        "id": f"ISSUE-{issue}",
+        "record_type": "upstream_feedback",
+        "issue": {
+            "provider": "github",
+            "repo": repo or "unknown",
+            "number": issue,
+            "url": f"https://github.com/{repo or 'unknown'}/issues/{issue}",
+        },
+    }
+    body = f"{repo or 'unknown'} から GitHub issue {issue} をインポートしました。"
+    return source, body, f"GitHub issue {issue}"
+
+
+def _issue_label_names(labels: object) -> list[str]:
+    if not isinstance(labels, list):
+        return []
+    names: list[str] = []
+    for label in labels:
+        if isinstance(label, dict) and label.get("name"):
+            names.append(str(label["name"]))
+    return names
+
+
+def _issue_author_login(value: object) -> str | None:
+    if isinstance(value, dict) and value.get("login"):
+        return str(value["login"])
+    return None
+
+
+def _issue_comments(value: object) -> list[dict[str, str | None]]:
+    if not isinstance(value, list):
+        return []
+    comments: list[dict[str, str | None]] = []
+    for comment in value:
+        if not isinstance(comment, dict):
+            continue
+        comments.append(
+            {
+                "author": _issue_author_login(comment.get("author")),
+                "created_at": str(comment.get("createdAt")) if comment.get("createdAt") else None,
+                "body": str(comment.get("body") or ""),
+            }
+        )
+    return comments
+
+
+def _load_github_issue(issue: int, repo: str | None) -> tuple[dict[str, Any], str, str]:
+    source, fallback_body, fallback_title = _placeholder_issue_source(issue, repo)
+    if not repo:
+        return source, fallback_body, fallback_title
+    try:
+        result = subprocess.run(
+            [
+                "gh",
+                "issue",
+                "view",
+                str(issue),
+                "--repo",
+                repo,
+                "--json",
+                "number,title,body,author,labels,createdAt,updatedAt,url,comments",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        payload = json.loads(result.stdout)
+    except (FileNotFoundError, json.JSONDecodeError, subprocess.CalledProcessError):
+        return source, fallback_body, fallback_title
+
+    issue_labels = _issue_label_names(payload.get("labels"))
+    issue_comments = _issue_comments(payload.get("comments"))
+    issue_data: dict[str, Any] = {
+        "provider": "github",
+        "repo": repo,
+        "number": int(payload.get("number") or issue),
+        "url": str(payload.get("url") or f"https://github.com/{repo}/issues/{issue}"),
+        "title": str(payload.get("title") or fallback_title),
+        "author": _issue_author_login(payload.get("author")),
+        "labels": issue_labels,
+        "created_at": str(payload.get("createdAt")) if payload.get("createdAt") else None,
+        "updated_at": str(payload.get("updatedAt")) if payload.get("updatedAt") else None,
+        "comments": issue_comments,
+    }
+    source = {
+        "id": f"ISSUE-{issue_data['number']}",
+        "record_type": "upstream_feedback",
+        "issue": issue_data,
+    }
+    labels = ", ".join(issue_labels) or "なし"
+    body_parts = [
+        f"GitHub issue: {issue_data['url']}",
+        f"author: {issue_data['author'] or 'unknown'}",
+        f"labels: {labels}",
+        f"created_at: {issue_data['created_at'] or 'unknown'}",
+        f"updated_at: {issue_data['updated_at'] or 'unknown'}",
+        "",
+        "## Issue本文",
+        str(payload.get("body") or "本文はありません。").strip(),
+    ]
+    if issue_comments:
+        body_parts.extend(["", "## コメント"])
+        for index, comment in enumerate(issue_comments, start=1):
+            body_parts.extend(
+                [
+                    f"### Comment {index}: {comment.get('author') or 'unknown'}",
+                    comment.get("body") or "",
+                ]
+            )
+    return source, "\n".join(body_parts).strip(), str(issue_data["title"])
 
 
 @feedback_app.command("export")
@@ -94,9 +209,7 @@ def import_feedback(
         typer.echo("feedback import には upstream-lab または meta-lab mode が必要です")
         raise typer.Exit(1)
     if issue is not None:
-        source = {"id": f"ISSUE-{issue}", "record_type": "upstream_feedback", "issue": {"url": f"https://github.com/{repo or 'unknown'}/issues/{issue}"}}
-        body = f"{repo or 'unknown'} から GitHub issue {issue} をインポートしました。"
-        title = f"GitHub issue {issue}"
+        source, body, title = _load_github_issue(issue, repo)
     elif path is not None:
         source_path = path if path.is_absolute() else root / path
         source, body = read_record(source_path)

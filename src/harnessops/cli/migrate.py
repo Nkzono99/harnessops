@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import typer
 
@@ -16,6 +17,7 @@ def migrate_command(
 ) -> None:
     """HarnessOps レイアウトマイグレーションを確認または適用します。"""
     project = load_project(find_root())
+    result: dict[str, Any]
     if apply:
         entry = apply_migrations(project)
         result = {"ok": True, "pending": [], "entry": str(entry) if entry else None}
@@ -26,7 +28,8 @@ def migrate_command(
         typer.echo(json.dumps(result, indent=2, sort_keys=True))
     else:
         typer.echo("未適用マイグレーションはありません" if result["ok"] else "未適用マイグレーションがあります")
-        for item in result.get("pending", []):
+        pending = result.get("pending", [])
+        for item in pending if isinstance(pending, list) else []:
             typer.echo(item)
     if not result["ok"]:
         raise typer.Exit(1)

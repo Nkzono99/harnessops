@@ -36,12 +36,13 @@ def default_manifest(profile: dict[str, Any]) -> dict[str, Any]:
             "version": "runo version",
         }
     elif provider == "paper-harness":
+        executable = "pops" if profile_id == "paper-harness-upstream" else "paper-harness"
         commands = {
-            "doctor": "paper-harness doctor",
-            "update": "paper-harness update-harness",
-            "migrate": "paper-harness migrate",
-            "feedback": "paper-harness feedback",
-            "version": "paper-harness version",
+            "doctor": f"{executable} doctor",
+            "update": f"{executable} update-harness",
+            "migrate": f"{executable} migrate",
+            "feedback": f"{executable} feedback",
+            "version": f"{executable} version",
         }
     return {
         "schema_version": "0.1",
@@ -57,4 +58,3 @@ def write_manifest(root: Path, profile: dict[str, Any], *, force: bool = False) 
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(tomli_w.dumps(default_manifest(profile)), encoding="utf-8")
-

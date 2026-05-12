@@ -24,7 +24,9 @@ def _load_sanitize_config(root: Path) -> dict[str, Any]:
 def sanitize_text(text: str, *, root: Path, profile: dict[str, Any] | None = None, allow_private: bool = False) -> str:
     if allow_private:
         return text
-    result = text.replace(root.as_posix(), "<PROJECT_ROOT>")
+    result = text
+    for root_text in {str(root), root.as_posix()}:
+        result = result.replace(root_text, "<PROJECT_ROOT>")
     for pattern, replacement in DEFAULT_PATTERNS:
         result = pattern.sub(replacement, result)
     config = _load_sanitize_config(root)

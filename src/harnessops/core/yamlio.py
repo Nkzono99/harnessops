@@ -4,7 +4,7 @@ from io import StringIO
 from typing import Any
 
 try:
-    import yaml as _pyyaml
+    import yaml as _pyyaml  # type: ignore[import-untyped]
 except ModuleNotFoundError:  # pragma: no cover - exercised in packaged uv env
     _pyyaml = None
 
@@ -39,4 +39,3 @@ def _sort_mapping(value: Any) -> Any:
     if isinstance(value, list):
         return [_sort_mapping(item) for item in value]
     return value
-

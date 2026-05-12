@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
+from typing import Any, Optional
 
 import typer
 
@@ -23,7 +23,7 @@ def route_command(
     project = load_project(root)
     body = text
     record_path = None
-    frontmatter = {}
+    frontmatter: dict[str, Any] = {}
     if record:
         record_path = find_record(project, record)
         frontmatter, body = read_record(record_path)
