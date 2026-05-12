@@ -1,9 +1,11 @@
 ---
-name: hops-release
-description: HarnessOps repository の GitHub release を gh CLI で作るときに使う。version/tag確認、検証、push、gh release create までの手順を守る。
+name: release
+description: HarnessOps repository を GitHub release するときに使う repo-local skill。version/tag確認、検証、push、gh release create、release後のworkflow確認を行う。
 ---
 
-HarnessOps の release は `gh` CLI で作ります。状態変更は `hops` に委譲し、`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えない。
+この skill は HarnessOps repository 専用です。共通 plugin ではなく repo-local skill として扱います。
+
+`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えず、HarnessOps 状態変更は `hops` に委譲します。
 
 手順:
 

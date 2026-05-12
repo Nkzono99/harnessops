@@ -92,3 +92,13 @@ def test_builtin_profiles_expose_domain_triage_hooks() -> None:
         assert domain_triage.get("skill"), path
         assert domain_triage.get("scope"), path
         assert domain_triage.get("delegates_to_harnessops"), path
+
+
+def test_release_skill_is_repo_local() -> None:
+    release_skill = ROOT / ".agents/skills/release/SKILL.md"
+    text = release_skill.read_text(encoding="utf-8")
+    assert "repo-local skill" in text
+    assert "gh release create" in text
+    assert "hops doctor --check-overlay --check-records" in text
+    assert not (ROOT / "plugins/codex/harnessops/skills/hops-release/SKILL.md").exists()
+    assert not (ROOT / "plugins/claude/harnessops/skills/hops-release/SKILL.md").exists()
