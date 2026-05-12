@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from harnessops.core import yamlio
@@ -27,11 +28,39 @@ def test_generated_bridge_explains_hops_contract() -> None:
     assert "hops feedback export --sanitize" in BRIDGE_TEXT
 
 
+def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
+    from harnessops.core.agent_bridge import write_bridge
+
+    paths = write_bridge(tmp_path, codex=True)
+    rel_paths = {path.relative_to(tmp_path).as_posix() for path in paths}
+    assert ".agents/skills/harnessops-bridge/SKILL.md" in rel_paths
+    assert ".agents/skills/hops-add-failure/SKILL.md" in rel_paths
+    assert ".agents/skills/hops-issue-triage/SKILL.md" in rel_paths
+
+
+def test_harnessops_repo_has_repo_local_hops_skills() -> None:
+    for skill_name in ("hops-add-failure", "hops-issue-triage", "hops-run-lab"):
+        text = (ROOT / f".agents/skills/{skill_name}/SKILL.md").read_text(encoding="utf-8")
+        assert_harness_contract(text)
+
+
 def test_packaged_plugin_skills_explain_hops_contract() -> None:
     skill_paths = sorted((ROOT / "plugins").glob("*/harnessops/skills/*/SKILL.md"))
     assert skill_paths
     for path in skill_paths:
         assert_harness_contract(path.read_text(encoding="utf-8"))
+
+
+def test_packaged_agent_assets_match_plugin_skills() -> None:
+    for host in ("codex", "claude"):
+        asset_manifest = ROOT / f"src/harnessops/agent_assets/plugins/{host}/harnessops"
+        assert (asset_manifest / "README.md").exists()
+        assert any((asset_manifest / marker).exists() for marker in (".codex-plugin/plugin.json", ".claude-plugin/plugin.json"))
+        plugin_skills = sorted((ROOT / f"plugins/{host}/harnessops/skills").glob("*/SKILL.md"))
+        asset_skills = sorted((asset_manifest / "skills").glob("*/SKILL.md"))
+        assert [path.parent.name for path in asset_skills] == [path.parent.name for path in plugin_skills]
+        for plugin_skill, asset_skill in zip(plugin_skills, asset_skills, strict=True):
+            assert asset_skill.read_text(encoding="utf-8") == plugin_skill.read_text(encoding="utf-8")
 
 
 def test_packaged_plugin_readmes_explain_hops_contract() -> None:
@@ -40,7 +69,8 @@ def test_packaged_plugin_readmes_explain_hops_contract() -> None:
     for path in readme_paths:
         text = path.read_text(encoding="utf-8")
         assert_harness_contract(text)
-        assert "hops agent bridge" in text
+    for path in readme_paths:
+        assert "hops agent bridge" in path.read_text(encoding="utf-8")
 
 
 def test_lifecycle_delegation_contract_is_documented() -> None:
@@ -58,8 +88,13 @@ def test_lifecycle_delegation_contract_is_documented() -> None:
         assert "hops migrate --apply" in text
 
     target_brief = (ROOT / "docs/target-integration-agent-brief.md").read_text(encoding="utf-8")
-    assert "hops agent install --codex --scope user" in target_brief
+    assert "repo-local skill" in target_brief
+    assert "global plugin" in target_brief
     assert "hops agent bridge --codex" in target_brief
+
+    project_brief = (ROOT / "docs/project-repository-integration-agent-brief.md").read_text(encoding="utf-8")
+    assert "repo-local skill" in project_brief
+    assert "global plugin" in project_brief
 
 
 def test_feedback_triage_ownership_contract_is_documented() -> None:
@@ -102,6 +137,14 @@ def test_release_skill_is_repo_local() -> None:
     assert "hops doctor --check-overlay --check-records" in text
     assert not (ROOT / "plugins/codex/harnessops/skills/hops-release/SKILL.md").exists()
     assert not (ROOT / "plugins/claude/harnessops/skills/hops-release/SKILL.md").exists()
+
+
+def test_codex_marketplace_exposes_packaged_plugin() -> None:
+    marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
+    entry = next(plugin for plugin in marketplace["plugins"] if plugin["name"] == "harnessops")
+    assert entry["source"] == {"source": "local", "path": "./plugins/codex/harnessops"}
+    assert entry["policy"]["installation"] == "AVAILABLE"
+    assert (ROOT / "plugins/codex/harnessops/.codex-plugin/plugin.json").exists()
 
 
 def test_issue_triage_skill_is_packaged() -> None:

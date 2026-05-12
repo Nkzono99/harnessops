@@ -42,8 +42,8 @@ target harness の `init`、`setup`、`update-harness` などは、HarnessOps �
 - target repository setup時: `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records`
 - update時: `hops doctor --check-overlay --check-records` と `hops migrate --check`
 - migration適用時: 人間確認または明示フラグ付きで `hops migrate --apply`
-- user領域のAgent plugin installは暗黙に実行せず、明示的に `hops agent install --codex --scope user` などを案内する
-- repo-local bridgeは、明示オプションで `hops agent bridge --codex` または `hops init --with-agent-bridge` を呼んでよい
+- repo-local skill展開は、明示オプションで `hops agent bridge --codex` または `hops init --with-agent-bridge` を呼んでよい
+- user領域のAgent plugin installは暗黙に実行せず、複数repoでglobal pluginを共有したい場合だけ任意手順として案内する
 
 ## 検出優先順位
 

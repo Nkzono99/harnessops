@@ -83,7 +83,7 @@ profileが決まったら初期化します。
 hops init --profile <profile-id>
 ```
 
-repo-local bridgeも入れる場合:
+repo-local skillも入れる場合:
 
 ```bash
 hops init --profile <profile-id> --with-agent-bridge
@@ -114,7 +114,7 @@ hops doctor --check-overlay --check-records
 hops migrate --check
 ```
 
-未適用migrationを適用する場合は、人間確認または明示フラグ付きで `hops migrate --apply` を呼びます。user領域のAgent plugin installは暗黙に行わず、repo-local bridgeは明示オプションで `hops agent bridge --codex` を使います。
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
 
 ## target固有triageとの分担
 

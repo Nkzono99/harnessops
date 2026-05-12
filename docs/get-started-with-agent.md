@@ -29,25 +29,36 @@ hops doctor --check-overlay
 
 ## Agent向けスキルの入れ方
 
-同じAgentで複数リポジトリの HarnessOps を扱うなら、同梱プラグインをユーザー領域へ入れます。
+通常は、対象リポジトリに repo-local skill を展開します。runops などの target CLI が project repository を生成する場合も、この方式を本筋にします。
 
 ```bash
-uv run --with-editable . hops agent install --codex --scope user
+hops init --profile <profile-id> --with-agent-bridge
 ```
 
-Claude 用も同じ考え方です。
-
-```bash
-uv run --with-editable . hops agent install --claude --scope user
-```
-
-特定リポジトリだけに最小限の案内を残したい場合は、repo-local bridge を使います。
+すでに初期化済みなら、repo-local skill だけを展開します。
 
 ```bash
 hops agent bridge --codex
 ```
 
-どちらの場合も、スキルやブリッジは薄い案内に限定します。状態変更の正本は常に `hops` CLI です。
+これにより `.agents/skills/harnessops-bridge/` に加えて、`hops-add-failure`、`hops-issue-triage` などの HarnessOps skill が `.agents/skills/` に入ります。Codex の新しいセッションでは repo-local skill として表示されます。
+
+同じAgentで複数リポジトリの HarnessOps を扱い、ユーザー領域へ一度だけ入れたい場合は、任意で同梱プラグインを使えます。
+
+```bash
+uv run --with-editable . hops agent install --codex --scope user
+codex plugin marketplace add "$HOME"
+```
+
+Codex の plugin は marketplace 登録だけでは使えず、Codex の plugin 画面または app-server 経由でインストールが必要です。通常の target/project integration では、この global plugin を必須にしません。
+
+Claude 用の repo-local skill も同じ考え方です。
+
+```bash
+hops agent bridge --claude
+```
+
+どの場合も、スキルやブリッジは薄い案内に限定します。状態変更の正本は常に `hops` CLI です。
 
 ## 失敗を記録したいとき
 

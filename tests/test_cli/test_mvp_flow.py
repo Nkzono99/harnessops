@@ -1,3 +1,5 @@
+import json
+
 from typer.testing import CliRunner
 
 from harnessops.cli.main import app
@@ -143,6 +145,8 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     text = skill.read_text(encoding="utf-8")
     assert "hops doctor" in text
     assert "直接組み替えない" in text
+    assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
 
 
 def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):
@@ -152,7 +156,12 @@ def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):
     run_cli(["init", "--profile", "harnessops-core"])
     result = run_cli(["agent", "install", "--codex", "--scope", "user"])
     assert ".codex/plugins/harnessops" in result.output
+    assert ".agents/plugins/marketplace.json" in result.output
     assert (tmp_path / ".codex/plugins/harnessops/.codex-plugin/plugin.json").exists()
+    marketplace = json.loads((tmp_path / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
+    entry = next(plugin for plugin in marketplace["plugins"] if plugin["name"] == "harnessops")
+    assert entry["source"]["path"] == "./.codex/plugins/harnessops"
+    assert entry["policy"]["installation"] == "AVAILABLE"
 
 
 def test_eval_by_experiment_record(copy_fixture, monkeypatch):

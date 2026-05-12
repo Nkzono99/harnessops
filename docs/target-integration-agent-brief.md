@@ -49,7 +49,7 @@ HarnessOps をtarget repositoryに追加し、AI Agentが受け取ったフィ�
 - `.harness/manifest.toml` がある。
 - `.harnessops/project.toml` と `.harnessops/lock.json` がある。
 - `hops doctor --check-overlay --check-records` が通る。
-- 必要に応じて repo-local Agent bridge がある。
+- 必要に応じて repo-local HarnessOps skill が `.agents/skills/` にある。
 
 ## 絶対ルール
 
@@ -121,7 +121,7 @@ profileが決まったら初期化します。
 hops init --profile <profile-id>
 ```
 
-repo-local bridgeも入れる場合:
+repo-local skillも入れる場合:
 
 ```bash
 hops init --profile <profile-id> --with-agent-bridge
@@ -163,17 +163,15 @@ hops migrate --check
 
 未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `hops migrate --apply` を呼びます。`hops init --force` や `hops migrate --apply` を暗黙に実行しないでください。
 
-Agent plugin のユーザー領域インストールはグローバル副作用なので、target/project lifecycle から暗黙に実行しません。必要なら別コマンドとして案内します。
-
-```bash
-hops agent install --codex --scope user
-```
-
-repo-local bridge は対象repoの状態なので、明示オプションで入れてかまいません。
+repo-local skill 展開は対象repoの状態なので、明示オプションで入れてかまいません。
 
 ```bash
 hops agent bridge --codex
 ```
+
+これにより `.agents/skills/hops-issue-triage/` などが対象repoに入ります。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
+
+Agent plugin のユーザー領域インストールはグローバル副作用なので、target/project lifecycle から暗黙に実行しません。複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
 
 ## feedback/triageを移行する場合
 

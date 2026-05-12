@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import shutil
+from importlib import resources
 from pathlib import Path
 
 
@@ -31,15 +33,43 @@ PATH に `hops` がない環境では `uv run --with-editable . hops <command>` 
 """
 
 
+def packaged_plugin_source(host: str) -> Path:
+    source_root = Path(__file__).resolve().parents[3] / "plugins" / host / "harnessops"
+    if source_root.exists():
+        return source_root
+    return Path(str(resources.files("harnessops").joinpath("agent_assets", "plugins", host, "harnessops")))
+
+
+def _copy_skill_dirs(source: Path, destination: Path, *, force: bool) -> list[Path]:
+    written: list[Path] = []
+    skills_dir = source / "skills"
+    if not skills_dir.exists():
+        raise FileNotFoundError(f"HarnessOps skill assets not found: {skills_dir}")
+    for skill_dir in sorted(path for path in skills_dir.iterdir() if (path / "SKILL.md").exists()):
+        target = destination / skill_dir.name
+        if target.exists():
+            if not force:
+                written.append(target / "SKILL.md")
+                continue
+            shutil.rmtree(target)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(skill_dir, target)
+        written.append(target / "SKILL.md")
+    return written
+
+
 def write_bridge(root: Path, *, codex: bool = True, claude: bool = False, force: bool = False) -> list[Path]:
     paths: list[Path] = []
     if codex:
         paths.append(root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md")
+        paths.extend(_copy_skill_dirs(packaged_plugin_source("codex"), root / ".agents" / "skills", force=force))
     if claude:
         paths.append(root / ".claude" / "skills" / "harnessops-bridge" / "SKILL.md")
+        paths.extend(_copy_skill_dirs(packaged_plugin_source("claude"), root / ".claude" / "skills", force=force))
     for path in paths:
         if path.exists() and not force:
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(BRIDGE_TEXT, encoding="utf-8")
+        if path.parent.name == "harnessops-bridge":
+            path.write_text(BRIDGE_TEXT, encoding="utf-8")
     return paths

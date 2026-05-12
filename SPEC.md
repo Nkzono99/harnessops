@@ -276,7 +276,7 @@ HarnessOps が管理するもの:
 - disposition の保存、routing evidence、local/upstream/meta/external/private の分離。
 - sanitizer、feedback bundle、export/import。
 - imported feedback から eval case、hypothesis、decision へ進む共通ラボフロー。
-- Codex / Claude plugin の共通スキルと repo-local bridge のCLI委譲契約。
+- repo-local skill と Codex / Claude plugin のCLI委譲契約。
 
 target repository が提供するもの:
 
@@ -322,7 +322,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |
 | `hops eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
 | `hops decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
-| `hops agent bridge/install/verify` | bridge/installのみ | Agent bridge/plugin成果物の管理。 |
+| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と任意plugin成果物の管理。 |
 | `hops report` | いいえ | 簡潔なrepository report表示。 |
 
 ## Target harness lifecycle連携
@@ -336,8 +336,8 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 - target repository 自身の `setup` は、target repo で `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
 - `update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` を基本にし、migration適用は明示オプションまたは人間確認後に `hops migrate --apply` で行う。
 - target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
-- user領域のAgent plugin installはグローバル副作用なので、target/project lifecycleの暗黙処理に含めない。明示コマンドとして `hops agent install --codex --scope user` などを案内する。
-- repo-local bridge は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
+- repo-local skill展開は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
+- user領域のAgent plugin installはグローバル副作用なので、target/project lifecycleの暗黙処理に含めない。複数repoで同じglobal pluginを使う場合だけ、任意手順として案内する。
 
 例:
 
@@ -388,9 +388,9 @@ private_terms:
   - internal-method-name
 ```
 
-## AgentとPluginの契約
+## Agent SkillとPluginの契約
 
-Codex / Claude plugin は薄いUX層です。状態変更は `hops` に委譲します。
+標準ルートは、`hops init --with-agent-bridge` または `hops agent bridge --codex` による repo-local skill 展開です。Codex / Claude plugin は、複数repoで同じグローバル入口を使いたい場合の任意UX層です。どちらも状態変更は `hops` に委譲します。
 
 必須契約:
 
@@ -430,7 +430,7 @@ Codex / Claude plugin は薄いUX層です。状態変更は `hops` に委譲し
 - `hops eval --manual` がscorecardを保存する。
 - `hops decide --status adopted` は証拠、回帰リスク、ガードパスなしでは失敗する。
 - 生成ファイルのユーザー編集を安全でなく上書きしない。
-- Codex/Claude plugin と repo-local bridge はCLI委譲の薄い契約を守る。
+- repo-local skill と Codex/Claude plugin はCLI委譲の薄い契約を守る。
 
 標準確認:
 
