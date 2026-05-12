@@ -10,3 +10,6 @@
 - `FB0007` triaged unclassified unclassified
 - `FB0008` triaged unclassified unclassified
 - `FB0009` triaged github_issue_import unicode_decode_failure
+- `FB0010` triaged improvement_loop_design ambiguous_improvement_workflow
+- `FB0011` triaged meta_hypothesis_scan missed_second_order_observation
+- `FB0012` triaged meta_improvement_research missing_research_skill

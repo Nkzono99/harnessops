@@ -40,11 +40,20 @@ def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
 
 
 def test_harnessops_repo_has_repo_local_hops_skills() -> None:
-    for skill_name in ("hops-add-failure", "hops-issue-triage", "hops-run-lab", "hops-update-harness"):
+    for skill_name in (
+        "hops-add-failure",
+        "hops-issue-triage",
+        "hops-research-improvements",
+        "hops-run-lab",
+        "hops-update-harness",
+    ):
         text = (ROOT / f".agents/skills/{skill_name}/SKILL.md").read_text(encoding="utf-8")
         assert_harness_contract(text)
     run_lab = (ROOT / ".agents/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
     assert "hops lab capture" in run_lab
+    assert "hops lab investigate" in run_lab
+    assert "hops lab classify" in run_lab
+    assert "メタ仮説スキャン" in run_lab
 
 
 def test_packaged_plugin_skills_explain_hops_contract() -> None:
@@ -181,4 +190,25 @@ def test_lab_capture_contract_is_documented() -> None:
     for host in ("codex", "claude"):
         text = (ROOT / f"plugins/{host}/harnessops/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
         assert "hops lab capture" in text
+        assert "hops lab investigate" in text
+        assert "hops lab classify" in text
+        assert "メタ仮説スキャン" in text
+        assert_harness_contract(text)
+
+
+def test_meta_improvement_research_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-research-improvements/SKILL.md").read_text(encoding="utf-8")
+    assert "web" in repo_skill
+    assert "rg" in repo_skill
+    assert "hops lab investigate" in repo_skill
+    assert "hops lab classify" in repo_skill
+    assert "hops lab capture" in repo_skill
+    assert "hops propose" in repo_skill
+    assert "メタ仮説スキャン" in repo_skill
+    assert_harness_contract(repo_skill)
+
+    for host in ("codex", "claude"):
+        skill = ROOT / f"plugins/{host}/harnessops/skills/hops-research-improvements/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        assert text == repo_skill
         assert_harness_contract(text)

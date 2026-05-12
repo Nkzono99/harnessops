@@ -25,6 +25,9 @@ PATH に `hops` がない環境では `uv run --with-editable . hops <command>` 
 - `hops feedback export --sanitize`
 - `hops feedback import <bundle-path>`
 - `hops lab capture --title <title> --summary <summary> --expected-change <expected>`
+- `hops lab dossier --from <FBid>`
+- `hops lab investigate --from <IMPid> --summary <summary>`
+- `hops lab classify --from <IMPid>`
 - `hops lab new-eval-case --from <FBid>`
 - `hops propose --from <Eid>`
 - `hops eval --case <Eid> --manual`
@@ -108,7 +111,7 @@ def refresh_bridge_files(
         if not path.exists():
             if not dry_run:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text, encoding="utf-8")
+                path.write_text(text, encoding="utf-8", newline="\n")
                 managed[rel] = sha256_file(path)
             updated.append(rel)
             continue
@@ -122,14 +125,14 @@ def refresh_bridge_files(
 
         if force or (old_hash is not None and current_hash == old_hash):
             if not dry_run:
-                path.write_text(text, encoding="utf-8")
+                path.write_text(text, encoding="utf-8", newline="\n")
                 managed[rel] = sha256_file(path)
             updated.append(rel)
             continue
 
         conflict = _conflict_path(path, text)
         if not dry_run:
-            conflict.write_text(text, encoding="utf-8")
+            conflict.write_text(text, encoding="utf-8", newline="\n")
         conflicted.append(rel)
         written_new.append({"path": rel, "new": conflict.relative_to(root).as_posix()})
 

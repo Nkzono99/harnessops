@@ -413,6 +413,54 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     assert "IMP0001" in view
     assert "source=FB0001" in view
 
+    run_cli(
+        [
+            "lab",
+            "investigate",
+            "--from",
+            "IMP0001",
+            "--kind",
+            "external-benchmark",
+            "--summary",
+            "Compared with an external improvement loop and found investigation should be explicit.",
+            "--evidence-ref",
+            "docs/design-principles.md",
+        ]
+    )
+    classified = run_cli(
+        [
+            "lab",
+            "classify",
+            "--from",
+            "IMP0001",
+            "--source-type",
+            "friction",
+            "--scope",
+            "harnessops-core",
+            "--maturity",
+            "investigated",
+            "--relation",
+            "extends",
+            "--promotion-level",
+            "target-lab-case",
+            "--guard-status",
+            "planned",
+            "--guard-path",
+            "tests/test_cli/test_mvp_flow.py",
+        ]
+    )
+    frontmatter, updated_text = read_record(root / classified.output.strip())
+    assert frontmatter["source_type"] == "friction"
+    assert frontmatter["maturity"] == "investigated"
+    assert frontmatter["relation"] == "extends"
+    assert frontmatter["guard"]["status"] == "planned"
+    assert frontmatter["investigation"][0]["kind"] == "external-benchmark"
+    assert "## Investigation" in updated_text
+    assert "Compared with an external improvement loop" in updated_text
+    view = (root / "harness-lab/views/improvements.md").read_text(encoding="utf-8")
+    assert "maturity=investigated" in view
+    assert "promotion=target-lab-case" in view
+
     second = run_cli(["lab", "dossier", "--from", "FB0001"])
 
     assert second.output.strip() == result.output.strip()

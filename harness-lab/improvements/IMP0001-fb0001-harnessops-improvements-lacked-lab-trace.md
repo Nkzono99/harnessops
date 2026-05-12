@@ -2,8 +2,13 @@
 id: IMP0001
 record_type: improvement_dossier
 created_at: '2026-05-13T00:20:57+09:00'
-updated_at: '2026-05-13T00:23:11+09:00'
+updated_at: '2026-05-13T01:02:09+09:00'
 status: adopted
+source_type: observation
+scope: harnessops-core
+maturity: adopted
+relation: new
+promotion_level: target-lab-case
 source_feedback: FB0001
 eval_cases:
 - E0001
@@ -14,6 +19,10 @@ decisions:
 classification:
   capability: harness_lab_traceability
   failure_class: missing_lab_capture
+guard:
+  status: not-defined
+  path:
+investigation: []
 links:
   issue_url:
 ---
@@ -23,6 +32,11 @@ links:
 ## Status
 
 - status: adopted
+- maturity: adopted
+- source_type: observation
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
 - source_feedback: `FB0001`
 - linked_records: `FB0001`, `E0001`, `H0001`, `D0001`
 
@@ -48,6 +62,10 @@ Provide a first-class lab capture command and update agent, release, and lab ski
 
 - capability: harness_lab_traceability
 - failure_class: missing_lab_capture
+
+## Investigation
+
+調査メモはまだありません。
 
 ## Evaluation
 
@@ -130,6 +148,11 @@ If agents still bypass lab records or the command creates low-value noise, simpl
 
 `harness-lab/views/eval-results/E0001-manual-score.md`
 
+## Guard
+
+- status: not-defined
+- path: None
+
 ## Links
 
 - issue_url: 未設定
@@ -171,4 +194,3 @@ Low. The new command only writes harness-lab records in upstream-lab/meta-lab mo
 ## 回帰ガード
 
 tests/test_cli/test_mvp_flow.py
-

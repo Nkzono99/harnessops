@@ -2,8 +2,13 @@
 id: IMP0005
 record_type: improvement_dossier
 created_at: '2026-05-13T00:35:12+09:00'
-updated_at: '2026-05-13T00:35:12+09:00'
+updated_at: '2026-05-13T01:02:54+09:00'
 status: adopted
+source_type: observation
+scope: harnessops-core
+maturity: adopted
+relation: new
+promotion_level: target-lab-case
 source_feedback: FB0009
 eval_cases:
 - E0009
@@ -14,6 +19,10 @@ decisions:
 classification:
   capability: github_issue_import
   failure_class: unicode_decode_failure
+guard:
+  status: not-defined
+  path:
+investigation: []
 links:
   issue_url:
 ---
@@ -23,6 +32,11 @@ links:
 ## Status
 
 - status: adopted
+- maturity: adopted
+- source_type: observation
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
 - source_feedback: `FB0009`
 - linked_records: `FB0009`, `E0009`, `H0009`, `D0010`
 
@@ -48,6 +62,10 @@ Decode gh issue JSON as UTF-8 explicitly, or capture bytes and decode UTF-8, the
 
 - capability: github_issue_import
 - failure_class: unicode_decode_failure
+
+## Investigation
+
+調査メモはまだありません。
 
 ## Evaluation
 
@@ -130,6 +148,11 @@ cp932 相当の Windows locale を想定した test で Unicode body を返す g
 
 `harness-lab/views/eval-results/E0009-manual-score.md`
 
+## Guard
+
+- status: not-defined
+- path: None
+
 ## Links
 
 - issue_url: 未設定
@@ -171,4 +194,3 @@ Consider moving all gh subprocess calls to a shared UTF-8 wrapper.
 ## 回帰ガード
 
 tests/test_cli/test_mvp_flow.py
-

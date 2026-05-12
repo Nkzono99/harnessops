@@ -2,8 +2,13 @@
 id: IMP0003
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:17+09:00'
-updated_at: '2026-05-13T00:24:59+09:00'
+updated_at: '2026-05-13T01:02:31+09:00'
 status: adopted
+source_type: observation
+scope: harnessops-core
+maturity: adopted
+relation: new
+promotion_level: target-lab-case
 source_feedback: FB0007
 eval_cases:
 - E0007
@@ -14,6 +19,10 @@ decisions:
 classification:
   capability: unclassified
   failure_class: unclassified
+guard:
+  status: not-defined
+  path:
+investigation: []
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/7
 ---
@@ -23,6 +32,11 @@ links:
 ## Status
 
 - status: adopted
+- maturity: adopted
+- source_type: observation
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
 - source_feedback: `FB0007`
 - linked_records: `FB0007`, `E0007`, `H0007`, `D0008`
 
@@ -111,6 +125,10 @@ The current typed records (`FB`, `E`, `H`, `X`, `D`) could remain as an advanced
 - capability: unclassified
 - failure_class: unclassified
 
+## Investigation
+
+調査メモはまだありません。
+
 ## Evaluation
 
 ### E0007: E0007: FB0007-simplify-harness-lab-around-per-improvement-dossiers を評価
@@ -192,6 +210,11 @@ dossier が自由記述ノートになり、評価ケースや採用判断の証
 
 `harness-lab/views/eval-results/E0007-manual-score.md`
 
+## Guard
+
+- status: not-defined
+- path: None
+
 ## Links
 
 - issue_url: https://github.com/Nkzono99/harnessops/issues/7
@@ -233,4 +256,3 @@ Consider adding richer dossier update options after the lab-first issue workflow
 ## 回帰ガード
 
 tests/test_cli/test_mvp_flow.py
-

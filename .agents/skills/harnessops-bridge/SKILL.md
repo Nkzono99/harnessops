@@ -17,6 +17,9 @@ PATH に `hops` がない環境では `uv run --with-editable . hops <command>` 
 - `hops feedback export --sanitize`
 - `hops feedback import <bundle-path>`
 - `hops lab capture --title <title> --summary <summary> --expected-change <expected>`
+- `hops lab dossier --from <FBid>`
+- `hops lab investigate --from <IMPid> --summary <summary>`
+- `hops lab classify --from <IMPid>`
 - `hops lab new-eval-case --from <FBid>`
 - `hops propose --from <Eid>`
 - `hops eval --case <Eid> --manual`

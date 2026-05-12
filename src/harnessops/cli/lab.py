@@ -14,12 +14,14 @@ from harnessops.cli.feedback import (
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.records import (
+    add_improvement_investigation,
     create_eval_case,
     create_lab_feedback,
     create_or_update_improvement_dossier,
     dump_record,
     find_record,
     read_record,
+    update_improvement_dossier_metadata,
 )
 from harnessops.core.render import refresh_views
 from harnessops.core.sanitize import sanitize_text
@@ -100,6 +102,56 @@ def dossier(from_id: str = typer.Option(..., "--from")) -> None:
         typer.echo("lab dossier には upstream-lab または meta-lab mode が必要です")
         raise typer.Exit(1)
     path = create_or_update_improvement_dossier(project, source_ref=from_id)
+    refresh_views(root, project.overlay_path)
+    typer.echo(path.relative_to(root).as_posix())
+
+
+@lab_app.command("classify")
+def classify(
+    from_id: str = typer.Option(..., "--from"),
+    source_type: str | None = typer.Option(None, "--source-type"),
+    scope: str | None = typer.Option(None, "--scope"),
+    maturity: str | None = typer.Option(None, "--maturity"),
+    relation: str | None = typer.Option(None, "--relation"),
+    promotion_level: str | None = typer.Option(None, "--promotion-level"),
+    guard_status: str | None = typer.Option(None, "--guard-status"),
+    guard_path: str | None = typer.Option(None, "--guard-path"),
+) -> None:
+    """改善dossierの分類、成熟度、昇格、ガード情報を更新します。"""
+    root = find_root()
+    project = load_project(root)
+    path = update_improvement_dossier_metadata(
+        project,
+        source_ref=from_id,
+        source_type=source_type,
+        scope=scope,
+        maturity=maturity,
+        relation=relation,
+        promotion_level=promotion_level,
+        guard_status=guard_status,
+        guard_path=guard_path,
+    )
+    refresh_views(root, project.overlay_path)
+    typer.echo(path.relative_to(root).as_posix())
+
+
+@lab_app.command("investigate")
+def investigate(
+    from_id: str = typer.Option(..., "--from"),
+    summary: str = typer.Option(..., "--summary"),
+    kind: str = typer.Option("codebase", "--kind"),
+    evidence_ref: str | None = typer.Option(None, "--evidence-ref"),
+) -> None:
+    """改善dossierにコード調査、外部比較、反例などの調査メモを追記します。"""
+    root = find_root()
+    project = load_project(root)
+    path = add_improvement_investigation(
+        project,
+        source_ref=from_id,
+        summary=summary,
+        kind=kind,
+        evidence_ref=evidence_ref,
+    )
     refresh_views(root, project.overlay_path)
     typer.echo(path.relative_to(root).as_posix())
 

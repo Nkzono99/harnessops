@@ -41,6 +41,7 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             + "# 未完了ルーティング\n\n"
             + ("".join(failures) or "失敗レコードはまだありません。\n"),
             encoding="utf-8",
+            newline="\n",
         )
         written.append(view)
     else:
@@ -58,6 +59,7 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             + "# インポート済みフィードバック\n\n"
             + ("".join(rows) or "インポート済みフィードバックレコードはまだありません。\n"),
             encoding="utf-8",
+            newline="\n",
         )
         written.append(view)
         improvement_rows = []
@@ -66,6 +68,9 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             classification = frontmatter.get("classification", {})
             improvement_rows.append(
                 f"- `{frontmatter.get('id')}` {frontmatter.get('status')} "
+                f"maturity={frontmatter.get('maturity', 'raw')} "
+                f"scope={frontmatter.get('scope', 'unknown')} "
+                f"promotion={frontmatter.get('promotion_level', 'unknown')} "
                 f"source={frontmatter.get('source_feedback')} "
                 f"{classification.get('capability')} {classification.get('failure_class')}\n"
             )
@@ -75,6 +80,7 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             + "# 改善dossier\n\n"
             + ("".join(improvement_rows) or "改善dossierはまだありません。\n"),
             encoding="utf-8",
+            newline="\n",
         )
         written.append(improvements_view)
     _refresh_managed_hashes(root, written)

@@ -463,6 +463,8 @@ def _feedback_for_record(project: Project, record_ref: str) -> tuple[Path, dict[
         return _feedback_for_record(project, str(eval_frontmatter.get("source_feedback")))
     if record_type == "decision":
         return _feedback_for_record(project, str(frontmatter.get("source")))
+    if record_type == "improvement_dossier":
+        return _feedback_for_record(project, str(frontmatter.get("source_feedback")))
     raise ValueError(f"dossier は FB/E/H/D レコードから作成してください: {record_ref}")
 
 
@@ -472,6 +474,28 @@ def _find_existing_dossier(project: Project, source_feedback: str) -> Path | Non
         if frontmatter.get("source_feedback") == source_feedback:
             return path
     return None
+
+
+def _dossier_defaults() -> dict[str, Any]:
+    return {
+        "source_type": "observation",
+        "scope": "harnessops-core",
+        "maturity": "raw",
+        "relation": "new",
+        "promotion_level": "target-lab-case",
+        "guard": {"status": "not-defined", "path": None},
+        "investigation": [],
+    }
+
+
+def _derived_maturity(decision_status: str, eval_ids: list[str], hypothesis_ids: list[str]) -> str:
+    if decision_status in {"adopted", "rejected", "superseded"}:
+        return decision_status
+    if hypothesis_ids:
+        return "hypothesis"
+    if eval_ids:
+        return "trial"
+    return "raw"
 
 
 def create_or_update_improvement_dossier(project: Project, *, source_ref: str) -> Path:
@@ -512,17 +536,31 @@ def create_or_update_improvement_dossier(project: Project, *, source_ref: str) -
         created_at = now_iso()
         title = _record_heading(feedback_body, feedback_path.stem)
         path = record_path(project, "improvement_dossier", record_id, title)
+        existing_frontmatter = {}
 
     links = feedback_frontmatter.get("links", {})
     source = feedback_frontmatter.get("source", {})
     source_issue = source.get("issue", {}) if isinstance(source, dict) else {}
     issue_url = links.get("issue_url") or source_issue.get("url")
+    derived_maturity = _derived_maturity(decision_status, eval_ids, hypothesis_ids)
+    existing_maturity = existing_frontmatter.get("maturity")
+    maturity = (
+        existing_maturity
+        if existing_maturity and existing_maturity != "raw"
+        else derived_maturity
+    )
+    defaults = _dossier_defaults()
     frontmatter = {
         "id": record_id,
         "record_type": "improvement_dossier",
         "created_at": created_at,
         "updated_at": now_iso(),
         "status": decision_status,
+        "source_type": existing_frontmatter.get("source_type", defaults["source_type"]),
+        "scope": existing_frontmatter.get("scope", defaults["scope"]),
+        "maturity": maturity,
+        "relation": existing_frontmatter.get("relation", defaults["relation"]),
+        "promotion_level": existing_frontmatter.get("promotion_level", defaults["promotion_level"]),
         "source_feedback": feedback_id,
         "eval_cases": eval_ids,
         "hypotheses": hypothesis_ids,
@@ -531,6 +569,8 @@ def create_or_update_improvement_dossier(project: Project, *, source_ref: str) -
             "capability": classification.get("capability", "unclassified"),
             "failure_class": classification.get("failure_class", "unclassified"),
         },
+        "guard": existing_frontmatter.get("guard", defaults["guard"]),
+        "investigation": existing_frontmatter.get("investigation", defaults["investigation"]),
         "links": {"issue_url": issue_url},
     }
 
@@ -562,6 +602,11 @@ def create_or_update_improvement_dossier(project: Project, *, source_ref: str) -
 ## Status
 
 - status: {decision_status}
+- maturity: {frontmatter["maturity"]}
+- source_type: {frontmatter["source_type"]}
+- scope: {frontmatter["scope"]}
+- relation: {frontmatter["relation"]}
+- promotion_level: {frontmatter["promotion_level"]}
 - source_feedback: `{feedback_id}`
 - linked_records: {", ".join(f"`{item}`" for item in linked_records) or "none"}
 
@@ -576,6 +621,10 @@ Source: `{feedback_rel}`
 - capability: {frontmatter["classification"]["capability"]}
 - failure_class: {frontmatter["classification"]["failure_class"]}
 
+## Investigation
+
+{_format_investigation(frontmatter["investigation"])}
+
 {linked_record_section("Evaluation", eval_records, "評価ケースはまだありません。")}
 
 {linked_record_section("Hypotheses", hypothesis_records, "仮説はまだありません。")}
@@ -583,6 +632,11 @@ Source: `{feedback_rel}`
 ## Evidence
 
 {", ".join(f"`{item}`" for item in eval_result_paths) if eval_result_paths else "評価結果はまだありません。"}
+
+## Guard
+
+- status: {frontmatter["guard"].get("status") if isinstance(frontmatter["guard"], dict) else "not-defined"}
+- path: {frontmatter["guard"].get("path") if isinstance(frontmatter["guard"], dict) else "未設定"}
 
 ## Links
 
@@ -597,6 +651,85 @@ Source: `{feedback_rel}`
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
     return path
+
+
+def _format_investigation(items: Any) -> str:
+    if not isinstance(items, list) or not items:
+        return "調査メモはまだありません。"
+    rows = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            "- "
+            + f"{item.get('created_at', 'unknown')} "
+            + f"[{item.get('kind', 'note')}] "
+            + str(item.get("summary", "")).strip()
+        )
+    return "\n".join(rows) if rows else "調査メモはまだありません。"
+
+
+def update_improvement_dossier_metadata(
+    project: Project,
+    *,
+    source_ref: str,
+    source_type: str | None = None,
+    scope: str | None = None,
+    maturity: str | None = None,
+    relation: str | None = None,
+    promotion_level: str | None = None,
+    guard_status: str | None = None,
+    guard_path: str | None = None,
+) -> Path:
+    path = create_or_update_improvement_dossier(project, source_ref=source_ref)
+    frontmatter, body = read_record(path)
+    for key, value in {
+        "source_type": source_type,
+        "scope": scope,
+        "maturity": maturity,
+        "relation": relation,
+        "promotion_level": promotion_level,
+    }.items():
+        if value:
+            frontmatter[key] = value
+    guard = frontmatter.setdefault("guard", _dossier_defaults()["guard"])
+    if not isinstance(guard, dict):
+        guard = dict(_dossier_defaults()["guard"])
+        frontmatter["guard"] = guard
+    if guard_status:
+        guard["status"] = guard_status
+    if guard_path:
+        guard["path"] = guard_path
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    return create_or_update_improvement_dossier(project, source_ref=str(frontmatter["source_feedback"]))
+
+
+def add_improvement_investigation(
+    project: Project,
+    *,
+    source_ref: str,
+    summary: str,
+    kind: str = "codebase",
+    evidence_ref: str | None = None,
+) -> Path:
+    path = create_or_update_improvement_dossier(project, source_ref=source_ref)
+    frontmatter, body = read_record(path)
+    items = frontmatter.setdefault("investigation", [])
+    if not isinstance(items, list):
+        items = []
+        frontmatter["investigation"] = items
+    items.append(
+        {
+            "created_at": now_iso(),
+            "kind": kind,
+            "summary": summary,
+            "evidence_ref": evidence_ref,
+        }
+    )
+    if frontmatter.get("maturity") == "raw":
+        frontmatter["maturity"] = "investigated"
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    return create_or_update_improvement_dossier(project, source_ref=str(frontmatter["source_feedback"]))
 
 
 def create_decision(

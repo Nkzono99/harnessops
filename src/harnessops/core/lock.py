@@ -28,7 +28,7 @@ def load_lock(root: Path) -> dict[str, Any]:
 def write_lock(root: Path, lock: dict[str, Any]) -> None:
     path = lock_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
 
 
 def build_lock(
@@ -54,4 +54,3 @@ def build_lock(
         "managed_files": managed_files,
         "migrations": [],
     }
-

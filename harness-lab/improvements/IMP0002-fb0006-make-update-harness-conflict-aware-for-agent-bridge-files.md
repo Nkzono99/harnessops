@@ -2,8 +2,13 @@
 id: IMP0002
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:08+09:00'
-updated_at: '2026-05-13T00:23:12+09:00'
+updated_at: '2026-05-13T01:02:20+09:00'
 status: adopted
+source_type: observation
+scope: harnessops-core
+maturity: adopted
+relation: new
+promotion_level: target-lab-case
 source_feedback: FB0006
 eval_cases:
 - E0006
@@ -14,6 +19,10 @@ decisions:
 classification:
   capability: unclassified
   failure_class: unclassified
+guard:
+  status: not-defined
+  path:
+investigation: []
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/6
 ---
@@ -23,6 +32,11 @@ links:
 ## Status
 
 - status: adopted
+- maturity: adopted
+- source_type: observation
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
 - source_feedback: `FB0006`
 - linked_records: `FB0006`, `E0006`, `H0006`, `D0007`
 
@@ -86,6 +100,10 @@ The current behavior can leave target repositories with old HOPS skills while re
 
 - capability: unclassified
 - failure_class: unclassified
+
+## Investigation
+
+調査メモはまだありません。
 
 ## Evaluation
 
@@ -168,6 +186,11 @@ unmodified と locally edited を安全に区別できない場合、または m
 
 `harness-lab/views/eval-results/E0006-manual-score.md`
 
+## Guard
+
+- status: not-defined
+- path: None
+
 ## Links
 
 - issue_url: https://github.com/Nkzono99/harnessops/issues/6
@@ -209,4 +232,3 @@ Consider documenting the new agent_bridge lock section in SPEC/CLI docs when pre
 ## 回帰ガード
 
 tests/test_cli/test_mvp_flow.py
-

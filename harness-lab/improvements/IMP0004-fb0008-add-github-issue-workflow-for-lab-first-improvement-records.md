@@ -2,8 +2,13 @@
 id: IMP0004
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:29+09:00'
-updated_at: '2026-05-13T00:32:37+09:00'
+updated_at: '2026-05-13T01:02:43+09:00'
 status: adopted
+source_type: observation
+scope: harnessops-core
+maturity: adopted
+relation: new
+promotion_level: target-lab-case
 source_feedback: FB0008
 eval_cases:
 - E0008
@@ -14,6 +19,10 @@ decisions:
 classification:
   capability: unclassified
   failure_class: unclassified
+guard:
+  status: not-defined
+  path:
+investigation: []
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/8
 ---
@@ -23,6 +32,11 @@ links:
 ## Status
 
 - status: adopted
+- maturity: adopted
+- source_type: observation
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
 - source_feedback: `FB0008`
 - linked_records: `FB0008`, `E0008`, `H0008`, `D0009`
 
@@ -106,6 +120,10 @@ If HarnessOps wants agents to capture non-issue-driven improvements in `harness-
 - capability: unclassified
 - failure_class: unclassified
 
+## Investigation
+
+調査メモはまだありません。
+
 ## Evaluation
 
 ### E0008: E0008: FB0008-add-github-issue-workflow-for-lab-first-improvement-records を評価
@@ -187,6 +205,11 @@ FB0001 のような lab capture 由来 record から issue draft を生成し、
 
 `harness-lab/views/eval-results/E0008-manual-score.md`
 
+## Guard
+
+- status: not-defined
+- path: None
+
 ## Links
 
 - issue_url: https://github.com/Nkzono99/harnessops/issues/8
@@ -228,4 +251,3 @@ Consider provider abstraction or shared helper extraction if more lab issue work
 ## 回帰ガード
 
 tests/test_cli/test_safety.py
-

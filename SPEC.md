@@ -1,7 +1,7 @@
 # HarnessOps 現行仕様
 
-バージョン: 0.1  
-対象: `harnessops` Pythonパッケージ / `hops` CLI / HarnessOpsオーバーレイ  
+バージョン: 0.1
+対象: `harnessops` Pythonパッケージ / `hops` CLI / HarnessOpsオーバーレイ
 状態: 現行実装の正本仕様
 
 ## 目的
@@ -323,6 +323,8 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにする。 |
 | `hops lab new-eval-case --from <FBid>` | はい | imported feedback を評価ケース化。 |
 | `hops lab dossier --from <FB/E/H/D id>` | はい | 正規化レコードから1改善1ファイルの `harness-lab/improvements/IMPxxxx-*.md` を作成または更新する。 |
+| `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新する。 |
+| `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記する。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済み GitHub Issue 下書きを作り、重複確認後に明示確認付きで作成する。成功時は lab record へ Issue URL を書き戻す。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新する。 |
 | `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |

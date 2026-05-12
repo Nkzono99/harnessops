@@ -19,6 +19,7 @@ ID_PREFIX_BY_TYPE = {
     "hypothesis": "H",
     "experiment": "X",
     "decision": "D",
+    "improvement_dossier": "IMP",
 }
 
 REQUIRED_SECTIONS = {
@@ -38,6 +39,19 @@ REQUIRED_SECTIONS = {
         "中止基準",
     ],
     "decision": ["判断", "理由", "証拠", "回帰リスク", "フォローアップ", "回帰ガード"],
+    "improvement_dossier": [
+        "Status",
+        "Source Observation",
+        "Target Capability",
+        "Investigation",
+        "Evaluation",
+        "Hypotheses",
+        "Evidence",
+        "Guard",
+        "Links",
+        "Open Questions And Next Action",
+        "Decision Log",
+    ],
 }
 
 
@@ -80,6 +94,10 @@ def validate_record(path: Path) -> list[str]:
             evidence = frontmatter.get("evidence", {})
             if not evidence.get("summary") or not evidence.get("guard_path"):
                 errors.append(f"{path}: adopted decision には evidence summary と guard_path が必要です")
+    if record_type == "improvement_dossier":
+        for key in ["source_feedback", "maturity", "scope", "promotion_level", "classification"]:
+            if key not in frontmatter:
+                errors.append(f"{path}: improvement dossier に {key} がありません")
     for section in REQUIRED_SECTIONS.get(str(record_type), []):
         if f"## {section}" not in body:
             errors.append(f"{path}: セクション {section} がありません")

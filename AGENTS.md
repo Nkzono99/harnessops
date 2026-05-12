@@ -9,6 +9,7 @@
 - HarnessOps 自身の非自明な改善、issue化前の観測、またはrelease対象の挙動変更は、実装前または遅くともrelease前に `hops lab capture` で `harness-lab` に記録します。
 - HarnessOps 実装コード自体を編集する場合を除き、`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えないでください。
 - レコード作成、ルーティング、フィードバックのエクスポート/インポート、ラボ評価、採用判断は CLI に委譲します。
+- 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で既存レイアウトやmanaged artifactを移行できるなら、古い構造を温存せず整理して構いません。
 - プロジェクト固有の研究方針、論文内容、実験転換は `harness-feedback/` や `harness-lab/` に混ぜず、対象プロジェクトの `research/` または `notes/` に置きます。
 - 外部共有前に `hops feedback export --sanitize` を使い、ローカルパス、非公開語、未公開研究の文脈を残さないでください。
 
