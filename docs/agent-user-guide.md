@@ -9,6 +9,8 @@
 - プロジェクト固有の内容は `research/` または `notes/` に残し、`harness-feedback/` へ混ぜない。
 - 上流またはメタ改善へ回す内容は、ルーティング後に `hops feedback export --sanitize` でサニタイズする。
 - 採用判断を作る前に、評価ケース、スコアカード、証拠、回帰ガードをそろえる。
+- 改善案は仮説として扱う。メカニズム、評価計画、中止基準がない提案を採用候補にしない。
+- 変更を増やす前に、削除または統合で失敗クラスを減らせないか確認する。
 
 ## プロジェクト側で失敗を記録する
 
@@ -124,3 +126,5 @@ PYTHONPATH="$PWD/src" python3.11 -m pytest -q
 uv run --with-editable . hops doctor --check-overlay --check-records
 uv run --with-editable . hops migrate --check
 ```
+
+詳細な仕様はリポジトリ直下の `SPEC.md`、設計思想は `docs/design-principles.md` を参照してください。

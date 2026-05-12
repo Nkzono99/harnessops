@@ -122,3 +122,5 @@ HarnessOps の状態を確認して。壊れている管理対象ファイルや
 - `harness-feedback/records/`
 - `harness-lab/records/`
 - `harness-lab/views/eval-results/`
+
+現行仕様を確認したい場合は `SPEC.md`、なぜこの運用になっているかを確認したい場合は `docs/design-principles.md` を読んでください。

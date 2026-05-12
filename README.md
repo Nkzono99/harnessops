@@ -20,7 +20,11 @@ HarnessOps は3つのリポジトリ役割を分けます。
 
 - 人間がAI Agent経由で使い始める: [docs/get-started-with-agent.md](docs/get-started-with-agent.md)
 - AI Agent向けの運用手順: [docs/agent-user-guide.md](docs/agent-user-guide.md)
-- CLI、スキーマ、ルーティングの詳細仕様: [specs/](specs/)
+- target repositoryへ組み込むAgentに渡す文書: [docs/target-integration-agent-brief.md](docs/target-integration-agent-brief.md)
+- 現行仕様の正本: [SPEC.md](SPEC.md)
+- 設計思想: [docs/design-principles.md](docs/design-principles.md)
+- 今後のロードマップ: [docs/roadmap.md](docs/roadmap.md)
+- 個別仕様の補助資料: [specs/](specs/)
 
 ## 安全上の前提
 
