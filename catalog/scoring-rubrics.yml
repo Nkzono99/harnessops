@@ -1,0 +1,14 @@
+version: 0.1.0
+rubrics:
+  default_manual:
+    dimensions:
+      - impact
+      - mechanism_clarity
+      - evaluability
+      - minimality
+      - regression_risk
+      - operator_burden
+      - anti_theater
+      - maintainability
+      - privacy_sanitization_risk
+

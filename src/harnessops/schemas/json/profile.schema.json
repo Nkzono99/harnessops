@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HarnessOps profile",
+  "type": "object",
+  "required": ["id", "version", "adapter", "mode"],
+  "properties": {
+    "id": {"type": "string"},
+    "version": {"type": "string"},
+    "adapter": {"type": "string"},
+    "mode": {"type": "string"},
+    "root_markers": {"type": "array"},
+    "feedback": {"type": "object"},
+    "capabilities": {"type": "array"},
+    "failure_classes": {"type": "array"}
+  }
+}
+

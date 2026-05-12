@@ -1,0 +1,36 @@
+id: harnessops-core
+version: 0.1.0
+source: builtin
+adapter: harnessops_core
+mode: meta-lab
+repository_kind: harnessops-repository
+provider: harnessops
+root_markers:
+  - pyproject.toml
+  - src/harnessops/
+  - src/harnessops/profiles/
+  - src/harnessops/schemas/
+feedback:
+  path: harness-lab
+state_roots:
+  - src/
+  - tests/
+  - specs/
+  - schemas/
+quality_commands:
+  test:
+    - python -m pytest
+capabilities:
+  - feedback_routing
+  - overlay_generation
+  - migration_safety
+  - plugin_bridge
+failure_classes:
+  - governance_theater
+  - skill_proliferation
+  - routing_gap
+  - schema_gap
+protected_paths: []
+private_paths: []
+upstream_targets: {}
+

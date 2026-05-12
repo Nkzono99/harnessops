@@ -1,0 +1,36 @@
+id: runops-upstream
+version: 0.1.0
+source: builtin
+adapter: runops_upstream
+mode: upstream-lab
+repository_kind: target-repository
+provider: runops
+root_markers:
+  - pyproject.toml
+  - src/runops/
+  - src/runops/templates/
+feedback:
+  path: harness-lab
+state_roots:
+  - src/
+  - tests/
+  - docs/
+quality_commands:
+  test:
+    - python -m pytest
+capabilities:
+  - campaign_case_run_separation
+  - manifest_integrity
+  - slurm_safety_gate
+  - harness_update_without_overwrite
+failure_classes:
+  - project_specific_logic_leaks_into_template
+  - update_harness_overwrites_local_edits
+  - shallow_project_health_check
+  - slurm_action_without_human_gate
+protected_paths: []
+private_paths: []
+upstream_targets:
+  harnessops:
+    type: meta-harness
+

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Eval case",
+  "type": "object",
+  "required": ["id", "record_type", "created_at", "status", "source_feedback"],
+  "properties": {
+    "id": {"pattern": "^E[0-9]{4}$"},
+    "record_type": {"const": "eval_case"}
+  }
+}
+

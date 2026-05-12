@@ -1,0 +1,26 @@
+id: generic-code
+version: 0.1.0
+source: builtin
+adapter: generic_code
+mode: feedback-source
+repository_kind: project-repository
+provider: generic
+root_markers:
+  - .git
+feedback:
+  path: harness-feedback
+project_evolution:
+  root: notes
+state_roots:
+  - .
+quality_commands: {}
+capabilities:
+  - generic_feedback_capture
+failure_classes:
+  - unclassified
+protected_paths: []
+private_paths: []
+upstream_targets:
+  harnessops:
+    type: meta-harness
+

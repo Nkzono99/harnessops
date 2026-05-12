@@ -1,0 +1,100 @@
+from typer.testing import CliRunner
+
+from harnessops.cli.main import app
+from harnessops.core.records import read_record
+
+
+runner = CliRunner()
+
+
+def run_cli(args):
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    return result
+
+
+def test_init_doctor_migrate_project(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "runops-project"])
+    assert (root / ".harnessops/project.toml").exists()
+    assert (root / ".harnessops/lock.json").exists()
+    assert (root / "harness-feedback/README.md").exists()
+    assert (root / "harness-feedback/records/failures").is_dir()
+
+    run_cli(["doctor", "--check-overlay", "--check-records"])
+    run_cli(["migrate", "--check"])
+
+
+def test_init_doctor_migrate_upstream(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "runops-upstream"])
+    assert (root / "harness-lab/README.md").exists()
+    assert (root / "harness-lab/records/feedback").is_dir()
+    run_cli(["doctor", "--check-overlay", "--check-records"])
+    run_cli(["migrate", "--check"])
+
+
+def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_path, monkeypatch):
+    project_root = copy_fixture("paper-project-minimal")
+    monkeypatch.chdir(project_root)
+    run_cli(["init", "--profile", "paper-harness-project"])
+    add = run_cli(
+        [
+            "add-failure",
+            "--title",
+            "Local term leaked into manuscript",
+            "--target",
+            "paper-harness",
+            "--context",
+            f"Manuscript used private term from {project_root}/refs/private/source.md",
+            "--what-happened",
+            "public terminology check missed internal wording",
+            "--desired-behavior",
+            "paper-harness should detect private terms",
+        ]
+    )
+    failure_path = project_root / add.output.strip()
+    frontmatter, _ = read_record(failure_path)
+    assert frontmatter["record_type"] == "failure"
+    assert frontmatter["id"] == "F0001"
+
+    route = run_cli(["route", "--record", "F0001", "--json"])
+    assert "target-upstream-candidate" in route.output
+
+    export = run_cli(["feedback", "export", "--target", "paper-harness", "--sanitize"])
+    bundle = project_root / export.output.strip()
+    bundle_text = bundle.read_text(encoding="utf-8")
+    assert str(project_root) not in bundle_text
+    assert "private info excluded" in bundle_text
+
+    lab_root = tmp_path / "paper-upstream"
+    lab_root.mkdir()
+    monkeypatch.chdir(lab_root)
+    run_cli(["init", "--profile", "paper-harness-upstream"])
+    imported = run_cli(["feedback", "import", str(bundle)])
+    imported_path = lab_root / imported.output.strip()
+    imported_frontmatter, _ = read_record(imported_path)
+    assert imported_frontmatter["record_type"] == "imported_feedback"
+    assert imported_frontmatter["id"] == "FB0001"
+
+    eval_case = run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    assert (lab_root / eval_case.output.strip()).exists()
+    hypothesis = run_cli(["propose", "--from", "E0001"])
+    assert "records/hypotheses/H0001" in hypothesis.output
+    decision = run_cli(["decide", "--from", "H0001", "--status", "parked"])
+    assert "records/decisions/D0001" in decision.output
+
+
+def test_agent_bridge_generation(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    skill = root / ".agents/skills/harnessops-bridge/SKILL.md"
+    assert skill.exists()
+    text = skill.read_text(encoding="utf-8")
+    assert "hops doctor" in text
+    assert "Do not directly restructure" in text

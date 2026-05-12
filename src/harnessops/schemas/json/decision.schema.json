@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision",
+  "type": "object",
+  "required": ["id", "record_type", "created_at", "status"],
+  "properties": {
+    "id": {"pattern": "^D[0-9]{4}$"},
+    "record_type": {"const": "decision"}
+  }
+}
+

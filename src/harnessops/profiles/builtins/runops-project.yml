@@ -1,0 +1,66 @@
+id: runops-project
+version: 0.1.0
+source: builtin
+extends:
+  - research-operations
+adapter: runops_project
+mode: feedback-source
+repository_kind: project-repository
+provider: runops
+root_markers:
+  - .harness/manifest.toml
+  - .runops/harness.lock
+  - campaign.toml
+feedback:
+  path: harness-feedback
+project_evolution:
+  root: research
+  agenda_file: research/agenda.md
+  decision_dirs:
+    - research/decisions
+    - research/pivots
+state_roots:
+  - campaign.toml
+  - cases/
+  - runs/
+  - notes/
+  - research/
+  - materials/
+  - refs/
+  - .runops/
+quality_commands:
+  doctor:
+    - runo doctor
+  lint:
+    - runo lint --strict
+  context:
+    - runo context --json
+capabilities:
+  - campaign_case_run_separation
+  - manifest_integrity
+  - slurm_safety_gate
+  - analysis_artifact_traceability
+  - notes_to_knowledge_promotion
+  - harness_update_without_overwrite
+failure_classes:
+  - project_specific_logic_leaks_into_template
+  - update_harness_overwrites_local_edits
+  - shallow_project_health_check
+  - slurm_action_without_human_gate
+  - manifest_provenance_gap
+  - local_patch_not_classified
+protected_paths:
+  - runs/**/work/**
+  - runs/**/manifest.toml
+  - .runops/environment.toml
+private_paths:
+  - materials/private/**
+  - refs/private/**
+  - runs/**/work/**
+upstream_targets:
+  runops:
+    type: target-harness
+    repo: Nkzono99/runops
+  harnessops:
+    type: meta-harness
+

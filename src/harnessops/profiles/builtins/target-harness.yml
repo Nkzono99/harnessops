@@ -1,0 +1,26 @@
+id: target-harness
+version: 0.1.0
+source: builtin
+adapter: generic_code
+mode: upstream-lab
+repository_kind: target-repository
+provider: target-harness
+root_markers:
+  - pyproject.toml
+feedback:
+  path: harness-lab
+state_roots:
+  - src/
+  - tests/
+  - docs/
+quality_commands: {}
+capabilities:
+  - upstream_feedback_triage
+failure_classes:
+  - unclassified
+protected_paths: []
+private_paths: []
+upstream_targets:
+  harnessops:
+    type: meta-harness
+

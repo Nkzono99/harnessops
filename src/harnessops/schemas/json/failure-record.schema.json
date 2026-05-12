@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Failure record",
+  "type": "object",
+  "required": ["id", "record_type", "created_at", "visibility", "disposition"],
+  "properties": {
+    "id": {"pattern": "^F[0-9]{4}$"},
+    "record_type": {"const": "failure"},
+    "created_at": {"type": "string"},
+    "visibility": {"type": "string"},
+    "disposition": {"type": "object"}
+  }
+}
+

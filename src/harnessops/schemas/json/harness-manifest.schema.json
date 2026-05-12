@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Harness common manifest",
+  "type": "object",
+  "required": ["schema_version", "harness"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "harness": {
+      "type": "object",
+      "required": ["provider", "kind"],
+      "properties": {
+        "provider": {"type": "string"},
+        "kind": {"type": "string"},
+        "version": {"type": "string"}
+      }
+    },
+    "commands": {"type": "object"},
+    "harnessops": {"type": "object"}
+  }
+}
+

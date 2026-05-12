@@ -1,0 +1,10 @@
+version: 0.1.0
+capabilities:
+  - id: feedback_routing
+  - id: overlay_generation
+  - id: migration_safety
+  - id: plugin_bridge
+  - id: public_terminology
+  - id: manifest_integrity
+  - id: slurm_safety_gate
+

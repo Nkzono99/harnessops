@@ -1,0 +1,7 @@
+{
+  "name": "harnessops",
+  "version": "0.1.0",
+  "description": "Feedback routing and improvement experiment workflows for harness projects",
+  "skills": "./skills/"
+}
+

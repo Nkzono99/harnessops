@@ -1,0 +1,54 @@
+id: paper-harness-project
+version: 0.1.0
+source: builtin
+adapter: paper_harness_project
+mode: feedback-source
+repository_kind: project-repository
+provider: paper-harness
+root_markers:
+  - manuscript/
+  - notes/claim-evidence-map.md
+feedback:
+  path: harness-feedback
+project_evolution:
+  root: notes
+  agenda_file: notes/research-strategy.md
+  decision_dirs:
+    - notes/narrative-decisions
+    - notes/scope-decisions
+state_roots:
+  - manuscript/
+  - notes/
+  - refs/
+  - submission/
+quality_commands:
+  ci:
+    - make ci
+  pre_submit:
+    - make pre-submit
+capabilities:
+  - claim_calibration
+  - public_terminology
+  - citation_grounding
+  - figure_story
+  - mirror_consistency
+  - venue_fit
+  - ai_disclosure
+failure_classes:
+  - defensive_writing
+  - local_vocabulary_leakage
+  - citation_key_exists_but_does_not_support_claim
+  - public_review_reads_private_context
+  - governance_theater
+  - skill_proliferation
+protected_paths:
+  - manuscript/private/**
+private_paths:
+  - refs/private/**
+  - notes/private/**
+upstream_targets:
+  paper-harness:
+    type: target-harness
+  harnessops:
+    type: meta-harness
+

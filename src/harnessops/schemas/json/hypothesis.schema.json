@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hypothesis",
+  "type": "object",
+  "required": ["id", "record_type", "created_at", "status", "source_eval_case"],
+  "properties": {
+    "id": {"pattern": "^H[0-9]{4}$"},
+    "record_type": {"const": "hypothesis"}
+  }
+}
+

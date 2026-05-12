@@ -1,0 +1,14 @@
+version: 0.1.0
+failure_classes:
+  - id: project_specific_logic_leaks_into_template
+  - id: update_harness_overwrites_local_edits
+  - id: shallow_project_health_check
+  - id: slurm_action_without_human_gate
+  - id: manifest_provenance_gap
+  - id: local_patch_not_classified
+  - id: local_vocabulary_leakage
+  - id: governance_theater
+  - id: skill_proliferation
+  - id: routing_gap
+  - id: schema_gap
+

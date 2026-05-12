@@ -1,0 +1,30 @@
+id: python-package
+version: 0.1.0
+source: builtin
+adapter: python_package
+mode: feedback-source
+repository_kind: project-repository
+provider: python
+root_markers:
+  - pyproject.toml
+feedback:
+  path: harness-feedback
+project_evolution:
+  root: docs
+state_roots:
+  - src/
+  - tests/
+  - pyproject.toml
+quality_commands:
+  test:
+    - python -m pytest
+capabilities:
+  - package_health
+failure_classes:
+  - shallow_project_health_check
+protected_paths: []
+private_paths: []
+upstream_targets:
+  harnessops:
+    type: meta-harness
+

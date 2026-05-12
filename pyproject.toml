@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "harnessops"
+version = "0.1.0"
+description = "Feedback and improvement experiment OS for AI-assisted harness projects"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+dependencies = [
+  "typer>=0.12",
+  "rich>=13.0",
+  "pydantic>=2.0",
+  "tomli>=2.0; python_version < '3.11'",
+  "tomli-w>=1.0",
+  "ruamel.yaml>=0.18",
+  "jinja2>=3.1",
+]
+
+[project.scripts]
+harnessops = "harnessops.cli.main:app"
+hops = "harnessops.cli.main:app"
+
+[project.entry-points."harnessops.profiles"]
+# Downstream harness packages may register profiles here.
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  "mypy>=1.8",
+  "jsonschema>=4.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  "mypy>=1.8",
+  "jsonschema>=4.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+

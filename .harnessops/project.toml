@@ -1,0 +1,29 @@
+schema_version = "0.1"
+layout_version = "0.1"
+
+[project]
+name = "HarnessOps"
+root = "."
+kind = "harnessops-repository"
+
+[profile]
+id = "harnessops-core"
+version = "0.1.0"
+source = "builtin"
+adapter = "harnessops_core"
+
+[overlay]
+mode = "meta-lab"
+path = "harness-lab"
+managed_by = "harnessops"
+
+[privacy]
+default_visibility = "private-until-sanitized"
+
+[agents]
+codex = true
+claude = true
+
+[target_harness]
+provider = "harnessops"
+manifest = ".harness/manifest.toml"

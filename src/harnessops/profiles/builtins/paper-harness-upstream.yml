@@ -1,0 +1,40 @@
+id: paper-harness-upstream
+version: 0.1.0
+source: builtin
+adapter: paper_harness_upstream
+mode: upstream-lab
+repository_kind: target-repository
+provider: paper-harness
+root_markers:
+  - template/
+  - scripts/publish-scaffold.sh
+  - template/manuscript/
+feedback:
+  path: harness-lab
+state_roots:
+  - template/
+  - scripts/
+  - docs/
+  - tests/
+quality_commands:
+  ci:
+    - make ci
+capabilities:
+  - claim_calibration
+  - public_terminology
+  - citation_grounding
+  - figure_story
+  - mirror_consistency
+  - venue_fit
+  - ai_disclosure
+failure_classes:
+  - defensive_writing
+  - local_vocabulary_leakage
+  - citation_key_exists_but_does_not_support_claim
+  - public_review_reads_private_context
+protected_paths: []
+private_paths: []
+upstream_targets:
+  harnessops:
+    type: meta-harness
+

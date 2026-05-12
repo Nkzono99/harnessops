@@ -1,0 +1,11 @@
+version: 0.1.0
+anti_patterns:
+  - reflection_theater
+  - governance_theater
+  - skill_proliferation
+  - self_approving_judge
+  - metric_hacking
+  - upstream_pollution
+  - context_leakage
+  - endless_meta_improvement
+

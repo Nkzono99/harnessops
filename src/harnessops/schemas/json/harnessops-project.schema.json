@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HarnessOps project link",
+  "type": "object",
+  "required": ["schema_version", "layout_version", "project", "profile", "overlay"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "layout_version": {"type": "string"},
+    "project": {"type": "object", "required": ["name", "root", "kind"]},
+    "profile": {"type": "object", "required": ["id", "version", "source", "adapter"]},
+    "overlay": {"type": "object", "required": ["mode", "path", "managed_by"]},
+    "privacy": {"type": "object"},
+    "agents": {"type": "object"}
+  }
+}
+
