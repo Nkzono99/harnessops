@@ -39,7 +39,7 @@ def parse_scores(items: list[str]) -> dict[str, int]:
 
 def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int], notes: str, experiment: str | None = None) -> tuple[Path, Path]:
     case_path = find_record(project, case_id)
-    frontmatter, body = read_record(case_path)
+    frontmatter, _body = read_record(case_path)
     if frontmatter.get("record_type") != "eval_case":
         raise ValueError(f"レコードはeval caseではありません: {case_id}")
     result_dir = project.overlay_dir / "views" / "eval-results"
@@ -59,7 +59,7 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
     md_path = result_dir / f"{eval_id}-manual-score.md"
     yml_path.write_text(yamlio.safe_dump(data, sort_keys=False), encoding="utf-8", newline="\n")
     dimensions = "\n".join(f"- {key}: {value}" for key, value in scores.items())
-    md_path.write_text(
+    markdown = (
         GENERATED_MARKER
         + f"# 手動評価結果: {eval_id}\n\n"
         + f"送信元: `{case_path.relative_to(project.root).as_posix()}`\n\n"
@@ -67,10 +67,10 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
         + dimensions
         + "\n\n## メモ\n\n"
         + (notes or "メモはありません。")
-        + "\n\n## 評価ケーススナップショット\n\n"
-        + body.strip()
-        + "\n",
-        encoding="utf-8",
-        newline="\n",
+        + "\n\n## 評価ケース\n\n"
+        + f"- capability: {frontmatter.get('capability', 'unclassified')}\n"
+        + f"- failure_class: {frontmatter.get('failure_class', 'unclassified')}\n"
+        + f"- source_feedback: {frontmatter.get('source_feedback', 'unknown')}\n"
     )
+    md_path.write_text(markdown, encoding="utf-8", newline="\n")
     return yml_path, md_path

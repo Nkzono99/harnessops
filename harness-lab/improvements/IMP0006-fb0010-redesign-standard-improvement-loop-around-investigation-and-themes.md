@@ -2,7 +2,7 @@
 id: IMP0006
 record_type: improvement_dossier
 created_at: '2026-05-13T00:56:17+09:00'
-updated_at: '2026-05-13T01:55:25+09:00'
+updated_at: '2026-05-13T02:42:06+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -25,10 +25,7 @@ guard:
 investigation:
 - created_at: '2026-05-13T00:56:19+09:00'
   kind: external-benchmark
-  summary: Compared the current loop with PDSA, SRE postmortem/action-item
-    practice, ADR decision records, issue triage, and Technology Radar maturity
-    rings; the missing HarnessOps concepts are explicit investigation, theme
-    classification, maturity, guard status, and promotion level.
+  summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity, guard status, and promotion level.
   evidence_ref: docs/design-principles.md
 links:
   issue_url:
@@ -72,40 +69,23 @@ Define a concrete improvement-loop vocabulary and add lightweight harness suppor
 
 ## Investigation
 
-- 2026-05-13T00:56:19+09:00 [external-benchmark] Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity, guard status, and promotion level.
+- 2026-05-13T00:56:19+09:00 [external-benchmark] Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity, guard status, and promotion level. (evidence: docs/design-principles.md)
 
 ## Evaluation
 
 ### E0010: E0010: FB0010-redesign-standard-improvement-loop-around-investigation-and-themes を評価
 
 
-Source: `harness-lab/records/eval-cases/E0010-fb0010-redesign-standard-improvement-loop-around-investigation-and-themes.md`
+- source: `harness-lab/records/eval-cases/E0010-fb0010-redesign-standard-improvement-loop-around-investigation-and-themes.md`
 
+- capability: improvement_loop_design
 
-# E0010: FB0010-redesign-standard-improvement-loop-around-investigation-and-themes を評価
+- failure_class: ambiguous_improvement_workflow
 
-## フィクスチャ
-
-フィクスチャディレクトリ: `harness-lab/records/eval-cases/fixtures/E0010`。
-
-## タスク
-
-この失敗を防ぐべき挙動を記述してください。
-
-## 期待される挙動
-
-ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
-
-## 合格基準
-
-- 失敗条件が検出または防止される。
-- 提案される挙動が上流メンテナにとって実行可能である。
-- 非公開プロジェクト詳細を必要としない。
-
-## 不合格基準
-
-- 失敗を見逃す。
-- 再現に非公開文脈が必要になる。
+- manual_eval_yml: `harness-lab/views/eval-results/E0010-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0010-manual-score.md`
+- scores: impact=4, mechanism_clarity=5, evaluability=5, minimality=4, regression_risk=3, operator_burden=4, anti_theater=4, maintainability=4, privacy_sanitization_risk=1
+- notes: Redesigned the standard improvement loop around explicit observation, investigation, recording, classification/routing, hypothesis, evaluation design, decision, application, guard, and promotion. Added improvement theme metadata plus lab investigate/classify commands, extended dossier rendering and views, updated agent skills so the flow is natural, and documented that backward compatibility can be cut when migrate/update-harness provides a migration path. Verified with focused tests, full pytest, doctor, and migrate.
 
 
 ## Hypotheses

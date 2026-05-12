@@ -12,3 +12,4 @@
 - `IMP0009` active maturity=investigated scope=harnessops-core promotion=harnessops-protocol source=FB0013 meta_improvement_research unstructured_research_scan_results
 - `IMP0011` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0014 lab_record_consistency duplicate_improvement_dossier_race
 - `IMP0012` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0015 record_lookup generated_view_shadowed_record_id
+- `IMP0013` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0016 lab_evaluation_review eval_template_noise_in_dossier

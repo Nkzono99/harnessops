@@ -370,7 +370,9 @@ def test_lab_capture_records_local_improvement(copy_fixture, monkeypatch):
     assert "期待する上流変更" in body
 
     eval_case = run_cli(["lab", "new-eval-case", "--from", "FB0001"])
-    assert (root / eval_case.output.strip()).exists()
+    eval_text = (root / eval_case.output.strip()).read_text(encoding="utf-8")
+    assert "Provide a first-class command to capture local improvement work before evaluation." in eval_text
+    assert "harness_lab_traceability" in eval_text
     doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
     assert "警告" not in doctor.output
 
@@ -398,6 +400,7 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
         ]
     )
     run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=4", "--notes", "Manual score is the review evidence."])
     run_cli(["propose", "--from", "E0001", "--hypothesis", "A generated dossier makes the improvement reviewable."])
 
     result = run_cli(["lab", "dossier", "--from", "H0001"])
@@ -408,6 +411,10 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     assert "## Source Observation" in text
     assert "## Evaluation" in text
     assert "## Hypotheses" in text
+    assert "## フィクスチャ" not in text
+    assert "manual_eval_yml: `harness-lab/views/eval-results/E0001-manual-score.yml`" in text
+    assert "scores: impact=4" in text
+    assert "Manual score is the review evidence." in text
     assert "FB0001" in text
     assert "E0001" in text
     assert "H0001" in text
@@ -599,6 +606,9 @@ expected
     result = run_cli(["eval", "--experiment", "X0001", "--manual", "--score", "impact=3"])
 
     assert "eval-results/E0001-manual-score.yml" in result.output
+    eval_markdown = (root / "harness-lab/views/eval-results/E0001-manual-score.md").read_text(encoding="utf-8")
+    assert "## 評価ケーススナップショット" not in eval_markdown
+    assert "capability: routing" in eval_markdown
 
 
 def test_eval_case_lookup_prefers_record_over_generated_eval_view(copy_fixture, monkeypatch):

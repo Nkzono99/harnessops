@@ -78,7 +78,7 @@ hops lab investigate --from IMP0001 --kind external-benchmark --summary "<外部
 hops lab classify --from IMP0001 --source-type friction --scope harnessops-core --maturity investigated
 ```
 
-単純な改善や作業中の状況把握では `harness-lab/improvements/IMP*.md` を開きます。評価ケース、仮説、採用判断を確定する時は、引き続き元の `records/feedback`、`records/eval-cases`、`records/hypotheses`、`records/decisions` を正本として更新し、その後 dossier を再生成します。
+単純な改善や作業中の状況把握では `harness-lab/improvements/IMP*.md` を開きます。dossier の `Evaluation` は評価ケース本文を丸ごと展開せず、source record、capability、failure class、manual eval yml/md、score、notes を要約します。評価ケース、仮説、採用判断を確定する時は、引き続き元の `records/feedback`、`records/eval-cases`、`records/hypotheses`、`records/decisions` を正本として更新し、その後 dossier を再生成します。
 
 メタ改善案を意図的に調査する時は `hops-research-improvements` skill を使います。これは作業中の短いメタ仮説スキャンとは別の調査モードで、コードベース、既存 dossier、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。調査結果は新規レコード乱立ではなく、まず `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。
 

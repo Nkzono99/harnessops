@@ -62,11 +62,29 @@ def split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
 
 def dump_record(frontmatter: dict[str, Any], body: str) -> str:
     yaml_text = yamlio.safe_dump(frontmatter, sort_keys=False, allow_unicode=True)
-    return f"---\n{yaml_text}---\n\n{body.lstrip()}"
+    return f"---\n{yaml_text}---\n\n{body.strip()}\n"
 
 
 def read_record(path: Path) -> tuple[dict[str, Any], str]:
     return split_frontmatter(path.read_text(encoding="utf-8"))
+
+
+def _markdown_section(body: str, heading: str) -> str:
+    marker = f"## {heading}"
+    lines = body.splitlines()
+    start: int | None = None
+    for index, line in enumerate(lines):
+        if line.strip() == marker:
+            start = index + 1
+            break
+    if start is None:
+        return ""
+    collected: list[str] = []
+    for line in lines[start:]:
+        if line.startswith("## "):
+            break
+        collected.append(line)
+    return "\n".join(collected).strip()
 
 
 def next_id(directory: Path, prefix: str) -> str:
@@ -346,6 +364,17 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
     fixture = directory / "fixtures" / record_id
     fixture.mkdir(parents=True, exist_ok=True)
     (fixture / ".gitkeep").write_text("", encoding="utf-8")
+    feedback_path = find_record(project, feedback_id)
+    _, feedback_body = read_record(feedback_path)
+    summary = _markdown_section(feedback_body, "概要") or _record_heading(feedback_body, feedback_path.stem)
+    reproduction = _markdown_section(feedback_body, "再現") or "再現条件は source feedback を参照してください。"
+    expected_change = (
+        _markdown_section(feedback_body, "期待する上流変更")
+        or _markdown_section(feedback_body, "期待する上流改善")
+        or "期待される変更は source feedback を参照してください。"
+    )
+    feedback_rel = feedback_path.relative_to(project.root).as_posix()
+    fixture_rel = fixture.relative_to(project.root).as_posix()
     frontmatter = {
         "id": record_id,
         "record_type": "eval_case",
@@ -359,26 +388,33 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
 
 ## フィクスチャ
 
-フィクスチャディレクトリ: `{fixture.relative_to(project.root).as_posix()}`。
+- source_feedback: `{feedback_rel}`
+- fixture_dir: `{fixture_rel}`
+- observation: {summary}
 
 ## タスク
 
-この失敗を防ぐべき挙動を記述してください。
+`{capability}` の `{failure_class}` を減らす最小変更を設計または実装し、次の再現条件が解消されるか評価してください。
+
+{reproduction}
 
 ## 期待される挙動
 
-ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
+{expected_change}
 
 ## 合格基準
 
-- 失敗条件が検出または防止される。
-- 提案される挙動が上流メンテナにとって実行可能である。
-- 非公開プロジェクト詳細を必要としない。
+- `{failure_class}` の再現条件が検出または防止される。
+- 提案または実装される変更が source feedback の期待変更に対応している。
+- `hops eval --case {record_id} --manual` の score と notes で採用判断に必要な証拠を説明できる。
+- 非公開プロジェクト詳細を追加で要求しない。
 
 ## 不合格基準
 
-- 失敗を見逃す。
-- 再現に非公開文脈が必要になる。
+- `{failure_class}` の再現条件を見逃す。
+- source feedback の期待変更と無関係な改善案になる。
+- 評価が yml score へ記録されず、採用判断の証拠として追えない。
+- 再現または判断に非公開文脈が必要になる。
 """
     path = record_path(project, "eval_case", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
@@ -463,6 +499,46 @@ def _records_in(project: Project, record_type: str) -> list[tuple[Path, dict[str
         frontmatter, body = read_record(path)
         records.append((path, frontmatter, body))
     return records
+
+
+def _manual_eval_summary(project: Project, eval_id: str) -> str:
+    result_dir = project.overlay_dir / "views" / "eval-results"
+    yml_path = result_dir / f"{eval_id}-manual-score.yml"
+    md_path = result_dir / f"{eval_id}-manual-score.md"
+    if not yml_path.exists():
+        return "- manual_eval: 未実施\n"
+    data = yamlio.safe_load(yml_path.read_text(encoding="utf-8")) or {}
+    scores = data.get("scores", {})
+    score_text = (
+        ", ".join(f"{key}={value}" for key, value in scores.items())
+        if isinstance(scores, dict)
+        else ""
+    )
+    parts = [f"- manual_eval_yml: `{yml_path.relative_to(project.root).as_posix()}`"]
+    if md_path.exists():
+        parts.append(f"- manual_eval_md: `{md_path.relative_to(project.root).as_posix()}`")
+    if score_text:
+        parts.append(f"- scores: {score_text}")
+    notes = str(data.get("notes") or "").strip()
+    if notes:
+        parts.append(f"- notes: {notes}")
+    return "\n".join(parts) + "\n"
+
+
+def _evaluation_section(project: Project, records: list[tuple[Path, dict[str, Any], str]]) -> str:
+    if not records:
+        return "## Evaluation\n\n評価ケースはまだありません。\n"
+    parts = ["## Evaluation\n"]
+    for record_path_item, record_frontmatter, record_body in records:
+        eval_id = str(record_frontmatter.get("id"))
+        rel = record_path_item.relative_to(project.root).as_posix()
+        title = _record_heading(record_body, record_path_item.stem)
+        parts.append(f"### {eval_id}: {title}\n\n")
+        parts.append(f"- source: `{rel}`\n")
+        parts.append(f"- capability: {record_frontmatter.get('capability', 'unclassified')}\n")
+        parts.append(f"- failure_class: {record_frontmatter.get('failure_class', 'unclassified')}\n")
+        parts.append(_manual_eval_summary(project, eval_id))
+    return "\n".join(parts)
 
 
 def _feedback_for_record(project: Project, record_ref: str) -> tuple[Path, dict[str, Any], str]:
@@ -693,7 +769,7 @@ Source: `{feedback_rel}`
 
 {_format_investigation(frontmatter["investigation"])}
 
-{linked_record_section("Evaluation", eval_records, "評価ケースはまだありません。")}
+{_evaluation_section(project, eval_records)}
 
 {linked_record_section("Hypotheses", hypothesis_records, "仮説はまだありません。")}
 

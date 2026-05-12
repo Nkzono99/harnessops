@@ -2,7 +2,7 @@
 id: IMP0011
 record_type: improvement_dossier
 created_at: '2026-05-13T02:04:58+09:00'
-updated_at: '2026-05-13T02:27:15+09:00'
+updated_at: '2026-05-13T02:42:11+09:00'
 status: adopted
 source_type: failure
 scope: harnessops-core
@@ -81,33 +81,16 @@ Make improvement dossier creation idempotent under concurrent calls or add docto
 ### E0013: E0013: FB0014-prevent-duplicate-improvement-dossiers-from-concurrent-lab-commands を評価
 
 
-Source: `harness-lab/records/eval-cases/E0013-fb0014-prevent-duplicate-improvement-dossiers-from-concurrent-lab-commands.md`
+- source: `harness-lab/records/eval-cases/E0013-fb0014-prevent-duplicate-improvement-dossiers-from-concurrent-lab-commands.md`
 
+- capability: lab_record_consistency
 
-# E0013: FB0014-prevent-duplicate-improvement-dossiers-from-concurrent-lab-commands を評価
+- failure_class: duplicate_improvement_dossier_race
 
-## フィクスチャ
-
-フィクスチャディレクトリ: `harness-lab/records/eval-cases/fixtures/E0013`。
-
-## タスク
-
-この失敗を防ぐべき挙動を記述してください。
-
-## 期待される挙動
-
-ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
-
-## 合格基準
-
-- 失敗条件が検出または防止される。
-- 提案される挙動が上流メンテナにとって実行可能である。
-- 非公開プロジェクト詳細を必要としない。
-
-## 不合格基準
-
-- 失敗を見逃す。
-- 再現に非公開文脈が必要になる。
+- manual_eval_yml: `harness-lab/views/eval-results/E0013-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0013-manual-score.md`
+- scores: impact=4, mechanism_clarity=5, evaluability=5, minimality=4, regression_risk=3, operator_burden=4, anti_theater=5, maintainability=4, privacy_sanitization_risk=5
+- notes: Implemented source_feedback-level locking for dossier creation, doctor validation for duplicate improvement dossier source_feedback values, visible evidence_ref rendering for investigation notes, LF-stable generated records, and canonical record lookup so generated views do not shadow eval cases.
 
 
 ## Hypotheses

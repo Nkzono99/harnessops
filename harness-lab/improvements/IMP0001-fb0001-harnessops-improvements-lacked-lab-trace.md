@@ -2,7 +2,7 @@
 id: IMP0001
 record_type: improvement_dossier
 created_at: '2026-05-13T00:20:57+09:00'
-updated_at: '2026-05-13T01:02:09+09:00'
+updated_at: '2026-05-13T02:41:53+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -72,33 +72,16 @@ Provide a first-class lab capture command and update agent, release, and lab ski
 ### E0001: E0001: FB0001-harnessops-improvements-lacked-lab-trace を評価
 
 
-Source: `harness-lab/records/eval-cases/E0001-fb0001-harnessops-improvements-lacked-lab-trace.md`
+- source: `harness-lab/records/eval-cases/E0001-fb0001-harnessops-improvements-lacked-lab-trace.md`
 
+- capability: harness_lab_traceability
 
-# E0001: FB0001-harnessops-improvements-lacked-lab-trace を評価
+- failure_class: missing_lab_capture
 
-## フィクスチャ
-
-フィクスチャディレクトリ: `harness-lab/records/eval-cases/fixtures/E0001`。
-
-## タスク
-
-この失敗を防ぐべき挙動を記述してください。
-
-## 期待される挙動
-
-ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
-
-## 合格基準
-
-- 失敗条件が検出または防止される。
-- 提案される挙動が上流メンテナにとって実行可能である。
-- 非公開プロジェクト詳細を必要としない。
-
-## 不合格基準
-
-- 失敗を見逃す。
-- 再現に非公開文脈が必要になる。
+- manual_eval_yml: `harness-lab/views/eval-results/E0001-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0001-manual-score.md`
+- scores: impact=4, mechanism_clarity=4, evaluability=5, minimality=4, regression_risk=0, operator_burden=0, anti_theater=4, maintainability=4, privacy_sanitization_risk=0
+- notes: CLI tests exercise lab capture and eval conversion. Contract tests assert bridge, packaged skills, release skill, and docs mention hops lab capture. This record captures the previously missing lab trace.
 
 
 ## Hypotheses

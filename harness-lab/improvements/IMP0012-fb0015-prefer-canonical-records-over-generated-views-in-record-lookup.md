@@ -2,7 +2,7 @@
 id: IMP0012
 record_type: improvement_dossier
 created_at: '2026-05-13T02:23:36+09:00'
-updated_at: '2026-05-13T02:27:16+09:00'
+updated_at: '2026-05-13T02:42:13+09:00'
 status: adopted
 source_type: implementation-followup
 scope: harnessops-core
@@ -72,33 +72,16 @@ Make find_record prefer the canonical record directory implied by the ID prefix 
 ### E0014: E0014: FB0015-prefer-canonical-records-over-generated-views-in-record-lookup を評価
 
 
-Source: `harness-lab/records/eval-cases/E0014-fb0015-prefer-canonical-records-over-generated-views-in-record-lookup.md`
+- source: `harness-lab/records/eval-cases/E0014-fb0015-prefer-canonical-records-over-generated-views-in-record-lookup.md`
 
+- capability: record_lookup
 
-# E0014: FB0015-prefer-canonical-records-over-generated-views-in-record-lookup を評価
+- failure_class: generated_view_shadowed_record_id
 
-## フィクスチャ
-
-フィクスチャディレクトリ: `harness-lab/records/eval-cases/fixtures/E0014`。
-
-## タスク
-
-この失敗を防ぐべき挙動を記述してください。
-
-## 期待される挙動
-
-ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
-
-## 合格基準
-
-- 失敗条件が検出または防止される。
-- 提案される挙動が上流メンテナにとって実行可能である。
-- 非公開プロジェクト詳細を必要としない。
-
-## 不合格基準
-
-- 失敗を見逃す。
-- 再現に非公開文脈が必要になる。
+- manual_eval_yml: `harness-lab/views/eval-results/E0014-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0014-manual-score.md`
+- scores: impact=4, mechanism_clarity=5, evaluability=5, minimality=5, regression_risk=2, operator_burden=5, anti_theater=5, maintainability=4, privacy_sanitization_risk=5
+- notes: find_record now searches the canonical record directory implied by known ID prefixes before broad overlay lookup. Regression test reruns eval by ID after an eval result view exists.
 
 
 ## Hypotheses

@@ -2,7 +2,7 @@
 id: IMP0009
 record_type: improvement_dossier
 created_at: '2026-05-13T02:03:24+09:00'
-updated_at: '2026-05-13T02:22:13+09:00'
+updated_at: '2026-05-13T02:42:10+09:00'
 status: active
 source_type: dry-run
 scope: harnessops-core

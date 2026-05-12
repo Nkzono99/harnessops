@@ -2,7 +2,7 @@
 id: IMP0003
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:17+09:00'
-updated_at: '2026-05-13T01:02:31+09:00'
+updated_at: '2026-05-13T02:42:02+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -134,33 +134,16 @@ The current typed records (`FB`, `E`, `H`, `X`, `D`) could remain as an advanced
 ### E0007: E0007: FB0007-simplify-harness-lab-around-per-improvement-dossiers を評価
 
 
-Source: `harness-lab/records/eval-cases/E0007-fb0007-simplify-harness-lab-around-per-improvement-dossiers.md`
+- source: `harness-lab/records/eval-cases/E0007-fb0007-simplify-harness-lab-around-per-improvement-dossiers.md`
 
+- capability: unclassified
 
-# E0007: FB0007-simplify-harness-lab-around-per-improvement-dossiers を評価
+- failure_class: unclassified
 
-## フィクスチャ
-
-フィクスチャディレクトリ: `harness-lab/records/eval-cases/fixtures/E0007`。
-
-## タスク
-
-この失敗を防ぐべき挙動を記述してください。
-
-## 期待される挙動
-
-ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
-
-## 合格基準
-
-- 失敗条件が検出または防止される。
-- 提案される挙動が上流メンテナにとって実行可能である。
-- 非公開プロジェクト詳細を必要としない。
-
-## 不合格基準
-
-- 失敗を見逃す。
-- 再現に非公開文脈が必要になる。
+- manual_eval_yml: `harness-lab/views/eval-results/E0007-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0007-manual-score.md`
+- scores: impact=4, mechanism_clarity=4, evaluability=5, minimality=4, regression_risk=3, operator_burden=5, anti_theater=4, maintainability=4, privacy_sanitization_risk=1
+- notes: Implemented lab dossiers as a generated compatibility layer: hops lab dossier --from <FB/E/H/D> creates or updates harness-lab/improvements/IMP*.md from normalized records, refreshes views/improvements.md, preserves FB/E/H/D as the source of truth, and documents when to use the simple dossier versus normalized records. Generated dossiers for FB0001 and FB0006-FB0008 to validate existing issue coverage.
 
 
 ## Hypotheses
