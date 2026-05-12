@@ -53,17 +53,17 @@ git status --short --branch
 hops --help
 ```
 
-HarnessOps のソースディレクトリを渡されている場合は、対象リポジトリから次の形式で実行します。
+HarnessOps のソースディレクトリを渡されている場合は、対象リポジトリから次の形式で実行します。ディレクトリ名は原則として `harnessops` を使います。
 
 ```bash
-uvx --isolated --from /path/to/HarnessOps harnessops --help
-uvx --isolated --from /path/to/HarnessOps harnessops detect
+uvx --isolated --from /path/to/harnessops hops --help
+uvx --isolated --from /path/to/harnessops hops detect
 ```
 
 以降の例で `hops` と書かれている箇所は、必要に応じて次に読み替えます。
 
 ```bash
-uvx --isolated --from /path/to/HarnessOps harnessops <command>
+uvx --isolated --from /path/to/harnessops hops <command>
 ```
 
 ## Profile選択
@@ -182,8 +182,8 @@ python -m pytest -q
 HarnessOpsのローカルソースから実行している場合:
 
 ```bash
-uvx --isolated --from /path/to/HarnessOps harnessops doctor --check-overlay --check-records
-uvx --isolated --from /path/to/HarnessOps harnessops migrate --check
+uvx --isolated --from /path/to/harnessops hops doctor --check-overlay --check-records
+uvx --isolated --from /path/to/harnessops hops migrate --check
 ```
 
 ## 受け入れ条件

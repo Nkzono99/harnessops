@@ -19,6 +19,12 @@ dependencies = [
   "jinja2>=3.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/Nkzono99/harnessops"
+Repository = "https://github.com/Nkzono99/harnessops"
+Documentation = "https://github.com/Nkzono99/harnessops#readme"
+Issues = "https://github.com/Nkzono99/harnessops/issues"
+
 [project.scripts]
 harnessops = "harnessops.cli.main:app"
 hops = "harnessops.cli.main:app"

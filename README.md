@@ -16,6 +16,13 @@ HarnessOps は3つのリポジトリ役割を分けます。
 
 プロジェクト固有の研究方針、論文内容、実験転換は `harness-feedback/` ではなく、各プロジェクトの `research/` または `notes/` に置きます。上流やメタ改善へ回す内容は、必ずルーティングとサニタイズを通します。
 
+## 名前
+
+- GitHub repository: `Nkzono99/harnessops`
+- PyPI package: `harnessops`
+- Python import: `harnessops`
+- CLI: `hops`
+
 ## 読む順番
 
 - 人間がAI Agent経由で使い始める: [docs/get-started-with-agent.md](docs/get-started-with-agent.md)
