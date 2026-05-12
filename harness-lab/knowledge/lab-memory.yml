@@ -1,0 +1,378 @@
+schema_version: '0.1'
+kind: harness_lab_knowledge
+updated_at: '2026-05-13T03:20:55+09:00'
+mutable: true
+compaction:
+  mode: forced
+  thresholds:
+    max_files: 256
+    max_bytes: 2000000
+    max_improvements: 50
+  metrics:
+    file_count: 143
+    byte_count: 237678
+    record_count: 66
+    feedback_count: 17
+    eval_case_count: 16
+    hypothesis_count: 16
+    decision_count: 17
+    improvement_count: 13
+    manual_eval_count: 16
+  triggers: []
+sources:
+  source_digest: 09a5c34cd2a64170b02de38557677837c4b5334b4018287457ba773369b77c7e
+  improvements:
+  - IMP0001
+  - IMP0002
+  - IMP0003
+  - IMP0004
+  - IMP0005
+  - IMP0006
+  - IMP0007
+  - IMP0008
+  - IMP0009
+  - IMP0011
+  - IMP0012
+  - IMP0013
+  - IMP0014
+knowledge:
+  summary:
+    improvement_count: 13
+    status_counts:
+      active: 1
+      adopted: 12
+    capability_count: 10
+  capabilities:
+  - capability: github_issue_import
+    failure_classes:
+    - failure_class: unicode_decode_failure
+      improvements:
+      - IMP0005
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 3.0
+        maintainability: 5.0
+        mechanism_clarity: 5.0
+        minimality: 5.0
+        operator_burden: 5.0
+        privacy_sanitization_risk: 1.0
+        regression_risk: 2.0
+      guards: []
+      lessons:
+      - source: IMP0005
+        status: adopted
+        lesson: Implemented explicit UTF-8 decoding for gh issue view during feedback import, with replacement on invalid bytes and TypeError fallback handling. Regression test now imports Unicode Japanese issue body/comment and asserts encoding=utf-8 is used. Verified with...
+  - capability: harness_lab_traceability
+    failure_classes:
+    - failure_class: missing_lab_capture
+      improvements:
+      - IMP0001
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 4.0
+        minimality: 4.0
+        operator_burden: 0.0
+        privacy_sanitization_risk: 0.0
+        regression_risk: 0.0
+      guards: []
+      lessons:
+      - source: IMP0001
+        status: adopted
+        lesson: CLI tests exercise lab capture and eval conversion. Contract tests assert bridge, packaged skills, release skill, and docs mention hops lab capture. This record captures the previously missing lab trace.
+  - capability: improvement_loop_design
+    failure_classes:
+    - failure_class: ambiguous_improvement_workflow
+      improvements:
+      - IMP0006
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 1.0
+        regression_risk: 3.0
+      guards:
+      - source: IMP0006
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0006
+        status: adopted
+        lesson: Redesigned the standard improvement loop around explicit observation, investigation, recording, classification/routing, hypothesis, evaluation design, decision, application, guard, and promotion. Added improvement theme metadata plus lab investigate/classify...
+  - capability: lab_evaluation_review
+    failure_classes:
+    - failure_class: eval_template_noise_in_dossier
+      improvements:
+      - IMP0013
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 5.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 2.0
+      guards:
+      - source: IMP0013
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0013
+        status: adopted
+        lesson: Dossiers now summarize eval records and manual eval yml/md instead of embedding full eval-case template bodies. New eval cases are seeded from source feedback summary, reproduction, and expected change. Manual eval markdown no longer includes a full eval case...
+  - capability: lab_memory_compaction
+    failure_classes:
+    - failure_class: record_sprawl_without_knowledge_consolidation
+      improvements:
+      - IMP0014
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 3.0
+      guards:
+      - source: IMP0014
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0014
+        status: adopted
+        lesson: Compaction is deterministic, source-linked, and guarded by CLI tests. It preserves canonical records and keeps manual Curator Notes mutable, so it reduces review load without turning summaries into adoption evidence.
+  - capability: lab_record_consistency
+    failure_classes:
+    - failure_class: duplicate_improvement_dossier_race
+      improvements:
+      - IMP0011
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 3.0
+      guards:
+      - source: IMP0011
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0011
+        status: adopted
+        lesson: Implemented source_feedback-level locking for dossier creation, doctor validation for duplicate improvement dossier source_feedback values, visible evidence_ref rendering for investigation notes, LF-stable generated records, and canonical record lookup so gen...
+  - capability: meta_hypothesis_scan
+    failure_classes:
+    - failure_class: missed_second_order_observation
+      improvements:
+      - IMP0007
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 4.0
+        impact: 5.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 1.0
+        regression_risk: 3.0
+      guards:
+      - source: IMP0007
+        status: implemented
+        path: tests/test_agent_harness_contract.py
+      lessons:
+      - source: IMP0007
+        status: adopted
+        lesson: 'Designed the meta-hypothesis scan harness: trigger signals, task checkpoints, output levels, capture thresholds, and anti-spam guardrails are documented in design-principles; run-lab skills now instruct agents to run a bounded scan during interruptions, repea...'
+  - capability: meta_improvement_research
+    failure_classes:
+    - failure_class: missing_research_skill
+      improvements:
+      - IMP0008
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 4.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 4.0
+        minimality: 4.0
+        operator_burden: 3.0
+        privacy_sanitization_risk: 4.0
+        regression_risk: 3.0
+      guards:
+      - source: IMP0008
+        status: implemented
+        path: tests/test_agent_harness_contract.py
+      lessons:
+      - source: IMP0008
+        status: adopted
+        lesson: The skill is distinct from the in-task meta scan, lab-routed, package-tested, and privacy-aware. Risk is moderate skill surface area, guarded by explicit trigger criteria and packaging contract tests.
+    - failure_class: unstructured_research_scan_results
+      improvements:
+      - IMP0009
+      status_counts:
+        active: 1
+      average_scores: {}
+      guards:
+      - source: IMP0009
+        status: planned
+        path: tests/test_agent_harness_contract.py
+      lessons:
+      - source: IMP0009
+        status: active
+        lesson: 'External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, curr...'
+  - capability: record_lookup
+    failure_classes:
+    - failure_class: generated_view_shadowed_record_id
+      improvements:
+      - IMP0012
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 5.0
+        operator_burden: 5.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 2.0
+      guards:
+      - source: IMP0012
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0012
+        status: adopted
+        lesson: find_record now searches the canonical record directory implied by known ID prefixes before broad overlay lookup. Regression test reruns eval by ID after an eval result view exists.
+  - capability: unclassified
+    failure_classes:
+    - failure_class: unclassified
+      improvements:
+      - IMP0002
+      - IMP0003
+      - IMP0004
+      status_counts:
+        adopted: 3
+      average_scores:
+        anti_theater: 4.67
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 4.33
+        minimality: 4.0
+        operator_burden: 4.33
+        privacy_sanitization_risk: 1.33
+        regression_risk: 3.0
+      guards: []
+      lessons:
+      - source: IMP0002
+        status: adopted
+        lesson: 'Implemented conflict-aware agent bridge refresh: managed bridge hashes are stored in lock metadata; unmodified stale files update automatically, local edits produce .new files, --force-agent-bridge overwrites explicitly, and JSON/text output reports checked,...'
+      - source: IMP0003
+        status: adopted
+        lesson: 'Implemented lab dossiers as a generated compatibility layer: hops lab dossier --from <FB/E/H/D> creates or updates harness-lab/improvements/IMP*.md from normalized records, refreshes views/improvements.md, preserves FB/E/H/D as the source of truth, and docume...'
+      - source: IMP0004
+        status: adopted
+        lesson: 'Implemented lab-first GitHub issue promotion: hops lab issue draft/create --from <FB/E/H/D/IMP> builds a sanitized issue body from the generated dossier, writes local markdown drafts, searches duplicates, requires --confirm-create for remote creation, and wri...'
+  guard_index:
+  - source: IMP0006
+    capability: improvement_loop_design
+    failure_class: ambiguous_improvement_workflow
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0007
+    capability: meta_hypothesis_scan
+    failure_class: missed_second_order_observation
+    status: implemented
+    path: tests/test_agent_harness_contract.py
+  - source: IMP0008
+    capability: meta_improvement_research
+    failure_class: missing_research_skill
+    status: implemented
+    path: tests/test_agent_harness_contract.py
+  - source: IMP0009
+    capability: meta_improvement_research
+    failure_class: unstructured_research_scan_results
+    status: planned
+    path: tests/test_agent_harness_contract.py
+  - source: IMP0011
+    capability: lab_record_consistency
+    failure_class: duplicate_improvement_dossier_race
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0012
+    capability: record_lookup
+    failure_class: generated_view_shadowed_record_id
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0013
+    capability: lab_evaluation_review
+    failure_class: eval_template_noise_in_dossier
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0014
+    capability: lab_memory_compaction
+    failure_class: record_sprawl_without_knowledge_consolidation
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  external_evidence:
+  - source: IMP0006
+    summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
+    evidence_ref: docs/design-principles.md
+  - source: IMP0008
+    summary: 'Manual meta-improvement research should borrow from external practice patterns: Google SRE stresses reviewed postmortem action items and repositories of learning; Open Practice Library experiment guidance stresses explicit hypotheses, meas...'
+    evidence_ref: https://sre.google/sre-book/postmortem-culture/ ; https://openpracticelibrary.com/practice/design-of-experiments/ ; https://www.thoughtworks.com/radar/faq
+  - source: IMP0009
+    summary: 'External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, curr...'
+    evidence_ref: https://sre.google/workbook/postmortem-culture/ ; https://openpracticelibrary.com/practice/design-of-experiments/ ; https://www.thoughtworks.com/radar/faq
+  - source: IMP0014
+    summary: Anthropic Managed Agents 'dreaming' is a scheduled process that reviews prior sessions and memory stores, extracts patterns, and curates memory; this supports a background/threshold compaction layer rather than stuffing all lab history int...
+    evidence_ref: https://claude.com/blog/new-in-claude-managed-agents
+  - source: IMP0014
+    summary: Claude memory docs frame durable memory as client-controlled files that are created, read, updated, and deleted across sessions; HarnessOps should mirror that with local mutable knowledge files under harness-lab rather than append-only sum...
+    evidence_ref: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  - source: IMP0014
+    summary: Generative Agents and Reflexion both separate episodic traces from higher-level reflections; the lab should preserve records as episodic traces and compile recurring patterns, decisions, and guards into a smaller semantic layer.
+    evidence_ref: https://arxiv.org/abs/2304.03442; https://arxiv.org/abs/2303.11366
+  - source: IMP0014
+    summary: MemGPT and recent agent-memory surveys emphasize hierarchical context, write-manage-read loops, contradiction handling, privacy, and learned forgetting; HarnessOps compaction should be deterministic, source-linked, local, and reviewable.
+    evidence_ref: https://arxiv.org/abs/2310.08560; https://arxiv.org/abs/2603.07670
+  contradiction_watch: []
+  open_questions:
+  - source: IMP0009
+    maturity: investigated
+    status: active
+    next: evaluation-or-decision-needed
+    path: harness-lab/improvements/IMP0009-fb0013-structure-meta-improvement-research-scan-outputs.md

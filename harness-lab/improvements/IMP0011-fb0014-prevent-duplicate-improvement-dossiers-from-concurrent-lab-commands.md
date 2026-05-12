@@ -2,7 +2,7 @@
 id: IMP0011
 record_type: improvement_dossier
 created_at: '2026-05-13T02:04:58+09:00'
-updated_at: '2026-05-13T02:42:11+09:00'
+updated_at: '2026-05-13T03:20:44+09:00'
 status: adopted
 source_type: failure
 scope: harnessops-core
@@ -31,6 +31,10 @@ investigation:
   kind: implementation
   summary: While implementing the duplicate dossier fix, generated records and eval/issue draft outputs again triggered Windows CRLF diff-check noise. The patch now writes HarnessOps generated records, manual eval results, and issue drafts with newline='\n' so generated lab artifacts stay stable on Windows.
   evidence_ref: src/harnessops/core/records.py ; src/harnessops/core/evaluation.py ; src/harnessops/cli/lab.py ; src/harnessops/cli/feedback.py
+- created_at: '2026-05-13T03:20:44+09:00'
+  kind: codebase
+  summary: While syncing the lab README for compaction, update-harness exposed CRLF line endings on Windows because generated overlay files were written without an LF newline override. Overlay generated-file writes now pass newline='\\n' so managed README/view/conflict outputs stay git-diff-check clean.
+  evidence_ref: src/harnessops/core/overlay.py
 links:
   issue_url:
 ---
@@ -75,6 +79,7 @@ Make improvement dossier creation idempotent under concurrent calls or add docto
 
 - 2026-05-13T02:05:22+09:00 [codebase] create_or_update_improvement_dossier first scans existing IMP files by source_feedback and otherwise allocates next_id from the directory. Without locking or duplicate validation, concurrent commands can both miss the existing dossier and allocate different IMP IDs. Current doctor validates individual records but not uniqueness of source_feedback across improvement dossiers. (evidence: src/harnessops/core/records.py::_find_existing_dossier ; src/harnessops/core/records.py::create_or_update_improvement_dossier ; src/harnessops/core/validation.py::doctor)
 - 2026-05-13T02:20:55+09:00 [implementation] While implementing the duplicate dossier fix, generated records and eval/issue draft outputs again triggered Windows CRLF diff-check noise. The patch now writes HarnessOps generated records, manual eval results, and issue drafts with newline='\n' so generated lab artifacts stay stable on Windows. (evidence: src/harnessops/core/records.py ; src/harnessops/core/evaluation.py ; src/harnessops/cli/lab.py ; src/harnessops/cli/feedback.py)
+- 2026-05-13T03:20:44+09:00 [codebase] While syncing the lab README for compaction, update-harness exposed CRLF line endings on Windows because generated overlay files were written without an LF newline override. Overlay generated-file writes now pass newline='\\n' so managed README/view/conflict outputs stay git-diff-check clean. (evidence: src/harnessops/core/overlay.py)
 
 ## Evaluation
 

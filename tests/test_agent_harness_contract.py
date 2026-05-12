@@ -187,11 +187,13 @@ def test_lab_capture_contract_is_documented() -> None:
     ]
     for path in docs:
         assert "hops lab capture" in path.read_text(encoding="utf-8")
+        assert "hops lab compact" in path.read_text(encoding="utf-8")
     for host in ("codex", "claude"):
         text = (ROOT / f"plugins/{host}/harnessops/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
         assert "hops lab capture" in text
         assert "hops lab investigate" in text
         assert "hops lab classify" in text
+        assert "hops lab compact" in text
         assert "メタ仮説スキャン" in text
         assert_harness_contract(text)
 

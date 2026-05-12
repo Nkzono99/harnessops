@@ -48,10 +48,12 @@ LAB_README = """# harness-lab
 - メカニズムと中止基準を持つ改善仮説
 - 実験と評価スコアカード
 - 証拠を伴う採用/却下判断
+- 一定サイズを超えた lab から圧縮した mutable knowledge layer
 
 GitHub Issues は引き続きタスクトラッカーです。`harness-lab/` は評価と判断の記憶です。
 
 採用済み判断には、証拠、回帰リスク、回帰ガードを明記する必要があります。
+`hops lab compact` は正本レコードを残したまま `knowledge/lab-memory.yml` と `.md` を更新します。
 """
 
 
@@ -91,10 +93,10 @@ def _write_generated(path: Path, text: str, *, force: bool, old_hash: str | None
             raise UnsafeOverwrite(f"既存の生成ファイルの上書きを拒否します: {path}")
         if old_hash and current_hash != old_hash:
             conflict = path.with_name(path.name + ".new")
-            conflict.write_text(text, encoding="utf-8")
+            conflict.write_text(text, encoding="utf-8", newline="\n")
             raise UnsafeOverwrite(f"管理対象ファイルが変更されています。競合コピーを書きました: {conflict}")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+    path.write_text(text, encoding="utf-8", newline="\n")
 
 
 def _conflict_path(path: Path, text: str) -> Path:
@@ -134,6 +136,7 @@ def overlay_dirs(overlay_mode: str) -> list[str]:
         "records/experiments",
         "records/decisions",
         "improvements",
+        "knowledge",
         "views",
     ]
 
@@ -180,7 +183,7 @@ def refresh_managed_files(
         if not path.exists():
             if not dry_run:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text, encoding="utf-8")
+                path.write_text(text, encoding="utf-8", newline="\n")
                 managed[rel] = sha256_file(path)
             updated.append(rel)
             continue
@@ -191,7 +194,7 @@ def refresh_managed_files(
             continue
         if force or (old_hash is not None and current_hash == old_hash):
             if not dry_run:
-                path.write_text(text, encoding="utf-8")
+                path.write_text(text, encoding="utf-8", newline="\n")
                 managed[rel] = sha256_file(path)
             else:
                 managed[rel] = template_hash
@@ -199,7 +202,7 @@ def refresh_managed_files(
         else:
             conflict = _conflict_path(path, text)
             if not dry_run:
-                conflict.write_text(text, encoding="utf-8")
+                conflict.write_text(text, encoding="utf-8", newline="\n")
             written_new.append({"path": rel, "new": conflict.relative_to(root).as_posix()})
     if not dry_run:
         old_lock.setdefault("schema_version", "0.1")

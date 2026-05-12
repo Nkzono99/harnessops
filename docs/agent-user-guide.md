@@ -80,6 +80,15 @@ hops lab classify --from IMP0001 --source-type friction --scope harnessops-core 
 
 単純な改善や作業中の状況把握では `harness-lab/improvements/IMP*.md` を開きます。dossier の `Evaluation` は評価ケース本文を丸ごと展開せず、source record、capability、failure class、manual eval yml/md、score、notes を要約します。評価ケース、仮説、採用判断を確定する時は、引き続き元の `records/feedback`、`records/eval-cases`、`records/hypotheses`、`records/decisions` を正本として更新し、その後 dossier を再生成します。
 
+`harness-lab/` が大きくなり、dossier を全部読むのが重くなったら compaction を使います。通常は閾値を超えた時だけ書き、手動調査や release 前の棚卸しでは `--force` で発火できます。
+
+```bash
+hops lab compact
+hops lab compact --force
+```
+
+`harness-lab/knowledge/lab-memory.yml` と `.md` は mutable な作業記憶です。records と dossier は正本として残し、knowledge layer は capability、failure class、score、guard、外部比較、open question を source ID 付きで圧縮します。`lab-memory.md` の `Curator Notes` は手編集してよく、次回 compaction でも保持されます。
+
 メタ改善案を意図的に調査する時は `hops-research-improvements` skill を使います。これは作業中の短いメタ仮説スキャンとは別の調査モードで、コードベース、既存 dossier、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。調査結果は新規レコード乱立ではなく、まず `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。
 
 lab 起点の改善を GitHub Issue に昇格する時は、まず下書きで title/body を確認します。

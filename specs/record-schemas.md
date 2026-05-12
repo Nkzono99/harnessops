@@ -24,6 +24,12 @@ HarnessOps レコードは YAML frontmatter 付きのMarkdownファイルです�
 
 `eval_case` の本文は正本として保持しますが、日常レビュー用の dossier では全文を展開しません。dossier では manual eval yml/md、score、notes を優先して表示し、テンプレート本文が評価証拠の読解を邪魔しないようにします。
 
+## Knowledge Layer
+
+`harness-lab/knowledge/lab-memory.yml` と `lab-memory.md` はレコードではありません。`hops lab compact` が更新する mutable working memory で、`records/`、`improvements/`、manual eval yml から capability/failure class、lesson、score、guard、外部比較、open question を圧縮します。
+
+この層は source ID と source digest を持ちますが、採用判断や検証の正本にはなりません。`lab-memory.md` の `Curator Notes` は手編集可能で、次回 compaction でも保持されます。
+
 ## 証拠規律
 
 メカニズム、評価計画、中止基準がない仮説は、本当の実験ではありません。証拠のない判断は採用可能ではありません。採用済み判断では、再発を検出するテストパス、評価結果、生成チェックなどの回帰ガードを明示する必要があります。

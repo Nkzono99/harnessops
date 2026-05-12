@@ -85,12 +85,18 @@ harness-lab/
     hypotheses/
     experiments/
     decisions/
+  improvements/
+  knowledge/
+    lab-memory.yml
+    lab-memory.md
   views/
     imported-feedback.md
     backlog.md
     score-trajectory.md
     eval-results/
 ```
+
+`knowledge/` は `hops lab compact` が更新する mutable working memory です。records と dossier は正本として残し、knowledge layer は capability、failure class、score、guard、外部比較、open question を source ID と source digest 付きで圧縮します。
 
 ### `.harnessops/`
 
@@ -325,6 +331,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab dossier --from <FB/E/H/D id>` | はい | 正規化レコードから1改善1ファイルの `harness-lab/improvements/IMPxxxx-*.md` を作成または更新する。 |
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新する。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記する。 |
+| `hops lab compact [--force]` | はい | 閾値超過または明示実行時に `harness-lab/knowledge/lab-memory.yml` と `.md` を更新し、source-linked な mutable knowledge layer を作る。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済み GitHub Issue 下書きを作り、重複確認後に明示確認付きで作成する。成功時は lab record へ Issue URL を書き戻す。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新する。 |
 | `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |
@@ -436,6 +443,7 @@ private_terms:
 - `hops feedback import` が `harness-lab` にfeedbackレコードを作る。
 - `hops lab capture` が issue や bundle のないローカル改善観測を `harness-lab` に記録する。
 - `hops lab new-eval-case` が評価ケースとfixture directoryを作る。
+- `hops lab compact --force` が `harness-lab/knowledge/` に source-linked な mutable knowledge layer を作り、通常実行では閾値未満の時に書き込みをスキップする。
 - `hops lab refresh-views` が生成ビュー更新後の doctor warning を残さない。
 - `hops propose` が中止基準を含むhypothesisレコードを作る。
 - `hops eval --manual` がscorecardを保存する。

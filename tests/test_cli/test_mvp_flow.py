@@ -11,6 +11,7 @@ from typer.testing import CliRunner
 
 from harnessops.cli import feedback as feedback_cli
 from harnessops.cli.main import app
+from harnessops.core import yamlio
 from harnessops.core.agent_bridge import packaged_bridge_files
 from harnessops.core.lock import sha256_file
 from harnessops.core.project import load_project
@@ -474,6 +475,110 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     second = run_cli(["lab", "dossier", "--from", "FB0001"])
 
     assert second.output.strip() == result.output.strip()
+
+
+def test_lab_compact_force_writes_mutable_knowledge(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Lab records need compaction",
+            "--summary",
+            "Long-running lab records need a compact knowledge layer.",
+            "--expected-change",
+            "Compile canonical records into source-linked mutable knowledge.",
+            "--capability",
+            "lab_memory_compaction",
+            "--failure-class",
+            "record_sprawl_without_knowledge_consolidation",
+        ]
+    )
+    run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=4", "--notes", "Compaction keeps recurring lessons visible."])
+    run_cli(
+        [
+            "propose",
+            "--from",
+            "E0001",
+            "--hypothesis",
+            "Mutable lab knowledge preserves lessons without replacing records.",
+        ]
+    )
+    run_cli(["lab", "dossier", "--from", "H0001"])
+    run_cli(
+        [
+            "lab",
+            "classify",
+            "--from",
+            "IMP0001",
+            "--guard-status",
+            "planned",
+            "--guard-path",
+            "tests/test_cli/test_mvp_flow.py",
+        ]
+    )
+
+    result = run_cli(["lab", "compact", "--force"])
+
+    assert "status: written" in result.output
+    assert "harness-lab/knowledge/lab-memory.yml" in result.output
+    data = yamlio.safe_load((root / "harness-lab/knowledge/lab-memory.yml").read_text(encoding="utf-8"))
+    assert data["kind"] == "harness_lab_knowledge"
+    assert data["mutable"] is True
+    capability = data["knowledge"]["capabilities"][0]
+    assert capability["capability"] == "lab_memory_compaction"
+    failure = capability["failure_classes"][0]
+    assert failure["failure_class"] == "record_sprawl_without_knowledge_consolidation"
+    assert failure["average_scores"]["impact"] == 4.0
+    assert failure["guards"][0]["path"] == "tests/test_cli/test_mvp_flow.py"
+    assert "Compaction keeps recurring lessons visible." in failure["lessons"][0]["lesson"]
+
+    markdown_path = root / "harness-lab/knowledge/lab-memory.md"
+    markdown = markdown_path.read_text(encoding="utf-8")
+    assert "## Curator Notes" in markdown
+    markdown_path.write_text(
+        markdown.replace(
+            "ここは `hops lab compact` が保持する手編集領域です。",
+            "Keep this manually curated note.",
+        ),
+        encoding="utf-8",
+    )
+    run_cli(["lab", "compact", "--force"])
+    assert "Keep this manually curated note." in markdown_path.read_text(encoding="utf-8")
+    doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "警告" not in doctor.output
+
+
+def test_lab_compact_skips_until_threshold(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    skipped = run_cli(
+        [
+            "lab",
+            "compact",
+            "--max-files",
+            "9999",
+            "--max-bytes",
+            "999999999",
+            "--max-improvements",
+            "9999",
+        ]
+    )
+
+    assert "status: skipped" in skipped.output
+    assert not (root / "harness-lab/knowledge/lab-memory.yml").exists()
+
+    written = run_cli(["lab", "compact", "--max-files", "0"])
+
+    assert "status: written" in written.output
+    assert "file_count>0" in written.output
+    assert (root / "harness-lab/knowledge/lab-memory.yml").exists()
 
 
 def test_parallel_lab_dossier_creation_is_source_feedback_idempotent(copy_fixture, monkeypatch):

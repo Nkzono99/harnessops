@@ -105,6 +105,22 @@ Improvement Theme
 
 dossier は `records/feedback`、`records/eval-cases`、`records/hypotheses`、`records/decisions` を置き換える正本ではありません。日常レビュー用の集約ビューです。正規化レコードが重すぎる場合は、`hops migrate` や `hops update-harness` で移行できるようにしたうえで整理して構いません。古い構造を永久に温存することより、移行可能で評価可能な形に保つことを優先します。
 
+## ラボ圧縮と知識層
+
+`harness-lab/` は証拠を蓄積する場所ですが、蓄積だけでは長期記憶になりません。一定サイズを超えたら `hops lab compact` で、正本レコードを残したまま `harness-lab/knowledge/` に mutable knowledge layer を更新します。
+
+この層は人間の睡眠中の記憶整理に近い役割です。個別エピソードを消すのではなく、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を再利用しやすい形に並べ替えます。Anthropic Managed Agents の dreaming、Claude memory tool、Generative Agents、Reflexion、MemGPT などの外部事例も、episodic trace と semantic reflection を分ける方が設計しやすいことを示しています。
+
+HarnessOps では次の境界にします。
+
+| 層 | 可変性 | 役割 |
+|---|---|---|
+| `records/` | 原則追記・CLI更新 | 監査可能な正本。観測、評価、仮説、判断。 |
+| `improvements/` | 再生成可能 | 1改善テーマを読むための dossier。 |
+| `knowledge/` | 更新可能 | 複数dossierから抽出した作業記憶。source ID と digest を持つ。 |
+
+`knowledge/` は採用判断の証拠そのものにはしません。判断や反例処理では、source ID から必ず `records/` または `improvements/` に戻ります。`lab-memory.md` には手編集可能な `Curator Notes` を残し、agent や人間が「圧縮結果の読み方」「今後の見直し観点」を追記できます。
+
 ## 改善分類
 
 改善テーマには少なくとも次の分類を持たせます。

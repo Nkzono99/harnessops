@@ -12,9 +12,12 @@ hops lab capture --title "<title>" --summary "<summary>" --expected-change "<exp
 hops lab dossier --from FB0001
 hops lab investigate --from IMP0001 --kind codebase --summary "<調査結果>"
 hops lab classify --from IMP0001 --source-type friction --scope harnessops-core --maturity investigated
+hops lab compact --force
 ```
 
 その後、`hops lab new-eval-case`、`hops propose --manual-template`、`hops eval --manual`、`hops decide` を使う。採用後は `hops lab classify --guard-status implemented --guard-path <path>` でガードをdossierに反映する。
+
+`harness-lab/` が大きくなり、dossier 全体を読むのが重くなった場合は `hops lab compact` を使う。通常は閾値超過時だけ書き、release前や手動棚卸しでは `--force` で `harness-lab/knowledge/lab-memory.yml` と `.md` を更新する。knowledge layer は正本ではなく、source ID から records/dossier へ戻るための作業記憶として扱う。
 
 メタ仮説スキャン:
 
@@ -31,4 +34,5 @@ hops lab classify --from IMP0001 --source-type friction --scope harnessops-core 
 - 仮説にはメカニズム、評価計画、中止基準を含める。
 - 新しいワークフロー面を追加する前に、削除または統合を優先する。
 - 採用済み判断には、証拠、回帰リスク、ガードパスを含める。
+- compaction は records を削除しない。`lab-memory.md` の Curator Notes は保持してよいが、採用判断の証拠は必ず source record を参照する。
 - ホールドアウトケースや非公開プロジェクト文脈を露出しない。

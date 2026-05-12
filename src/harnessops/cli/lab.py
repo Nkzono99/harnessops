@@ -11,6 +11,12 @@ from harnessops.cli.feedback import (
     _validate_repo,
     import_feedback,
 )
+from harnessops.core.lab_compaction import (
+    DEFAULT_MAX_BYTES,
+    DEFAULT_MAX_FILES,
+    DEFAULT_MAX_IMPROVEMENTS,
+    compact_lab,
+)
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.records import (
@@ -154,6 +160,48 @@ def investigate(
     )
     refresh_views(root, project.overlay_path)
     typer.echo(path.relative_to(root).as_posix())
+
+
+@lab_app.command("compact")
+def compact(
+    force: bool = typer.Option(False, "--force"),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+    max_files: int = typer.Option(DEFAULT_MAX_FILES, "--max-files"),
+    max_bytes: int = typer.Option(DEFAULT_MAX_BYTES, "--max-bytes"),
+    max_improvements: int = typer.Option(DEFAULT_MAX_IMPROVEMENTS, "--max-improvements"),
+) -> None:
+    """harness-lab を source-linked な mutable knowledge layer へ圧縮します。"""
+    root = find_root()
+    project = load_project(root)
+    if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
+        typer.echo("lab compact には upstream-lab または meta-lab mode が必要です")
+        raise typer.Exit(1)
+    result = compact_lab(
+        project,
+        force=force,
+        dry_run=dry_run,
+        max_files=max_files,
+        max_bytes=max_bytes,
+        max_improvements=max_improvements,
+    )
+    metrics = result["metrics"]
+    thresholds = result["thresholds"]
+    typer.echo(f"status: {result['status']}")
+    typer.echo(f"reason: {result['reason']}")
+    typer.echo(
+        "metrics: "
+        f"files={metrics['file_count']}/{thresholds['max_files']} "
+        f"bytes={metrics['byte_count']}/{thresholds['max_bytes']} "
+        f"improvements={metrics['improvement_count']}/{thresholds['max_improvements']}"
+    )
+    if result["triggers"]:
+        typer.echo("triggers: " + ", ".join(result["triggers"]))
+    if result["paths"]:
+        typer.echo("outputs:")
+        for path in result["paths"]:
+            typer.echo(path.relative_to(root).as_posix())
+    elif result["status"] == "skipped":
+        typer.echo("--force または小さい閾値を指定すると compaction を手動実行できます")
 
 
 def _record_title(body: str, fallback: str) -> str:

@@ -37,6 +37,9 @@ harness-lab/
     experiments/
     decisions/
   improvements/
+  knowledge/
+    lab-memory.yml
+    lab-memory.md
   views/
     imported-feedback.md
     backlog.md
@@ -46,6 +49,8 @@ harness-lab/
 ```
 
 `harness-lab/` はフィードバック、評価、仮説、実験、判断の記憶です。GitHub Issues は引き続きタスクトラッカーです。`records/` は正規化された正本で、`improvements/IMP*.md` は日常レビュー用に1改善分の履歴を集約した dossier です。
+
+`knowledge/` は `hops lab compact` が更新する mutable working memory です。一定のサイズ閾値を超えた lab、または `--force` で明示された lab から、capability、failure class、scores、guards、外部比較、open questions を source ID 付きで圧縮します。これは正本ではなく、採用判断や反例処理では必ず `records/` または `improvements/` に戻ります。
 
 ## 隠しメタデータ: `.harnessops/`
 
