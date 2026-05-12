@@ -26,3 +26,4 @@ hops agent bridge --codex
 - 外部共有前に `hops feedback export --sanitize` を使い、ローカルパス、非公開語、未公開研究の文脈を残しません。
 - リモートIssue、PR、pushはユーザー確認なしに行いません。
 - target固有の triage skill は domain diagnosis だけを担当し、record schema、routing、sanitize、export/import は HarnessOps に委譲します。
+- GitHub release は `hops-release` skill の検証、push、`gh release create` 手順に従います。
