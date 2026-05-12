@@ -34,6 +34,7 @@ def _run_init(
             force=force,
         )
     except UnsafeOverwrite as exc:
+        typer.echo(str(exc))
         raise typer.Exit(2) from exc
     typer.echo(json.dumps(result, indent=2, sort_keys=True))
     if not dry_run:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
 
 from harnessops.cli.feedback import import_feedback
@@ -14,7 +16,7 @@ lab_app = typer.Typer(help="Operate harness-lab records.")
 @lab_app.command("import-feedback")
 def import_feedback_alias(path: str) -> None:
     """Alias for `hops feedback import`."""
-    import_feedback(path=path)
+    import_feedback(path=Path(path))
 
 
 @lab_app.command("new-eval-case")
@@ -39,4 +41,3 @@ def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | No
 
 def register(app: typer.Typer) -> None:
     app.add_typer(lab_app, name="lab")
-
