@@ -70,6 +70,23 @@ hops lab capture --title "<題名>" --summary "<観測>" --expected-change "<期
 hops lab new-eval-case --from FB0001
 ```
 
+日常の改善レビューでは、正規化された `FB/E/H/D` を1枚に集約した dossier を作れます。
+
+```bash
+hops lab dossier --from FB0001
+```
+
+単純な改善や作業中の状況把握では `harness-lab/improvements/IMP*.md` を開きます。評価ケース、仮説、採用判断を確定する時は、引き続き元の `records/feedback`、`records/eval-cases`、`records/hypotheses`、`records/decisions` を正本として更新し、その後 dossier を再生成します。
+
+lab 起点の改善を GitHub Issue に昇格する時は、まず下書きで title/body を確認します。
+
+```bash
+hops lab issue draft --from IMP0001
+hops lab issue create --from IMP0001 --repo owner/repo
+```
+
+リモート Issue は作成されません。作成する場合だけ、重複候補を確認した上で `--confirm-create` を付けます。
+
 判断は、証拠の成熟度に合わせて作ります。
 
 ```bash

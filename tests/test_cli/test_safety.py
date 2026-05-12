@@ -421,6 +421,109 @@ def test_feedback_issue_create_writes_back_created_issue_url(copy_fixture, monke
     }
 
 
+def test_lab_issue_draft_sanitizes_lab_first_record(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "harnessops-core"]).exit_code == 0
+    captured = runner.invoke(
+        app,
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Lab-first issue workflow",
+            "--summary",
+            f"Local improvement observed at {root}/private/notes.md",
+            "--expected-change",
+            "Create a sanitized GitHub issue draft from the lab record.",
+        ],
+    )
+    assert captured.exit_code == 0
+
+    result = runner.invoke(
+        app,
+        [
+            "lab",
+            "issue",
+            "draft",
+            "--from",
+            "FB0001",
+            "--title",
+            "Lab-first issue workflow",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Markdown下書きを書きました" in result.output
+    assert str(root) not in result.output
+    drafts = list((root / "harness-lab/views/lab-issue-drafts").glob("*github-issue-draft.md"))
+    assert len(drafts) == 1
+    draft = drafts[0].read_text(encoding="utf-8")
+    assert "<PROJECT_ROOT>" in draft
+    assert "除外した非公開情報" in draft
+
+
+def test_lab_issue_create_writes_back_created_issue_url(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    assert runner.invoke(app, ["init", "--profile", "harnessops-core"]).exit_code == 0
+    captured = runner.invoke(
+        app,
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Promote lab record to issue",
+            "--summary",
+            "Lab-first records need a GitHub issue promotion path.",
+            "--expected-change",
+            "Create the issue only after duplicate checks and explicit confirmation.",
+        ],
+    )
+    assert captured.exit_code == 0
+
+    def fake_run(args, check, capture_output, text):
+        assert check is True
+        assert capture_output is True
+        assert text is True
+        if args[:3] == ["gh", "issue", "list"]:
+            return subprocess.CompletedProcess(args=args, returncode=0, stdout="[]", stderr="")
+        if args[:3] == ["gh", "issue", "create"]:
+            return subprocess.CompletedProcess(
+                args=args,
+                returncode=0,
+                stdout="https://github.com/example/repo/issues/10\n",
+                stderr="",
+            )
+        raise AssertionError(f"unexpected gh call: {args}")
+
+    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+
+    result = runner.invoke(
+        app,
+        [
+            "lab",
+            "issue",
+            "create",
+            "--from",
+            "FB0001",
+            "--repo",
+            "example/repo",
+            "--confirm-create",
+            "--title",
+            "Promote lab record to issue",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "GitHub Issueを作成しました" in result.output
+    assert "Issue URLを書き戻したレコード数: 2" in result.output
+    feedback_frontmatter, _ = read_record(root / "harness-lab/records/feedback/FB0001-promote-lab-record-to-issue.md")
+    assert feedback_frontmatter["links"]["issue_url"] == "https://github.com/example/repo/issues/10"
+    dossier_frontmatter, _ = read_record(next((root / "harness-lab/improvements").glob("IMP0001-*.md")))
+    assert dossier_frontmatter["links"]["issue_url"] == "https://github.com/example/repo/issues/10"
+
+
 def test_add_failure_rejects_invalid_disposition(copy_fixture, monkeypatch):
     root = copy_fixture("runops-project-minimal")
     monkeypatch.chdir(root)

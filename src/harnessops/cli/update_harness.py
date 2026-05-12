@@ -4,7 +4,7 @@ import json
 
 import typer
 
-from harnessops.core.agent_bridge import write_bridge
+from harnessops.core.agent_bridge import refresh_bridge_files
 from harnessops.core.migration import apply_migrations as apply_pending_migrations, check_migrations
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.paths import find_root
@@ -56,20 +56,30 @@ def update_harness_command(
     refresh_codex = codex or existing_codex or (agent_bridge and not claude)
     refresh_claude = claude or existing_claude
 
-    agent_paths: list[str] = []
+    agent_result = {
+        "checked": [],
+        "updated": [],
+        "unchanged": [],
+        "conflicted": [],
+        "written_new": [],
+        "managed_files": {},
+    }
     if refresh_codex or refresh_claude:
         if dry_run:
-            agent_paths = ["<dry-run>"]
+            agent_result = refresh_bridge_files(
+                root,
+                codex=refresh_codex,
+                claude=refresh_claude,
+                force=force_agent_bridge,
+                dry_run=True,
+            )
         else:
-            agent_paths = [
-                path.relative_to(root).as_posix()
-                for path in write_bridge(
-                    root,
-                    codex=refresh_codex,
-                    claude=refresh_claude,
-                    force=force_agent_bridge,
-                )
-            ]
+            agent_result = refresh_bridge_files(
+                root,
+                codex=refresh_codex,
+                claude=refresh_claude,
+                force=force_agent_bridge,
+            )
 
     report = doctor_project(project, check_records=True)
     if not migration["ok"]:
@@ -84,8 +94,12 @@ def update_harness_command(
         },
         "managed_files": managed,
         "agent_bridge": {
-            "refreshed": bool(agent_paths),
-            "paths": agent_paths,
+            "refreshed": bool(agent_result["checked"]),
+            "paths": agent_result["checked"],
+            "updated": agent_result["updated"],
+            "unchanged": agent_result["unchanged"],
+            "conflicted": agent_result["conflicted"],
+            "written_new": agent_result["written_new"],
         },
         "doctor": report,
     }
@@ -106,8 +120,21 @@ def update_harness_command(
             typer.echo(f"{prefix}managed files: wrote {len(managed['written_new'])} .new file(s)")
             for item in managed["written_new"]:
                 typer.echo(f"  {item['new']}")
-        if agent_paths:
-            typer.echo(f"{prefix}agent bridge: checked {len(agent_paths)} paths")
+        if agent_result["checked"]:
+            typer.echo(f"{prefix}agent bridge: checked {len(agent_result['checked'])} paths")
+            typer.echo(f"{prefix}agent bridge: updated {len(agent_result['updated'])}")
+            for item in agent_result["updated"]:
+                typer.echo(f"  updated: {item}")
+            typer.echo(f"{prefix}agent bridge: unchanged {len(agent_result['unchanged'])}")
+            for item in agent_result["unchanged"]:
+                typer.echo(f"  unchanged: {item}")
+            typer.echo(f"{prefix}agent bridge: conflicted {len(agent_result['conflicted'])}")
+            for item in agent_result["conflicted"]:
+                typer.echo(f"  conflicted: {item}")
+            if agent_result["written_new"]:
+                typer.echo(f"{prefix}agent bridge: wrote {len(agent_result['written_new'])} .new file(s)")
+                for item in agent_result["written_new"]:
+                    typer.echo(f"  {item['new']}")
         else:
             typer.echo(f"{prefix}agent bridge: unchanged")
         for warning in report["warnings"]:

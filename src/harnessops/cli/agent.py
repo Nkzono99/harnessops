@@ -7,7 +7,7 @@ from pathlib import Path
 
 import typer
 
-from harnessops.core.agent_bridge import packaged_plugin_source, write_bridge
+from harnessops.core.agent_bridge import packaged_plugin_source, refresh_bridge_files
 from harnessops.core.paths import find_root
 
 agent_app = typer.Typer(help="エージェントブリッジ/プラグイン成果物をインストールまたは検証します。")
@@ -70,8 +70,14 @@ def bridge(codex: bool = typer.Option(False, "--codex"), claude: bool = typer.Op
     if not codex and not claude:
         codex = True
     root = find_root()
-    paths = write_bridge(root, codex=codex, claude=claude, force=force)
-    typer.echo(json.dumps([path.relative_to(root).as_posix() for path in paths], indent=2))
+    result = refresh_bridge_files(
+        root,
+        codex=codex,
+        claude=claude,
+        force=force,
+        update_lock=(root / ".harnessops" / "lock.json").exists(),
+    )
+    typer.echo(json.dumps(result["checked"], indent=2))
 
 
 @agent_app.command("install")

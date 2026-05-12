@@ -10,6 +10,8 @@ from typer.testing import CliRunner
 
 from harnessops.cli import feedback as feedback_cli
 from harnessops.cli.main import app
+from harnessops.core.agent_bridge import packaged_bridge_files
+from harnessops.core.lock import sha256_file
 from harnessops.core.records import read_record
 
 
@@ -224,6 +226,53 @@ def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatc
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
 
 
+def test_update_harness_refreshes_unmodified_stale_agent_bridge(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    skill = root / ".agents/skills/hops-update-harness/SKILL.md"
+    stale_text = skill.read_text(encoding="utf-8").replace("hops update-harness", "hops update-harness-old", 1)
+    skill.write_text(stale_text, encoding="utf-8")
+    rel = skill.relative_to(root).as_posix()
+    lock_path = root / ".harnessops/lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["agent_bridge"]["managed_files"][rel] = sha256_file(skill)
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    result = run_cli(["update-harness", "--agent-bridge", "--codex"])
+
+    assert "agent bridge: updated" in result.output
+    assert skill.read_text(encoding="utf-8") == packaged_bridge_files(root, codex=True)[skill]
+
+
+def test_update_harness_preserves_edited_agent_bridge_file_as_new(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    skill = root / ".agents/skills/hops-update-harness/SKILL.md"
+    skill.write_text("# Local bridge edit\n", encoding="utf-8")
+
+    result = run_cli(["update-harness", "--agent-bridge", "--codex"])
+
+    assert "agent bridge: conflicted 1" in result.output
+    assert "SKILL.md.new" in result.output
+    assert skill.read_text(encoding="utf-8") == "# Local bridge edit\n"
+    assert skill.with_name("SKILL.md.new").read_text(encoding="utf-8") == packaged_bridge_files(root, codex=True)[skill]
+
+
+def test_update_harness_force_overwrites_edited_agent_bridge_file(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    skill = root / ".agents/skills/hops-update-harness/SKILL.md"
+    skill.write_text("# Local bridge edit\n", encoding="utf-8")
+
+    run_cli(["update-harness", "--agent-bridge", "--codex", "--force-agent-bridge"])
+
+    assert skill.read_text(encoding="utf-8") == packaged_bridge_files(root, codex=True)[skill]
+    assert not skill.with_name("SKILL.md.new").exists()
+
+
 def test_update_harness_preserves_dynamic_imported_feedback_view(copy_fixture, monkeypatch):
     root = copy_fixture("paper-harness-upstream-minimal")
     monkeypatch.chdir(root)
@@ -249,7 +298,7 @@ def test_feedback_import_issue_captures_github_context(copy_fixture, monkeypatch
     payload = {
         "number": 42,
         "title": "Import records should include issue context",
-        "body": "The importer needs enough context for lab evaluation.",
+        "body": "日本語の本文でも lab evaluation に必要な context を保持する。",
         "author": {"login": "alice"},
         "labels": [{"name": "enhancement"}, {"name": "feedback"}],
         "createdAt": "2026-05-12T01:02:03Z",
@@ -259,16 +308,18 @@ def test_feedback_import_issue_captures_github_context(copy_fixture, monkeypatch
             {
                 "author": {"login": "bob"},
                 "createdAt": "2026-05-12T04:00:00Z",
-                "body": "A useful follow-up comment.",
+                "body": "A useful follow-up comment with 日本語.",
             }
         ],
     }
 
-    def fake_run(args, check, capture_output, text):
+    def fake_run(args, check, capture_output, text, encoding=None, errors=None):
         assert args[:4] == ["gh", "issue", "view", "42"]
         assert check is True
         assert capture_output is True
         assert text is True
+        assert encoding == "utf-8"
+        assert errors == "replace"
         return subprocess.CompletedProcess(args=args, returncode=0, stdout=json.dumps(payload), stderr="")
 
     monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
@@ -281,8 +332,8 @@ def test_feedback_import_issue_captures_github_context(copy_fixture, monkeypatch
     assert issue["author"] == "alice"
     assert issue["labels"] == ["enhancement", "feedback"]
     assert frontmatter["links"]["issue_url"] == "https://github.com/example/repo/issues/42"
-    assert "The importer needs enough context" in body
-    assert "A useful follow-up comment" in body
+    assert "日本語の本文" in body
+    assert "A useful follow-up comment with 日本語" in body
 
 
 def test_lab_capture_records_local_improvement(copy_fixture, monkeypatch):
@@ -320,6 +371,51 @@ def test_lab_capture_records_local_improvement(copy_fixture, monkeypatch):
     assert (root / eval_case.output.strip()).exists()
     doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
     assert "警告" not in doctor.output
+
+
+def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Bridge workflow is hard to scan",
+            "--summary",
+            "A single improvement is spread across feedback, eval, hypothesis, and decision records.",
+            "--expected-change",
+            "Provide a generated dossier that gathers the normalized records into one review file.",
+            "--capability",
+            "lab_traceability",
+            "--failure-class",
+            "record_sprawl",
+            "--source-ref",
+            "https://github.com/example/harness/issues/7",
+        ]
+    )
+    run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    run_cli(["propose", "--from", "E0001", "--hypothesis", "A generated dossier makes the improvement reviewable."])
+
+    result = run_cli(["lab", "dossier", "--from", "H0001"])
+
+    dossier_path = root / result.output.strip()
+    assert dossier_path.name.startswith("IMP0001-")
+    text = dossier_path.read_text(encoding="utf-8")
+    assert "## Source Observation" in text
+    assert "## Evaluation" in text
+    assert "## Hypotheses" in text
+    assert "FB0001" in text
+    assert "E0001" in text
+    assert "H0001" in text
+    view = (root / "harness-lab/views/improvements.md").read_text(encoding="utf-8")
+    assert "IMP0001" in view
+    assert "source=FB0001" in view
+
+    second = run_cli(["lab", "dossier", "--from", "FB0001"])
+
+    assert second.output.strip() == result.output.strip()
 
 
 def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):

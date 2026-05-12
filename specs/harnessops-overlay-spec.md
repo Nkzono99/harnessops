@@ -36,14 +36,16 @@ harness-lab/
     hypotheses/
     experiments/
     decisions/
+  improvements/
   views/
     imported-feedback.md
     backlog.md
+    improvements.md
     score-trajectory.md
     eval-results/
 ```
 
-`harness-lab/` はフィードバック、評価、仮説、実験、判断の記憶です。GitHub Issues は引き続きタスクトラッカーです。
+`harness-lab/` はフィードバック、評価、仮説、実験、判断の記憶です。GitHub Issues は引き続きタスクトラッカーです。`records/` は正規化された正本で、`improvements/IMP*.md` は日常レビュー用に1改善分の履歴を集約した dossier です。
 
 ## 隠しメタデータ: `.harnessops/`
 

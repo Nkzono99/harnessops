@@ -99,9 +99,16 @@ def _load_github_issue(issue: int, repo: str | None) -> tuple[dict[str, Any], st
             check=True,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         payload = json.loads(result.stdout)
-    except (FileNotFoundError, json.JSONDecodeError, subprocess.CalledProcessError):
+    except (
+        FileNotFoundError,
+        TypeError,
+        json.JSONDecodeError,
+        subprocess.CalledProcessError,
+    ):
         return source, fallback_body, fallback_title
 
     issue_labels = _issue_label_names(payload.get("labels"))

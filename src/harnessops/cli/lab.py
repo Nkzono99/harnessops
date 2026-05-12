@@ -4,13 +4,29 @@ from pathlib import Path
 
 import typer
 
-from harnessops.cli.feedback import import_feedback
+from harnessops.cli.feedback import (
+    _create_github_issue,
+    _remaining_private_markers,
+    _search_duplicate_issues,
+    _validate_repo,
+    import_feedback,
+)
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import create_eval_case, create_lab_feedback, find_record, read_record
+from harnessops.core.records import (
+    create_eval_case,
+    create_lab_feedback,
+    create_or_update_improvement_dossier,
+    dump_record,
+    find_record,
+    read_record,
+)
 from harnessops.core.render import refresh_views
+from harnessops.core.sanitize import sanitize_text
+from harnessops.profiles.registry import load_profile
 
 lab_app = typer.Typer(help="harness-lab レコードを操作します。")
+issue_app = typer.Typer(help="harness-lab レコードをGitHub Issueへ橋渡しします。")
 
 
 @lab_app.command("import-feedback")
@@ -75,6 +91,180 @@ def capture(
     typer.echo(path.relative_to(root).as_posix())
 
 
+@lab_app.command("dossier")
+def dossier(from_id: str = typer.Option(..., "--from")) -> None:
+    """FB/E/H/D レコードから1枚の改善 dossier を作成または更新します。"""
+    root = find_root()
+    project = load_project(root)
+    if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
+        typer.echo("lab dossier には upstream-lab または meta-lab mode が必要です")
+        raise typer.Exit(1)
+    path = create_or_update_improvement_dossier(project, source_ref=from_id)
+    refresh_views(root, project.overlay_path)
+    typer.echo(path.relative_to(root).as_posix())
+
+
+def _record_title(body: str, fallback: str) -> str:
+    for line in body.splitlines():
+        if line.startswith("# "):
+            title = line[2:].strip()
+            return title.split(": ", 1)[1] if ": " in title else title
+    return fallback
+
+
+def _lab_issue_source(project, source_ref: str) -> tuple[Path, dict, str, str]:
+    source_path = find_record(project, source_ref)
+    source_frontmatter, source_body = read_record(source_path)
+    if source_frontmatter.get("record_type") != "improvement_dossier":
+        try:
+            dossier_path = create_or_update_improvement_dossier(project, source_ref=source_ref)
+            dossier_frontmatter, dossier_body = read_record(dossier_path)
+            return dossier_path, dossier_frontmatter, dossier_body, source_ref
+        except ValueError:
+            pass
+    return source_path, source_frontmatter, source_body, source_ref
+
+
+def _lab_issue_body(root: Path, project, source_ref: str, title: str | None) -> tuple[Path, dict, str, str]:
+    profile = load_profile(project.profile_id)
+    source_path, source_frontmatter, source_body, original_ref = _lab_issue_source(project, source_ref)
+    issue_title = title or _record_title(source_body, source_path.stem)
+    rel = source_path.relative_to(root).as_posix()
+    body = f"""## Context
+
+HarnessOps lab record `{original_ref}` was promoted to a GitHub Issue draft.
+
+Source dossier: `{rel}`
+
+## Proposal
+
+{source_body.strip()}
+
+## Safety
+
+This body was sanitized by HarnessOps before issue creation.
+"""
+    sanitized = sanitize_text(body, root=root, profile=profile)
+    markers = _remaining_private_markers(root, profile, sanitized)
+    if markers:
+        typer.echo("GitHub Issue化する前に再サニタイズが必要です: " + ", ".join(markers))
+        raise typer.Exit(1)
+    return source_path, source_frontmatter, issue_title, sanitized.strip()
+
+
+def _lab_issue_draft_path(project, source_path: Path) -> Path:
+    out_dir = project.overlay_dir / "views" / "lab-issue-drafts"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    base = out_dir / f"{source_path.stem}-github-issue-draft.md"
+    candidate = base
+    index = 2
+    while candidate.exists():
+        candidate = out_dir / f"{source_path.stem}-github-issue-draft-{index}.md"
+        index += 1
+    return candidate
+
+
+def _write_issue_url(path: Path, frontmatter: dict, body: str, *, repo: str, url: str) -> None:
+    links = frontmatter.setdefault("links", {})
+    if not isinstance(links, dict):
+        links = {}
+        frontmatter["links"] = links
+    links["issue_url"] = url
+    links["issue_repo"] = repo
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+
+
+def _write_lab_issue_url(root: Path, project, source_path: Path, repo: str, url: str) -> int:
+    updated = 0
+    source_frontmatter, source_body = read_record(source_path)
+    _write_issue_url(source_path, source_frontmatter, source_body, repo=repo, url=url)
+    updated += 1
+    feedback_id = source_frontmatter.get("source_feedback")
+    if source_frontmatter.get("record_type") == "improvement_dossier" and feedback_id:
+        try:
+            feedback_path = find_record(project, str(feedback_id))
+        except FileNotFoundError:
+            feedback_path = None
+        if feedback_path and feedback_path.resolve() != source_path.resolve():
+            feedback_frontmatter, feedback_body = read_record(feedback_path)
+            _write_issue_url(feedback_path, feedback_frontmatter, feedback_body, repo=repo, url=url)
+            updated += 1
+            create_or_update_improvement_dossier(project, source_ref=str(feedback_id))
+    refresh_views(root, project.overlay_path)
+    return updated
+
+
+@issue_app.command("draft")
+def issue_draft(
+    from_id: str = typer.Option(..., "--from"),
+    title: str | None = typer.Option(None, "--title"),
+) -> None:
+    """lab record からサニタイズ済みGitHub Issue下書きを作成します。"""
+    root = find_root()
+    project = load_project(root)
+    source_path, _, issue_title, body = _lab_issue_body(root, project, from_id, title)
+    draft_path = _lab_issue_draft_path(project, source_path)
+    draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8")
+    typer.echo("Issue title:")
+    typer.echo(issue_title)
+    typer.echo("\nIssue body:")
+    typer.echo(body)
+    typer.echo(f"\nMarkdown下書きを書きました: {draft_path.relative_to(root).as_posix()}")
+
+
+@issue_app.command("create")
+def issue_create(
+    from_id: str = typer.Option(..., "--from"),
+    repo: str = typer.Option(..., "--repo"),
+    confirm_create: bool = typer.Option(False, "--confirm-create"),
+    allow_duplicate: bool = typer.Option(False, "--allow-duplicate"),
+    title: str | None = typer.Option(None, "--title"),
+) -> None:
+    """lab record からGitHub Issueを作成します。"""
+    root = find_root()
+    project = load_project(root)
+    _validate_repo(repo)
+    source_path, _, issue_title, body = _lab_issue_body(root, project, from_id, title)
+    typer.echo("Issue title:")
+    typer.echo(issue_title)
+    typer.echo("\nIssue body:")
+    typer.echo(body)
+
+    duplicates, search_error = _search_duplicate_issues(repo, issue_title)
+    if search_error:
+        draft_path = _lab_issue_draft_path(project, source_path)
+        draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8")
+        typer.echo(f"\n重複検索をスキップしました: {search_error}")
+        typer.echo(f"Markdown下書きを書きました: {draft_path.relative_to(root).as_posix()}")
+        if confirm_create:
+            raise typer.Exit(1)
+    elif duplicates:
+        typer.echo("\n重複候補:")
+        for item in duplicates:
+            number = item.get("number", "?")
+            found_title = item.get("title", "")
+            url = item.get("url", "")
+            typer.echo(f"- #{number} {found_title} {url}")
+        if confirm_create and not allow_duplicate:
+            typer.echo("--allow-duplicate なしでは重複候補があるIssueは作成しません")
+            raise typer.Exit(1)
+    else:
+        typer.echo("\n重複候補は見つかりませんでした")
+
+    if not confirm_create:
+        typer.echo("\nリモートIssueは作成していません。作成するには --confirm-create を指定してください。")
+        return
+
+    try:
+        issue_url = _create_github_issue(repo, issue_title, body)
+    except RuntimeError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(1) from exc
+    updated = _write_lab_issue_url(root, project, source_path, repo, issue_url)
+    typer.echo(f"\nGitHub Issueを作成しました: {issue_url}")
+    typer.echo(f"Issue URLを書き戻したレコード数: {updated}")
+
+
 @lab_app.command("refresh-views")
 def refresh_lab_views() -> None:
     """harness-lab の生成ビューを再生成します。"""
@@ -85,4 +275,5 @@ def refresh_lab_views() -> None:
 
 
 def register(app: typer.Typer) -> None:
+    lab_app.add_typer(issue_app, name="issue")
     app.add_typer(lab_app, name="lab")

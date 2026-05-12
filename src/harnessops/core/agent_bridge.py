@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import shutil
 from importlib import resources
 from pathlib import Path
+from typing import Any
 
+from harnessops.core.lock import load_lock, sha256_file, write_lock
 
 BRIDGE_TEXT = """---
 name: harnessops-bridge
@@ -42,36 +43,116 @@ def packaged_plugin_source(host: str) -> Path:
     return Path(str(resources.files("harnessops").joinpath("agent_assets", "plugins", host, "harnessops")))
 
 
-def _copy_skill_dirs(source: Path, destination: Path, *, force: bool) -> list[Path]:
-    written: list[Path] = []
+def _conflict_path(path: Path, text: str) -> Path:
+    candidate = path.with_name(path.name + ".new")
+    if not candidate.exists() or candidate.read_text(encoding="utf-8") == text:
+        return candidate
+    index = 1
+    while True:
+        numbered = path.with_name(f"{path.name}.new.{index}")
+        if not numbered.exists() or numbered.read_text(encoding="utf-8") == text:
+            return numbered
+        index += 1
+
+
+def _packaged_skill_files(source: Path, destination: Path) -> dict[Path, str]:
     skills_dir = source / "skills"
     if not skills_dir.exists():
         raise FileNotFoundError(f"HarnessOps skill assets not found: {skills_dir}")
+    files: dict[Path, str] = {}
     for skill_dir in sorted(path for path in skills_dir.iterdir() if (path / "SKILL.md").exists()):
-        target = destination / skill_dir.name
-        if target.exists():
-            if not force:
-                written.append(target / "SKILL.md")
-                continue
-            shutil.rmtree(target)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(skill_dir, target)
-        written.append(target / "SKILL.md")
-    return written
+        for source_file in sorted(path for path in skill_dir.rglob("*") if path.is_file()):
+            target = destination / source_file.relative_to(skills_dir)
+            files[target] = source_file.read_text(encoding="utf-8")
+    return files
+
+
+def packaged_bridge_files(root: Path, *, codex: bool = True, claude: bool = False) -> dict[Path, str]:
+    files: dict[Path, str] = {}
+    if codex:
+        files[root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md"] = BRIDGE_TEXT
+        files.update(_packaged_skill_files(packaged_plugin_source("codex"), root / ".agents" / "skills"))
+    if claude:
+        files[root / ".claude" / "skills" / "harnessops-bridge" / "SKILL.md"] = BRIDGE_TEXT
+        files.update(_packaged_skill_files(packaged_plugin_source("claude"), root / ".claude" / "skills"))
+    return files
+
+
+def refresh_bridge_files(
+    root: Path,
+    *,
+    codex: bool = True,
+    claude: bool = False,
+    force: bool = False,
+    dry_run: bool = False,
+    update_lock: bool = True,
+) -> dict[str, Any]:
+    lock = load_lock(root)
+    bridge_lock = lock.get("agent_bridge", {}) if isinstance(lock.get("agent_bridge"), dict) else {}
+    old_managed = (
+        bridge_lock.get("managed_files", {})
+        if isinstance(bridge_lock.get("managed_files"), dict)
+        else {}
+    )
+    managed = dict(old_managed)
+    checked: list[str] = []
+    updated: list[str] = []
+    unchanged: list[str] = []
+    conflicted: list[str] = []
+    written_new: list[dict[str, str]] = []
+
+    for path, text in packaged_bridge_files(root, codex=codex, claude=claude).items():
+        rel = path.relative_to(root).as_posix()
+        checked.append(rel)
+        old_hash = old_managed.get(rel)
+        if not path.exists():
+            if not dry_run:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+                managed[rel] = sha256_file(path)
+            updated.append(rel)
+            continue
+
+        current_text = path.read_text(encoding="utf-8")
+        current_hash = sha256_file(path)
+        if current_text == text:
+            managed[rel] = current_hash
+            unchanged.append(rel)
+            continue
+
+        if force or (old_hash is not None and current_hash == old_hash):
+            if not dry_run:
+                path.write_text(text, encoding="utf-8")
+                managed[rel] = sha256_file(path)
+            updated.append(rel)
+            continue
+
+        conflict = _conflict_path(path, text)
+        if not dry_run:
+            conflict.write_text(text, encoding="utf-8")
+        conflicted.append(rel)
+        written_new.append({"path": rel, "new": conflict.relative_to(root).as_posix()})
+
+    if update_lock and not dry_run:
+        lock["agent_bridge"] = {"managed_files": managed}
+        write_lock(root, lock)
+
+    return {
+        "checked": checked,
+        "updated": updated,
+        "unchanged": unchanged,
+        "conflicted": conflicted,
+        "written_new": written_new,
+        "managed_files": managed,
+    }
 
 
 def write_bridge(root: Path, *, codex: bool = True, claude: bool = False, force: bool = False) -> list[Path]:
-    paths: list[Path] = []
-    if codex:
-        paths.append(root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md")
-        paths.extend(_copy_skill_dirs(packaged_plugin_source("codex"), root / ".agents" / "skills", force=force))
-    if claude:
-        paths.append(root / ".claude" / "skills" / "harnessops-bridge" / "SKILL.md")
-        paths.extend(_copy_skill_dirs(packaged_plugin_source("claude"), root / ".claude" / "skills", force=force))
-    for path in paths:
-        if path.exists() and not force:
-            continue
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if path.parent.name == "harnessops-bridge":
-            path.write_text(BRIDGE_TEXT, encoding="utf-8")
-    return paths
+    result = refresh_bridge_files(
+        root,
+        codex=codex,
+        claude=claude,
+        force=force,
+        update_lock=False,
+    )
+    return [root / rel for rel in result["checked"]]

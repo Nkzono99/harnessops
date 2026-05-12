@@ -20,6 +20,7 @@ ID_PREFIXES = {
     "hypothesis": "H",
     "experiment": "X",
     "decision": "D",
+    "improvement_dossier": "IMP",
 }
 
 
@@ -32,6 +33,7 @@ RECORD_DIRS = {
     "eval_case": "records/eval-cases",
     "hypothesis": "records/hypotheses",
     "decision": "records/decisions",
+    "improvement_dossier": "improvements",
 }
 
 
@@ -427,6 +429,172 @@ def create_hypothesis(
 {kill_criteria or "紐づく評価ケースを改善しない、プライバシーリスクを増やす、または失敗クラスを減らさずにガバナンス構造だけを追加する場合、この仮説を却下または保留する。"}
 """
     path = record_path(project, "hypothesis", record_id, title)
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    return path
+
+
+def _record_heading(body: str, fallback: str) -> str:
+    for line in body.splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return fallback
+
+
+def _records_in(project: Project, record_type: str) -> list[tuple[Path, dict[str, Any], str]]:
+    paths = sorted((project.overlay_dir / RECORD_DIRS[record_type]).glob("*.md"))
+    records = []
+    for path in paths:
+        frontmatter, body = read_record(path)
+        records.append((path, frontmatter, body))
+    return records
+
+
+def _feedback_for_record(project: Project, record_ref: str) -> tuple[Path, dict[str, Any], str]:
+    path = find_record(project, record_ref)
+    frontmatter, body = read_record(path)
+    record_type = frontmatter.get("record_type")
+    if record_type == "imported_feedback":
+        return path, frontmatter, body
+    if record_type == "eval_case":
+        return _feedback_for_record(project, str(frontmatter.get("source_feedback")))
+    if record_type == "hypothesis":
+        eval_path = find_record(project, str(frontmatter.get("source_eval_case")))
+        eval_frontmatter, _ = read_record(eval_path)
+        return _feedback_for_record(project, str(eval_frontmatter.get("source_feedback")))
+    if record_type == "decision":
+        return _feedback_for_record(project, str(frontmatter.get("source")))
+    raise ValueError(f"dossier は FB/E/H/D レコードから作成してください: {record_ref}")
+
+
+def _find_existing_dossier(project: Project, source_feedback: str) -> Path | None:
+    for path in sorted((project.overlay_dir / "improvements").glob("IMP*.md")):
+        frontmatter, _ = read_record(path)
+        if frontmatter.get("source_feedback") == source_feedback:
+            return path
+    return None
+
+
+def create_or_update_improvement_dossier(project: Project, *, source_ref: str) -> Path:
+    feedback_path, feedback_frontmatter, feedback_body = _feedback_for_record(project, source_ref)
+    feedback_id = str(feedback_frontmatter.get("id"))
+    classification = feedback_frontmatter.get("classification", {})
+    eval_records = [
+        item
+        for item in _records_in(project, "eval_case")
+        if item[1].get("source_feedback") == feedback_id
+    ]
+    eval_ids = [str(frontmatter.get("id")) for _, frontmatter, _ in eval_records]
+    hypothesis_records = [
+        item
+        for item in _records_in(project, "hypothesis")
+        if item[1].get("source_eval_case") in eval_ids
+    ]
+    hypothesis_ids = [str(frontmatter.get("id")) for _, frontmatter, _ in hypothesis_records]
+    decision_records = [
+        item
+        for item in _records_in(project, "decision")
+        if item[1].get("source") in hypothesis_ids or item[1].get("source") in eval_ids
+    ]
+    decision_status = (
+        str(decision_records[-1][1].get("status"))
+        if decision_records
+        else "active"
+    )
+    existing_path = _find_existing_dossier(project, feedback_id)
+    if existing_path:
+        existing_frontmatter, _ = read_record(existing_path)
+        record_id = str(existing_frontmatter.get("id"))
+        created_at = existing_frontmatter.get("created_at", now_iso())
+        path = existing_path
+    else:
+        directory = project.overlay_dir / "improvements"
+        record_id = next_id(directory, "IMP")
+        created_at = now_iso()
+        title = _record_heading(feedback_body, feedback_path.stem)
+        path = record_path(project, "improvement_dossier", record_id, title)
+
+    links = feedback_frontmatter.get("links", {})
+    source = feedback_frontmatter.get("source", {})
+    source_issue = source.get("issue", {}) if isinstance(source, dict) else {}
+    issue_url = links.get("issue_url") or source_issue.get("url")
+    frontmatter = {
+        "id": record_id,
+        "record_type": "improvement_dossier",
+        "created_at": created_at,
+        "updated_at": now_iso(),
+        "status": decision_status,
+        "source_feedback": feedback_id,
+        "eval_cases": eval_ids,
+        "hypotheses": hypothesis_ids,
+        "decisions": [str(item[1].get("id")) for item in decision_records],
+        "classification": {
+            "capability": classification.get("capability", "unclassified"),
+            "failure_class": classification.get("failure_class", "unclassified"),
+        },
+        "links": {"issue_url": issue_url},
+    }
+
+    def linked_record_section(
+        heading: str,
+        records: list[tuple[Path, dict[str, Any], str]],
+        empty: str,
+    ) -> str:
+        if not records:
+            return f"## {heading}\n\n{empty}\n"
+        parts = [f"## {heading}\n"]
+        for record_path_item, record_frontmatter, record_body in records:
+            rel = record_path_item.relative_to(project.root).as_posix()
+            title = _record_heading(record_body, record_path_item.stem)
+            parts.append(f"### {record_frontmatter.get('id')}: {title}\n\n")
+            parts.append(f"Source: `{rel}`\n\n")
+            parts.append(record_body.strip() + "\n")
+        return "\n".join(parts)
+
+    feedback_rel = feedback_path.relative_to(project.root).as_posix()
+    eval_result_paths = [
+        f"harness-lab/views/eval-results/{eval_id}-manual-score.md"
+        for eval_id in eval_ids
+        if (project.overlay_dir / "views" / "eval-results" / f"{eval_id}-manual-score.md").exists()
+    ]
+    linked_records = [feedback_id, *eval_ids, *hypothesis_ids, *frontmatter["decisions"]]
+    body = f"""# {record_id}: {_record_heading(feedback_body, feedback_path.stem)}
+
+## Status
+
+- status: {decision_status}
+- source_feedback: `{feedback_id}`
+- linked_records: {", ".join(f"`{item}`" for item in linked_records) or "none"}
+
+## Source Observation
+
+Source: `{feedback_rel}`
+
+{feedback_body.strip()}
+
+## Target Capability
+
+- capability: {frontmatter["classification"]["capability"]}
+- failure_class: {frontmatter["classification"]["failure_class"]}
+
+{linked_record_section("Evaluation", eval_records, "評価ケースはまだありません。")}
+
+{linked_record_section("Hypotheses", hypothesis_records, "仮説はまだありません。")}
+
+## Evidence
+
+{", ".join(f"`{item}`" for item in eval_result_paths) if eval_result_paths else "評価結果はまだありません。"}
+
+## Links
+
+- issue_url: {issue_url or "未設定"}
+
+## Open Questions And Next Action
+
+次の実装または評価ステップは、この dossier と紐づく正規化レコードを更新してから再生成してください。
+
+{linked_record_section("Decision Log", decision_records, "判断レコードはまだありません。")}
+"""
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
     return path
 

@@ -6,3 +6,7 @@
 - `FB0003` triaged unclassified unclassified
 - `FB0004` triaged unclassified unclassified
 - `FB0005` triaged unclassified unclassified
+- `FB0006` triaged unclassified unclassified
+- `FB0007` triaged unclassified unclassified
+- `FB0008` triaged unclassified unclassified
+- `FB0009` triaged github_issue_import unicode_decode_failure

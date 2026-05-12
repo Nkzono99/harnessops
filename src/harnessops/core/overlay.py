@@ -133,6 +133,7 @@ def overlay_dirs(overlay_mode: str) -> list[str]:
         "records/hypotheses",
         "records/experiments",
         "records/decisions",
+        "improvements",
         "views",
     ]
 
@@ -149,6 +150,7 @@ def generated_overlay_files(overlay_mode: str, overlay_rel: str) -> dict[str, st
         f"{overlay_rel}/README.md": LAB_README,
         f"{overlay_rel}/views/imported-feedback.md": GENERATED_MARKER + "# インポート済みフィードバック\n\nインポート済みフィードバックレコードはまだありません。\n",
         f"{overlay_rel}/views/backlog.md": GENERATED_MARKER + "# バックログ\n\n評価ケースのない受理済みフィードバックはありません。\n",
+        f"{overlay_rel}/views/improvements.md": GENERATED_MARKER + "# 改善dossier\n\n改善dossierはまだありません。\n",
         f"{overlay_rel}/views/score-trajectory.md": GENERATED_MARKER + "# スコア推移\n\nスコア履歴はまだありません。\n",
     }
 
@@ -266,10 +268,12 @@ def init_overlay(
         _write_generated(path, text, force=force, old_hash=old_managed.get(rel))
         managed[rel] = sha256_file(path)
 
+    bridge_managed: dict[str, str] | None = None
     if with_agent_bridge:
-        from harnessops.core.agent_bridge import write_bridge
+        from harnessops.core.agent_bridge import refresh_bridge_files
 
-        write_bridge(root, codex=True, claude=False, force=force)
+        bridge_result = refresh_bridge_files(root, codex=True, claude=False, force=force, update_lock=False)
+        bridge_managed = bridge_result["managed_files"]
 
     lock = build_lock(
         harnessops_version=__version__,
@@ -279,5 +283,7 @@ def init_overlay(
         overlay_path=overlay_rel,
         managed_files=managed,
     )
+    if bridge_managed is not None:
+        lock["agent_bridge"] = {"managed_files": bridge_managed}
     write_lock(root, lock)
     return {"profile": profile_id, "mode": overlay_mode, "path": overlay_rel, "managed_files": managed}

@@ -24,6 +24,8 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops feedback import <bundle>` | はい | サニタイズ済みバンドルを `harness-lab` にインポートします。 |
 | `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにします。 |
 | `hops lab new-eval-case --from <FBid>` | はい | インポート済みフィードバックを評価ケースに変換します。 |
+| `hops lab dossier --from <FB/E/H/D id>` | はい | 正規化済み `FB/E/H/D` レコードから、1つの改善履歴を読むための `harness-lab/improvements/IMPxxxx-*.md` を作成または更新します。 |
+| `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済みGitHub Issue下書きを作り、重複確認後に明示確認付きでIssueを作成します。成功時はlab recordへIssue URLを書き戻します。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新します。 |
 | `hops propose --from <Eid>` | はい | メカニズムと中止基準を含む仮説を作成します。 |
 | `hops eval --case <Eid> --manual` | はい | 多軸の手動スコアカードを保存します。 |
@@ -38,7 +40,8 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。`--format github-issue` は公開共有前提のため、`--sanitize` を必須とし、`--allow-private` との併用を拒否します。
 3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。
 4. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
-5. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
+5. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。
+6. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 
 ## 終了コード
 
