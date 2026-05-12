@@ -16,7 +16,7 @@ def eval_command(
     score: list[str] = typer.Option(None, "--score"),
     notes: str = typer.Option("", "--notes"),
 ) -> None:
-    """Run eval cases or persist a manual multi-axis scorecard."""
+    """Persist manual multi-axis scorecards for eval cases."""
     root = find_root()
     project = load_project(root)
     cases = []
