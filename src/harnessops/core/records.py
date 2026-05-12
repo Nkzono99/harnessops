@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import yaml
+from harnessops.core import yamlio
 
 from harnessops.core.project import Project
 
@@ -50,12 +50,12 @@ def split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
     parts = text.split("---\n", 2)
     if len(parts) < 3:
         return {}, text
-    data = yaml.safe_load(parts[1]) or {}
+    data = yamlio.safe_load(parts[1]) or {}
     return data, parts[2]
 
 
 def dump_record(frontmatter: dict[str, Any], body: str) -> str:
-    yaml_text = yaml.safe_dump(frontmatter, sort_keys=False, allow_unicode=False)
+    yaml_text = yamlio.safe_dump(frontmatter, sort_keys=False, allow_unicode=False)
     return f"---\n{yaml_text}---\n\n{body.lstrip()}"
 
 
@@ -324,4 +324,3 @@ TODO
     path = record_path(project, "decision", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
     return path
-

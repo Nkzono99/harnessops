@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-import yaml
+from harnessops.core import yamlio
 
 
 DEFAULT_PATTERNS = [
@@ -18,7 +18,7 @@ def _load_sanitize_config(root: Path) -> dict[str, Any]:
     path = root / ".harnessops" / "sanitize.yml"
     if not path.exists():
         return {}
-    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return yamlio.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def sanitize_text(text: str, *, root: Path, profile: dict[str, Any] | None = None, allow_private: bool = False) -> str:
@@ -39,4 +39,3 @@ def sanitize_text(text: str, *, root: Path, profile: dict[str, Any] | None = Non
                 result = result.replace(literal, "<PROTECTED_PATH>")
     result += "\n\n## Private info excluded\n\n- private info excluded\n- source project anonymized\n- local paths redacted\n"
     return result
-

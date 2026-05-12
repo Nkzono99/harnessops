@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 
 import typer
-import yaml
 
+from harnessops.core import yamlio
 from harnessops.profiles.registry import load_builtin_profiles, load_profile, profile_fingerprint
 
 profiles_app = typer.Typer(help="Inspect HarnessOps profiles.")
@@ -30,9 +30,8 @@ def show_profile(profile_id: str, json_output: bool = typer.Option(False, "--jso
     if json_output:
         typer.echo(json.dumps(public, indent=2, sort_keys=True))
     else:
-        typer.echo(yaml.safe_dump(public, sort_keys=False))
+        typer.echo(yamlio.safe_dump(public, sort_keys=False))
 
 
 def register(app: typer.Typer) -> None:
     app.add_typer(profiles_app, name="profiles")
-
