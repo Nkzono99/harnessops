@@ -102,3 +102,12 @@ def test_release_skill_is_repo_local() -> None:
     assert "hops doctor --check-overlay --check-records" in text
     assert not (ROOT / "plugins/codex/harnessops/skills/hops-release/SKILL.md").exists()
     assert not (ROOT / "plugins/claude/harnessops/skills/hops-release/SKILL.md").exists()
+
+
+def test_issue_triage_skill_is_packaged() -> None:
+    for host in ("codex", "claude"):
+        skill = ROOT / f"plugins/{host}/harnessops/skills/hops-issue-triage/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        assert "hops feedback import --issue" in text
+        assert "hops lab new-eval-case" in text
+        assert_harness_contract(text)
