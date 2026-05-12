@@ -1,6 +1,8 @@
 # Target Repository向け HarnessOps 組み込みブリーフ
 
-この文書は、target repository や既存プロジェクトへ HarnessOps を組み込むAI Agentにそのまま渡すための指示書です。対象リポジトリ側のAgentは、この文書だけを読んで、必要な確認、初期化、検証、差分報告まで進めてください。
+この文書は、target repository へ HarnessOps を組み込むAI Agentにそのまま渡すための指示書です。target repository 側のAgentは、この文書だけを読んで、必要な確認、初期化、検証、差分報告まで進めてください。
+
+コード開発プロジェクト、研究プロジェクト、生成済みプロジェクトなど、project repository単体へ HarnessOps を入れる場合は `docs/project-repository-integration-agent-brief.md` を使ってください。
 
 ## Agentへの依頼文
 
@@ -12,14 +14,38 @@
 既存ファイルを安全でなく上書きせず、未サニタイズ情報を外部へ出さず、最後に作成ファイル・検証結果・残課題を報告してください。
 ```
 
+## 前提: target repository と project repository
+
+HarnessOps では、target repository と project repository を分けます。
+
+| 種別 | 例 | 役割 | HarnessOps overlay |
+|---|---|---|---|
+| target repository | `runops`, `paper-harness`, 社内のプロジェクト生成CLI | プロジェクトを作成・更新する上流ハーネス本体。テンプレート、CLI、検証ロジック、生成器を持つ。 | `harness-lab/` |
+| project repository | target CLIが `init` などで作成した実利用プロジェクト | 研究、論文、解析、コード開発などの現場。失敗や回避策を観測する。 | `harness-feedback/` |
+
+この文書では、target repository がCLIの `init` などで project repository を作成する構成を前提にします。
+
+例:
+
+```text
+runops repository
+  `runo init` で runops project repository を作成する
+
+paper-harness repository
+  `paper-harness init` で paper project repository を作成する
+```
+
+target repository に HarnessOps を入れる目的は、project repository から送られてくるサニタイズ済みフィードバックを `harness-lab/` に取り込み、評価ケース、仮説、判断へ変換することです。
+
+target repository に `harness-feedback/` を作らないでください。project repository側の観測・送信用overlayは、project repositoryで別途作成します。
+
 ## 目的
 
-HarnessOps を対象リポジトリに追加し、AI Agentが失敗、フィードバック、評価、改善判断を `hops` CLI経由で扱える状態にします。
+HarnessOps をtarget repositoryに追加し、AI Agentが受け取ったフィードバック、評価ケース、改善仮説、採用判断を `hops` CLI経由で扱える状態にします。
 
 組み込み後の状態:
 
-- project-repository なら `harness-feedback/` がある。
-- target-repository または HarnessOps repository なら `harness-lab/` がある。
+- target repository に `harness-lab/` がある。
 - `.harness/manifest.toml` がある。
 - `.harnessops/project.toml` と `.harnessops/lock.json` がある。
 - `hops doctor --check-overlay --check-records` が通る。
@@ -33,6 +59,7 @@ HarnessOps を対象リポジトリに追加し、AI Agentが失敗、フィー�
 - 未サニタイズのフィードバックを外部Issue、PR、公開文書に貼らない。
 - GitHub Issue、Pull Request、pushなどのリモート操作はユーザー確認なしに行わない。
 - project-specific な研究判断や論文主張を `harness-feedback/` に移さない。
+- target repository に project repository用の `harness-feedback/` を作らない。
 
 ## 事前確認
 
@@ -83,10 +110,6 @@ hops detect --json
 | paper-harness の上流実装リポジトリ | `paper-harness-upstream` | `harness-lab/` |
 | 汎用target harnessリポジトリ | `target-harness` | `harness-lab/` |
 | HarnessOps 自身 | `harnessops-core` | `harness-lab/` |
-| runops生成プロジェクト | `runops-project` | `harness-feedback/` |
-| paper-harness生成プロジェクト | `paper-harness-project` | `harness-feedback/` |
-| Python packageプロジェクト | `python-package` | `harness-feedback/` |
-| その他のコードリポジトリ | `generic-code` | `harness-feedback/` |
 
 target repository に組み込む依頼なら、通常は `*-upstream` または `target-harness` を選びます。
 
@@ -132,24 +155,6 @@ harness-lab/views/
 
 `harness-lab/` は上流改善の評価と判断の記憶です。通常のタスク管理はGitHub Issuesなど既存の仕組みに残します。
 
-## project repositoryで確認すること
-
-project repository の場合、次があることを確認します。
-
-```text
-.harness/manifest.toml
-.harnessops/project.toml
-.harnessops/lock.json
-harness-feedback/README.md
-harness-feedback/records/failures/
-harness-feedback/records/local-workarounds/
-harness-feedback/records/upstream-feedback/
-harness-feedback/records/meta-feedback/
-harness-feedback/views/
-```
-
-`harness-feedback/` は観測と送信用です。研究方針、論文主張、実験転換は `research/` または `notes/` に残します。
-
 ## プライバシー設定
 
 非公開語、保護パス、ローカルパスが分かっている場合は、`.harnessops/sanitize.yml` を提案または作成します。
@@ -192,7 +197,8 @@ uvx --isolated --from /path/to/harnessops hops migrate --check
 
 - 適切なprofileで `.harnessops/project.toml` が作成されている。
 - `.harness/manifest.toml` が作成されている。
-- 対象種別に応じて `harness-feedback/` または `harness-lab/` が作成されている。
+- target repository に `harness-lab/` が作成されている。
+- target repository に project repository用の `harness-feedback/` を作っていない。
 - `.harnessops/lock.json` が生成ファイルだけを管理している。
 - `hops doctor --check-overlay --check-records` が通る。
 - `hops migrate --check` が未適用マイグレーションなしを報告する。
@@ -223,4 +229,4 @@ HarnessOps 組み込み結果:
 - 既存の `.harnessops/project.toml` と新しい判定が矛盾する。
 - 生成ファイルの上書きを `hops` が拒否した。
 - private terms や protected paths が不明なまま外部共有が必要。
-- target repository なのか project repository なのか判断できない。
+- target repository なのか project repository なのか判断できない。この場合は、この文書ではなく `docs/project-repository-integration-agent-brief.md` が適切か確認する。
