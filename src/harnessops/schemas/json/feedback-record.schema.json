@@ -2,11 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Feedback record",
   "type": "object",
-  "required": ["id", "record_type", "created_at"],
+  "required": ["id", "record_type", "created_at", "status"],
   "properties": {
     "id": {"type": "string"},
     "record_type": {"enum": ["upstream_feedback", "meta_feedback", "imported_feedback"]},
-    "created_at": {"type": "string"}
+    "created_at": {"type": "string"},
+    "status": {"type": "string"},
+    "target": {"type": "string"},
+    "source_failure": {"type": "string"},
+    "sanitized": {"type": "boolean"},
+    "source": {"type": "object"},
+    "classification": {"type": "object"}
   }
 }
-

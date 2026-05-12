@@ -7,3 +7,5 @@ Run `hops doctor --check-overlay`, then use
 `hops feedback export --target <target> --sanitize`. Do not create remote issues
 or pull requests.
 
+Check the exported bundle for local paths, private terms, and unpublished
+research details before sharing outside the source project.

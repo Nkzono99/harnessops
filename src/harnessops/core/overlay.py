@@ -21,7 +21,7 @@ This directory stores feedback from this project to upstream harnesses and Harne
 Use this directory for:
 
 - observed harness failures
-- local workarounds
+- local workarounds with disposition and expiry
 - upstream feedback drafts
 - meta-harness feedback drafts
 
@@ -31,8 +31,9 @@ Do not use this directory for:
 - paper claim changes
 - experiment direction pivots
 - raw private data
+- implementation patches to the target harness
 
-Use `hops add-failure`, `hops route`, and `hops feedback export` to manage records.
+Use `hops add-failure`, `hops route`, and `hops feedback export --sanitize` to manage records.
 """
 
 
@@ -42,13 +43,15 @@ This directory stores upstream improvement experiments for this harness reposito
 
 Use this directory for:
 
-- imported feedback
+- imported sanitized feedback
 - eval cases
-- improvement hypotheses
-- experiments
-- adoption/rejection decisions
+- improvement hypotheses with mechanism and kill criteria
+- experiments and eval scorecards
+- adoption/rejection decisions with evidence
 
 GitHub Issues remain the task tracker. `harness-lab/` is the evaluation and decision memory.
+
+Adopted decisions must cite evidence, regression risk, and a regression guard.
 """
 
 

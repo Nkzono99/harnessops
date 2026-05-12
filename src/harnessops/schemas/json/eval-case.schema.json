@@ -2,10 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Eval case",
   "type": "object",
-  "required": ["id", "record_type", "created_at", "status", "source_feedback"],
+  "required": ["id", "record_type", "created_at", "status", "capability", "failure_class", "source_feedback"],
   "properties": {
     "id": {"pattern": "^E[0-9]{4}$"},
-    "record_type": {"const": "eval_case"}
+    "record_type": {"const": "eval_case"},
+    "capability": {"type": "string", "minLength": 1},
+    "failure_class": {"type": "string", "minLength": 1},
+    "source_feedback": {"type": "string", "pattern": "^FB[0-9]{4}$"}
   }
 }
-

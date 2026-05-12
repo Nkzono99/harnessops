@@ -122,19 +122,19 @@ def create_failure(
 
 ## Context
 
-{context or "TODO"}
+{context or "Not supplied at creation time. Add concrete context before routing or export."}
 
 ## What happened
 
-{what_happened or "TODO"}
+{what_happened or "Not supplied at creation time. Add the observed behavior before routing or export."}
 
 ## Why this matters
 
-{why_matters or "TODO"}
+{why_matters or "Not supplied at creation time. Explain the capability or privacy risk before adoption."}
 
 ## Desired behavior
 
-{desired_behavior or "TODO"}
+{desired_behavior or "Not supplied at creation time. State the expected harness behavior before export."}
 
 ## Local workaround
 
@@ -194,6 +194,72 @@ See source feedback bundle.
     return path
 
 
+def create_feedback_from_failure(
+    project: Project,
+    *,
+    failure_ref: str,
+    target: str,
+    feedback_type: str | None = None,
+    title: str | None = None,
+    summary: str = "",
+) -> Path:
+    failure_path = find_record(project, failure_ref)
+    failure_frontmatter, failure_body = read_record(failure_path)
+    if failure_frontmatter.get("record_type") != "failure":
+        raise ValueError(f"source record is not a failure: {failure_ref}")
+    record_type = feedback_type or ("meta_feedback" if target == "harnessops" else "upstream_feedback")
+    if record_type not in {"upstream_feedback", "meta_feedback"}:
+        raise ValueError(f"unsupported feedback type: {record_type}")
+    prefix = ID_PREFIXES[record_type]
+    directory = project.overlay_dir / RECORD_DIRS[record_type]
+    record_id = next_id(directory, prefix)
+    feedback_title = title or f"Feedback to {target} from {failure_frontmatter.get('id')}"
+    frontmatter = {
+        "id": record_id,
+        "record_type": record_type,
+        "created_at": now_iso(),
+        "status": "draft",
+        "target": target,
+        "source_failure": failure_frontmatter.get("id"),
+        "sanitized": False,
+        "visibility": failure_frontmatter.get("visibility", "private-until-sanitized"),
+        "issue": {"provider": "github", "url": None},
+    }
+    heading = "Feedback to HarnessOps" if record_type == "meta_feedback" else f"Feedback to {target}"
+    body = f"""# {heading}: {feedback_title}
+
+## Summary
+
+{summary or "Draft feedback created from failure record."}
+
+## Minimal reproduction
+
+Derived from `{failure_frontmatter.get('id')}`.
+
+## Expected upstream improvement
+
+State the smallest upstream change that would prevent this failure class. This draft is not shareable until exported with sanitization.
+
+## Private info excluded
+
+Not sanitized yet. Run `hops feedback export --target {target} --sanitize` before sharing.
+
+## Source failure excerpt
+
+{failure_body.strip()}
+"""
+    path = record_path(project, record_type, record_id, feedback_title)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8")
+    links = failure_frontmatter.setdefault("links", {})
+    if record_type == "meta_feedback":
+        links["meta_feedback"] = record_id
+    else:
+        links["upstream_feedback"] = record_id
+    failure_path.write_text(dump_record(failure_frontmatter, failure_body), encoding="utf-8")
+    return path
+
+
 def create_eval_case(project: Project, *, feedback_id: str, title: str, capability: str, failure_class: str) -> Path:
     directory = project.overlay_dir / "records/eval-cases"
     record_id = next_id(directory, "E")
@@ -239,7 +305,21 @@ The target harness handles the failure class without leaking private project con
     return path
 
 
-def create_hypothesis(project: Project, *, eval_case_id: str, title: str, capability: str) -> Path:
+def create_hypothesis(
+    project: Project,
+    *,
+    eval_case_id: str,
+    title: str,
+    capability: str,
+    hypothesis: str = "",
+    mechanism: str = "",
+    minimal_implementation: str = "",
+    alternative: str = "",
+    expected_upside: str = "",
+    expected_downside: str = "",
+    evaluation_plan: str = "",
+    kill_criteria: str = "",
+) -> Path:
     directory = project.overlay_dir / "records/hypotheses"
     record_id = next_id(directory, "H")
     frontmatter = {
@@ -254,42 +334,53 @@ def create_hypothesis(project: Project, *, eval_case_id: str, title: str, capabi
 
 ## Hypothesis
 
-TODO
+{hypothesis or f"Improve `{capability}` for `{eval_case_id}` by changing the smallest upstream behavior that caused the eval case to fail."}
 
 ## Mechanism
 
-TODO
+{mechanism or "The proposed change must name the mechanism before adoption. A vague process or documentation addition is insufficient evidence."}
 
 ## Minimal implementation
 
-TODO
+{minimal_implementation or "Implement the narrowest change that can be evaluated by the linked eval case; prefer deletion or consolidation over a new abstraction when it removes complexity."}
 
 ## Alternative: deletion or consolidation
 
-TODO
+{alternative or "Before adding new behavior, evaluate whether an existing rule, profile, skill, or template can be deleted, merged, or tightened instead."}
 
 ## Expected upside
 
-TODO
+{expected_upside or f"The linked eval case `{eval_case_id}` should pass with less operator burden and without leaking project-specific context upstream."}
 
 ## Expected downside
 
-TODO
+{expected_downside or "Possible downside: more routing friction, false positives, or maintenance burden. Adoption requires checking this explicitly."}
 
 ## Evaluation plan
 
-TODO
+{evaluation_plan or f"Run `hops eval --case {eval_case_id} --manual` and record multi-axis scores before creating an adoption decision."}
 
 ## Kill criteria
 
-TODO
+{kill_criteria or "Reject or park this hypothesis if it does not improve the linked eval case, increases privacy risk, or adds governance structure without reducing a failure class."}
 """
     path = record_path(project, "hypothesis", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
     return path
 
 
-def create_decision(project: Project, *, source: str, status: str, title: str) -> Path:
+def create_decision(
+    project: Project,
+    *,
+    source: str,
+    status: str,
+    title: str,
+    reason: str,
+    evidence: str,
+    regression_risk: str,
+    follow_up: str,
+    guard_path: str | None = None,
+) -> Path:
     directory = project.overlay_dir / "records/decisions"
     record_id = next_id(directory, "D")
     frontmatter = {
@@ -298,6 +389,7 @@ def create_decision(project: Project, *, source: str, status: str, title: str) -
         "created_at": now_iso(),
         "status": status,
         "source": source,
+        "evidence": {"summary": evidence, "guard_path": guard_path},
     }
     body = f"""# {record_id}: {title}
 
@@ -307,19 +399,23 @@ def create_decision(project: Project, *, source: str, status: str, title: str) -
 
 ## Reason
 
-TODO
+{reason}
 
 ## Evidence
 
-TODO
+{evidence}
 
 ## Regression risk
 
-TODO
+{regression_risk}
 
 ## Follow-up
 
-TODO
+{follow_up}
+
+## Regression guard
+
+{guard_path or "No guard path was supplied. Non-adopted decisions may omit a guard; adopted decisions must provide one."}
 """
     path = record_path(project, "decision", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")

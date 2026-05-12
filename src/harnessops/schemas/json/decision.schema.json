@@ -2,10 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Decision",
   "type": "object",
-  "required": ["id", "record_type", "created_at", "status"],
+  "required": ["id", "record_type", "created_at", "status", "source"],
   "properties": {
     "id": {"pattern": "^D[0-9]{4}$"},
-    "record_type": {"const": "decision"}
+    "record_type": {"const": "decision"},
+    "status": {"enum": ["adopted", "rejected", "parked", "needs-more-evidence", "merged-into-other", "not-upstreamable"]},
+    "source": {"type": "string", "minLength": 1},
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "summary": {"type": "string"},
+        "guard_path": {"type": ["string", "null"]}
+      }
+    }
   }
 }
-

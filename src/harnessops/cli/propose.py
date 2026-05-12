@@ -10,10 +10,18 @@ from harnessops.core.records import create_hypothesis, find_record, read_record
 def propose_command(
     from_id: str = typer.Option(..., "--from"),
     manual_template: bool = typer.Option(True, "--manual-template/--agent-assisted"),
+    hypothesis: str = typer.Option("", "--hypothesis"),
+    mechanism: str = typer.Option("", "--mechanism"),
+    minimal_implementation: str = typer.Option("", "--minimal-implementation"),
+    alternative: str = typer.Option("", "--alternative"),
+    expected_upside: str = typer.Option("", "--expected-upside"),
+    expected_downside: str = typer.Option("", "--expected-downside"),
+    evaluation_plan: str = typer.Option("", "--evaluation-plan"),
+    kill_criteria: str = typer.Option("", "--kill-criteria"),
 ) -> None:
     """Scaffold an improvement hypothesis from an eval case."""
     if not manual_template:
-        typer.echo("agent-assisted mode is not implemented in MVP; writing manual template")
+        typer.echo("agent-assisted generation is unavailable; writing the evidence template")
     root = find_root()
     project = load_project(root)
     eval_path = find_record(project, from_id)
@@ -23,10 +31,17 @@ def propose_command(
         eval_case_id=str(frontmatter.get("id", from_id)),
         title=f"Hypothesis for {eval_path.stem}",
         capability=str(frontmatter.get("capability", "unclassified")),
+        hypothesis=hypothesis,
+        mechanism=mechanism,
+        minimal_implementation=minimal_implementation,
+        alternative=alternative,
+        expected_upside=expected_upside,
+        expected_downside=expected_downside,
+        evaluation_plan=evaluation_plan,
+        kill_criteria=kill_criteria,
     )
     typer.echo(path.relative_to(root).as_posix())
 
 
 def register(app: typer.Typer) -> None:
     app.command("propose")(propose_command)
-

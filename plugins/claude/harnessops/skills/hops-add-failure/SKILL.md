@@ -6,3 +6,5 @@ description: Use when a project failure, harness friction, local workaround, or 
 Use HarnessOps. Do not manually edit harness-feedback/ or harness-lab/ structure.
 Call `hops add-failure`, `hops route`, and `hops feedback export --sanitize`.
 
+Keep project evolution in `research/` or `notes/`, and sanitize private context
+before target or meta promotion.

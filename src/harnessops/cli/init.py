@@ -7,6 +7,7 @@ from typing import Optional
 import typer
 
 from harnessops.core.overlay import UnsafeOverwrite, init_overlay
+from harnessops.core.detect import detect_repository
 from harnessops.core.project import load_project
 from harnessops.core.validation import doctor as doctor_project
 from harnessops.profiles.registry import load_profile
@@ -14,7 +15,7 @@ from harnessops.profiles.registry import load_profile
 
 def _run_init(
     *,
-    profile: str,
+    profile: Optional[str],
     mode: Optional[str],
     path: Optional[str],
     with_agent_bridge: bool,
@@ -22,6 +23,12 @@ def _run_init(
     force: bool,
 ) -> None:
     root = Path.cwd().resolve()
+    if profile is None:
+        detected = detect_repository(root)
+        profile = detected.get("profile")
+        if not profile:
+            typer.echo("profile not provided and detection did not find a recommended profile")
+            raise typer.Exit(3)
     profile_data = load_profile(profile)
     try:
         result = init_overlay(
@@ -46,7 +53,7 @@ def _run_init(
 
 
 def init_command(
-    profile: str = typer.Option(..., "--profile"),
+    profile: Optional[str] = typer.Option(None, "--profile"),
     mode: Optional[str] = typer.Option(None, "--mode"),
     path: Optional[str] = typer.Option(None, "--path"),
     with_agent_bridge: bool = typer.Option(False, "--with-agent-bridge"),
@@ -58,7 +65,7 @@ def init_command(
 
 
 def link_command(
-    profile: str = typer.Option(..., "--profile"),
+    profile: Optional[str] = typer.Option(None, "--profile"),
     mode: Optional[str] = typer.Option(None, "--mode"),
     path: Optional[str] = typer.Option(None, "--path"),
     dry_run: bool = typer.Option(False, "--dry-run"),

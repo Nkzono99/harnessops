@@ -2,16 +2,21 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "HarnessOps profile",
   "type": "object",
-  "required": ["id", "version", "adapter", "mode"],
+  "required": ["id", "version", "adapter", "mode", "root_markers", "feedback", "capabilities", "failure_classes"],
   "properties": {
     "id": {"type": "string"},
     "version": {"type": "string"},
     "adapter": {"type": "string"},
     "mode": {"type": "string"},
     "root_markers": {"type": "array"},
-    "feedback": {"type": "object"},
+    "repository_kind": {"type": "string"},
+    "feedback": {"type": "object", "required": ["path"]},
+    "project_evolution": {"type": "object"},
+    "quality_commands": {"type": "object"},
     "capabilities": {"type": "array"},
-    "failure_classes": {"type": "array"}
+    "failure_classes": {"type": "array"},
+    "protected_paths": {"type": "array"},
+    "private_paths": {"type": "array"},
+    "upstream_targets": {"type": "object"}
   }
 }
-

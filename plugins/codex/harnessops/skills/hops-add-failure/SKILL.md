@@ -12,3 +12,5 @@ Use HarnessOps. Do not manually edit harness-feedback/ or harness-lab/ structure
 5. Run `hops route --record <id>` if disposition is unclear.
 6. If upstream/meta candidate, propose `hops feedback export --target <target> --sanitize`.
 
+Keep project evolution in `research/` or `notes/`. Do not move private research
+details, raw paths, or unpublished terms into upstream feedback.

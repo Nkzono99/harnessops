@@ -1,10 +1,36 @@
 version: 0.1.0
 capabilities:
   - id: feedback_routing
+    definition: Classify failures into project, target, meta, protocol, external, or private disposition.
+    evidence: Routed records with rationale and no upstream pollution.
   - id: overlay_generation
+    definition: Create `.harnessops/`, `harness-feedback/`, and `harness-lab/` safely.
+    evidence: Init tests and lockfile managed file hashes.
   - id: migration_safety
+    definition: Update generated files without deleting or overwriting human-authored records.
+    evidence: Lock hashes, conflict behavior, migration entries.
   - id: plugin_bridge
+    definition: Keep plugin UX thin while delegating state mutation to `hops`.
+    evidence: Skills call CLI commands and avoid managed structure edits.
   - id: public_terminology
+    definition: Prevent local/private vocabulary from leaking into public artifacts.
+    evidence: Sanitizer tests and eval cases with private term fixtures.
   - id: manifest_integrity
+    definition: Detect provider, repository kind, version, and recommended profile.
+    evidence: `.harness/manifest.toml` validation and fixture detection.
   - id: slurm_safety_gate
+    definition: Require explicit human gate before external/HPC actions.
+    evidence: Target harness quality checks and no remote action from HarnessOps MVP.
+  - id: evaluation_discipline
+    definition: Require eval cases, scorecards, evidence, and decisions before adoption.
+    evidence: Hypothesis kill criteria and adopted-decision guard checks.
+  - id: privacy_sanitization
+    definition: Redact local paths, protected paths, private terms, and source project identity.
+    evidence: Sanitized bundles and privacy tests.
+  - id: anti_theater
+    definition: Detect additions that look procedural but do not reduce a failure class.
+    evidence: Scorecard `anti_theater` dimension and decision rationale.
+  - id: schema_validation
+    definition: Validate records, profiles, manifests, and migration metadata against explicit contracts.
+    evidence: `hops doctor --check-records` and JSON schemas.
 

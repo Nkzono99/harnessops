@@ -19,6 +19,12 @@ def import_feedback_alias(path: str) -> None:
     import_feedback(path=Path(path))
 
 
+@lab_app.command("import")
+def import_alias(path: str) -> None:
+    """Short alias for importing a sanitized feedback bundle."""
+    import_feedback(path=Path(path))
+
+
 @lab_app.command("new-eval-case")
 def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | None = typer.Option(None, "--template")) -> None:
     """Convert imported feedback into an eval case."""

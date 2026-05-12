@@ -2,10 +2,22 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Hypothesis",
   "type": "object",
-  "required": ["id", "record_type", "created_at", "status", "source_eval_case"],
+  "required": ["id", "record_type", "created_at", "status", "target_capability", "source_eval_case"],
   "properties": {
     "id": {"pattern": "^H[0-9]{4}$"},
-    "record_type": {"const": "hypothesis"}
+    "record_type": {"const": "hypothesis"},
+    "target_capability": {"type": "string", "minLength": 1},
+    "source_eval_case": {"type": "string", "pattern": "^E[0-9]{4}$"},
+    "required_sections": {
+      "type": "array",
+      "default": [
+        "Hypothesis",
+        "Mechanism",
+        "Minimal implementation",
+        "Alternative: deletion or consolidation",
+        "Evaluation plan",
+        "Kill criteria"
+      ]
+    }
   }
 }
-

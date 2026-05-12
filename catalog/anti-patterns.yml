@@ -1,11 +1,27 @@
 version: 0.1.0
 anti_patterns:
-  - reflection_theater
-  - governance_theater
-  - skill_proliferation
-  - self_approving_judge
-  - metric_hacking
-  - upstream_pollution
-  - context_leakage
-  - endless_meta_improvement
+  - id: reflection_theater
+    definition: Agent writes reflection without creating eval cases, guards, or decisions.
+    prevention: Convert observation to failure record and route it.
+  - id: governance_theater
+    definition: Rules, docs, or skills increase but failure classes do not decrease.
+    prevention: Require linked failure class and anti-theater score.
+  - id: skill_proliferation
+    definition: Workflow surface grows through overlapping skills instead of CLI consolidation.
+    prevention: Keep plugins thin and call `hops`.
+  - id: self_approving_judge
+    definition: Same context generates and approves a change without independent evidence.
+    prevention: Require scorecard, decision evidence, and owner review.
+  - id: metric_hacking
+    definition: A single score is optimized while real operation worsens.
+    prevention: Use multi-axis scorecards and regression risk.
+  - id: upstream_pollution
+    definition: Project-specific decisions enter upstream templates or protocols.
+    prevention: Route project evolution to `research/` or `notes/`; sanitize before export.
+  - id: context_leakage
+    definition: Private research, local paths, cluster names, or unpublished terms leak.
+    prevention: Default private visibility and sanitizer config.
+  - id: endless_meta_improvement
+    definition: Methodology changes every cycle, making comparisons impossible.
+    prevention: Keep meta changes in `harness-lab/` and require evidence.
 

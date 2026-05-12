@@ -1,14 +1,91 @@
 version: 0.1.0
 failure_classes:
   - id: project_specific_logic_leaks_into_template
+    definition: Project-only assumptions are copied into reusable templates or upstream defaults.
+    severity: high
+    default_disposition: target-upstream-candidate
+    detection_hints:
+      - template contains local path, dataset, cluster, or unpublished research term
+      - generated project starts with prior project decisions
+    related_capabilities: [harness_update_without_overwrite, feedback_routing]
   - id: update_harness_overwrites_local_edits
+    definition: An update command replaces human-authored project files without a safe merge or conflict copy.
+    severity: critical
+    default_disposition: target-upstream-candidate
+    detection_hints:
+      - local file hash changes after update without explicit consent
+      - lock metadata cannot explain the overwrite
+    related_capabilities: [harness_update_without_overwrite, migration_safety]
   - id: shallow_project_health_check
+    definition: Doctor or health check passes while important state or provenance is missing.
+    severity: medium
+    default_disposition: target-upstream-candidate
+    detection_hints:
+      - command reports success but required roots are absent
+      - generated views are stale but not reported
+    related_capabilities: [manifest_integrity]
   - id: slurm_action_without_human_gate
+    definition: HPC or Slurm action can be submitted without an explicit human safety gate.
+    severity: critical
+    default_disposition: target-upstream-candidate
+    detection_hints:
+      - job submission command runs from agent workflow without confirmation
+      - resource limits are absent or unvalidated
+    related_capabilities: [slurm_safety_gate]
   - id: manifest_provenance_gap
+    definition: A project cannot explain which harness/provider/version generated or owns it.
+    severity: high
+    default_disposition: protocol-candidate
+    detection_hints:
+      - `.harness/manifest.toml` missing provider or kind
+      - recommended profile cannot be resolved
+    related_capabilities: [manifest_integrity]
   - id: local_patch_not_classified
+    definition: A local workaround exists without disposition, expiry, or upstream target.
+    severity: medium
+    default_disposition: project-local-process
+    detection_hints:
+      - patch file or note has no target or expiration
+      - workaround repeats across projects
+    related_capabilities: [feedback_routing]
   - id: local_vocabulary_leakage
+    definition: Private project terminology appears in public manuscript, feedback, template, or issue text.
+    severity: high
+    default_disposition: target-upstream-candidate
+    detection_hints:
+      - sanitizer private_terms match exported content
+      - public draft references internal dataset or method code
+    related_capabilities: [public_terminology, privacy_sanitization]
   - id: governance_theater
+    definition: Documentation, rules, or process increase without reducing a failure class.
+    severity: high
+    default_disposition: meta-harness-candidate
+    detection_hints:
+      - new docs lack eval cases or decision evidence
+      - hypothesis has no kill criteria
+    related_capabilities: [anti_theater, evaluation_discipline]
   - id: skill_proliferation
+    definition: New skills are added instead of consolidating existing workflow responsibilities.
+    severity: medium
+    default_disposition: meta-harness-candidate
+    detection_hints:
+      - skill overlaps existing CLI workflow
+      - skill contains state mutation logic instead of calling `hops`
+    related_capabilities: [plugin_bridge]
   - id: routing_gap
+    definition: HarnessOps cannot distinguish project evolution from upstream/meta feedback.
+    severity: high
+    default_disposition: meta-harness-candidate
+    detection_hints:
+      - same event needs multiple records but command creates one ambiguous record
+      - project pivot is routed as upstream template change
+    related_capabilities: [feedback_routing]
   - id: schema_gap
+    definition: Record or profile schema does not express an invariant needed for safe operation.
+    severity: high
+    default_disposition: meta-harness-candidate
+    detection_hints:
+      - doctor passes a record missing evidence or kill criteria
+      - profile omits private paths used by sanitizer
+    related_capabilities: [schema_validation]
 

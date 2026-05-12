@@ -6,3 +6,5 @@ description: Use when exporting sanitized project-side feedback to a target harn
 Run `hops feedback export --target <target> --sanitize`. Do not create remote
 issues or pull requests.
 
+Check the exported bundle for local paths, private terms, and unpublished
+research details before sharing.

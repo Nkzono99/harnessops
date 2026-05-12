@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shutil
+from pathlib import Path
 
 import typer
 
@@ -27,11 +29,39 @@ def install(
     scope: str = typer.Option("repo", "--scope"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
-    """Install a repo-local bridge; full plugins ship with HarnessOps."""
-    if scope != "repo":
-        typer.echo("MVP supports repo scope only")
+    """Install a repo-local bridge or copy the packaged plugin into a user plugin dir."""
+    if not codex and not claude:
+        codex = True
+    root = find_root()
+    if scope == "repo":
+        bridge(codex=codex, claude=claude, force=force)
+        return
+    if scope != "user":
+        typer.echo("scope must be repo or user")
         raise typer.Exit(1)
-    bridge(codex=codex, claude=claude, force=force)
+    home = Path.home()
+    installed = []
+    for enabled, host, plugin_dir in [
+        (codex, "codex", home / ".codex" / "plugins" / "harnessops"),
+        (claude, "claude", home / ".claude" / "plugins" / "harnessops"),
+    ]:
+        if not enabled:
+            continue
+        source = root / "plugins" / host / "harnessops"
+        if not source.exists():
+            source = Path(__file__).resolve().parents[3] / "plugins" / host / "harnessops"
+        if not source.exists():
+            typer.echo(f"packaged {host} plugin source not found")
+            raise typer.Exit(1)
+        if plugin_dir.exists():
+            if not force:
+                typer.echo(f"plugin already exists: {plugin_dir}")
+                raise typer.Exit(2)
+            shutil.rmtree(plugin_dir)
+        plugin_dir.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, plugin_dir)
+        installed.append(plugin_dir.as_posix())
+    typer.echo(json.dumps(installed, indent=2))
 
 
 @agent_app.command("verify")
@@ -49,4 +79,3 @@ def verify() -> None:
 
 def register(app: typer.Typer) -> None:
     app.add_typer(agent_app, name="agent")
-

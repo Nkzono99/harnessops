@@ -6,9 +6,10 @@ import typer
 
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import create_failure
+from harnessops.core.records import create_failure, create_feedback_from_failure, find_record, read_record
 from harnessops.core.render import refresh_views
 from harnessops.core.routing import classify_text
+from harnessops.core.routing import DISPOSITIONS
 
 
 def add_failure_command(
@@ -34,6 +35,9 @@ def add_failure_command(
     if from_file:
         file_text = (root / from_file).read_text(encoding="utf-8")
     routing = classify_text(" ".join([title, context, what_happened, file_text]), target=target)
+    if disposition is not None and disposition not in DISPOSITIONS:
+        typer.echo(f"invalid disposition: {disposition}")
+        raise typer.Exit(1)
     path = create_failure(
         project,
         title=title,
@@ -49,15 +53,33 @@ def add_failure_command(
     typer.echo(path.relative_to(root).as_posix())
 
 
-def add_feedback_command() -> None:
+def add_feedback_command(
+    from_id: str = typer.Option(..., "--from"),
+    target: Optional[str] = typer.Option(None, "--target"),
+    feedback_type: Optional[str] = typer.Option(None, "--type"),
+    title: Optional[str] = typer.Option(None, "--title"),
+    summary: str = typer.Option("", "--summary"),
+) -> None:
     """Create a feedback draft from an existing failure.
 
-    MVP keeps explicit feedback generation in `hops feedback export`.
+    The draft remains private until exported with `hops feedback export --sanitize`.
     """
-    typer.echo("Use `hops feedback export --target <target> --sanitize` to create feedback bundles.")
+    root = find_root()
+    project = load_project(root)
+    failure_frontmatter, _ = read_record(find_record(project, from_id))
+    resolved_target = target or failure_frontmatter.get("disposition", {}).get("target") or "harnessops"
+    path = create_feedback_from_failure(
+        project,
+        failure_ref=from_id,
+        target=resolved_target,
+        feedback_type=feedback_type,
+        title=title,
+        summary=summary,
+    )
+    refresh_views(root, project.overlay_path)
+    typer.echo(path.relative_to(root).as_posix())
 
 
 def register(app: typer.Typer) -> None:
     app.command("add-failure")(add_failure_command)
     app.command("add-feedback")(add_feedback_command)
-

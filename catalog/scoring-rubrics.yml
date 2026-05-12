@@ -1,14 +1,24 @@
 version: 0.1.0
 rubrics:
   default_manual:
+    scale: "0..5 where 0 means absent/high risk and 5 means strong/low risk"
     dimensions:
-      - impact
-      - mechanism_clarity
-      - evaluability
-      - minimality
-      - regression_risk
-      - operator_burden
-      - anti_theater
-      - maintainability
-      - privacy_sanitization_risk
+      - id: impact
+        question: Does this reduce a real observed failure class?
+      - id: mechanism_clarity
+        question: Is the causal mechanism explicit enough to evaluate?
+      - id: evaluability
+        question: Can the linked eval case or command detect success/failure?
+      - id: minimality
+        question: Is this the smallest change that can work?
+      - id: regression_risk
+        question: How likely is this to break another workflow? Reverse-score high risk as low.
+      - id: operator_burden
+        question: Does this reduce or at least not increase human burden?
+      - id: anti_theater
+        question: Does it avoid adding process that only looks like improvement?
+      - id: maintainability
+        question: Can the owner maintain the change over time?
+      - id: privacy_sanitization_risk
+        question: Does it avoid private context leakage?
 

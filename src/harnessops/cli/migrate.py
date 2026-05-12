@@ -18,7 +18,7 @@ def migrate_command(
     project = load_project(find_root())
     if apply:
         entry = apply_migrations(project)
-        result = {"ok": entry is None, "pending": [] if entry is None else ["manual migration entry written"], "entry": str(entry) if entry else None}
+        result = {"ok": True, "pending": [], "entry": str(entry) if entry else None}
     else:
         del check
         result = check_migrations(project)
@@ -34,4 +34,3 @@ def migrate_command(
 
 def register(app: typer.Typer) -> None:
     app.command("migrate")(migrate_command)
-
