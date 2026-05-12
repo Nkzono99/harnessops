@@ -55,7 +55,7 @@ def split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
 
 
 def dump_record(frontmatter: dict[str, Any], body: str) -> str:
-    yaml_text = yamlio.safe_dump(frontmatter, sort_keys=False, allow_unicode=False)
+    yaml_text = yamlio.safe_dump(frontmatter, sort_keys=False, allow_unicode=True)
     return f"---\n{yaml_text}---\n\n{body.lstrip()}"
 
 
@@ -89,7 +89,7 @@ def find_record(project: Project, record_or_path: str) -> Path:
         frontmatter, _ = read_record(path)
         if frontmatter.get("id") == record_or_path:
             return path
-    raise FileNotFoundError(f"record not found: {record_or_path}")
+    raise FileNotFoundError(f"レコードが見つかりません: {record_or_path}")
 
 
 def create_failure(
@@ -120,33 +120,33 @@ def create_failure(
     }
     body = f"""# {record_id}: {title}
 
-## Context
+## 文脈
 
-{context or "Not supplied at creation time. Add concrete context before routing or export."}
+{context or "作成時点では未入力です。ルーティングまたはエクスポート前に具体的な文脈を追加してください。"}
 
-## What happened
+## 起きたこと
 
-{what_happened or "Not supplied at creation time. Add the observed behavior before routing or export."}
+{what_happened or "作成時点では未入力です。ルーティングまたはエクスポート前に観測された挙動を追加してください。"}
 
-## Why this matters
+## 重要性
 
-{why_matters or "Not supplied at creation time. Explain the capability or privacy risk before adoption."}
+{why_matters or "作成時点では未入力です。採用前に能力面またはプライバシー面のリスクを説明してください。"}
 
-## Desired behavior
+## 望ましい挙動
 
-{desired_behavior or "Not supplied at creation time. State the expected harness behavior before export."}
+{desired_behavior or "作成時点では未入力です。エクスポート前に期待するハーネス挙動を明記してください。"}
 
-## Local workaround
+## ローカル回避策
 
-{local_workaround or "None recorded."}
+{local_workaround or "記録された回避策はありません。"}
 
-## Routing rationale
+## ルーティング根拠
 
-Initial disposition: `{disposition_type}`.
+初期disposition: `{disposition_type}`。
 """
     path = record_path(project, "failure", record_id, title)
     if path.exists():
-        raise FileExistsError(f"record already exists: {path}")
+        raise FileExistsError(f"レコードは既に存在します: {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
     return path
@@ -176,17 +176,17 @@ def create_imported_feedback(project: Project, *, source_record: dict[str, Any],
     }
     record_body = f"""# {record_id}: {title}
 
-## Summary
+## 概要
 
-{body.strip() or "Imported feedback."}
+{body.strip() or "インポート済みフィードバック。"}
 
-## Reproduction
+## 再現
 
-See source feedback bundle.
+送信元フィードバックバンドルを参照してください。
 
-## Expected upstream change
+## 期待する上流変更
 
-See source feedback bundle.
+送信元フィードバックバンドルを参照してください。
 """
     path = record_path(project, "imported_feedback", record_id, title)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -206,14 +206,14 @@ def create_feedback_from_failure(
     failure_path = find_record(project, failure_ref)
     failure_frontmatter, failure_body = read_record(failure_path)
     if failure_frontmatter.get("record_type") != "failure":
-        raise ValueError(f"source record is not a failure: {failure_ref}")
+        raise ValueError(f"送信元レコードはfailureではありません: {failure_ref}")
     record_type = feedback_type or ("meta_feedback" if target == "harnessops" else "upstream_feedback")
     if record_type not in {"upstream_feedback", "meta_feedback"}:
-        raise ValueError(f"unsupported feedback type: {record_type}")
+        raise ValueError(f"未対応のフィードバック種別です: {record_type}")
     prefix = ID_PREFIXES[record_type]
     directory = project.overlay_dir / RECORD_DIRS[record_type]
     record_id = next_id(directory, prefix)
-    feedback_title = title or f"Feedback to {target} from {failure_frontmatter.get('id')}"
+    feedback_title = title or f"{failure_frontmatter.get('id')} から {target} へのフィードバック"
     frontmatter = {
         "id": record_id,
         "record_type": record_type,
@@ -225,26 +225,26 @@ def create_feedback_from_failure(
         "visibility": failure_frontmatter.get("visibility", "private-until-sanitized"),
         "issue": {"provider": "github", "url": None},
     }
-    heading = "Feedback to HarnessOps" if record_type == "meta_feedback" else f"Feedback to {target}"
+    heading = "HarnessOps へのフィードバック" if record_type == "meta_feedback" else f"{target} へのフィードバック"
     body = f"""# {heading}: {feedback_title}
 
-## Summary
+## 概要
 
-{summary or "Draft feedback created from failure record."}
+{summary or "失敗レコードから作成したフィードバック下書きです。"}
 
-## Minimal reproduction
+## 最小再現
 
-Derived from `{failure_frontmatter.get('id')}`.
+`{failure_frontmatter.get('id')}` から導出。
 
-## Expected upstream improvement
+## 期待する上流改善
 
-State the smallest upstream change that would prevent this failure class. This draft is not shareable until exported with sanitization.
+この失敗クラスを防ぐ最小の上流変更を記述してください。この下書きはサニタイズ付きでエクスポートされるまで共有できません。
 
-## Private info excluded
+## 除外した非公開情報
 
-Not sanitized yet. Run `hops feedback export --target {target} --sanitize` before sharing.
+まだサニタイズされていません。共有前に `hops feedback export --target {target} --sanitize` を実行してください。
 
-## Source failure excerpt
+## 送信元失敗抜粋
 
 {failure_body.strip()}
 """
@@ -277,28 +277,28 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
     }
     body = f"""# {record_id}: {title}
 
-## Fixture
+## フィクスチャ
 
-Fixture directory: `{fixture.relative_to(project.root).as_posix()}`.
+フィクスチャディレクトリ: `{fixture.relative_to(project.root).as_posix()}`。
 
-## Task
+## タスク
 
-Describe the behavior that should prevent this failure.
+この失敗を防ぐべき挙動を記述してください。
 
-## Expected behavior
+## 期待される挙動
 
-The target harness handles the failure class without leaking private project context.
+ターゲットハーネスが、非公開プロジェクト文脈を漏らさずに失敗クラスを扱います。
 
-## Pass criteria
+## 合格基準
 
-- The failure condition is detected or prevented.
-- The suggested behavior is actionable for upstream maintainers.
-- Private project details are not required.
+- 失敗条件が検出または防止される。
+- 提案される挙動が上流メンテナにとって実行可能である。
+- 非公開プロジェクト詳細を必要としない。
 
-## Fail criteria
+## 不合格基準
 
-- The failure is missed.
-- The case requires private context to reproduce.
+- 失敗を見逃す。
+- 再現に非公開文脈が必要になる。
 """
     path = record_path(project, "eval_case", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
@@ -332,37 +332,37 @@ def create_hypothesis(
     }
     body = f"""# {record_id}: {title}
 
-## Hypothesis
+## 仮説
 
-{hypothesis or f"Improve `{capability}` for `{eval_case_id}` by changing the smallest upstream behavior that caused the eval case to fail."}
+{hypothesis or f"評価ケースを失敗させた最小の上流挙動を変更し、`{eval_case_id}` の `{capability}` を改善する。"}
 
-## Mechanism
+## メカニズム
 
-{mechanism or "The proposed change must name the mechanism before adoption. A vague process or documentation addition is insufficient evidence."}
+{mechanism or "採用前に、提案変更が作用するメカニズムを明示してください。曖昧なプロセス追加や文書追加だけでは証拠として不十分です。"}
 
-## Minimal implementation
+## 最小実装
 
-{minimal_implementation or "Implement the narrowest change that can be evaluated by the linked eval case; prefer deletion or consolidation over a new abstraction when it removes complexity."}
+{minimal_implementation or "紐づく評価ケースで評価できる最も狭い変更を実装してください。複雑さを減らせるなら、新しい抽象より削除または統合を優先します。"}
 
-## Alternative: deletion or consolidation
+## 代替案: 削除または統合
 
-{alternative or "Before adding new behavior, evaluate whether an existing rule, profile, skill, or template can be deleted, merged, or tightened instead."}
+{alternative or "新しい挙動を追加する前に、既存のルール、プロファイル、スキル、テンプレートを削除、統合、厳格化できないか評価してください。"}
 
-## Expected upside
+## 期待される利点
 
-{expected_upside or f"The linked eval case `{eval_case_id}` should pass with less operator burden and without leaking project-specific context upstream."}
+{expected_upside or f"紐づく評価ケース `{eval_case_id}` が、運用者負担を減らし、プロジェクト固有文脈を上流へ漏らさずに通る。"}
 
-## Expected downside
+## 想定される欠点
 
-{expected_downside or "Possible downside: more routing friction, false positives, or maintenance burden. Adoption requires checking this explicitly."}
+{expected_downside or "想定される欠点: ルーティング摩擦、偽陽性、保守負担が増える可能性。採用にはこの点の明示的な確認が必要です。"}
 
-## Evaluation plan
+## 評価計画
 
-{evaluation_plan or f"Run `hops eval --case {eval_case_id} --manual` and record multi-axis scores before creating an adoption decision."}
+{evaluation_plan or f"`hops eval --case {eval_case_id} --manual` を実行し、採用判断を作る前に多軸スコアを記録する。"}
 
-## Kill criteria
+## 中止基準
 
-{kill_criteria or "Reject or park this hypothesis if it does not improve the linked eval case, increases privacy risk, or adds governance structure without reducing a failure class."}
+{kill_criteria or "紐づく評価ケースを改善しない、プライバシーリスクを増やす、または失敗クラスを減らさずにガバナンス構造だけを追加する場合、この仮説を却下または保留する。"}
 """
     path = record_path(project, "hypothesis", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")
@@ -393,29 +393,29 @@ def create_decision(
     }
     body = f"""# {record_id}: {title}
 
-## Decision
+## 判断
 
 {status}
 
-## Reason
+## 理由
 
 {reason}
 
-## Evidence
+## 証拠
 
 {evidence}
 
-## Regression risk
+## 回帰リスク
 
 {regression_risk}
 
-## Follow-up
+## フォローアップ
 
 {follow_up}
 
-## Regression guard
+## 回帰ガード
 
-{guard_path or "No guard path was supplied. Non-adopted decisions may omit a guard; adopted decisions must provide one."}
+{guard_path or "ガードパスは指定されていません。非採用判断では省略できますが、採用済み判断では必須です。"}
 """
     path = record_path(project, "decision", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8")

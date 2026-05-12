@@ -12,7 +12,7 @@ def check_migrations(project: Project) -> dict[str, Any]:
     lock = load_lock(project.root)
     pending = []
     if lock.get("layout_version") not in {None, "0.1"}:
-        pending.append(f"unsupported layout_version {lock.get('layout_version')}")
+        pending.append(f"未対応の layout_version {lock.get('layout_version')}")
     return {"pending": pending, "ok": not pending}
 
 
@@ -24,10 +24,10 @@ def apply_migrations(project: Project) -> Path | None:
         entry = project.root / ".harnessops" / "migrations" / f"{from_version}-to-0.1.md"
         entry.parent.mkdir(parents=True, exist_ok=True)
         entry.write_text(
-            "# HarnessOps layout migration\n\n"
-            f"- from layout_version: {from_version}\n"
-            "- to layout_version: 0.1\n"
-            "- action: normalized lock metadata for current MVP layout\n",
+            "# HarnessOps レイアウトマイグレーション\n\n"
+            f"- 変更元 layout_version: {from_version}\n"
+            "- 変更先 layout_version: 0.1\n"
+            "- アクション: 現在のMVPレイアウト向けにロックメタデータを正規化\n",
             encoding="utf-8",
         )
         lock["layout_version"] = "0.1"

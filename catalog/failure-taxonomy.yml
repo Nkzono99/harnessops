@@ -1,91 +1,90 @@
 version: 0.1.0
 failure_classes:
   - id: project_specific_logic_leaks_into_template
-    definition: Project-only assumptions are copied into reusable templates or upstream defaults.
+    definition: プロジェクト専用の前提が再利用テンプレートや上流既定値にコピーされる。
     severity: high
     default_disposition: target-upstream-candidate
     detection_hints:
-      - template contains local path, dataset, cluster, or unpublished research term
-      - generated project starts with prior project decisions
+      - テンプレートにローカルパス、データセット、クラスタ、未公開研究語が含まれる
+      - 生成プロジェクトが過去プロジェクトの判断を含んだ状態で始まる
     related_capabilities: [harness_update_without_overwrite, feedback_routing]
   - id: update_harness_overwrites_local_edits
-    definition: An update command replaces human-authored project files without a safe merge or conflict copy.
+    definition: 更新コマンドが、安全なマージや競合コピーなしに人が書いたプロジェクトファイルを置き換える。
     severity: critical
     default_disposition: target-upstream-candidate
     detection_hints:
-      - local file hash changes after update without explicit consent
-      - lock metadata cannot explain the overwrite
+      - 明示的な同意なしに更新後のローカルファイルハッシュが変化する
+      - ロックメタデータが上書きを説明できない
     related_capabilities: [harness_update_without_overwrite, migration_safety]
   - id: shallow_project_health_check
-    definition: Doctor or health check passes while important state or provenance is missing.
+    definition: 重要な状態または来歴が欠けているのに doctor やヘルスチェックが通る。
     severity: medium
     default_disposition: target-upstream-candidate
     detection_hints:
-      - command reports success but required roots are absent
-      - generated views are stale but not reported
+      - コマンドは成功を報告するが必須ルートが存在しない
+      - 生成ビューが古いのに報告されない
     related_capabilities: [manifest_integrity]
   - id: slurm_action_without_human_gate
-    definition: HPC or Slurm action can be submitted without an explicit human safety gate.
+    definition: 明示的な人間安全ゲートなしにHPCまたはSlurmアクションを投入できる。
     severity: critical
     default_disposition: target-upstream-candidate
     detection_hints:
-      - job submission command runs from agent workflow without confirmation
-      - resource limits are absent or unvalidated
+      - 確認なしにエージェントワークフローからジョブ投入コマンドが実行される
+      - リソース制限がない、または検証されていない
     related_capabilities: [slurm_safety_gate]
   - id: manifest_provenance_gap
-    definition: A project cannot explain which harness/provider/version generated or owns it.
+    definition: プロジェクトが、どのハーネス/プロバイダ/バージョンに生成または所有されているか説明できない。
     severity: high
     default_disposition: protocol-candidate
     detection_hints:
-      - `.harness/manifest.toml` missing provider or kind
-      - recommended profile cannot be resolved
+      - `.harness/manifest.toml` に provider または kind がない
+      - 推奨プロファイルを解決できない
     related_capabilities: [manifest_integrity]
   - id: local_patch_not_classified
-    definition: A local workaround exists without disposition, expiry, or upstream target.
+    definition: ローカル回避策にdisposition、有効期限、上流ターゲットがない。
     severity: medium
     default_disposition: project-local-process
     detection_hints:
-      - patch file or note has no target or expiration
-      - workaround repeats across projects
+      - パッチファイルやメモにターゲットまたは期限がない
+      - 回避策が複数プロジェクトで繰り返される
     related_capabilities: [feedback_routing]
   - id: local_vocabulary_leakage
-    definition: Private project terminology appears in public manuscript, feedback, template, or issue text.
+    definition: 非公開プロジェクト用語が公開原稿、フィードバック、テンプレート、Issue本文に現れる。
     severity: high
     default_disposition: target-upstream-candidate
     detection_hints:
-      - sanitizer private_terms match exported content
-      - public draft references internal dataset or method code
+      - サニタイザの private_terms がエクスポート内容に一致する
+      - 公開下書きが内部データセットまたは手法コードを参照する
     related_capabilities: [public_terminology, privacy_sanitization]
   - id: governance_theater
-    definition: Documentation, rules, or process increase without reducing a failure class.
+    definition: 文書、ルール、プロセスが増えるが失敗クラスは減らない。
     severity: high
     default_disposition: meta-harness-candidate
     detection_hints:
-      - new docs lack eval cases or decision evidence
-      - hypothesis has no kill criteria
+      - 新しい文書に評価ケースまたは判断証拠がない
+      - 仮説に中止基準がない
     related_capabilities: [anti_theater, evaluation_discipline]
   - id: skill_proliferation
-    definition: New skills are added instead of consolidating existing workflow responsibilities.
+    definition: 既存ワークフロー責務を統合せず、新しいスキルが追加される。
     severity: medium
     default_disposition: meta-harness-candidate
     detection_hints:
-      - skill overlaps existing CLI workflow
-      - skill contains state mutation logic instead of calling `hops`
+      - スキルが既存CLIワークフローと重複する
+      - スキルが `hops` を呼ばずに状態変更ロジックを含む
     related_capabilities: [plugin_bridge]
   - id: routing_gap
-    definition: HarnessOps cannot distinguish project evolution from upstream/meta feedback.
+    definition: HarnessOps がプロジェクト発展と上流/メタフィードバックを区別できない。
     severity: high
     default_disposition: meta-harness-candidate
     detection_hints:
-      - same event needs multiple records but command creates one ambiguous record
-      - project pivot is routed as upstream template change
+      - 同じイベントに複数レコードが必要なのに、コマンドが曖昧な1レコードだけを作る
+      - プロジェクト方針転換が上流テンプレート変更としてルーティングされる
     related_capabilities: [feedback_routing]
   - id: schema_gap
-    definition: Record or profile schema does not express an invariant needed for safe operation.
+    definition: レコードまたはプロファイルスキーマが、安全運用に必要な不変条件を表現できない。
     severity: high
     default_disposition: meta-harness-candidate
     detection_hints:
-      - doctor passes a record missing evidence or kill criteria
-      - profile omits private paths used by sanitizer
+      - 証拠または中止基準を欠くレコードを doctor が通す
+      - プロファイルがサニタイザで使う非公開パスを省いている
     related_capabilities: [schema_validation]
-

@@ -1,22 +1,20 @@
 # harness-feedback
 
-This directory stores feedback from this project to upstream harnesses and HarnessOps.
+このディレクトリは、このプロジェクトから上流ハーネスおよび HarnessOps へのフィードバックを保存します。
 
-Use this directory for:
+このディレクトリに置くもの:
 
-- observed harness failures
-- local workarounds with disposition and expiry
-- upstream feedback drafts
-- meta-harness feedback drafts
+- 観測されたハーネス失敗
+- disposition と期限を持つローカル回避策
+- 上流フィードバック下書き
+- メタハーネスフィードバック下書き
 
-Do not use this directory for:
+このディレクトリに置かないもの:
 
-- research agenda changes
-- paper claim changes
-- experiment direction pivots
-- raw private data
-- implementation patches to the target harness
+- 研究アジェンダ変更
+- 論文主張の変更
+- 実験方針転換
+- 生の非公開データ
+- ターゲットハーネスへの実装パッチ
 
-Use `hops add-failure`, `hops route`, and `hops feedback export --sanitize` to
-manage records. Exported feedback is written under `views/exported-feedback/`
-and is generated from records.
+レコード管理には `hops add-failure`、`hops route`、`hops feedback export --sanitize` を使います。エクスポート済みフィードバックは `views/exported-feedback/` 配下に書かれ、レコードから生成されます。

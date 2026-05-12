@@ -1,11 +1,10 @@
-# HarnessOps Overlay Spec
+# HarnessOpsオーバーレイ仕様
 
-HarnessOps uses two visible overlays and one hidden metadata directory.
+HarnessOps は2つの可視オーバーレイと1つの隠しメタデータディレクトリを使います。
 
-## Project Overlay: `harness-feedback/`
+## プロジェクトオーバーレイ: `harness-feedback/`
 
-Project repositories use `harness-feedback/` for project-side observations and
-outbound feedback drafts.
+プロジェクトリポジトリは、プロジェクト側の観測と外部向けフィードバック下書きに `harness-feedback/` を使います。
 
 ```text
 harness-feedback/
@@ -21,14 +20,11 @@ harness-feedback/
     exported-feedback/
 ```
 
-Do not store research agenda changes, paper claim changes, experiment pivots,
-raw private data, or target implementation patches here unless they are
-represented as routed harness feedback.
+研究アジェンダ変更、論文主張の変更、実験方針転換、生の非公開データ、ターゲット実装パッチは、ルーティング済みハーネスフィードバックとして表現されていない限り、ここに置かないでください。
 
-## Lab Overlay: `harness-lab/`
+## ラボオーバーレイ: `harness-lab/`
 
-Target repositories and the HarnessOps repository use `harness-lab/` for
-evaluating upstream improvements.
+ターゲットリポジトリと HarnessOps リポジトリは、上流改善の評価に `harness-lab/` を使います。
 
 ```text
 harness-lab/
@@ -47,10 +43,9 @@ harness-lab/
     eval-results/
 ```
 
-`harness-lab/` is memory for feedback, evals, hypotheses, experiments, and
-decisions. GitHub Issues remain the task tracker.
+`harness-lab/` はフィードバック、評価、仮説、実験、判断の記憶です。GitHub Issues は引き続きタスクトラッカーです。
 
-## Hidden Metadata: `.harnessops/`
+## 隠しメタデータ: `.harnessops/`
 
 ```text
 .harnessops/
@@ -60,13 +55,8 @@ decisions. GitHub Issues remain the task tracker.
   cache/
 ```
 
-`lock.json` tracks generated files only. Human-authored records are not listed
-in `managed_files`.
+`lock.json` は生成ファイルだけを追跡します。人が作成したレコードは `managed_files` に列挙しません。
 
-## Generated Files
+## 生成ファイル
 
-Generated files include overlay READMEs and views. They contain a generated
-marker and may be refreshed. If a managed file hash differs from the lock, init
-or migration refuses overwrite unless `--force` is used and conflict behavior is
-safe.
-
+生成ファイルにはオーバーレイのREADMEとビューが含まれます。これらには生成マーカーが入り、更新される場合があります。管理対象ファイルのハッシュがロックと異なる場合、`init` またはマイグレーションは、`--force` が使われ安全な競合動作が可能な場合を除き、上書きを拒否します。

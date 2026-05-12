@@ -19,9 +19,9 @@ def propose_command(
     evaluation_plan: str = typer.Option("", "--evaluation-plan"),
     kill_criteria: str = typer.Option("", "--kill-criteria"),
 ) -> None:
-    """Scaffold an improvement hypothesis from an eval case."""
+    """評価ケースから改善仮説を作成します。"""
     if not manual_template:
-        typer.echo("agent-assisted generation is unavailable; writing the evidence template")
+        typer.echo("エージェント支援生成は利用できません。証拠テンプレートを書き込みます")
     root = find_root()
     project = load_project(root)
     eval_path = find_record(project, from_id)
@@ -29,7 +29,7 @@ def propose_command(
     path = create_hypothesis(
         project,
         eval_case_id=str(frontmatter.get("id", from_id)),
-        title=f"Hypothesis for {eval_path.stem}",
+        title=f"{eval_path.stem} の仮説",
         capability=str(frontmatter.get("capability", "unclassified")),
         hypothesis=hypothesis,
         mechanism=mechanism,

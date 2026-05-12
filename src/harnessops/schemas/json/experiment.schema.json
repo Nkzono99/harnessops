@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Experiment",
+  "title": "実験",
   "type": "object",
   "required": ["id", "record_type", "created_at", "status"],
   "properties": {
@@ -8,4 +8,3 @@
     "record_type": {"const": "experiment"}
   }
 }
-

@@ -41,7 +41,7 @@ def project_file(root: Path) -> Path:
 def load_project(root: Path) -> Project:
     path = project_file(root)
     if not path.exists():
-        raise FileNotFoundError(f"HarnessOps project is not linked: {path}")
+        raise FileNotFoundError(f"HarnessOps プロジェクトがリンクされていません: {path}")
     return Project(root=root, data=tomllib.loads(path.read_text(encoding="utf-8")))
 
 
@@ -49,4 +49,3 @@ def write_project(root: Path, data: dict[str, Any]) -> None:
     path = project_file(root)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(tomli_w.dumps(data), encoding="utf-8")
-

@@ -24,19 +24,19 @@ def add_failure_command(
     from_file: Optional[str] = typer.Option(None, "--from-file"),
     interactive: bool = typer.Option(False, "--interactive"),
 ) -> None:
-    """Create a project-side failure record."""
+    """プロジェクト側の失敗レコードを作成します。"""
     del interactive
     root = find_root()
     project = load_project(root)
     if project.overlay_mode not in {"feedback-source", "local-and-feedback"}:
-        typer.echo("add-failure requires feedback-source or local-and-feedback mode")
+        typer.echo("add-failure には feedback-source または local-and-feedback mode が必要です")
         raise typer.Exit(1)
     file_text = ""
     if from_file:
         file_text = (root / from_file).read_text(encoding="utf-8")
     routing = classify_text(" ".join([title, context, what_happened, file_text]), target=target)
     if disposition is not None and disposition not in DISPOSITIONS:
-        typer.echo(f"invalid disposition: {disposition}")
+        typer.echo(f"disposition が不正です: {disposition}")
         raise typer.Exit(1)
     path = create_failure(
         project,
@@ -60,9 +60,9 @@ def add_feedback_command(
     title: Optional[str] = typer.Option(None, "--title"),
     summary: str = typer.Option("", "--summary"),
 ) -> None:
-    """Create a feedback draft from an existing failure.
+    """既存の失敗からフィードバック下書きを作成します。
 
-    The draft remains private until exported with `hops feedback export --sanitize`.
+    下書きは `hops feedback export --sanitize` でエクスポートされるまで非公開です。
     """
     root = find_root()
     project = load_project(root)

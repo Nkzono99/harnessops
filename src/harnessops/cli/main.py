@@ -5,12 +5,12 @@ import typer
 from harnessops import __version__
 from harnessops.cli import add_failure, agent, decide, detect, doctor, eval, feedback, init, lab, migrate, profiles, propose, report, route
 
-app = typer.Typer(no_args_is_help=True, help="HarnessOps feedback routing and improvement experiment CLI.")
+app = typer.Typer(add_completion=False, no_args_is_help=True, help="HarnessOps のフィードバックルーティングと改善実験CLI。")
 
 
 @app.command()
 def version() -> None:
-    """Print HarnessOps version."""
+    """HarnessOps バージョンを表示します。"""
     typer.echo(__version__)
 
 

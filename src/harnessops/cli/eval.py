@@ -16,7 +16,7 @@ def eval_command(
     score: list[str] = typer.Option(None, "--score"),
     notes: str = typer.Option("", "--notes"),
 ) -> None:
-    """Persist manual multi-axis scorecards for eval cases."""
+    """評価ケースの多軸手動スコアカードを保存します。"""
     root = find_root()
     project = load_project(root)
     cases = []
@@ -28,18 +28,18 @@ def eval_command(
             frontmatter, _ = read_record(experiment_path)
             cases = [str(item) for item in frontmatter.get("eval_cases", [])]
         except FileNotFoundError:
-            typer.echo(f"experiment not found: {experiment}")
+            typer.echo(f"experiment が見つかりません: {experiment}")
             raise typer.Exit(1)
     elif case:
         cases = [case]
     else:
-        typer.echo("provide --case or --all")
+        typer.echo("--case または --all を指定してください")
         raise typer.Exit(1)
     if not cases:
-        typer.echo("no eval cases found")
+        typer.echo("評価ケースが見つかりません")
         raise typer.Exit(1)
     if not manual:
-        typer.echo("manual scoring is required for this command; pass --manual")
+        typer.echo("このコマンドには手動採点が必要です。--manual を指定してください")
         raise typer.Exit(1)
     try:
         scores = parse_scores(score or [])

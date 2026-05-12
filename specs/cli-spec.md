@@ -1,53 +1,49 @@
-# CLI Spec
+# CLI仕様
 
-`hops` is the primary command alias and `harnessops` is the explicit long
-alias. Both entry points call `harnessops.cli.main:app`.
+`hops` は主要なコマンドエイリアスで、`harnessops` は明示的な長いエイリアスです。どちらのエントリポイントも `harnessops.cli.main:app` を呼び出します。
 
-The CLI is the authoritative state engine. Plugins, skills, and agents may
-guide a workflow, but managed state is mutated through CLI commands.
+CLI は状態管理の正本です。プラグイン、スキル、エージェントはワークフローを案内できますが、管理対象状態の変更はCLIコマンドを通して行います。
 
-## Command Groups
+## コマンド群
 
-| Command | Mutates state | Purpose |
+| コマンド | 状態変更 | 目的 |
 |---|---:|---|
-| `hops version` | no | Print package version. |
-| `hops profiles list/show` | no | Inspect built-in profiles and profile fingerprints. |
-| `hops detect` | no | Infer repository kind and recommended profile. |
-| `hops init --profile <id>` | yes | Create `.harness/`, `.harnessops/`, and the profile overlay. |
-| `hops link --profile <id>` | yes | Alias for linking an existing repository to HarnessOps. |
-| `hops doctor` | no | Validate project link, overlay, lock, and records. |
-| `hops migrate --check/--apply` | yes for apply | Check or apply schema/layout migrations. |
-| `hops add-failure` | yes | Create a project-side failure record. |
-| `hops add-feedback --from <Fid>` | yes | Create a private upstream/meta feedback draft. |
-| `hops route --record <id>` | yes | Classify and persist a record disposition. |
-| `hops feedback export --sanitize` | yes | Write sanitized outbound bundles under generated views. |
-| `hops feedback import <bundle>` | yes | Import a sanitized bundle into `harness-lab`. |
-| `hops lab new-eval-case --from <FBid>` | yes | Convert imported feedback to an eval case. |
-| `hops propose --from <Eid>` | yes | Scaffold a hypothesis with mechanism and kill criteria sections. |
-| `hops eval --case <Eid> --manual` | yes | Persist a multi-axis manual scorecard. |
-| `hops decide --from <id> --status <status>` | yes | Record adoption, rejection, or deferral. |
-| `hops agent bridge/install/verify` | yes for bridge/install | Manage thin agent entry points. |
+| `hops version` | いいえ | パッケージバージョンを表示します。 |
+| `hops profiles list/show` | いいえ | 組み込みプロファイルとプロファイル指紋を確認します。 |
+| `hops detect` | いいえ | リポジトリ種別と推奨プロファイルを推定します。 |
+| `hops init --profile <id>` | はい | `.harness/`、`.harnessops/`、プロファイルオーバーレイを作成します。 |
+| `hops link --profile <id>` | はい | 既存リポジトリを HarnessOps に関連付けるエイリアスです。 |
+| `hops doctor` | いいえ | プロジェクトリンク、オーバーレイ、ロック、レコードを検証します。 |
+| `hops migrate --check/--apply` | `--apply` のみ | スキーマ/レイアウトマイグレーションを確認または適用します。 |
+| `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
+| `hops add-feedback --from <Fid>` | はい | 非公開の上流/メタフィードバック下書きを作成します。 |
+| `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |
+| `hops feedback export --sanitize` | はい | 生成ビュー配下にサニタイズ済み外部向けバンドルを書き出します。 |
+| `hops feedback import <bundle>` | はい | サニタイズ済みバンドルを `harness-lab` にインポートします。 |
+| `hops lab new-eval-case --from <FBid>` | はい | インポート済みフィードバックを評価ケースに変換します。 |
+| `hops propose --from <Eid>` | はい | メカニズムと中止基準を含む仮説を作成します。 |
+| `hops eval --case <Eid> --manual` | はい | 多軸の手動スコアカードを保存します。 |
+| `hops decide --from <id> --status <status>` | はい | 採用、却下、保留の判断を記録します。 |
+| `hops agent bridge/install/verify` | bridge/installのみ | 薄いエージェント入口を管理します。 |
 
-## Safety Rules
+## 安全ルール
 
-1. No command creates GitHub issues, pull requests, or remote changes.
-2. `feedback export` refuses unsanitized output unless `--allow-private` is explicit.
-3. `init` writes generated files only. If a generated file was edited and lock
-   hashes do not match, the command refuses overwrite or writes a conflict copy.
-4. Records under `records/` are human-authored history and are not regenerated
-   by view refreshes.
-5. Adopted decisions require evidence, regression risk, and a guard path.
+1. どのコマンドも GitHub Issue、プルリクエスト、リモート変更を作成しません。
+2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。
+3. `init` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、コマンドは上書きを拒否するか、安全な競合コピーを書きます。
+4. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
+5. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 
-## Exit Codes
+## 終了コード
 
-| Code | Meaning |
+| コード | 意味 |
 |---:|---|
-| 0 | Success. |
-| 1 | Validation or usage error. |
-| 2 | Unsafe overwrite or install conflict prevented. |
-| 3 | Profile not found. |
+| 0 | 成功。 |
+| 1 | 検証エラーまたは使い方のエラー。 |
+| 2 | 安全でない上書き、またはインストール競合を防止。 |
+| 3 | プロファイルが見つからない。 |
 
-## Acceptance Commands
+## 受け入れ確認コマンド
 
 ```bash
 hops --help
@@ -56,8 +52,7 @@ hops detect --json
 hops init --profile runops-project
 hops doctor --check-overlay --check-records
 hops migrate --check
-hops add-failure --title "Harness friction" --target runops
+hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001 --json
 hops feedback export --sanitize
 ```
-

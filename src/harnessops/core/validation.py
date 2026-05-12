@@ -22,22 +22,22 @@ ID_PREFIX_BY_TYPE = {
 }
 
 REQUIRED_SECTIONS = {
-    "failure": ["Context", "What happened", "Why this matters", "Desired behavior", "Local workaround", "Routing rationale"],
-    "upstream_feedback": ["Summary", "Minimal reproduction", "Expected upstream improvement", "Private info excluded"],
-    "meta_feedback": ["Summary", "Minimal reproduction", "Expected upstream improvement", "Private info excluded"],
-    "imported_feedback": ["Summary", "Reproduction", "Expected upstream change"],
-    "eval_case": ["Fixture", "Task", "Expected behavior", "Pass criteria", "Fail criteria"],
+    "failure": ["文脈", "起きたこと", "重要性", "望ましい挙動", "ローカル回避策", "ルーティング根拠"],
+    "upstream_feedback": ["概要", "最小再現", "期待する上流改善", "除外した非公開情報"],
+    "meta_feedback": ["概要", "最小再現", "期待する上流改善", "除外した非公開情報"],
+    "imported_feedback": ["概要", "再現", "期待する上流変更"],
+    "eval_case": ["フィクスチャ", "タスク", "期待される挙動", "合格基準", "不合格基準"],
     "hypothesis": [
-        "Hypothesis",
-        "Mechanism",
-        "Minimal implementation",
-        "Alternative: deletion or consolidation",
-        "Expected upside",
-        "Expected downside",
-        "Evaluation plan",
-        "Kill criteria",
+        "仮説",
+        "メカニズム",
+        "最小実装",
+        "代替案: 削除または統合",
+        "期待される利点",
+        "想定される欠点",
+        "評価計画",
+        "中止基準",
     ],
-    "decision": ["Decision", "Reason", "Evidence", "Regression risk", "Follow-up", "Regression guard"],
+    "decision": ["判断", "理由", "証拠", "回帰リスク", "フォローアップ", "回帰ガード"],
 }
 
 
@@ -46,45 +46,45 @@ def validate_record(path: Path) -> list[str]:
     errors = []
     for key in ["id", "record_type", "created_at"]:
         if key not in frontmatter:
-            errors.append(f"{path}: missing {key}")
+            errors.append(f"{path}: {key} がありません")
     record_type = frontmatter.get("record_type")
     record_id = str(frontmatter.get("id", ""))
     expected_prefix = ID_PREFIX_BY_TYPE.get(str(record_type))
     if expected_prefix and not record_id.startswith(expected_prefix):
-        errors.append(f"{path}: id prefix does not match record_type")
+        errors.append(f"{path}: idプレフィックスがrecord_typeと一致しません")
     if record_type == "failure":
         for key in ["visibility", "disposition"]:
             if key not in frontmatter:
-                errors.append(f"{path}: missing {key}")
+                errors.append(f"{path}: {key} がありません")
         disposition = frontmatter.get("disposition", {})
         if disposition.get("type") not in DISPOSITIONS:
-            errors.append(f"{path}: invalid disposition")
+            errors.append(f"{path}: disposition が不正です")
     if record_type in {"upstream_feedback", "meta_feedback"} and "sanitized" not in frontmatter:
-        errors.append(f"{path}: feedback record missing sanitized flag")
+        errors.append(f"{path}: feedback record に sanitized フラグがありません")
     if record_type == "imported_feedback":
         for key in ["source", "classification", "links"]:
             if key not in frontmatter:
-                errors.append(f"{path}: imported feedback missing {key}")
+                errors.append(f"{path}: imported feedback に {key} がありません")
     if record_type == "eval_case":
         for key in ["capability", "failure_class", "source_feedback"]:
             if key not in frontmatter:
-                errors.append(f"{path}: eval case missing {key}")
+                errors.append(f"{path}: eval case に {key} がありません")
     if record_type == "hypothesis":
         for key in ["target_capability", "source_eval_case"]:
             if key not in frontmatter:
-                errors.append(f"{path}: hypothesis missing {key}")
+                errors.append(f"{path}: hypothesis に {key} がありません")
     if record_type == "decision":
         if "source" not in frontmatter:
-            errors.append(f"{path}: decision missing source")
+            errors.append(f"{path}: decision に source がありません")
         if frontmatter.get("status") == "adopted":
             evidence = frontmatter.get("evidence", {})
             if not evidence.get("summary") or not evidence.get("guard_path"):
-                errors.append(f"{path}: adopted decision requires evidence summary and guard_path")
+                errors.append(f"{path}: adopted decision には evidence summary と guard_path が必要です")
     for section in REQUIRED_SECTIONS.get(str(record_type), []):
         if f"## {section}" not in body:
-            errors.append(f"{path}: missing section {section}")
+            errors.append(f"{path}: セクション {section} がありません")
     if "TODO" in body:
-        errors.append(f"{path}: unresolved TODO placeholder")
+        errors.append(f"{path}: 未解決の TODO プレースホルダーがあります")
     return errors
 
 
@@ -94,9 +94,9 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     try:
         load_profile(project.profile_id)
     except Exception as exc:  # noqa: BLE001
-        errors.append(f"profile not found: {exc}")
+        errors.append(f"プロファイルが見つかりません: {exc}")
     if not project.overlay_dir.exists():
-        errors.append(f"overlay missing: {project.overlay_path}")
+        errors.append(f"オーバーレイがありません: {project.overlay_path}")
     required_dirs = (
         ["records/failures", "records/local-workarounds", "records/upstream-feedback", "records/meta-feedback", "views"]
         if project.overlay_mode in {"feedback-source", "local-and-feedback"}
@@ -104,19 +104,19 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     )
     for rel in required_dirs:
         if not (project.overlay_dir / rel).exists():
-            errors.append(f"missing overlay directory: {project.overlay_path}/{rel}")
+            errors.append(f"オーバーレイディレクトリがありません: {project.overlay_path}/{rel}")
     lock = load_lock(project.root)
     if not lock:
-        errors.append(".harnessops/lock.json missing")
+        errors.append(".harnessops/lock.json がありません")
     if lock and lock.get("overlay", {}).get("path") != project.overlay_path:
-        errors.append("lock overlay path does not match project.toml")
+        errors.append("lock の overlay path が project.toml と一致しません")
     managed = lock.get("managed_files", {}) if isinstance(lock.get("managed_files"), dict) else {}
     for rel, expected_hash in managed.items():
         path = project.root / rel
         if not path.exists():
-            errors.append(f"managed file missing: {rel}")
+            errors.append(f"管理対象ファイルがありません: {rel}")
         elif sha256_file(path) != expected_hash:
-            warnings.append(f"generated view stale or edited: {rel}")
+            warnings.append(f"生成ビューが古いか編集されています: {rel}")
     if check_records and project.overlay_dir.exists():
         for path in project.overlay_dir.glob("records/**/*.md"):
             errors.extend(validate_record(path))

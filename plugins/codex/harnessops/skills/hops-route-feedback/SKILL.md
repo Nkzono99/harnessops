@@ -1,10 +1,8 @@
 ---
 name: hops-route-feedback
-description: Use when classifying HarnessOps feedback into project, target, meta, protocol, external, or private dispositions.
+description: HarnessOps フィードバックを project、target、meta、protocol、external、private のdispositionへ分類するときに使う。
 ---
 
-Run `hops doctor --check-overlay`, then use `hops route --record <id>`.
-Project evolution belongs in `research/` or `notes/`, not `harness-feedback/`.
+`hops doctor --check-overlay` を実行し、続けて `hops route --record <id>` を使う。プロジェクト発展は `harness-feedback/` ではなく `research/` または `notes/` に置く。
 
-If one event contains both a project decision and a harness gap, split it into a
-project record plus upstream/meta feedback instead of forcing one disposition.
+1つのイベントにプロジェクト判断とハーネス不足の両方が含まれる場合は、1つのdispositionへ押し込まず、プロジェクトレコードと上流/メタフィードバックに分割する。

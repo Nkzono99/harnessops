@@ -1,9 +1,8 @@
-# Harness Common Spec
+# Harness共通仕様
 
-`.harness/manifest.toml` is a provider-neutral marker file. HarnessOps uses it
-for detection and profile hints, but the file is not HarnessOps-specific.
+`.harness/manifest.toml` はプロバイダ中立のマーカーファイルです。HarnessOps は検出とプロファイルヒントに使いますが、このファイル自体は HarnessOps 固有ではありません。
 
-## Required Shape
+## 必須形状
 
 ```toml
 schema_version = "0.1"
@@ -24,23 +23,22 @@ version = "runo version"
 recommended_profile = "runops-project"
 ```
 
-## Semantics
+## セマンティクス
 
-| Field | Required | Meaning |
+| フィールド | 必須 | 意味 |
 |---|---:|---|
-| `schema_version` | yes | Common manifest schema version. |
-| `harness.provider` | yes | Upstream harness or tool name. |
-| `harness.kind` | yes | `generated-project`, `paper-project`, `upstream`, `core`, etc. |
-| `harness.version` | recommended | Provider version. |
-| `commands.*` | optional | Provider command contract. |
-| `harnessops.recommended_profile` | optional | HarnessOps detection hint. |
+| `schema_version` | はい | 共通マニフェストのスキーマバージョン。 |
+| `harness.provider` | はい | 上流ハーネスまたはツール名。 |
+| `harness.kind` | はい | `generated-project`、`paper-project`、`upstream`、`core` など。 |
+| `harness.version` | 推奨 | プロバイダバージョン。 |
+| `commands.*` | 任意 | プロバイダコマンド契約。 |
+| `harnessops.recommended_profile` | 任意 | HarnessOps 検出ヒント。 |
 
-## Detection Priority
+## 検出優先順位
 
-`hops detect` resolves repository identity in this order:
+`hops detect` は次の順序でリポジトリの同一性を解決します。
 
 1. `.harnessops/project.toml`
 2. `.harness/manifest.toml`
-3. provider-specific markers
-4. generic repository markers
-
+3. プロバイダ固有マーカー
+4. 汎用リポジトリマーカー

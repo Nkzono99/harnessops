@@ -15,40 +15,39 @@ source_eval_case: E0001
 
 # H0001: Bad
 
-## Hypothesis
+## 仮説
 
 TODO
 
-## Mechanism
+## メカニズム
 
 TODO
 
-## Minimal implementation
+## 最小実装
 
 TODO
 
-## Alternative: deletion or consolidation
+## 代替案: 削除または統合
 
 TODO
 
-## Expected upside
+## 期待される利点
 
 TODO
 
-## Expected downside
+## 想定される欠点
 
 TODO
 
-## Evaluation plan
+## 評価計画
 
 TODO
 
-## Kill criteria
+## 中止基準
 
 TODO
 """,
         encoding="utf-8",
     )
 
-    assert any("unresolved TODO" in error for error in validate_record(record))
-
+    assert any("未解決の TODO" in error for error in validate_record(record))

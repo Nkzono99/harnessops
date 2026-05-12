@@ -28,7 +28,7 @@ def test_feedback_export_refuses_unsanitized_by_default(copy_fixture, monkeypatc
     result = runner.invoke(app, ["feedback", "export", "--target", "runops"])
 
     assert result.exit_code == 1
-    assert "refusing unsanitized export" in result.output
+    assert "未サニタイズエクスポートは拒否" in result.output
 
 
 def test_add_failure_rejects_invalid_disposition(copy_fixture, monkeypatch):
@@ -39,7 +39,7 @@ def test_add_failure_rejects_invalid_disposition(copy_fixture, monkeypatch):
     result = runner.invoke(app, ["add-failure", "--title", "bad", "--disposition", "not-a-disposition"])
 
     assert result.exit_code == 1
-    assert "invalid disposition" in result.output
+    assert "disposition が不正" in result.output
     assert not list((root / "harness-feedback/records/failures").glob("F*.md"))
 
 
@@ -63,7 +63,7 @@ def test_feedback_export_skips_project_evolution(copy_fixture, monkeypatch):
     result = runner.invoke(app, ["feedback", "export", "--target", "runops", "--sanitize"])
 
     assert result.exit_code == 1
-    assert "no matching feedback records" in result.output
+    assert "一致するフィードバックレコードがありません" in result.output
 
 
 def test_feedback_import_rejects_unsanitized_markdown(copy_fixture, tmp_path, monkeypatch):
@@ -76,7 +76,7 @@ def test_feedback_import_rejects_unsanitized_markdown(copy_fixture, tmp_path, mo
     result = runner.invoke(app, ["feedback", "import", str(bad)])
 
     assert result.exit_code == 1
-    assert "import requires" in result.output
+    assert "import には" in result.output
 
 
 def test_doctor_fails_pending_migration_unless_allowed(copy_fixture, monkeypatch):
@@ -94,7 +94,7 @@ def test_doctor_fails_pending_migration_unless_allowed(copy_fixture, monkeypatch
     allowed = runner.invoke(app, ["doctor", "--allow-pending"])
 
     assert failed.exit_code == 1
-    assert "pending migration" in failed.output
+    assert "未適用マイグレーション" in failed.output
     assert allowed.exit_code == 0
 
 
@@ -124,7 +124,7 @@ def test_adopted_decision_requires_evidence_and_guard(copy_fixture, monkeypatch)
     result = runner.invoke(app, ["decide", "--from", "H0001", "--status", "adopted"])
 
     assert result.exit_code == 1
-    assert "adopted decisions require" in result.output
+    assert "adopted の判断には" in result.output
 
 
 def test_sanitize_config_redacts_private_terms(copy_fixture, monkeypatch):

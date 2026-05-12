@@ -1,11 +1,8 @@
 ---
 name: hops-export-feedback
-description: Use when exporting sanitized project-side feedback to a target harness or HarnessOps.
+description: サニタイズ済みのプロジェクト側フィードバックをターゲットハーネスまたは HarnessOps へエクスポートするときに使う。
 ---
 
-Run `hops doctor --check-overlay`, then use
-`hops feedback export --target <target> --sanitize`. Do not create remote issues
-or pull requests.
+`hops doctor --check-overlay` を実行し、続けて `hops feedback export --target <target> --sanitize` を使う。リモートIssueやプルリクエストは作成しない。
 
-Check the exported bundle for local paths, private terms, and unpublished
-research details before sharing outside the source project.
+送信元プロジェクト外へ共有する前に、エクスポートされたバンドルにローカルパス、非公開語、未公開研究の詳細が残っていないか確認する。

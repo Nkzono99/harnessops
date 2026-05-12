@@ -1,2 +1,1 @@
-"""HarnessOps CLI package."""
-
+"""HarnessOps CLI パッケージ。"""

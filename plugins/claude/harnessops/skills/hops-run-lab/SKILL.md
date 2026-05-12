@@ -1,11 +1,8 @@
 ---
 name: hops-run-lab
-description: Use when working in harness-lab on eval cases, hypotheses, and decisions.
+description: harness-lab で評価ケース、仮説、判断を扱うときに使う。
 ---
 
-Use `hops lab new-eval-case`, `hops propose --manual-template`,
-`hops eval --manual`, and `hops decide`.
+`hops lab new-eval-case`、`hops propose --manual-template`、`hops eval --manual`、`hops decide` を使う。
 
-Require mechanism, evaluation plan, kill criteria, evidence, regression risk,
-and a guard path before adoption. Prefer deletion or consolidation before adding
-new workflow surface.
+採用前に、メカニズム、評価計画、中止基準、証拠、回帰リスク、ガードパスを必須にする。新しいワークフロー面を追加する前に、削除または統合を優先する。

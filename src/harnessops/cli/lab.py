@@ -10,24 +10,24 @@ from harnessops.core.project import load_project
 from harnessops.core.records import create_eval_case, find_record, read_record
 from harnessops.core.render import refresh_views
 
-lab_app = typer.Typer(help="Operate harness-lab records.")
+lab_app = typer.Typer(help="harness-lab レコードを操作します。")
 
 
 @lab_app.command("import-feedback")
 def import_feedback_alias(path: str) -> None:
-    """Alias for `hops feedback import`."""
+    """`hops feedback import` のエイリアスです。"""
     import_feedback(path=Path(path))
 
 
 @lab_app.command("import")
 def import_alias(path: str) -> None:
-    """Short alias for importing a sanitized feedback bundle."""
+    """サニタイズ済みフィードバックバンドルをインポートする短いエイリアスです。"""
     import_feedback(path=Path(path))
 
 
 @lab_app.command("new-eval-case")
 def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | None = typer.Option(None, "--template")) -> None:
-    """Convert imported feedback into an eval case."""
+    """インポート済みフィードバックを評価ケースに変換します。"""
     del template
     root = find_root()
     project = load_project(root)
@@ -37,7 +37,7 @@ def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | No
     path = create_eval_case(
         project,
         feedback_id=str(frontmatter.get("id", from_id)),
-        title=f"Evaluate {feedback_path.stem}",
+        title=f"{feedback_path.stem} を評価",
         capability=str(classification.get("capability", "unclassified")),
         failure_class=str(classification.get("failure_class", "unclassified")),
     )

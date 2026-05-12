@@ -5,13 +5,13 @@ from pathlib import Path
 
 BRIDGE_TEXT = """---
 name: harnessops-bridge
-description: Use when recording project failures, routing upstream feedback, or running HarnessOps improvement workflows.
+description: プロジェクト失敗の記録、上流フィードバックのルーティング、HarnessOps 改善ワークフローの実行時に使う。
 ---
 
-This repository is linked to HarnessOps.
+このリポジトリは HarnessOps にリンクされています。
 
-Do not directly restructure `.harnessops/`, `harness-feedback/`, or `harness-lab/`.
-Use the CLI:
+`.harnessops/`、`harness-feedback/`、`harness-lab/` を直接組み替えないでください。
+CLI を使います。
 
 - `hops doctor`
 - `hops add-failure`
@@ -20,7 +20,7 @@ Use the CLI:
 - `hops feedback import`
 - `hops migrate --check`
 
-Read `.harnessops/project.toml` before proposing harness feedback or lab changes.
+ハーネスフィードバックやラボ変更を提案する前に `.harnessops/project.toml` を読んでください。
 """
 
 
@@ -36,4 +36,3 @@ def write_bridge(root: Path, *, codex: bool = True, claude: bool = False, force:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(BRIDGE_TEXT, encoding="utf-8")
     return paths
-

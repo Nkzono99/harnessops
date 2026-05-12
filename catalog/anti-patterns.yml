@@ -1,27 +1,26 @@
 version: 0.1.0
 anti_patterns:
   - id: reflection_theater
-    definition: Agent writes reflection without creating eval cases, guards, or decisions.
-    prevention: Convert observation to failure record and route it.
+    definition: エージェントが評価ケース、ガード、判断を作らずに振り返りだけを書く。
+    prevention: 観測を失敗レコードに変換してルーティングする。
   - id: governance_theater
-    definition: Rules, docs, or skills increase but failure classes do not decrease.
-    prevention: Require linked failure class and anti-theater score.
+    definition: ルール、文書、スキルは増えるが失敗クラスは減らない。
+    prevention: 紐づく失敗クラスと anti-theater スコアを必須にする。
   - id: skill_proliferation
-    definition: Workflow surface grows through overlapping skills instead of CLI consolidation.
-    prevention: Keep plugins thin and call `hops`.
+    definition: CLIへ集約せず、重複するスキルによってワークフロー面が広がる。
+    prevention: プラグインを薄く保ち、`hops` を呼び出す。
   - id: self_approving_judge
-    definition: Same context generates and approves a change without independent evidence.
-    prevention: Require scorecard, decision evidence, and owner review.
+    definition: 同じコンテキストが、独立した証拠なしに変更を生成して承認する。
+    prevention: スコアカード、判断証拠、オーナーレビューを必須にする。
   - id: metric_hacking
-    definition: A single score is optimized while real operation worsens.
-    prevention: Use multi-axis scorecards and regression risk.
+    definition: 実運用が悪化しているのに単一スコアだけが最適化される。
+    prevention: 多軸スコアカードと回帰リスクを使う。
   - id: upstream_pollution
-    definition: Project-specific decisions enter upstream templates or protocols.
-    prevention: Route project evolution to `research/` or `notes/`; sanitize before export.
+    definition: プロジェクト固有の判断が上流テンプレートやプロトコルに入り込む。
+    prevention: プロジェクト発展は `research/` または `notes/` に回し、エクスポート前にサニタイズする。
   - id: context_leakage
-    definition: Private research, local paths, cluster names, or unpublished terms leak.
-    prevention: Default private visibility and sanitizer config.
+    definition: 非公開研究、ローカルパス、クラスタ名、未公開語が漏れる。
+    prevention: 既定の非公開可視性とサニタイザ設定を使う。
   - id: endless_meta_improvement
-    definition: Methodology changes every cycle, making comparisons impossible.
-    prevention: Keep meta changes in `harness-lab/` and require evidence.
-
+    definition: 方法論がサイクルごとに変わり、比較不能になる。
+    prevention: メタ変更は `harness-lab/` に置き、証拠を必須にする。

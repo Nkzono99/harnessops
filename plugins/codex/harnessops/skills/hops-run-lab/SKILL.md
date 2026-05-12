@@ -1,15 +1,14 @@
 ---
 name: hops-run-lab
-description: Use when working in harness-lab on eval cases, hypotheses, and decisions.
+description: harness-lab で評価ケース、仮説、判断を扱うときに使う。
 ---
 
-Run `hops doctor --check-overlay`. Use `hops lab new-eval-case`,
-`hops propose --manual-template`, `hops eval --manual`, and `hops decide`.
+`hops doctor --check-overlay` を実行する。`hops lab new-eval-case`、`hops propose --manual-template`、`hops eval --manual`、`hops decide` を使う。
 
-Guardrails:
+ガードレール:
 
-- Do not recommend adoption without eval evidence.
-- Hypotheses must include mechanism, evaluation plan, and kill criteria.
-- Prefer deletion or consolidation before adding new workflow surface.
-- Adopted decisions must include evidence, regression risk, and a guard path.
-- Do not expose holdout cases or private project context.
+- 評価証拠なしに採用を勧めない。
+- 仮説にはメカニズム、評価計画、中止基準を含める。
+- 新しいワークフロー面を追加する前に、削除または統合を優先する。
+- 採用済み判断には、証拠、回帰リスク、ガードパスを含める。
+- ホールドアウトケースや非公開プロジェクト文脈を露出しない。

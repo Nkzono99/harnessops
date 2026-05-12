@@ -6,5 +6,4 @@ def test_sanitize_redacts_local_paths(tmp_path):
     sanitized = sanitize_text(text, root=tmp_path, profile={"private_paths": ["runs/**/work/**"]})
     assert str(tmp_path) not in sanitized
     assert "/home/user" not in sanitized
-    assert "private info excluded" in sanitized
-
+    assert "非公開情報を除外" in sanitized

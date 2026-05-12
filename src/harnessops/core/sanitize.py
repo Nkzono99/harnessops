@@ -37,5 +37,5 @@ def sanitize_text(text: str, *, root: Path, profile: dict[str, Any] | None = Non
             literal = str(pattern).replace("**", "").replace("*", "")
             if literal and literal in result:
                 result = result.replace(literal, "<PROTECTED_PATH>")
-    result += "\n\n## Private info excluded\n\n- private info excluded\n- source project anonymized\n- local paths redacted\n"
+    result += "\n\n## 除外した非公開情報\n\n- 非公開情報を除外\n- 送信元プロジェクトを匿名化\n- ローカルパスを伏せ字化\n"
     return result

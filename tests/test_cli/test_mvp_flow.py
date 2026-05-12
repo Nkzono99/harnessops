@@ -76,7 +76,7 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
     bundle = project_root / export.output.strip()
     bundle_text = bundle.read_text(encoding="utf-8")
     assert str(project_root) not in bundle_text
-    assert "private info excluded" in bundle_text
+    assert "非公開情報を除外" in bundle_text
 
     lab_root = tmp_path / "paper-upstream"
     lab_root.mkdir()
@@ -94,7 +94,7 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
     assert "records/hypotheses/H0001" in hypothesis.output
     hypothesis_frontmatter, hypothesis_body = read_record(lab_root / hypothesis.output.strip())
     assert hypothesis_frontmatter["record_type"] == "hypothesis"
-    assert "Kill criteria" in hypothesis_body
+    assert "中止基準" in hypothesis_body
     assert "TODO" not in hypothesis_body
     eval_result = run_cli(
         [
@@ -142,7 +142,7 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     assert skill.exists()
     text = skill.read_text(encoding="utf-8")
     assert "hops doctor" in text
-    assert "Do not directly restructure" in text
+    assert "直接組み替えない" in text
 
 
 def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):
@@ -190,23 +190,23 @@ source_feedback: FB0001
 
 # E0001: Example
 
-## Fixture
+## フィクスチャ
 
 fixture
 
-## Task
+## タスク
 
 task
 
-## Expected behavior
+## 期待される挙動
 
 expected
 
-## Pass criteria
+## 合格基準
 
 - pass
 
-## Fail criteria
+## 不合格基準
 
 - fail
 """,

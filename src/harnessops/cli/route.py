@@ -18,7 +18,7 @@ def route_command(
     target: Optional[str] = typer.Option(None, "--target"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    """Classify a record into a HarnessOps disposition."""
+    """レコードを HarnessOps の分類値（disposition）に分類します。"""
     root = find_root()
     project = load_project(root)
     body = text
@@ -40,4 +40,3 @@ def route_command(
 
 def register(app: typer.Typer) -> None:
     app.command("route")(route_command)
-

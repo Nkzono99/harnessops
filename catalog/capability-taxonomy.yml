@@ -1,36 +1,35 @@
 version: 0.1.0
 capabilities:
   - id: feedback_routing
-    definition: Classify failures into project, target, meta, protocol, external, or private disposition.
-    evidence: Routed records with rationale and no upstream pollution.
+    definition: 失敗を project、target、meta、protocol、external、private のdispositionに分類する。
+    evidence: 根拠を持つルーティング済みレコードと、上流汚染がないこと。
   - id: overlay_generation
-    definition: Create `.harnessops/`, `harness-feedback/`, and `harness-lab/` safely.
-    evidence: Init tests and lockfile managed file hashes.
+    definition: `.harnessops/`、`harness-feedback/`、`harness-lab/` を安全に作成する。
+    evidence: initテストとロックファイルの管理対象ファイルハッシュ。
   - id: migration_safety
-    definition: Update generated files without deleting or overwriting human-authored records.
-    evidence: Lock hashes, conflict behavior, migration entries.
+    definition: 人が作成したレコードを削除または上書きせずに生成ファイルを更新する。
+    evidence: ロックハッシュ、競合時の挙動、マイグレーションエントリ。
   - id: plugin_bridge
-    definition: Keep plugin UX thin while delegating state mutation to `hops`.
-    evidence: Skills call CLI commands and avoid managed structure edits.
+    definition: 状態変更を `hops` に委譲し、プラグインUXを薄く保つ。
+    evidence: スキルがCLIコマンドを呼び、管理対象構造を直接編集しないこと。
   - id: public_terminology
-    definition: Prevent local/private vocabulary from leaking into public artifacts.
-    evidence: Sanitizer tests and eval cases with private term fixtures.
+    definition: ローカル/非公開語彙が公開成果物へ漏れるのを防ぐ。
+    evidence: サニタイザテストと、非公開語フィクスチャを含む評価ケース。
   - id: manifest_integrity
-    definition: Detect provider, repository kind, version, and recommended profile.
-    evidence: `.harness/manifest.toml` validation and fixture detection.
+    definition: プロバイダ、リポジトリ種別、バージョン、推奨プロファイルを検出する。
+    evidence: `.harness/manifest.toml` 検証とフィクスチャ検出。
   - id: slurm_safety_gate
-    definition: Require explicit human gate before external/HPC actions.
-    evidence: Target harness quality checks and no remote action from HarnessOps MVP.
+    definition: 外部/HPCアクションの前に明示的な人間ゲートを必須にする。
+    evidence: ターゲットハーネスの品質チェックと、HarnessOps MVP がリモートアクションを行わないこと。
   - id: evaluation_discipline
-    definition: Require eval cases, scorecards, evidence, and decisions before adoption.
-    evidence: Hypothesis kill criteria and adopted-decision guard checks.
+    definition: 採用前に評価ケース、スコアカード、証拠、判断を必須にする。
+    evidence: 仮説の中止基準と採用済み判断のガードチェック。
   - id: privacy_sanitization
-    definition: Redact local paths, protected paths, private terms, and source project identity.
-    evidence: Sanitized bundles and privacy tests.
+    definition: ローカルパス、保護パス、非公開語、送信元プロジェクト識別情報を伏せる。
+    evidence: サニタイズ済みバンドルとプライバシーテスト。
   - id: anti_theater
-    definition: Detect additions that look procedural but do not reduce a failure class.
-    evidence: Scorecard `anti_theater` dimension and decision rationale.
+    definition: 手続き的には見えるが失敗クラスを減らさない追加を検出する。
+    evidence: スコアカードの `anti_theater` 軸と判断根拠。
   - id: schema_validation
-    definition: Validate records, profiles, manifests, and migration metadata against explicit contracts.
-    evidence: `hops doctor --check-records` and JSON schemas.
-
+    definition: レコード、プロファイル、マニフェスト、マイグレーションメタデータを明示的契約に照らして検証する。
+    evidence: `hops doctor --check-records` とJSON Schema。

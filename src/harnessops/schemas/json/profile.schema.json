@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "HarnessOps profile",
+  "title": "HarnessOpsプロファイル",
   "type": "object",
   "required": ["id", "version", "adapter", "mode", "root_markers", "feedback", "capabilities", "failure_classes"],
   "properties": {

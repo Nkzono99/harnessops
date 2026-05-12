@@ -16,7 +16,7 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             disposition = frontmatter.get("disposition", {})
             failures.append(f"- `{frontmatter.get('id')}` {disposition.get('type')} -> {disposition.get('target')}\n")
         view = overlay / "views" / "open-routing.md"
-        view.write_text(GENERATED_MARKER + "# Open Routing\n\n" + ("".join(failures) or "No failure records yet.\n"), encoding="utf-8")
+        view.write_text(GENERATED_MARKER + "# 未完了ルーティング\n\n" + ("".join(failures) or "失敗レコードはまだありません。\n"), encoding="utf-8")
         written.append(view)
     else:
         rows = []
@@ -28,7 +28,6 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
                 f"{classification.get('capability')} {classification.get('failure_class')}\n"
             )
         view = overlay / "views" / "imported-feedback.md"
-        view.write_text(GENERATED_MARKER + "# Imported Feedback\n\n" + ("".join(rows) or "No imported feedback records yet.\n"), encoding="utf-8")
+        view.write_text(GENERATED_MARKER + "# インポート済みフィードバック\n\n" + ("".join(rows) or "インポート済みフィードバックレコードはまだありません。\n"), encoding="utf-8")
         written.append(view)
     return written
-

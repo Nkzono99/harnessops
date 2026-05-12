@@ -27,7 +27,7 @@ def _run_init(
         detected = detect_repository(root)
         profile = detected.get("profile")
         if not profile:
-            typer.echo("profile not provided and detection did not find a recommended profile")
+            typer.echo("profile が指定されておらず、検出でも推奨プロファイルが見つかりません")
             raise typer.Exit(3)
     profile_data = load_profile(profile)
     try:
@@ -60,7 +60,7 @@ def init_command(
     dry_run: bool = typer.Option(False, "--dry-run"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
-    """Create HarnessOps metadata and overlay for a repository."""
+    """リポジトリ用の HarnessOps メタデータとオーバーレイを作成します。"""
     _run_init(profile=profile, mode=mode, path=path, with_agent_bridge=with_agent_bridge, dry_run=dry_run, force=force)
 
 
@@ -71,7 +71,7 @@ def link_command(
     dry_run: bool = typer.Option(False, "--dry-run"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
-    """Link an existing repository to HarnessOps."""
+    """既存リポジトリを HarnessOps にリンクします。"""
     _run_init(profile=profile, mode=mode, path=path, with_agent_bridge=False, dry_run=dry_run, force=force)
 
 

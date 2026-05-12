@@ -1,15 +1,15 @@
 # harness-lab
 
-This directory stores upstream improvement experiments for this harness repository.
+このディレクトリは、このハーネスリポジトリ向けの上流改善実験を保存します。
 
-Use this directory for:
+このディレクトリに置くもの:
 
-- imported sanitized feedback
-- eval cases
-- improvement hypotheses with mechanism and kill criteria
-- experiments and eval scorecards
-- adoption/rejection decisions with evidence
+- インポート済みのサニタイズ済みフィードバック
+- 評価ケース
+- メカニズムと中止基準を持つ改善仮説
+- 実験と評価スコアカード
+- 証拠を伴う採用/却下判断
 
-GitHub Issues remain the task tracker. `harness-lab/` is the evaluation and decision memory.
+GitHub Issues は引き続きタスクトラッカーです。`harness-lab/` は評価と判断の記憶です。
 
-Adopted decisions must cite evidence, regression risk, and a regression guard.
+採用済み判断には、証拠、回帰リスク、回帰ガードを明記する必要があります。

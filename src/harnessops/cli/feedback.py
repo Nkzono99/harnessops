@@ -13,7 +13,7 @@ from harnessops.core.render import refresh_views
 from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile
 
-feedback_app = typer.Typer(help="Export and import feedback bundles.")
+feedback_app = typer.Typer(help="フィードバックバンドルをエクスポート/インポートします。")
 
 
 @feedback_app.command("export")
@@ -23,11 +23,11 @@ def export_feedback(
     format: str = typer.Option("markdown", "--format"),  # noqa: A002
     allow_private: bool = typer.Option(False, "--allow-private"),
 ) -> None:
-    """Generate sanitized upstream/meta feedback bundles from project-side records."""
+    """プロジェクト側レコードからサニタイズ済み上流/メタフィードバックバンドルを生成します。"""
     root = find_root()
     project = load_project(root)
     if not sanitize and not allow_private:
-        typer.echo("refusing unsanitized export without --allow-private")
+        typer.echo("--allow-private なしの未サニタイズエクスポートは拒否します")
         raise typer.Exit(1)
     profile = load_profile(project.profile_id)
     records = []
@@ -45,7 +45,7 @@ def export_feedback(
             if frontmatter.get("target") == target_filter or target_filter == "all":
                 records.append((path, frontmatter, body))
     if not records:
-        typer.echo("no matching feedback records")
+        typer.echo("一致するフィードバックレコードがありません")
         raise typer.Exit(1)
     resolved_targets = sorted({str(record[1].get("target") or record[1].get("disposition", {}).get("target") or "unknown") for record in records})
     export_target = target or ("mixed" if len(resolved_targets) != 1 else resolved_targets[0])
@@ -53,15 +53,15 @@ def export_feedback(
     out_dir = project.overlay_dir / "views" / "exported-feedback"
     out_dir.mkdir(parents=True, exist_ok=True)
     export_id = next_id(out_dir, prefix)
-    title = f"Feedback to {export_target}"
+    title = f"{export_target} へのフィードバック"
     sections = []
     for path, frontmatter, body in records:
-        sections.append(f"## Source {frontmatter.get('id')}: {path.name}\n\n{body.strip()}\n")
+        sections.append(f"## 送信元 {frontmatter.get('id')}: {path.name}\n\n{body.strip()}\n")
     bundle_body = "\n".join(sections)
     if sanitize:
         bundle_body = sanitize_text(bundle_body, root=root, profile=profile, allow_private=allow_private)
     if format in {"issue", "github-issue"}:
-        bundle_body = "## Issue draft\n\n" + bundle_body + "\n\n## Confirmation\n\nThis is a draft only. HarnessOps does not create remote issues automatically.\n"
+        bundle_body = "## Issue下書き\n\n" + bundle_body + "\n\n## 確認\n\nこれは下書きのみです。HarnessOps はリモートIssueを自動作成しません。\n"
     frontmatter = {
         "id": export_id,
         "record_type": "meta_feedback" if prefix == "MF" else "upstream_feedback",
@@ -87,25 +87,25 @@ def import_feedback(
     issue: Optional[int] = typer.Option(None, "--issue"),
     repo: Optional[str] = typer.Option(None, "--repo"),
 ) -> None:
-    """Import a feedback bundle into target-side harness-lab."""
+    """フィードバックバンドルをターゲット側 harness-lab にインポートします。"""
     root = find_root()
     project = load_project(root)
     if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
-        typer.echo("feedback import requires upstream-lab or meta-lab mode")
+        typer.echo("feedback import には upstream-lab または meta-lab mode が必要です")
         raise typer.Exit(1)
     if issue is not None:
         source = {"id": f"ISSUE-{issue}", "record_type": "upstream_feedback", "issue": {"url": f"https://github.com/{repo or 'unknown'}/issues/{issue}"}}
-        body = f"Imported GitHub issue {issue} from {repo or 'unknown'}."
+        body = f"{repo or 'unknown'} から GitHub issue {issue} をインポートしました。"
         title = f"GitHub issue {issue}"
     elif path is not None:
         source_path = path if path.is_absolute() else root / path
         source, body = read_record(source_path)
         if source.get("record_type") not in {"upstream_feedback", "meta_feedback"} or not source.get("sanitized", False):
-            typer.echo("import requires a sanitized upstream_feedback or meta_feedback bundle")
+            typer.echo("import にはサニタイズ済み upstream_feedback または meta_feedback バンドルが必要です")
             raise typer.Exit(1)
         title = source_path.stem
     else:
-        typer.echo("provide a bundle path or --issue")
+        typer.echo("バンドルパスまたは --issue を指定してください")
         raise typer.Exit(1)
     out_path = create_imported_feedback(project, source_record=source, body=body, title=title)
     refresh_views(root, project.overlay_path)

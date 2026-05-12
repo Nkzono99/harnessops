@@ -1,40 +1,31 @@
-# Record Schemas
+# レコードスキーマ
 
-HarnessOps records are Markdown files with YAML frontmatter. The frontmatter is
-machine-validated; the body is human-readable evidence and rationale.
+HarnessOps レコードは YAML frontmatter 付きのMarkdownファイルです。frontmatter は機械検証され、本文には人間が読む証拠と根拠を書きます。
 
-## Common Rules
+## 共通ルール
 
-- `id`, `record_type`, and `created_at` are required for every record.
-- ID prefixes must match record type: `F`, `LW`, `UF`, `MF`, `FB`, `E`, `H`,
-  `X`, and `D`.
-- Records are append-only by default. Mutation requires an explicit CLI command.
-- Generated views are not records and may be overwritten.
-- Record bodies must not contain unresolved `TODO` placeholders after creation
-  commands that claim to create evidence-bearing artifacts.
+- すべてのレコードに `id`、`record_type`、`created_at` が必要です。
+- IDプレフィックスはレコード種別と一致する必要があります: `F`、`LW`、`UF`、`MF`、`FB`、`E`、`H`、`X`、`D`。
+- レコードは既定で追記専用です。変更には明示的なCLIコマンドが必要です。
+- 生成ビューはレコードではなく、上書きされる場合があります。
+- 証拠を持つ成果物を作るコマンドの後、レコード本文に未解決の `TODO` プレースホルダーを残してはいけません。
 
-## Required Sections
+## 必須セクション
 
-| Type | Required body sections |
+| 種別 | 必須本文セクション |
 |---|---|
-| `failure` | Context, What happened, Why this matters, Desired behavior, Local workaround, Routing rationale |
-| `upstream_feedback` | Summary, Minimal reproduction, Expected upstream improvement, Private info excluded |
-| `meta_feedback` | Summary, Minimal reproduction, Expected upstream improvement, Private info excluded |
-| `imported_feedback` | Summary, Reproduction, Expected upstream change |
-| `eval_case` | Fixture, Task, Expected behavior, Pass criteria, Fail criteria |
-| `hypothesis` | Hypothesis, Mechanism, Minimal implementation, Alternative: deletion or consolidation, Expected upside, Expected downside, Evaluation plan, Kill criteria |
-| `decision` | Decision, Reason, Evidence, Regression risk, Follow-up, Regression guard |
+| `failure` | 文脈、起きたこと、重要性、望ましい挙動、ローカル回避策、ルーティング根拠 |
+| `upstream_feedback` | 概要、最小再現、期待する上流改善、除外した非公開情報 |
+| `meta_feedback` | 概要、最小再現、期待する上流改善、除外した非公開情報 |
+| `imported_feedback` | 概要、再現、期待する上流変更 |
+| `eval_case` | フィクスチャ、タスク、期待される挙動、合格基準、不合格基準 |
+| `hypothesis` | 仮説、メカニズム、最小実装、代替案: 削除または統合、期待される利点、想定される欠点、評価計画、中止基準 |
+| `decision` | 判断、理由、証拠、回帰リスク、フォローアップ、回帰ガード |
 
-## Evidence Discipline
+## 証拠規律
 
-A hypothesis without mechanism, evaluation plan, and kill criteria is not a real
-experiment. A decision without evidence is not adoption-ready. An adopted
-decision must identify a regression guard, such as a test path, eval result, or
-generated check that will detect recurrence.
+メカニズム、評価計画、中止基準がない仮説は、本当の実験ではありません。証拠のない判断は採用可能ではありません。採用済み判断では、再発を検出するテストパス、評価結果、生成チェックなどの回帰ガードを明示する必要があります。
 
-## Validation
+## 検証
 
-`hops doctor --check-records` validates frontmatter, ID prefixes, required body
-sections, dispositions, and adoption evidence. JSON schema files under
-`src/harnessops/schemas/json/` document the machine-readable contract.
-
+`hops doctor --check-records` は frontmatter、IDプレフィックス、必須本文セクション、disposition、採用証拠を検証します。`src/harnessops/schemas/json/` 配下のJSON Schemaファイルが機械可読な契約を文書化します。

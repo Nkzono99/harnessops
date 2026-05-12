@@ -7,12 +7,12 @@ import typer
 from harnessops.core import yamlio
 from harnessops.profiles.registry import load_builtin_profiles, load_profile, profile_fingerprint
 
-profiles_app = typer.Typer(help="Inspect HarnessOps profiles.")
+profiles_app = typer.Typer(help="HarnessOps プロファイルを確認します。")
 
 
 @profiles_app.command("list")
 def list_profiles(json_output: bool = typer.Option(False, "--json")) -> None:
-    """List built-in profiles."""
+    """組み込みプロファイルを一覧表示します。"""
     profiles = load_builtin_profiles()
     if json_output:
         typer.echo(json.dumps(sorted(profiles), indent=2))
@@ -23,7 +23,7 @@ def list_profiles(json_output: bool = typer.Option(False, "--json")) -> None:
 
 @profiles_app.command("show")
 def show_profile(profile_id: str, json_output: bool = typer.Option(False, "--json")) -> None:
-    """Show a profile."""
+    """プロファイルを表示します。"""
     profile = load_profile(profile_id)
     public = {k: v for k, v in profile.items() if not k.startswith("_")}
     public["fingerprint"] = profile_fingerprint(profile)

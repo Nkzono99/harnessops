@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Failure record",
+  "title": "失敗レコード",
   "type": "object",
   "required": ["id", "record_type", "created_at", "visibility", "disposition"],
   "properties": {
@@ -11,4 +11,3 @@
     "disposition": {"type": "object"}
   }
 }
-

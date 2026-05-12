@@ -1,7 +1,6 @@
 {
   "name": "harnessops",
   "version": "0.1.0",
-  "description": "Feedback routing and improvement experiment workflows for harness projects",
+  "description": "ハーネスプロジェクト向けのフィードバックルーティングと改善実験ワークフロー",
   "skills": "./skills/"
 }
-

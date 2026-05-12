@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Eval case",
+  "title": "評価ケース",
   "type": "object",
   "required": ["id", "record_type", "created_at", "status", "capability", "failure_class", "source_feedback"],
   "properties": {

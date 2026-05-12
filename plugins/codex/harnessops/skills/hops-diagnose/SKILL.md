@@ -1,8 +1,6 @@
 ---
 name: hops-diagnose
-description: Use when checking whether a repository is linked to HarnessOps and whether the overlay is healthy.
+description: リポジトリが HarnessOps にリンクされているか、オーバーレイが健全かを確認するときに使う。
 ---
 
-Run `hops doctor --check-overlay`. If the repository is not linked, run `hops detect`
-and propose `hops init --profile <detected-profile>`.
-
+`hops doctor --check-overlay` を実行する。リポジトリがリンクされていなければ、`hops detect` を実行して `hops init --profile <detected-profile>` を提案する。

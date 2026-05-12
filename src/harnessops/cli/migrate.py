@@ -14,7 +14,7 @@ def migrate_command(
     apply: bool = typer.Option(False, "--apply"),  # noqa: A002
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    """Check or apply HarnessOps layout migrations."""
+    """HarnessOps レイアウトマイグレーションを確認または適用します。"""
     project = load_project(find_root())
     if apply:
         entry = apply_migrations(project)
@@ -25,7 +25,7 @@ def migrate_command(
     if json_output:
         typer.echo(json.dumps(result, indent=2, sort_keys=True))
     else:
-        typer.echo("no pending migrations" if result["ok"] else "pending migrations")
+        typer.echo("未適用マイグレーションはありません" if result["ok"] else "未適用マイグレーションがあります")
         for item in result.get("pending", []):
             typer.echo(item)
     if not result["ok"]:

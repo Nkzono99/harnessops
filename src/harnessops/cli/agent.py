@@ -9,12 +9,12 @@ import typer
 from harnessops.core.agent_bridge import write_bridge
 from harnessops.core.paths import find_root
 
-agent_app = typer.Typer(help="Install or verify agent bridge/plugin artifacts.")
+agent_app = typer.Typer(help="エージェントブリッジ/プラグイン成果物をインストールまたは検証します。")
 
 
 @agent_app.command("bridge")
 def bridge(codex: bool = typer.Option(False, "--codex"), claude: bool = typer.Option(False, "--claude"), force: bool = typer.Option(False, "--force")) -> None:
-    """Generate a thin repo-local bridge skill."""
+    """薄いリポジトリローカルブリッジスキルを生成します。"""
     if not codex and not claude:
         codex = True
     root = find_root()
@@ -29,7 +29,7 @@ def install(
     scope: str = typer.Option("repo", "--scope"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
-    """Install a repo-local bridge or copy the packaged plugin into a user plugin dir."""
+    """リポジトリローカルブリッジをインストールするか、同梱プラグインをユーザープラグインディレクトリへコピーします。"""
     if not codex and not claude:
         codex = True
     root = find_root()
@@ -37,7 +37,7 @@ def install(
         bridge(codex=codex, claude=claude, force=force)
         return
     if scope != "user":
-        typer.echo("scope must be repo or user")
+        typer.echo("scope は repo または user で指定してください")
         raise typer.Exit(1)
     home = Path.home()
     installed = []
@@ -51,11 +51,11 @@ def install(
         if not source.exists():
             source = Path(__file__).resolve().parents[3] / "plugins" / host / "harnessops"
         if not source.exists():
-            typer.echo(f"packaged {host} plugin source not found")
+            typer.echo(f"同梱 {host} プラグインソースが見つかりません")
             raise typer.Exit(1)
         if plugin_dir.exists():
             if not force:
-                typer.echo(f"plugin already exists: {plugin_dir}")
+                typer.echo(f"プラグインは既に存在します: {plugin_dir}")
                 raise typer.Exit(2)
             shutil.rmtree(plugin_dir)
         plugin_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -66,14 +66,14 @@ def install(
 
 @agent_app.command("verify")
 def verify() -> None:
-    """Verify repo-local bridge or packaged plugin artifacts."""
+    """リポジトリローカルブリッジまたは同梱プラグイン成果物を検証します。"""
     root = find_root()
     expected = root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md"
     packaged = root / "plugins" / "codex" / "harnessops" / ".codex-plugin" / "plugin.json"
     if expected.exists() or packaged.exists():
         typer.echo("ok")
     else:
-        typer.echo("no bridge or packaged plugin found")
+        typer.echo("ブリッジまたは同梱プラグインが見つかりません")
         raise typer.Exit(1)
 
 

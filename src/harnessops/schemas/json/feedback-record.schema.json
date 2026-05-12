@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Feedback record",
+  "title": "フィードバックレコード",
   "type": "object",
   "required": ["id", "record_type", "created_at", "status"],
   "properties": {

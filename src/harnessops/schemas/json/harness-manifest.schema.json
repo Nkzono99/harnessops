@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Harness common manifest",
+  "title": "Harness共通マニフェスト",
   "type": "object",
   "required": ["schema_version", "harness"],
   "properties": {
@@ -18,4 +18,3 @@
     "harnessops": {"type": "object"}
   }
 }
-

@@ -1,24 +1,23 @@
 version: 0.1.0
 rubrics:
   default_manual:
-    scale: "0..5 where 0 means absent/high risk and 5 means strong/low risk"
+    scale: "0..5。0は欠如/高リスク、5は強い/低リスクを意味する"
     dimensions:
       - id: impact
-        question: Does this reduce a real observed failure class?
+        question: 実際に観測された失敗クラスを減らすか。
       - id: mechanism_clarity
-        question: Is the causal mechanism explicit enough to evaluate?
+        question: 因果メカニズムは評価できるほど明示されているか。
       - id: evaluability
-        question: Can the linked eval case or command detect success/failure?
+        question: 紐づく評価ケースまたはコマンドが成功/失敗を検出できるか。
       - id: minimality
-        question: Is this the smallest change that can work?
+        question: 機能する最小の変更か。
       - id: regression_risk
-        question: How likely is this to break another workflow? Reverse-score high risk as low.
+        question: 他のワークフローを壊す可能性はどの程度か。高リスクは低スコアとして逆採点する。
       - id: operator_burden
-        question: Does this reduce or at least not increase human burden?
+        question: 人間の負担を減らす、または少なくとも増やさないか。
       - id: anti_theater
-        question: Does it avoid adding process that only looks like improvement?
+        question: 改善に見えるだけのプロセス追加を避けているか。
       - id: maintainability
-        question: Can the owner maintain the change over time?
+        question: オーナーが長期的に保守できるか。
       - id: privacy_sanitization_risk
-        question: Does it avoid private context leakage?
-
+        question: 非公開文脈の漏えいを避けているか。

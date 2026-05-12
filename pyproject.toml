@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "harnessops"
 version = "0.1.0"
-description = "Feedback and improvement experiment OS for AI-assisted harness projects"
+description = "AI支援ハーネスプロジェクト向けのフィードバックと改善実験OS"
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
@@ -24,7 +24,7 @@ harnessops = "harnessops.cli.main:app"
 hops = "harnessops.cli.main:app"
 
 [project.entry-points."harnessops.profiles"]
-# Downstream harness packages may register profiles here.
+# 下流ハーネスパッケージはここでプロファイルを登録できます。
 
 [project.optional-dependencies]
 dev = [
@@ -44,4 +44,3 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-

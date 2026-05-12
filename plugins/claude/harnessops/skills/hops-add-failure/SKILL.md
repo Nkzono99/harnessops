@@ -1,10 +1,8 @@
 ---
 name: hops-add-failure
-description: Use when a project failure, harness friction, local workaround, or upstream feedback candidate should be recorded through HarnessOps.
+description: プロジェクト失敗、ハーネス摩擦、ローカル回避策、上流フィードバック候補を HarnessOps 経由で記録するときに使う。
 ---
 
-Use HarnessOps. Do not manually edit harness-feedback/ or harness-lab/ structure.
-Call `hops add-failure`, `hops route`, and `hops feedback export --sanitize`.
+HarnessOps を使う。`harness-feedback/` または `harness-lab/` の構造を手作業で編集しない。`hops add-failure`、`hops route`、`hops feedback export --sanitize` を呼び出す。
 
-Keep project evolution in `research/` or `notes/`, and sanitize private context
-before target or meta promotion.
+プロジェクト発展は `research/` または `notes/` に残し、ターゲットまたはメタへの昇格前に非公開文脈をサニタイズする。

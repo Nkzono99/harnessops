@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "HarnessOps project link",
+  "title": "HarnessOpsプロジェクトリンク",
   "type": "object",
   "required": ["schema_version", "layout_version", "project", "profile", "overlay"],
   "properties": {
@@ -13,4 +13,3 @@
     "agents": {"type": "object"}
   }
 }
-

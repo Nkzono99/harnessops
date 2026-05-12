@@ -1,37 +1,31 @@
 # HarnessOps
 
-HarnessOps is a feedback routing and improvement experiment OS for
-AI-assisted harness projects.
+HarnessOps は、AI支援ハーネスプロジェクトのためのフィードバックルーティングと改善実験のOSです。
 
-It exists to keep self-improvement loops evidence-backed. AI can generate
-candidate changes, but HarnessOps records failures, routes feedback, creates
-eval cases, captures hypotheses, persists scorecards, and records adoption or
-rejection decisions.
+自己改善ループを証拠に基づいたまま運用するために使います。AIは変更候補を生成できますが、HarnessOps は失敗を記録し、フィードバックを振り分け、評価ケースを作成し、仮説を残し、スコアカードを保存し、採用または却下の判断を記録します。
 
-## Core Model
+## 基本モデル
 
-HarnessOps separates three repository roles:
+HarnessOps は3つのリポジトリ役割を分離します。
 
-| Layer | Overlay | Responsibility |
+| レイヤー | オーバーレイ | 責務 |
 |---|---|---|
-| project repository | `harness-feedback/` | Observe failures, record local workarounds, export sanitized feedback. |
-| target repository | `harness-lab/` | Import feedback, create eval cases, evaluate hypotheses, record decisions. |
-| HarnessOps repository | `harness-lab/` | Improve schemas, CLI, migrations, profiles, adapters, and plugin workflow. |
+| プロジェクトリポジトリ | `harness-feedback/` | 失敗を観測し、ローカル回避策を記録し、サニタイズ済みフィードバックをエクスポートします。 |
+| ターゲットリポジトリ | `harness-lab/` | フィードバックをインポートし、評価ケースを作成し、仮説を評価し、判断を記録します。 |
+| HarnessOps リポジトリ | `harness-lab/` | スキーマ、CLI、マイグレーション、プロファイル、アダプタ、プラグインワークフローを改善します。 |
 
-Project evolution belongs in `research/` or `notes/`, not in
-`harness-feedback/`. Target/meta promotion must pass through routing and
-sanitization.
+プロジェクト固有の発展は `harness-feedback/` ではなく `research/` または `notes/` に置きます。ターゲットまたはメタ改善として昇格する内容は、必ずルーティングとサニタイズを通します。
 
-## Minimal Loop
+## 最小ループ
 
 ```bash
 hops init --profile runops-project
-hops add-failure --title "Harness friction" --target runops
+hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001
 hops feedback export --sanitize
 ```
 
-On the target side:
+ターゲット側では次のように扱います。
 
 ```bash
 hops init --profile runops-upstream
@@ -42,24 +36,21 @@ hops eval --case E0001 --manual --score impact=4 --score anti-theater=5
 hops decide --from H0001 --status parked
 ```
 
-Adopted decisions require evidence, regression risk, and a guard path:
+採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 
 ```bash
 hops decide --from H0001 --status adopted \
-  --reason "Eval passed with a smaller profile change" \
+  --reason "より小さいプロファイル変更で評価が通った" \
   --evidence "harness-lab/views/eval-results/E0001-manual-score.yml" \
-  --regression-risk "Low; fixture covers the failure class" \
+  --regression-risk "低い。フィクスチャが失敗クラスを覆っている" \
   --guard-path "tests/test_cli/test_mvp_flow.py"
 ```
 
-## Privacy
+## プライバシー
 
-Project-side visibility defaults to `private-until-sanitized`.
-`hops feedback export` refuses unsanitized output unless `--allow-private` is
-explicit. Sanitization redacts local paths, configured private terms, protected
-paths, and source project identity before outbound feedback is written.
+プロジェクト側の可視性は既定で `private-until-sanitized` です。`hops feedback export` は、`--allow-private` が明示されない限り、未サニタイズ出力を拒否します。サニタイズでは、外部向けフィードバックを書き出す前に、ローカルパス、設定された非公開語、保護パス、送信元プロジェクト識別情報を伏せます。
 
-Optional project config:
+任意のプロジェクト設定:
 
 ```yaml
 # .harnessops/sanitize.yml
@@ -70,25 +61,23 @@ private_terms:
   - secret-method-name
 ```
 
-## Agent Plugins
+## エージェントプラグイン
 
-Codex and Claude plugin packages live under `plugins/`. They are thin workflow
-wrappers. They must call `hops` for state changes and must not directly
-restructure `.harnessops/`, `harness-feedback/`, or `harness-lab/`.
+Codex と Claude のプラグインパッケージは `plugins/` にあります。これらは薄いワークフローラッパーです。状態変更には必ず `hops` を呼び出し、`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えてはいけません。
 
-Repo bridge:
+リポジトリブリッジ:
 
 ```bash
 hops agent bridge --codex
 ```
 
-User plugin install:
+ユーザー領域へのプラグインインストール:
 
 ```bash
 hops agent install --codex --scope user
 ```
 
-## Development
+## 開発
 
 ```bash
 PYTHONPATH="$PWD/src" python3.11 -m pytest -q
@@ -96,8 +85,4 @@ uvx --from . harnessops --help
 uv run --with-editable . hops doctor --check-overlay --check-records
 ```
 
-Current MVP coverage verifies detection, init, doctor, migration checks,
-failure creation, routing, feedback export/import, eval case creation,
-hypothesis/decision records, scorecard output, sanitization, and overwrite
-safety.
-
+現在のMVPカバレッジは、検出、初期化、doctor、マイグレーション確認、失敗作成、ルーティング、フィードバックのエクスポート/インポート、評価ケース作成、仮説/判断レコード、スコアカード出力、サニタイズ、上書き安全性を検証します。

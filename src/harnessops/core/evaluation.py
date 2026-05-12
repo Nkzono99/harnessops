@@ -25,14 +25,14 @@ def parse_scores(items: list[str]) -> dict[str, int]:
     scores = dict(DEFAULT_RUBRIC)
     for item in items:
         if "=" not in item:
-            raise ValueError(f"score must be dimension=value: {item}")
+            raise ValueError(f"score は dimension=value 形式で指定してください: {item}")
         key, value = item.split("=", 1)
         key = key.strip().replace("-", "_")
         if key not in scores:
-            raise ValueError(f"unknown score dimension: {key}")
+            raise ValueError(f"未知のscore軸です: {key}")
         number = int(value)
         if number < 0 or number > 5:
-            raise ValueError(f"score for {key} must be 0..5")
+            raise ValueError(f"{key} のscoreは 0..5 で指定してください")
         scores[key] = number
     return scores
 
@@ -41,7 +41,7 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
     case_path = find_record(project, case_id)
     frontmatter, body = read_record(case_path)
     if frontmatter.get("record_type") != "eval_case":
-        raise ValueError(f"record is not an eval case: {case_id}")
+        raise ValueError(f"レコードはeval caseではありません: {case_id}")
     result_dir = project.overlay_dir / "views" / "eval-results"
     result_dir.mkdir(parents=True, exist_ok=True)
     eval_id = str(frontmatter.get("id", case_id))
@@ -61,16 +61,15 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
     dimensions = "\n".join(f"- {key}: {value}" for key, value in scores.items())
     md_path.write_text(
         GENERATED_MARKER
-        + f"# Manual Eval Result: {eval_id}\n\n"
-        + f"Source: `{case_path.relative_to(project.root).as_posix()}`\n\n"
-        + "## Scores\n\n"
+        + f"# 手動評価結果: {eval_id}\n\n"
+        + f"送信元: `{case_path.relative_to(project.root).as_posix()}`\n\n"
+        + "## スコア\n\n"
         + dimensions
-        + "\n\n## Notes\n\n"
-        + (notes or "No notes supplied.")
-        + "\n\n## Eval Case Snapshot\n\n"
+        + "\n\n## メモ\n\n"
+        + (notes or "メモはありません。")
+        + "\n\n## 評価ケーススナップショット\n\n"
         + body.strip()
         + "\n",
         encoding="utf-8",
     )
     return yml_path, md_path
-

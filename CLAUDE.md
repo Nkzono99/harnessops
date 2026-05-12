@@ -1,5 +1,3 @@
-# HarnessOps Claude Notes
+# HarnessOps Claude メモ
 
-Use the HarnessOps CLI for managed overlay changes. Repo-local bridge skills
-are thin guidance and must not contain long mutable workflow logic.
-
+管理対象オーバーレイの変更には HarnessOps CLI を使います。リポジトリローカルのブリッジスキルは薄い案内に限定し、長く変化しやすいワークフローロジックを含めないでください。

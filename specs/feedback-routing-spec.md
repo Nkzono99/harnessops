@@ -1,41 +1,33 @@
-# Feedback Routing Spec
+# フィードバックルーティング仕様
 
-Routing prevents upstream pollution by separating project evolution, local
-process issues, target-harness gaps, HarnessOps meta gaps, protocol gaps,
-external-system issues, and private records.
+ルーティングは、プロジェクト発展、ローカルプロセスの問題、ターゲットハーネスの不足、HarnessOps のメタ不足、プロトコル不足、外部システムの問題、非公開レコードを分離し、上流汚染を防ぎます。
 
-## Dispositions
+## 分類値一覧
 
-| Disposition | Meaning | Default destination |
+| 分類値 | 意味 | 既定の行き先 |
 |---|---|---|
-| `project-evolution` | Research/paper/project content changed. | `research/` or `notes/` |
-| `project-local-process` | Project-specific process or workaround. | Local notes or workaround record |
-| `target-upstream-candidate` | Target harness should consider a change. | runops, paper-harness, etc. |
-| `meta-harness-candidate` | HarnessOps schema, CLI, routing, migration, or plugin gap. | HarnessOps |
-| `protocol-candidate` | Common `.harness/manifest` or shared CLI convention gap. | HarnessOps protocol/spec |
-| `external-candidate` | Cluster, simulator, journal, or other external system. | External tracker or note |
-| `do-not-upstream` | Explicitly local/private. | No upstream export |
+| `project-evolution` | 研究、論文、プロジェクト内容が変化した。 | `research/` または `notes/` |
+| `project-local-process` | プロジェクト固有のプロセスまたは回避策。 | ローカルメモまたは回避策レコード |
+| `target-upstream-candidate` | ターゲットハーネスが変更を検討すべき内容。 | runops、paper-harness など |
+| `meta-harness-candidate` | HarnessOps のスキーマ、CLI、ルーティング、マイグレーション、プラグインの不足。 | HarnessOps |
+| `protocol-candidate` | 共通 `.harness/manifest` または共有CLI規約の不足。 | HarnessOps プロトコル/仕様 |
+| `external-candidate` | クラスタ、シミュレータ、ジャーナルなどの外部システム。 | 外部トラッカーまたはメモ |
+| `do-not-upstream` | 明示的にローカル/非公開。 | 上流エクスポートなし |
 
-## Event Splitting
+## イベント分割
 
-One observed event may produce multiple records. A research pivot belongs in
-`research/decisions/`, while a missing pivot workflow in runops can become
-`harness-feedback/records/upstream-feedback/`, and a routing ambiguity can
-become `meta-feedback`.
+1つの観測イベントから複数のレコードが生まれる場合があります。研究方針の転換は `research/decisions/` に置きます。一方、runops に方針転換ワークフローが不足しているなら `harness-feedback/records/upstream-feedback/` になり、ルーティングの曖昧さは `meta-feedback` になります。
 
-## Routing Evidence
+## ルーティング証拠
 
-`hops route --record <id>` persists a disposition. Human reviewers should check:
+`hops route --record <id>` はdispositionを保存します。人間のレビュアーは次を確認します。
 
-- Is this object-level project evolution?
-- Is there an upstream tool gap independent of project details?
-- Can the issue be reproduced after sanitization?
-- Does it reveal a HarnessOps schema/routing/process gap?
-- Would upstreaming this leak private or project-specific context?
+- これは対象プロジェクト自体の発展か。
+- プロジェクト詳細から独立した上流ツールの不足があるか。
+- サニタイズ後に問題を再現できるか。
+- HarnessOps のスキーマ、ルーティング、プロセスの不足を示しているか。
+- 上流化すると非公開またはプロジェクト固有の文脈が漏れるか。
 
-## Current Implementation
+## 現在の実装
 
-The MVP uses deterministic heuristics plus explicit `--target` and
-`--disposition` overrides. Adapter-specific routing should expand from these
-rules without bypassing the same record schema.
-
+MVP は決定的ヒューリスティックと明示的な `--target` / `--disposition` 上書きを使います。アダプタ固有のルーティングは、同じレコードスキーマを迂回せず、この規則から拡張します。

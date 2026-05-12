@@ -19,16 +19,16 @@ def decide_command(
     follow_up: str = typer.Option("", "--follow-up"),
     guard_path: str | None = typer.Option(None, "--guard-path"),
 ) -> None:
-    """Create a decision record."""
+    """判断レコードを作成します。"""
     if status not in STATUSES:
-        typer.echo(f"invalid status: {status}")
+        typer.echo(f"status が不正です: {status}")
         raise typer.Exit(1)
     source = experiment or from_id
     if not source:
-        typer.echo("provide --experiment or --from")
+        typer.echo("--experiment または --from を指定してください")
         raise typer.Exit(1)
     if status == "adopted" and (not evidence or not regression_risk or not guard_path):
-        typer.echo("adopted decisions require --evidence, --regression-risk, and --guard-path")
+        typer.echo("adopted の判断には --evidence、--regression-risk、--guard-path が必要です")
         raise typer.Exit(1)
     root = find_root()
     project = load_project(root)
@@ -37,10 +37,10 @@ def decide_command(
         source=source,
         status=status,
         title=f"{status} {source}",
-        reason=reason or f"Decision `{status}` recorded for `{source}`.",
-        evidence=evidence or "No evidence supplied; this decision is not adoption-ready.",
-        regression_risk=regression_risk or "Regression risk not evaluated.",
-        follow_up=follow_up or "Review this decision before promoting the change.",
+        reason=reason or f"`{source}` に対して `{status}` の判断を記録しました。",
+        evidence=evidence or "証拠は指定されていません。この判断は採用可能ではありません。",
+        regression_risk=regression_risk or "回帰リスクは評価されていません。",
+        follow_up=follow_up or "変更を昇格する前にこの判断をレビューしてください。",
         guard_path=guard_path,
     )
     typer.echo(path.relative_to(root).as_posix())

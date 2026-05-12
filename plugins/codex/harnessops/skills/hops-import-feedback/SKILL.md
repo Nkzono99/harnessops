@@ -1,8 +1,6 @@
 ---
 name: hops-import-feedback
-description: Use when importing a sanitized feedback bundle into harness-lab.
+description: サニタイズ済みフィードバックバンドルを harness-lab にインポートするときに使う。
 ---
 
-Run `hops doctor --check-overlay`, then use `hops feedback import <bundle-path>`.
-Imported feedback should be converted to eval cases before adoption decisions.
-
+`hops doctor --check-overlay` を実行し、続けて `hops feedback import <bundle-path>` を使う。インポート済みフィードバックは、採用判断の前に評価ケースへ変換する。

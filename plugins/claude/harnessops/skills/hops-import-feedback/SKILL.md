@@ -1,7 +1,6 @@
 ---
 name: hops-import-feedback
-description: Use when importing a sanitized feedback bundle into harness-lab.
+description: サニタイズ済みフィードバックバンドルを harness-lab にインポートするときに使う。
 ---
 
-Run `hops feedback import <bundle-path>`.
-
+`hops feedback import <bundle-path>` を実行する。

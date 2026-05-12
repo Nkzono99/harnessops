@@ -1,16 +1,15 @@
 ---
 name: hops-add-failure
-description: Use when a project failure, harness friction, local workaround, or upstream feedback candidate should be recorded through HarnessOps.
+description: プロジェクト失敗、ハーネス摩擦、ローカル回避策、上流フィードバック候補を HarnessOps 経由で記録するときに使う。
 ---
 
-Use HarnessOps. Do not manually edit harness-feedback/ or harness-lab/ structure.
+HarnessOps を使う。`harness-feedback/` または `harness-lab/` の構造を手作業で編集しない。
 
-1. Run `hops doctor --check-overlay`.
-2. If the repository is not linked, run `hops detect` and propose `hops init --profile <id>`.
-3. Collect context: what happened, why bad, desired behavior, privacy risk.
-4. Run `hops add-failure --interactive` or create a draft command.
-5. Run `hops route --record <id>` if disposition is unclear.
-6. If upstream/meta candidate, propose `hops feedback export --target <target> --sanitize`.
+1. `hops doctor --check-overlay` を実行する。
+2. リポジトリがリンクされていなければ、`hops detect` を実行して `hops init --profile <id>` を提案する。
+3. 起きたこと、悪影響、望ましい挙動、プライバシーリスクの文脈を集める。
+4. `hops add-failure --interactive` を実行するか、下書きコマンドを作る。
+5. disposition が不明確なら `hops route --record <id>` を実行する。
+6. 上流/メタ候補なら `hops feedback export --target <target> --sanitize` を提案する。
 
-Keep project evolution in `research/` or `notes/`. Do not move private research
-details, raw paths, or unpublished terms into upstream feedback.
+プロジェクト発展は `research/` または `notes/` に残す。非公開研究の詳細、生パス、未公開語を上流フィードバックへ移さない。

@@ -1,9 +1,8 @@
-# Profile Spec
+# プロファイル仕様
 
-Profiles describe how HarnessOps should detect, initialize, validate, route, and
-sanitize a repository.
+プロファイルは、HarnessOps がリポジトリをどのように検出、初期化、検証、ルーティング、サニタイズするかを記述します。
 
-## Required Fields
+## 必須フィールド
 
 ```yaml
 id: runops-project
@@ -20,29 +19,28 @@ failure_classes:
   - manifest_provenance_gap
 ```
 
-Recommended fields:
+推奨フィールド:
 
-- `repository_kind`: project, target, or HarnessOps repository category.
-- `provider`: upstream harness provider.
-- `project_evolution`: roots where object-level project changes belong.
-- `state_roots`: project state paths used by doctor or future context tools.
-- `quality_commands`: provider commands that can be run by humans or CI.
-- `protected_paths`: paths that must not be copied into public feedback.
-- `private_paths`: paths that sanitizer should redact.
-- `upstream_targets`: target harnesses and meta-harness destinations.
+- `repository_kind`: project、target、HarnessOps のリポジトリカテゴリ。
+- `provider`: 上流ハーネスプロバイダ。
+- `project_evolution`: 対象プロジェクト自体の変更を置くルート。
+- `state_roots`: doctor や将来のコンテキストツールが使うプロジェクト状態パス。
+- `quality_commands`: 人またはCIが実行できるプロバイダコマンド。
+- `protected_paths`: 公開フィードバックへコピーしてはいけないパス。
+- `private_paths`: サニタイザが伏せるべきパス。
+- `upstream_targets`: ターゲットハーネスとメタハーネスの行き先。
 
-## Resolution Order
+## 解決順序
 
 ```text
 local override > harness-owned entry point > built-in profile
 ```
 
-The lockfile stores the resolved profile id, source, version, and fingerprint so
-future migrations can detect profile drift.
+ロックファイルは、解決済みプロファイルID、ソース、バージョン、指紋を保存し、将来のマイグレーションがプロファイルのずれを検出できるようにします。
 
-## Built-in Profiles
+## 組み込みプロファイル
 
-HarnessOps ships:
+HarnessOps には次のプロファイルが含まれます。
 
 - `generic-code`
 - `python-package`
@@ -53,9 +51,6 @@ HarnessOps ships:
 - `paper-harness-upstream`
 - `harnessops-core`
 
-## Guardrails
+## ガードレール
 
-Profiles must distinguish project evolution roots from harness feedback roots.
-If a paper claim pivot belongs in `notes/`, the profile should make that clear
-so routing does not pollute upstream templates.
-
+プロファイルは、プロジェクト発展ルートとハーネスフィードバックルートを区別しなければなりません。論文主張の転換を `notes/` に置くべきなら、上流テンプレートを汚染しないよう、そのことをプロファイルで明確にします。
