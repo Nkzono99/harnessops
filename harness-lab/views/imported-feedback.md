@@ -13,3 +13,5 @@
 - `FB0010` triaged improvement_loop_design ambiguous_improvement_workflow
 - `FB0011` triaged meta_hypothesis_scan missed_second_order_observation
 - `FB0012` triaged meta_improvement_research missing_research_skill
+- `FB0013` triaged meta_improvement_research unstructured_research_scan_results
+- `FB0014` triaged lab_record_consistency duplicate_improvement_dossier_race

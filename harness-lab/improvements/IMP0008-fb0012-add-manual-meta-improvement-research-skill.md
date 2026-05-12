@@ -2,7 +2,7 @@
 id: IMP0008
 record_type: improvement_dossier
 created_at: '2026-05-13T01:43:17+09:00'
-updated_at: '2026-05-13T01:55:25+09:00'
+updated_at: '2026-05-13T02:02:49+09:00'
 status: adopted
 source_type: extension
 scope: harnessops-core
@@ -31,6 +31,18 @@ investigation:
     measures, pass criteria, and learning; Technology Radar style maturity rings provide
     a useful model for non-binary promotion status.'
   evidence_ref: https://sre.google/sre-book/postmortem-culture/ ;
+    https://openpracticelibrary.com/practice/design-of-experiments/ ;
+    https://www.thoughtworks.com/radar/faq
+- created_at: '2026-05-13T02:02:49+09:00'
+  kind: dry-run
+  summary: 'Dry-running hops-research-improvements exposed two extension gaps: the
+    skill asks for candidate lists, evidence, and recommendations, but HarnessOps
+    has no structured research-scan artifact or view; additionally, dossier bodies
+    render investigation summaries but omit evidence_ref links, so external sources
+    are less visible during review.'
+  evidence_ref: src/harnessops/core/records.py::_format_investigation ;
+    .agents/skills/hops-research-improvements/SKILL.md ;
+    https://sre.google/sre-book/postmortem-culture/ ;
     https://openpracticelibrary.com/practice/design-of-experiments/ ;
     https://www.thoughtworks.com/radar/faq
 links:
@@ -76,6 +88,7 @@ Add a packaged and repo-local HOPS skill for meta improvement research, with wor
 ## Investigation
 
 - 2026-05-13T01:43:56+09:00 [external-benchmark] Manual meta-improvement research should borrow from external practice patterns: Google SRE stresses reviewed postmortem action items and repositories of learning; Open Practice Library experiment guidance stresses explicit hypotheses, measures, pass criteria, and learning; Technology Radar style maturity rings provide a useful model for non-binary promotion status.
+- 2026-05-13T02:02:49+09:00 [dry-run] Dry-running hops-research-improvements exposed two extension gaps: the skill asks for candidate lists, evidence, and recommendations, but HarnessOps has no structured research-scan artifact or view; additionally, dossier bodies render investigation summaries but omit evidence_ref links, so external sources are less visible during review.
 
 ## Evaluation
 
