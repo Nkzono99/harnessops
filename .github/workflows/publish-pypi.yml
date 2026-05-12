@@ -17,6 +17,7 @@ jobs:
   publish:
     name: Build and publish harnessops
     runs-on: ubuntu-latest
+    environment: pypi
 
     steps:
       - name: Checkout
