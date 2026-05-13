@@ -2,7 +2,7 @@
 id: IMP0023
 record_type: improvement_dossier
 created_at: '2026-05-13T19:15:21+09:00'
-updated_at: '2026-05-13T20:33:37+09:00'
+updated_at: '2026-05-13T21:22:26+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -47,6 +47,14 @@ investigation:
 - created_at: '2026-05-13T20:33:37+09:00'
   kind: docs
   summary: 'Added a separate Full Automation Prompt: Push Main section to docs/daily-steward-automation.md. It keeps pull-first and validation gates, allows direct main push after validation, blocks if origin/main changes after validation, and keeps PR/issue/release remote writes disabled for this prompt.'
+  evidence_ref: docs/daily-steward-automation.md
+- created_at: '2026-05-13T21:19:48+09:00'
+  kind: docs
+  summary: 'Updated the Full Automation Prompt to allow full remote automation: main push, GitHub issue create/comment/close, PR create/update/merge, and release. The prompt now keeps only minimal operational stop conditions around dirty start, diverged branch, and validation failure, while removing the prior main-push-only restriction.'
+  evidence_ref: docs/daily-steward-automation.md
+- created_at: '2026-05-13T21:22:26+09:00'
+  kind: docs
+  summary: Translated docs/daily-steward-automation.md into natural Japanese while preserving the automation config keys, HOPS commands, validation gates, and full remote automation semantics. The contract test now asserts the Japanese prompt text instead of the previous English wording.
   evidence_ref: docs/daily-steward-automation.md
 links:
   issue_url:
@@ -96,6 +104,8 @@ Add a packaged hops-daily-steward skill that orchestrates issue triage, open met
 - 2026-05-13T19:45:33+09:00 [implementation-note] Daily steward was compacted into a thin conductor skill: intent, stop gates, delegation, triggers, selection, advance-local, end-of-run policy, decision card, and report only. Routine preflight remains in hops steward preflight; the new hops steward finalize command handles patch-only versus commit-local so unattended advance does not leave the next scheduled run permanently blocked by its own dirty worktree. The wording now treats Advance as human-review-independent local progress, while preserving automated evidence, validation, guard, and privacy gates. (evidence: .agents/skills/hops-daily-steward/SKILL.md)
 - 2026-05-13T20:29:51+09:00 [docs] Added docs/daily-steward-automation.md as the canonical Codex App automation prompt for nightly daily steward runs. README and agent guide now link to it, and the contract test checks the key runtime settings: advance-local, explicit subagents, automation-branch-only remote write, no main push, preflight, validation, commit-local finalize, and final report expectations. (evidence: docs/daily-steward-automation.md)
 - 2026-05-13T20:33:37+09:00 [docs] Added a separate Full Automation Prompt: Push Main section to docs/daily-steward-automation.md. It keeps pull-first and validation gates, allows direct main push after validation, blocks if origin/main changes after validation, and keeps PR/issue/release remote writes disabled for this prompt. (evidence: docs/daily-steward-automation.md)
+- 2026-05-13T21:19:48+09:00 [docs] Updated the Full Automation Prompt to allow full remote automation: main push, GitHub issue create/comment/close, PR create/update/merge, and release. The prompt now keeps only minimal operational stop conditions around dirty start, diverged branch, and validation failure, while removing the prior main-push-only restriction. (evidence: docs/daily-steward-automation.md)
+- 2026-05-13T21:22:26+09:00 [docs] Translated docs/daily-steward-automation.md into natural Japanese while preserving the automation config keys, HOPS commands, validation gates, and full remote automation semantics. The contract test now asserts the Japanese prompt text instead of the previous English wording. (evidence: docs/daily-steward-automation.md)
 
 ## Research Scans
 

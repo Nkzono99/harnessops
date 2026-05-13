@@ -1,13 +1,13 @@
-# Daily Steward Automation Prompt
+# Daily Steward 自動化プロンプト
 
-この文書は、常時起動PCの Codex App automation で `hops-daily-steward` を定期実行するための推奨プロンプトです。
+この文書は、常時起動している PC の Codex App automation で `hops-daily-steward` を定期実行するための推奨プロンプトです。
 
-目的は、夜間に clean な `main` を pull してから、issue / feedback / lab / doctor 状態を読み、既存 skill に委譲しながら最大1件の改善候補を local advance することです。remote write は automation branch の push までに留め、main push、PR、Issue操作、release は人間確認に残します。
+目的は、夜間に clean な `main` を pull してから、issue / feedback / lab / doctor の状態を読み、既存 skill に委譲しながら最大 1 件の改善候補を local advance することです。通常運用では remote write は automation branch の push までに留め、main push、PR、Issue 操作、release は人間確認に残します。
 
-## Recommended Prompt
+## 推奨プロンプト
 
 ```text
-Run the repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` for this repository.
+このリポジトリで repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` を実行してください。
 
 Runtime config:
 - mode: advance-local
@@ -26,154 +26,154 @@ Runtime config:
 - stop-on-validation-failure: true
 - stop-on-privacy-risk: true
 
-Start:
-1. Ensure the worktree is on `main`. If it is on another branch and clean, switch to `main`. If it is dirty, stop and report.
-2. Run `uv run --with-editable . hops steward preflight --pull --json`.
-3. If `can_continue` is false, stop before HOPS state changes and report the blocker.
+開始:
+1. worktree が `main` 上にあることを確認してください。別 branch 上で clean なら `main` に切り替えてください。dirty なら停止して報告してください。
+2. `uv run --with-editable . hops steward preflight --pull --json` を実行してください。
+3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
 
-Subagents:
-- You are explicitly authorized to use subagents.
-- Spawn separate subagents for triggered independent lanes when available:
+サブエージェント:
+- サブエージェントの利用を明示的に許可します。
+- 独立して発火した lane があり、利用可能な場合は、lane ごとに別サブエージェントを起動してください。
   - issue-triager
   - open-inventor
   - librarian
   - critic
   - maintainer
-  - evaluator only when advancing E/H/D or guard work
-- Keep the main agent as conductor/editor-in-chief.
-- Pass minimal context to each subagent.
-- If subagents are unavailable, run lanes sequentially and report `inline-fallback`.
+  - evaluator は E/H/D または guard work を advance する時だけ使う
+- main agent は conductor / editor-in-chief として振る舞ってください。
+- 各サブエージェントへ渡す context は最小限にしてください。
+- サブエージェントを利用できない場合は、lane を順番に実行し、`inline-fallback` として報告してください。
 
-Open invention:
-- Run `hops-open-meta-scan` only on weekly runs, release prep, repeated friction, issue clusters, loop stagnation, or explicit high-signal trigger.
-- Raw Ideas are ephemeral. Do not capture them directly.
+発散的な発想:
+- `hops-open-meta-scan` は、weekly run、release prep、繰り返し発生する摩擦、issue cluster、loop stagnation、または明確な high-signal trigger がある場合だけ実行してください。
+- Raw Ideas は一時的な材料です。直接 capture しないでください。
 
-Selection and advance:
-- Prefer existing issues, dossiers, or records over new records.
-- Select at most one systemic candidate.
-- Use `hops-research-improvements` for evidence/routing/park/reject.
-- Use `hops-run-lab` for eval case, hypothesis, manual eval, decision, and guard.
-- Use `hops-update-harness` only for doctor/update/bridge/managed-file signals.
-- Human review is not required for local advance, but evidence, validation, guard, and kill criteria are mandatory.
+選別と advance:
+- 新しい record を作る前に、既存 issue、dossier、record に接続できないかを優先してください。
+- systemic candidate は最大 1 件だけ選んでください。
+- evidence / routing / park / reject には `hops-research-improvements` を使ってください。
+- eval case、hypothesis、manual eval、decision、guard には `hops-run-lab` を使ってください。
+- doctor / update / bridge / managed-file の signal がある場合だけ `hops-update-harness` を使ってください。
+- local advance に人間レビューは不要ですが、evidence、validation、guard、kill criteria は必須です。
 
 Validation:
-Run, at minimum:
+少なくとも次を実行してください。
 - `uv run pytest -q`
 - `uv run ruff check src tests`
 - `uv run --with-editable . hops doctor --check-overlay --check-records`
 - `uv run --with-editable . hops migrate --check`
 
-End:
-- If no changes were made, report no-op.
-- If changes were made and validation passed:
-  1. Run `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation"`
-  2. Push only that automation branch: `git push -u origin HEAD`
-  3. Switch back to `main`
-  4. Do not create PRs, comments, issues, releases, or push main.
-- If validation failed, leave the patch in place and report the failure.
+終了:
+- 変更がない場合は no-op として報告してください。
+- 変更があり、validation が成功した場合:
+  1. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation"` を実行してください。
+  2. automation branch だけを push してください: `git push -u origin HEAD`
+  3. `main` に戻ってください。
+  4. PR、コメント、Issue、release、main push は作成しないでください。
+- validation が失敗した場合は patch を残し、失敗内容を報告してください。
 
-Final report:
+最終報告:
 - sync / doctor result
-- subagents used or inline fallback
-- selected candidate or no-op rationale
+- subagents used または inline fallback
+- selected candidate または no-op rationale
 - actions performed
 - validation result
-- branch and commit hash if created
-- pushed automation branch if any
+- branch と commit hash が作成された場合はその値
+- push した automation branch があればその branch
 - blocked / parked / rejected items
 - human decisions needed
 ```
 
-## Operator Notes
+## 運用メモ
 
-- `main-push: false` keeps the nightly loop from changing the release branch without review.
-- `end-policy: commit-local` keeps the next scheduled run from being blocked by the previous run's dirty worktree.
-- The automation branch can be reviewed, merged, or deleted later by a human.
-- For a more conservative setup, change `end-policy` to `patch-only`; the next run will stop until the patch is reviewed.
+- `main-push: false` により、夜間ループが review なしで release branch を変更しないようにします。
+- `end-policy: commit-local` により、前回 run の dirty worktree が次回の scheduled run を止め続ける事態を避けます。
+- automation branch は、あとで人間が review、merge、削除できます。
+- より慎重に運用したい場合は `end-policy` を `patch-only` に変更してください。その場合、次回 run は patch が review されるまで停止します。
 
-## Full Automation Prompt: Push Main
+## 完全自動化プロンプト: main push と remote action
 
-この章は、nightly run が validation 済みの変更を `main` へ直接 push してよい運用向けです。常時起動PC以外でも作業する場合は、必ず開始時の pull-first と dirty/diverged stop を維持してください。
+この章は、nightly run が validation 済みの変更を `main` へ直接 push し、必要に応じて Issue、PR、release などの remote action も実行してよい完全自動化運用向けです。停止条件は、開始時の同期不備、validation failure、git の明確な競合に絞ります。
 
 ```text
-Run the repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` for this repository.
+このリポジトリで repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` を実行してください。
 
 Runtime config:
 - mode: advance-local
 - timezone: Asia/Tokyo
 - subagents: explicitly allowed
 - max-systemic-candidates: 1
-- remote-write: main-push
+- remote-write: full
 - main-push: true
-- create-pr: false
-- issue-comment-close-create: false
-- release: false
+- create-pr: true
+- issue-comment-close-create: true
+- release: true
 - end-policy: commit-local
 - stop-on-dirty-start: true
 - stop-on-diverged-branch: true
 - stop-on-validation-failure: true
-- stop-on-privacy-risk: true
-- stop-on-remote-change-after-validation: true
 
-Start:
-1. Ensure the worktree is on `main`. If it is on another branch and clean, switch to `main`. If it is dirty, stop and report.
-2. Run `uv run --with-editable . hops steward preflight --pull --json`.
-3. If `can_continue` is false, stop before HOPS state changes and report the blocker.
+開始:
+1. worktree が `main` 上にあることを確認してください。別 branch 上で clean なら `main` に切り替えてください。dirty なら停止して報告してください。
+2. `uv run --with-editable . hops steward preflight --pull --json` を実行してください。
+3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
 
-Subagents:
-- You are explicitly authorized to use subagents.
-- Spawn separate subagents for triggered independent lanes when available:
+サブエージェント:
+- サブエージェントの利用を明示的に許可します。
+- 独立して発火した lane があり、利用可能な場合は、lane ごとに別サブエージェントを起動してください。
   - issue-triager
   - open-inventor
   - librarian
   - critic
   - maintainer
-  - evaluator only when advancing E/H/D or guard work
-- Keep the main agent as conductor/editor-in-chief.
-- Pass minimal context to each subagent.
-- If subagents are unavailable, run lanes sequentially and report `inline-fallback`.
+  - evaluator は E/H/D または guard work を advance する時だけ使う
+- main agent は conductor / editor-in-chief として振る舞ってください。
+- 各サブエージェントへ渡す context は最小限にしてください。
+- サブエージェントを利用できない場合は、lane を順番に実行し、`inline-fallback` として報告してください。
 
-Open invention:
-- Run `hops-open-meta-scan` only on weekly runs, release prep, repeated friction, issue clusters, loop stagnation, or explicit high-signal trigger.
-- Raw Ideas are ephemeral. Do not capture them directly.
+発散的な発想:
+- `hops-open-meta-scan` は、weekly run、release prep、繰り返し発生する摩擦、issue cluster、loop stagnation、または明確な high-signal trigger がある場合だけ実行してください。
+- Raw Ideas は一時的な材料です。直接 capture しないでください。
 
-Selection and advance:
-- Prefer existing issues, dossiers, or records over new records.
-- Select at most one systemic candidate.
-- Use `hops-research-improvements` for evidence/routing/park/reject.
-- Use `hops-run-lab` for eval case, hypothesis, manual eval, decision, and guard.
-- Use `hops-update-harness` only for doctor/update/bridge/managed-file signals.
-- Human review is not required for local advance, but evidence, validation, guard, and kill criteria are mandatory.
-- Do not create releases, PRs, GitHub issues, or GitHub issue comments in this prompt. Main push is the only remote write.
+選別と advance:
+- 新しい record を作る前に、既存 issue、dossier、record に接続できないかを優先してください。
+- systemic candidate は最大 1 件だけ選んでください。
+- evidence / routing / park / reject には `hops-research-improvements` を使ってください。
+- eval case、hypothesis、manual eval、decision、guard には `hops-run-lab` を使ってください。
+- doctor / update / bridge / managed-file の signal がある場合だけ `hops-update-harness` を使ってください。
+- local advance に人間レビューは不要ですが、evidence、validation、guard、kill criteria は必須です。
+- Issue の作成/コメント/クローズ、PR の作成/更新/merge、main push、release は、選択した候補の自然な次の一手であれば実行してよいです。
 
 Validation:
-Run, at minimum:
+少なくとも次を実行してください。
 - `uv run pytest -q`
 - `uv run ruff check src tests`
 - `uv run --with-editable . hops doctor --check-overlay --check-records`
 - `uv run --with-editable . hops migrate --check`
 
-End:
-- If no changes were made, report no-op.
-- If validation failed, leave the patch in place and report the failure. Do not push.
-- If changes were made and validation passed:
-  1. Run `git fetch --prune origin`.
-  2. Confirm `git rev-list --left-right --count HEAD...origin/main` reports no behind or diverged state. If remote changed, stop and report.
-  3. Run `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch main --message "Daily steward automation"`.
-  4. Confirm `git status --short --branch` is clean and `main` is ahead of `origin/main`.
-  5. Push main: `git push origin main`.
-  6. Do not create PRs, comments, issues, or releases.
+終了:
+- 変更がない場合は no-op として報告してください。
+- validation が失敗した場合は patch を残し、失敗内容を報告してください。push はしないでください。
+- 変更があり、validation が成功した場合:
+  1. `git fetch --prune origin` を実行してください。
+  2. `git rev-list --left-right --count HEAD...origin/main` で、現在の branch が behind または diverged ではないことを確認してください。remote が進んでいる場合は、可能なら fast-forward pull してください。できない場合は停止して報告してください。
+  3. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch main --message "Daily steward automation"` を実行してください。
+  4. `git status --short --branch` が clean で、`main` が `origin/main` より ahead であることを確認してください。
+  5. main を push してください: `git push origin main`
+  6. GitHub Issue の作成、更新、コメント、クローズが必要なら実行してください。
+  7. branch-based change に PR が適している場合は、PR を作成、更新、または merge してください。
+  8. release が適切で、version/tag 条件を満たしているなら、repo-local の `release` skill を使って release を作成してください。
 
-Final report:
+最終報告:
 - sync / doctor result
-- subagents used or inline fallback
-- selected candidate or no-op rationale
+- subagents used または inline fallback
+- selected candidate または no-op rationale
 - actions performed
 - validation result
-- main commit hash if created
-- push result
+- main commit hash が作成された場合はその値
+- remote actions performed
 - blocked / parked / rejected items
 - human decisions needed
 ```
 
-Use this full automation prompt only for repositories where passing validation is an acceptable merge gate for `main`.
+この完全自動化プロンプトは、validation 成功を `main` 更新や remote action の十分な gate とみなせるリポジトリだけで使ってください。

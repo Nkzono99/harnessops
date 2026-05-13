@@ -319,21 +319,24 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     agent_guide = (ROOT / "docs/agent-user-guide.md").read_text(encoding="utf-8")
 
-    assert "Run the repo-local skill `.agents/skills/hops-daily-steward/SKILL.md`" in prompt_doc
+    assert "このリポジトリで repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` を実行してください。" in prompt_doc
     assert "subagents: explicitly allowed" in prompt_doc
     assert "remote-write: automation-branch-only" in prompt_doc
     assert "main-push: false" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
     assert "git push -u origin HEAD" in prompt_doc
-    assert "Do not create PRs, comments, issues, releases, or push main." in prompt_doc
-    assert "Full Automation Prompt: Push Main" in prompt_doc
-    assert "remote-write: main-push" in prompt_doc
+    assert "PR、コメント、Issue、release、main push は作成しないでください。" in prompt_doc
+    assert "完全自動化プロンプト: main push と remote action" in prompt_doc
+    assert "remote-write: full" in prompt_doc
     assert "main-push: true" in prompt_doc
-    assert "stop-on-remote-change-after-validation: true" in prompt_doc
+    assert "create-pr: true" in prompt_doc
+    assert "issue-comment-close-create: true" in prompt_doc
+    assert "release: true" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed --branch main" in prompt_doc
     assert "git push origin main" in prompt_doc
-    assert "Main push is the only remote write." in prompt_doc
+    assert "Issue の作成/コメント/クローズ、PR の作成/更新/merge、main push、release は、選択した候補の自然な次の一手であれば実行してよいです。" in prompt_doc
+    assert "repo-local の `release` skill を使って release を作成してください" in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide
 
