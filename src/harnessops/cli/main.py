@@ -24,6 +24,24 @@ from harnessops.cli import (
 app = typer.Typer(add_completion=False, no_args_is_help=True, help="HarnessOps のフィードバックルーティングと改善実験CLI。")
 
 
+@app.callback()
+def main_callback(
+    ctx: typer.Context,
+    disable_update_notice: bool = typer.Option(
+        False,
+        "--disable-update-notice",
+        envvar="HOPS_DISABLE_UPDATE_NOTICE",
+        help="HarnessOps 管理物の更新 notice を表示しません。",
+    ),
+) -> None:
+    """Run lightweight cross-command CLI hooks."""
+    from harnessops.cli.update_notice import maybe_emit_update_notice
+
+    if disable_update_notice:
+        return
+    maybe_emit_update_notice(ctx.invoked_subcommand)
+
+
 @app.command()
 def version() -> None:
     """HarnessOps バージョンを表示します。"""

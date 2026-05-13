@@ -20,3 +20,4 @@
 - `FB0017` triaged lab_memory_compaction record_sprawl_without_knowledge_consolidation
 - `FB0018` triaged lab_memory_compaction deterministic_snapshot_conflates_trigger_and_abstraction
 - `FB0019` triaged generated_view_management stale_generated_view_repair_gap
+- `FB0020` triaged harness_lab_traceability missing_lab_capture

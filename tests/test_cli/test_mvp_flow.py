@@ -276,6 +276,57 @@ def test_update_harness_force_overwrites_edited_agent_bridge_file(copy_fixture, 
     assert not skill.with_name("SKILL.md.new").exists()
 
 
+def test_hops_usage_notices_stale_harnessops_lock_once(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    first = run_cli(["doctor"])
+    assert "HarnessOps managed artifacts may be behind current hops: 0.0.1 ->" in first.stderr
+    assert "`hops-update-harness` skill" in first.stderr
+    assert "hops update-harness" in first.stderr
+
+    cache_path = root / ".harnessops" / "cache" / "update-notice.json"
+    assert cache_path.exists()
+
+    second = run_cli(["doctor"])
+    assert "HarnessOps managed artifacts may be behind current hops" not in second.stderr
+
+
+def test_update_harness_command_suppresses_stale_lock_notice(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    result = run_cli(["update-harness"])
+    assert "HarnessOps managed artifacts may be behind current hops" not in result.stderr
+
+
+def test_update_notice_can_be_disabled_globally(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    result = run_cli(["--disable-update-notice", "doctor"])
+    assert "HarnessOps managed artifacts may be behind current hops" not in result.stderr
+    assert not (root / ".harnessops" / "cache" / "update-notice.json").exists()
+
+
 def test_update_harness_preserves_dynamic_imported_feedback_view(copy_fixture, monkeypatch):
     root = copy_fixture("paper-harness-upstream-minimal")
     monkeypatch.chdir(root)
