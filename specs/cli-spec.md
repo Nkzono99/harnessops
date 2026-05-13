@@ -28,7 +28,9 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新します。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記します。 |
 | `hops lab research-scan` | はい | メタ改善調査の scope、evidence、candidate、relation、recommendation、next command を `RS` レコードとして保存し、`views/research-scans.md` を更新します。 |
-| `hops lab compact [--force]` | はい | `harness-lab` が閾値を超えた時、または `--force` 時に、正本レコードを残したまま `harness-lab/knowledge/lab-memory.yml` と `.md` を更新し、再利用しやすい mutable knowledge layer を作ります。 |
+| `hops lab compact [--force]` | はい | `harness-lab` が閾値を超えた時、または `--force` 時に、正本レコードを残したまま deterministic knowledge snapshot として `harness-lab/knowledge/lab-memory.yml` と `.md` を更新します。 |
+| `hops lab memory lint` | いいえ | lab size、source digest、deterministic snapshot、semantic memory manifest を見て、抽象化 skill を走らせるべきか判定します。 |
+| `hops lab memory prepare [--force]` | はい | `hops-compact-lab-memory` skill が読む `harness-lab/knowledge/lab-memory-input.yml` と `.md` を作ります。抽象化そのものは行いません。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済みGitHub Issue下書きを作り、重複確認後に明示確認付きでIssueを作成します。成功時はlab recordへIssue URLを書き戻します。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新します。 |
 | `hops propose --from <Eid>` | はい | メカニズムと中止基準を含む仮説を作成します。 |
@@ -45,7 +47,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。
 4. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
 5. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。
-6. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する作業記憶であり、source ID から必ず records/dossier へ戻れる必要があります。
+6. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
 7. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
 8. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 

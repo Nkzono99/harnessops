@@ -3,23 +3,24 @@
     "managed_files": {
       ".agents/skills/harnessops-bridge/SKILL.md": "sha256:ccab7d1775ae61bfbd377e1031f464bff5ca3334bd9b4003dd99bd9c4b30f71d",
       ".agents/skills/hops-add-failure/SKILL.md": "sha256:f8af7efed7d55283c0ff53e9981f72e7f2febc496e1846697095927d841d7aaf",
+      ".agents/skills/hops-compact-lab-memory/SKILL.md": "sha256:0c3c2cf6d20a890d9891aab38d6884d4290f3c7809bbc43a85e940c4ae06fd90",
       ".agents/skills/hops-diagnose/SKILL.md": "sha256:e477d8203012763a44ac31c2d5dbb9c1c01743b911a7701a6ba8bff59ea242b1",
       ".agents/skills/hops-export-feedback/SKILL.md": "sha256:80b89fc8a315d9e15b11d06a2c68fdd56c4b113a866e27536f92095bf936aba1",
       ".agents/skills/hops-import-feedback/SKILL.md": "sha256:58bebe65702fc09548eb9528603468580b6191943ecc1a71ab94cfafecf6a86d",
       ".agents/skills/hops-issue-triage/SKILL.md": "sha256:067042d67234a200d051db8de6192ca8df617c790e45150929c15da120e50df3",
-      ".agents/skills/hops-research-improvements/SKILL.md": "sha256:b0eee2af1fd9c3cf7e7796eccbee5a75c94b34166ce88cf6bf57d13c1c17ad48",
+      ".agents/skills/hops-research-improvements/SKILL.md": "sha256:6fae33ca49e3b146700fd8e7d7f53c496336197143ad0ca0aee855c7644a9df4",
       ".agents/skills/hops-route-feedback/SKILL.md": "sha256:e1e1ae93e3f8e2487481284883d1ac7052d6ad6a017d9d08b17268ae4b07eef3",
-      ".agents/skills/hops-run-lab/SKILL.md": "sha256:10216222ad4bb27fc346f675543aead9342f079dff3f5a480bb006d6a2416885",
+      ".agents/skills/hops-run-lab/SKILL.md": "sha256:0d8841f779c4b11b44b6c6454e0c465120d505af7b6faf56fcc5989cb2279ac5",
       ".agents/skills/hops-update-harness/SKILL.md": "sha256:55186be4580b5e455b60d548bc26e7a39264b6432a0f2ab4b100917430ca132a"
     }
   },
   "harnessops_version": "0.1.2",
   "layout_version": "0.1",
   "managed_files": {
-    "harness-lab/README.md": "sha256:37beb859eb131e8f95e3a43295b03f8c0fb1c614e5040060b39c8fe7cd7cd447",
+    "harness-lab/README.md": "sha256:789a733220c9918b65f6d7afbddb13ccc2d842485cca9426bb8e5dc52c24a797",
     "harness-lab/views/backlog.md": "sha256:0ed4436872ad24f9c73737b7f84290306dc4baaf36154b7e36be521e985b791c",
-    "harness-lab/views/imported-feedback.md": "sha256:110594ad2c5cc11ce7e6d2be46dc9ef84890883df38c87e2f53e31297ed8401f",
-    "harness-lab/views/improvements.md": "sha256:ea8df64037223e3f5561a416c5b324072716f9918435bd5bfd12dba07e29a2db",
+    "harness-lab/views/imported-feedback.md": "sha256:80f5306f38b1a9b3059680c4a00e1b4404fe815200d0b33e1bd694161040a636",
+    "harness-lab/views/improvements.md": "sha256:f2129b6d7472e938fed97b9849df96ced1889e6a9438e2be1636ab9c3e0f74fe",
     "harness-lab/views/research-scans.md": "sha256:ad0eff60a8eca9ea41bc15436d2612fddadb7b4503a66ea068c70fd631f7ab77",
     "harness-lab/views/score-trajectory.md": "sha256:a3d2f445609e5e9da0269ece3b10aff2414f3830bd185ad257d32ae19026b616"
   },

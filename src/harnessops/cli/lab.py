@@ -16,6 +16,8 @@ from harnessops.core.lab_compaction import (
     DEFAULT_MAX_FILES,
     DEFAULT_MAX_IMPROVEMENTS,
     compact_lab,
+    lint_lab_memory,
+    prepare_lab_memory_abstraction,
 )
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
@@ -36,6 +38,7 @@ from harnessops.profiles.registry import load_profile
 
 lab_app = typer.Typer(help="harness-lab レコードを操作します。")
 issue_app = typer.Typer(help="harness-lab レコードをGitHub Issueへ橋渡しします。")
+memory_app = typer.Typer(help="harness-lab knowledge memory の発火判定と抽象化入力を扱います。")
 
 
 @lab_app.command("import-feedback")
@@ -209,7 +212,7 @@ def compact(
     max_bytes: int = typer.Option(DEFAULT_MAX_BYTES, "--max-bytes"),
     max_improvements: int = typer.Option(DEFAULT_MAX_IMPROVEMENTS, "--max-improvements"),
 ) -> None:
-    """harness-lab を source-linked な mutable knowledge layer へ圧縮します。"""
+    """harness-lab を source-linked な deterministic snapshot へ圧縮します。"""
     root = find_root()
     project = load_project(root)
     if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
@@ -241,6 +244,88 @@ def compact(
             typer.echo(path.relative_to(root).as_posix())
     elif result["status"] == "skipped":
         typer.echo("--force または小さい閾値を指定すると compaction を手動実行できます")
+
+
+@memory_app.command("lint")
+def memory_lint(
+    max_files: int = typer.Option(DEFAULT_MAX_FILES, "--max-files"),
+    max_bytes: int = typer.Option(DEFAULT_MAX_BYTES, "--max-bytes"),
+    max_improvements: int = typer.Option(DEFAULT_MAX_IMPROVEMENTS, "--max-improvements"),
+    json_output: bool = typer.Option(False, "--json"),
+    warn_only: bool = typer.Option(False, "--warn-only"),
+) -> None:
+    """lab memory abstraction を走らせるべきかを判定します。"""
+    root = find_root()
+    project = load_project(root)
+    if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
+        typer.echo("lab memory lint には upstream-lab または meta-lab mode が必要です")
+        raise typer.Exit(1)
+    result = lint_lab_memory(
+        project,
+        max_files=max_files,
+        max_bytes=max_bytes,
+        max_improvements=max_improvements,
+    )
+    if json_output:
+        import json
+
+        typer.echo(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        metrics = result["metrics"]
+        thresholds = result["thresholds"]
+        typer.echo(f"status: {result['status']}")
+        typer.echo(f"reason: {result['reason']}")
+        typer.echo(
+            "metrics: "
+            f"files={metrics['file_count']}/{thresholds['max_files']} "
+            f"bytes={metrics['byte_count']}/{thresholds['max_bytes']} "
+            f"improvements={metrics['improvement_count']}/{thresholds['max_improvements']}"
+        )
+        typer.echo("pressure: " + (", ".join(result["pressure"]) or "none"))
+        typer.echo("triggers: " + (", ".join(result["triggers"]) or "none"))
+        typer.echo(f"snapshot: {result['snapshot']['path']} stale={result['snapshot']['stale']}")
+        typer.echo(f"abstraction: {result['abstraction']['path']} stale={result['abstraction']['stale']}")
+        if result["status"] != "ok":
+            typer.echo("next:")
+            for command in result["recommended_commands"]:
+                typer.echo(f"- {command}")
+    if result["status"] != "ok" and not warn_only:
+        raise typer.Exit(1)
+
+
+@memory_app.command("prepare")
+def memory_prepare(
+    force: bool = typer.Option(False, "--force"),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+    max_files: int = typer.Option(DEFAULT_MAX_FILES, "--max-files"),
+    max_bytes: int = typer.Option(DEFAULT_MAX_BYTES, "--max-bytes"),
+    max_improvements: int = typer.Option(DEFAULT_MAX_IMPROVEMENTS, "--max-improvements"),
+) -> None:
+    """lab memory abstraction skill の入力 bundle を作ります。"""
+    root = find_root()
+    project = load_project(root)
+    if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
+        typer.echo("lab memory prepare には upstream-lab または meta-lab mode が必要です")
+        raise typer.Exit(1)
+    result = prepare_lab_memory_abstraction(
+        project,
+        force=force,
+        dry_run=dry_run,
+        max_files=max_files,
+        max_bytes=max_bytes,
+        max_improvements=max_improvements,
+    )
+    typer.echo(f"status: {result['status']}")
+    typer.echo(f"reason: {result['reason']}")
+    typer.echo("lint: " + result["lint"]["status"])
+    if result["lint"]["triggers"]:
+        typer.echo("triggers: " + ", ".join(result["lint"]["triggers"]))
+    if result["paths"]:
+        typer.echo("outputs:")
+        for path in result["paths"]:
+            typer.echo(path.relative_to(root).as_posix())
+    elif result["status"] == "skipped":
+        typer.echo("--force を指定すると手動で abstraction input を作れます")
 
 
 def _record_title(body: str, fallback: str) -> str:
@@ -415,4 +500,5 @@ def refresh_lab_views() -> None:
 
 def register(app: typer.Typer) -> None:
     lab_app.add_typer(issue_app, name="issue")
+    lab_app.add_typer(memory_app, name="memory")
     app.add_typer(lab_app, name="lab")

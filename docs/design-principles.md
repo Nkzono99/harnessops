@@ -107,9 +107,11 @@ dossier は `records/feedback`、`records/eval-cases`、`records/hypotheses`、`
 
 ## ラボ圧縮と知識層
 
-`harness-lab/` は証拠を蓄積する場所ですが、蓄積だけでは長期記憶になりません。一定サイズを超えたら `hops lab compact` で、正本レコードを残したまま `harness-lab/knowledge/` に mutable knowledge layer を更新します。
+`harness-lab/` は証拠を蓄積する場所ですが、蓄積だけでは長期記憶になりません。一定サイズを超えたかどうかは `hops lab memory lint` で検出します。lint は発火基準を見るだけで、抽象化はしません。
 
-この層は人間の睡眠中の記憶整理に近い役割です。個別エピソードを消すのではなく、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を再利用しやすい形に並べ替えます。Anthropic Managed Agents の dreaming、Claude memory tool、Generative Agents、Reflexion、MemGPT などの外部事例も、episodic trace と semantic reflection を分ける方が設計しやすいことを示しています。
+`hops lab compact` は残しますが、役割は deterministic knowledge snapshot です。個別エピソードを消さず、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を source ID 付きで索引化します。これは機械的な集計であり、人間の夢のような抽象化そのものではありません。
+
+抽象化は `hops lab memory prepare` が作る入力 bundle と、`hops-compact-lab-memory` skill に分けます。skill は source records と snapshot を読み、`principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md` へ、より抽象的な意味、適用条件、反例、中止基準を更新します。Anthropic Managed Agents の dreaming、Claude memory tool、Generative Agents、Reflexion、MemGPT などの外部事例も、episodic trace と semantic reflection を分ける方が設計しやすいことを示しています。
 
 HarnessOps では次の境界にします。
 
@@ -117,7 +119,9 @@ HarnessOps では次の境界にします。
 |---|---|---|
 | `records/` | 原則追記・CLI更新 | 監査可能な正本。観測、評価、仮説、判断。 |
 | `improvements/` | 再生成可能 | 1改善テーマを読むための dossier。 |
-| `knowledge/` | 更新可能 | 複数dossierから抽出した作業記憶。source ID と digest を持つ。 |
+| `knowledge/lab-memory.*` | 更新可能 | deterministic snapshot。複数dossierから機械的に抽出した source-linked index。 |
+| `knowledge/lab-memory-input.*` | 再生成可能 | 抽象化 skill が読む入力 bundle。 |
+| `knowledge/principles.md` など | 更新可能 | skill と人間が保守する semantic memory。source ID と digest を持つ。 |
 
 `knowledge/` は採用判断の証拠そのものにはしません。判断や反例処理では、source ID から必ず `records/` または `improvements/` に戻ります。`lab-memory.md` には手編集可能な `Curator Notes` を残し、agent や人間が「圧縮結果の読み方」「今後の見直し観点」を追記できます。
 

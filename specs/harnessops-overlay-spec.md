@@ -41,6 +41,13 @@ harness-lab/
   knowledge/
     lab-memory.yml
     lab-memory.md
+    lab-memory-input.yml
+    lab-memory-input.md
+    lab-memory-abstraction.yml
+    principles.md
+    patterns.yml
+    anti-patterns.md
+    evaluation-playbook.md
   views/
     imported-feedback.md
     backlog.md
@@ -52,7 +59,7 @@ harness-lab/
 
 `harness-lab/` はフィードバック、評価、仮説、実験、判断の記憶です。GitHub Issues は引き続きタスクトラッカーです。`records/` は正規化された正本で、`improvements/IMP*.md` は日常レビュー用に1改善分の履歴を集約した dossier です。
 
-`knowledge/` は `hops lab compact` が更新する mutable working memory です。一定のサイズ閾値を超えた lab、または `--force` で明示された lab から、capability、failure class、scores、guards、外部比較、open questions を source ID 付きで圧縮します。これは正本ではなく、採用判断や反例処理では必ず `records/` または `improvements/` に戻ります。
+`knowledge/` はレコード正本ではありません。`hops lab compact` が更新する `lab-memory.yml/.md` は deterministic snapshot で、capability、failure class、scores、guards、外部比較、open questions を source ID 付きで索引化します。`hops lab memory lint` は発火基準だけを見て、`hops lab memory prepare` は抽象化 skill の入力 bundle を作ります。`hops-compact-lab-memory` skill は `principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md` と `lab-memory-abstraction.yml` を保守します。採用判断や反例処理では必ず `records/` または `improvements/` に戻ります。
 
 `records/research-scans/` は、意図的なメタ改善調査の結果を構造化して保存します。`RS` レコードは scope、evidence、candidate、relation、recommendation、next command を持ち、調査結果を `investigate`、`capture`、`propose`、`park`、`reject` のどれへ進めるかを後から追えるようにします。
 

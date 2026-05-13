@@ -29,9 +29,9 @@ HarnessOps レコードは YAML frontmatter 付きのMarkdownファイルです�
 
 ## Knowledge Layer
 
-`harness-lab/knowledge/lab-memory.yml` と `lab-memory.md` はレコードではありません。`hops lab compact` が更新する mutable working memory で、`records/`、`improvements/`、manual eval yml から capability/failure class、lesson、score、guard、外部比較、open question を圧縮します。
+`harness-lab/knowledge/lab-memory.yml` と `lab-memory.md` はレコードではありません。`hops lab compact` が更新する deterministic snapshot で、`records/`、`improvements/`、manual eval yml から capability/failure class、lesson、score、guard、外部比較、open question を source-linked な索引として圧縮します。
 
-この層は source ID と source digest を持ちますが、採用判断や検証の正本にはなりません。`lab-memory.md` の `Curator Notes` は手編集可能で、次回 compaction でも保持されます。
+`hops lab memory lint` は抽象化の発火基準だけを判定し、`hops lab memory prepare` は `hops-compact-lab-memory` skill 用の入力 bundle を作ります。skill が更新する `principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md`、`lab-memory-abstraction.yml` も採用判断や検証の正本にはなりません。source ID と source digest から必ず正本へ戻れる必要があります。`lab-memory.md` の `Curator Notes` は手編集可能で、次回 snapshot でも保持されます。
 
 ## 証拠規律
 

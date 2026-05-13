@@ -14,12 +14,33 @@ from harnessops.core.records import now_iso, read_record
 DEFAULT_MAX_FILES = 256
 DEFAULT_MAX_BYTES = 2_000_000
 DEFAULT_MAX_IMPROVEMENTS = 50
+ABSTRACTION_MANIFEST = "knowledge/lab-memory-abstraction.yml"
+ABSTRACTION_INPUT_YML = "knowledge/lab-memory-input.yml"
+ABSTRACTION_INPUT_MD = "knowledge/lab-memory-input.md"
+ABSTRACTION_TARGETS = [
+    {
+        "path": "knowledge/principles.md",
+        "purpose": "採用/却下を越えて残った設計原則を source ID 付きで保つ。",
+    },
+    {
+        "path": "knowledge/patterns.yml",
+        "purpose": "再利用可能な改善パターン、適用条件、反例、ガードを構造化する。",
+    },
+    {
+        "path": "knowledge/anti-patterns.md",
+        "purpose": "繰り返し避けるべき改善劇場、過剰一般化、失敗クラスをまとめる。",
+    },
+    {
+        "path": "knowledge/evaluation-playbook.md",
+        "purpose": "評価軸、holdout、判断基準、kill criteria の経験をまとめる。",
+    },
+]
 
 CURATOR_START = "<!-- harnessops:curator-notes:start -->"
 CURATOR_END = "<!-- harnessops:curator-notes:end -->"
 DEFAULT_CURATOR_NOTES = (
     "ここは `hops lab compact` が保持する手編集領域です。"
-    "圧縮結果への補足、反例、今後の見直し観点を短く追記できます。"
+    "deterministic snapshot への補足、反例、今後の見直し観点を短く追記できます。"
 )
 
 
@@ -61,6 +82,10 @@ def _threshold_triggers(
     return triggers
 
 
+def _rel(project: Project, path: Path) -> str:
+    return path.relative_to(project.root).as_posix()
+
+
 def _record_heading(body: str, fallback: str) -> str:
     for line in body.splitlines():
         if line.startswith("# "):
@@ -88,6 +113,13 @@ def _section(body: str, heading: str) -> str:
 
 def _one_line(text: object, *, limit: int = 220) -> str:
     value = " ".join(str(text or "").split())
+    if len(value) <= limit:
+        return value
+    return value[: limit - 1].rstrip() + "..."
+
+
+def _excerpt(text: str, *, limit: int = 1800) -> str:
+    value = text.strip()
     if len(value) <= limit:
         return value
     return value[: limit - 1].rstrip() + "..."
@@ -134,6 +166,122 @@ def _source_digest(project: Project) -> str:
     for path in sorted(source_paths):
         digest_items.append(f"{path.relative_to(project.root).as_posix()}:{sha256_file(path)}")
     return sha256("\n".join(digest_items).encode("utf-8")).hexdigest()
+
+
+def _safe_yaml(path: Path) -> dict[str, Any]:
+    data = yamlio.safe_load(path.read_text(encoding="utf-8")) or {}
+    return data if isinstance(data, dict) else {}
+
+
+def _snapshot_state(project: Project, current_digest: str) -> dict[str, Any]:
+    path = project.overlay_dir / "knowledge" / "lab-memory.yml"
+    if not path.exists():
+        return {
+            "exists": False,
+            "path": _rel(project, path),
+            "source_digest": None,
+            "stale": True,
+        }
+    data = _safe_yaml(path)
+    sources = data.get("sources", {})
+    source_digest = sources.get("source_digest") if isinstance(sources, dict) else None
+    return {
+        "exists": True,
+        "path": _rel(project, path),
+        "source_digest": source_digest,
+        "stale": source_digest != current_digest,
+    }
+
+
+def _abstraction_state(project: Project, current_digest: str) -> dict[str, Any]:
+    manifest_path = project.overlay_dir / ABSTRACTION_MANIFEST
+    target_states = []
+    for target in ABSTRACTION_TARGETS:
+        path = project.overlay_dir / target["path"]
+        target_states.append(
+            {
+                "path": _rel(project, path),
+                "exists": path.exists(),
+                "purpose": target["purpose"],
+            }
+        )
+    if not manifest_path.exists():
+        return {
+            "exists": False,
+            "path": _rel(project, manifest_path),
+            "source_digest": None,
+            "stale": True,
+            "targets": target_states,
+            "missing_targets": [item["path"] for item in target_states if not item["exists"]],
+        }
+    data = _safe_yaml(manifest_path)
+    source_digest = data.get("source_digest")
+    return {
+        "exists": True,
+        "path": _rel(project, manifest_path),
+        "source_digest": source_digest,
+        "stale": source_digest != current_digest,
+        "targets": target_states,
+        "missing_targets": [item["path"] for item in target_states if not item["exists"]],
+    }
+
+
+def lint_lab_memory(
+    project: Project,
+    *,
+    max_files: int = DEFAULT_MAX_FILES,
+    max_bytes: int = DEFAULT_MAX_BYTES,
+    max_improvements: int = DEFAULT_MAX_IMPROVEMENTS,
+) -> dict[str, Any]:
+    metrics = lab_metrics(project)
+    thresholds = {
+        "max_files": max_files,
+        "max_bytes": max_bytes,
+        "max_improvements": max_improvements,
+    }
+    pressure = _threshold_triggers(
+        metrics,
+        max_files=max_files,
+        max_bytes=max_bytes,
+        max_improvements=max_improvements,
+    )
+    current_digest = _source_digest(project)
+    snapshot = _snapshot_state(project, current_digest)
+    abstraction = _abstraction_state(project, current_digest)
+    has_sources = metrics["improvement_count"] > 0 or metrics["research_scan_count"] > 0
+    triggers: list[str] = []
+    if pressure and has_sources:
+        triggers.extend(pressure)
+        if not snapshot["exists"]:
+            triggers.append("deterministic_snapshot_missing")
+        elif snapshot["stale"]:
+            triggers.append("deterministic_snapshot_stale")
+        if not abstraction["exists"]:
+            triggers.append("semantic_memory_missing")
+        elif abstraction["stale"]:
+            triggers.append("semantic_memory_stale")
+        if abstraction["exists"] and abstraction["missing_targets"]:
+            triggers.append("semantic_memory_targets_missing")
+    status = "needs-abstraction" if triggers else "ok"
+    return {
+        "schema_version": "0.1",
+        "kind": "harness_lab_memory_lint",
+        "status": status,
+        "reason": "triggers-present" if triggers else "thresholds-not-exceeded-no-sources-or-current",
+        "updated_at": now_iso(),
+        "metrics": metrics,
+        "thresholds": thresholds,
+        "source_digest": current_digest,
+        "pressure": pressure,
+        "triggers": triggers,
+        "snapshot": snapshot,
+        "abstraction": abstraction,
+        "recommended_commands": [
+            "hops lab compact --force",
+            "hops lab memory prepare --force",
+            "Use the hops-compact-lab-memory skill to update abstract knowledge.",
+        ],
+    }
 
 
 def _collect_improvements(project: Project) -> list[dict[str, Any]]:
@@ -275,6 +423,156 @@ def _collect_research_scans(project: Project) -> list[dict[str, Any]]:
     return scans
 
 
+def _collect_abstraction_sources(project: Project) -> list[dict[str, Any]]:
+    sources: list[dict[str, Any]] = []
+    for root_rel, pattern in (("improvements", "IMP*.md"), ("records/research-scans", "RS*.md")):
+        source_root = project.overlay_dir / root_rel
+        for path in sorted(source_root.glob(pattern)):
+            frontmatter, body = read_record(path)
+            classification = frontmatter.get("classification", {})
+            if not isinstance(classification, dict):
+                classification = {}
+            sources.append(
+                {
+                    "id": str(frontmatter.get("id", path.stem)),
+                    "record_type": str(frontmatter.get("record_type", "unknown")),
+                    "title": _record_heading(body, path.stem),
+                    "path": _rel(project, path),
+                    "status": str(frontmatter.get("status", "unknown")),
+                    "maturity": str(frontmatter.get("maturity", "")),
+                    "relation": str(frontmatter.get("relation", "")),
+                    "promotion_level": str(frontmatter.get("promotion_level", "")),
+                    "capability": str(classification.get("capability", "unclassified")),
+                    "failure_class": str(classification.get("failure_class", "unclassified")),
+                    "digest": sha256_file(path),
+                    "excerpt": _excerpt(body),
+                }
+            )
+    return sources
+
+
+def _abstraction_manifest_template(data: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "schema_version": "0.1",
+        "kind": "harness_lab_memory_abstraction",
+        "updated_at": "<ISO-8601 timestamp>",
+        "source_digest": data["lint"]["source_digest"],
+        "sources": [item["id"] for item in data["sources"]],
+        "outputs": [target["path"] for target in data["abstraction_targets"]],
+        "notes": "Update this manifest when the skill refreshes abstract knowledge.",
+    }
+
+
+def _render_abstraction_input_markdown(data: dict[str, Any]) -> str:
+    lint = data["lint"]
+    parts = [
+        "# Lab Memory Abstraction Input\n",
+        "このファイルは `hops lab memory prepare` が作る skill 入力です。",
+        "`records/` と `improvements/` が正本で、この bundle は抽象化作業の入口です。\n",
+        "## Lint State\n",
+        f"- status: {lint['status']}",
+        f"- reason: {lint['reason']}",
+        f"- source_digest: `{lint['source_digest']}`",
+        f"- pressure: {', '.join(lint['pressure']) or 'none'}",
+        f"- triggers: {', '.join(lint['triggers']) or 'none'}\n",
+        "## Skill Instructions\n",
+        "- `hops-compact-lab-memory` skill でこの bundle を読み、抽象知を更新する。",
+        "- deterministic snapshot は索引として扱い、採用判断の証拠にはしない。",
+        "- すべての原則、パターン、アンチパターン、評価則に source ID を付ける。",
+        "- 反例や失敗条件を消さず、適用条件または中止基準として残す。",
+        "- 更新後に `lab-memory-abstraction.yml` の `source_digest` をこの値に合わせる。\n",
+        "## Abstraction Targets\n",
+    ]
+    for target in data["abstraction_targets"]:
+        parts.append(f"- `{target['path']}`: {target['purpose']}")
+    parts.extend(["", "## Sources\n"])
+    if not data["sources"]:
+        parts.append("抽象化対象の source はありません。")
+    for source in data["sources"]:
+        parts.append(
+            f"### `{source['id']}` {source['capability']}/{source['failure_class']}"
+        )
+        parts.append(f"- path: `{source['path']}`")
+        parts.append(f"- status: {source['status']}")
+        if source.get("maturity"):
+            parts.append(f"- maturity: {source['maturity']}")
+        if source.get("relation"):
+            parts.append(f"- relation: {source['relation']}")
+        parts.append("")
+        parts.append(source["excerpt"])
+        parts.append("")
+    parts.extend(
+        [
+            "## Abstraction Manifest Template\n",
+            "```yaml",
+            yamlio.safe_dump(data["abstraction_manifest_template"], sort_keys=False, allow_unicode=True).strip(),
+            "```",
+            "",
+        ]
+    )
+    return "\n".join(parts)
+
+
+def prepare_lab_memory_abstraction(
+    project: Project,
+    *,
+    force: bool = False,
+    dry_run: bool = False,
+    max_files: int = DEFAULT_MAX_FILES,
+    max_bytes: int = DEFAULT_MAX_BYTES,
+    max_improvements: int = DEFAULT_MAX_IMPROVEMENTS,
+) -> dict[str, Any]:
+    lint = lint_lab_memory(
+        project,
+        max_files=max_files,
+        max_bytes=max_bytes,
+        max_improvements=max_improvements,
+    )
+    if not force and lint["status"] == "ok":
+        return {
+            "status": "skipped",
+            "reason": "lint-ok",
+            "lint": lint,
+            "paths": [],
+        }
+    knowledge = _build_knowledge(
+        project,
+        metrics=lint["metrics"],
+        thresholds=lint["thresholds"],
+        triggers=lint["triggers"],
+        mode="abstraction-input",
+    )
+    data = {
+        "schema_version": "0.1",
+        "kind": "harness_lab_memory_abstraction_input",
+        "updated_at": now_iso(),
+        "lint": lint,
+        "abstraction_targets": [
+            {
+                "path": f"{project.overlay_path}/{target['path']}",
+                "purpose": target["purpose"],
+            }
+            for target in ABSTRACTION_TARGETS
+        ],
+        "deterministic_snapshot": knowledge,
+        "sources": _collect_abstraction_sources(project),
+    }
+    data["abstraction_manifest_template"] = _abstraction_manifest_template(data)
+    knowledge_dir = project.overlay_dir / "knowledge"
+    yml_path = project.overlay_dir / ABSTRACTION_INPUT_YML
+    md_path = project.overlay_dir / ABSTRACTION_INPUT_MD
+    if not dry_run:
+        knowledge_dir.mkdir(parents=True, exist_ok=True)
+        yml_path.write_text(yamlio.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8", newline="\n")
+        md_path.write_text(_render_abstraction_input_markdown(data), encoding="utf-8", newline="\n")
+    return {
+        "status": "dry-run" if dry_run else "written",
+        "reason": "forced" if force else "lint-triggered",
+        "lint": lint,
+        "paths": [yml_path, md_path],
+    }
+
+
 def _build_knowledge(
     project: Project,
     *,
@@ -376,8 +674,8 @@ def _render_markdown(data: dict[str, Any], curator_notes: str) -> str:
     thresholds = compaction["thresholds"]
     parts = [
         "# Harness Lab Knowledge\n",
-        "このファイルは `hops lab compact` が更新する mutable working memory です。",
-        "`records/` と `improvements/` は引き続き監査可能な正本で、この知識層は再利用しやすい要約です。\n",
+        "このファイルは `hops lab compact` が更新する deterministic working index です。",
+        "`records/` と `improvements/` は引き続き監査可能な正本で、この snapshot は再利用しやすい索引です。\n",
         "## Compaction State\n",
         f"- updated_at: {data['updated_at']}",
         f"- mode: {compaction['mode']}",

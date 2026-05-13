@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-13T03:38:14+09:00'
+updated_at: '2026-05-13T09:29:06+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,19 +9,19 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 152
-    byte_count: 253630
-    record_count: 70
-    feedback_count: 17
-    eval_case_count: 17
-    hypothesis_count: 17
-    decision_count: 18
+    file_count: 162
+    byte_count: 358516
+    record_count: 74
+    feedback_count: 18
+    eval_case_count: 18
+    hypothesis_count: 18
+    decision_count: 19
     research_scan_count: 1
-    improvement_count: 13
-    manual_eval_count: 17
+    improvement_count: 14
+    manual_eval_count: 18
   triggers: []
 sources:
-  source_digest: 23d26796b16ad6759d1f087546bebe4132d5d7ed77d88ec1c06eca01973b2d65
+  source_digest: 011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c
   improvements:
   - IMP0001
   - IMP0002
@@ -36,11 +36,12 @@ sources:
   - IMP0012
   - IMP0013
   - IMP0014
+  - IMP0015
 knowledge:
   summary:
-    improvement_count: 13
+    improvement_count: 14
     status_counts:
-      adopted: 13
+      adopted: 14
     capability_count: 10
   capabilities:
   - capability: github_issue_import
@@ -139,6 +140,29 @@ knowledge:
         lesson: Dossiers now summarize eval records and manual eval yml/md instead of embedding full eval-case template bodies. New eval cases are seeded from source feedback summary, reproduction, and expected change. Manual eval markdown no longer includes a full eval case...
   - capability: lab_memory_compaction
     failure_classes:
+    - failure_class: deterministic_snapshot_conflates_trigger_and_abstraction
+      improvements:
+      - IMP0015
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 4.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 0.0
+        operator_burden: 0.0
+        privacy_sanitization_risk: 0.0
+        regression_risk: 0.0
+      guards:
+      - source: IMP0015
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0015
+        status: adopted
+        lesson: Lint/prepare commands separate trigger detection from semantic abstraction; tests cover nonzero lint, warn-only lint, and input bundle generation.
     - failure_class: record_sprawl_without_knowledge_consolidation
       improvements:
       - IMP0014
@@ -369,6 +393,11 @@ knowledge:
   - source: IMP0014
     capability: lab_memory_compaction
     failure_class: record_sprawl_without_knowledge_consolidation
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0015
+    capability: lab_memory_compaction
+    failure_class: deterministic_snapshot_conflates_trigger_and_abstraction
     status: implemented
     path: tests/test_cli/test_mvp_flow.py
   external_evidence:

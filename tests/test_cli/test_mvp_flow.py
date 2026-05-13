@@ -382,6 +382,10 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
     root = copy_fixture("harnessops-core-minimal")
     monkeypatch.chdir(root)
     run_cli(["init", "--profile", "harnessops-core"])
+
+    empty = run_cli(["lab", "memory", "lint", "--max-files", "0"])
+    assert "status: ok" in empty.output
+
     run_cli(
         [
             "lab",
@@ -632,6 +636,57 @@ def test_lab_compact_skips_until_threshold(copy_fixture, monkeypatch):
     assert "status: written" in written.output
     assert "file_count>0" in written.output
     assert (root / "harness-lab/knowledge/lab-memory.yml").exists()
+
+
+def test_lab_memory_lint_and_prepare_abstraction_input(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "capture",
+            "--title",
+            "Lab memory needs semantic abstraction",
+            "--summary",
+            "A deterministic snapshot helps lookup, but recurring lessons need a skill-curated abstraction.",
+            "--expected-change",
+            "Provide lint triggers and a source bundle for an abstraction skill.",
+            "--capability",
+            "lab_memory_compaction",
+            "--failure-class",
+            "snapshot_without_semantic_abstraction",
+        ]
+    )
+    run_cli(["lab", "dossier", "--from", "FB0001"])
+
+    failed = runner.invoke(app, ["lab", "memory", "lint", "--max-files", "0"])
+
+    assert failed.exit_code == 1
+    assert "status: needs-abstraction" in failed.output
+    assert "file_count>0" in failed.output
+    assert "semantic_memory_missing" in failed.output
+    assert "hops lab memory prepare --force" in failed.output
+
+    warned = run_cli(["lab", "memory", "lint", "--max-files", "0", "--warn-only"])
+
+    assert "status: needs-abstraction" in warned.output
+
+    prepared = run_cli(["lab", "memory", "prepare", "--force"])
+
+    assert "status: written" in prepared.output
+    assert "harness-lab/knowledge/lab-memory-input.yml" in prepared.output
+    data = yamlio.safe_load((root / "harness-lab/knowledge/lab-memory-input.yml").read_text(encoding="utf-8"))
+    assert data["kind"] == "harness_lab_memory_abstraction_input"
+    assert data["lint"]["source_digest"]
+    assert data["sources"][0]["id"] == "IMP0001"
+    assert data["abstraction_targets"][0]["path"] == "harness-lab/knowledge/principles.md"
+    assert data["abstraction_manifest_template"]["kind"] == "harness_lab_memory_abstraction"
+    markdown = (root / "harness-lab/knowledge/lab-memory-input.md").read_text(encoding="utf-8")
+    assert "## Skill Instructions" in markdown
+    assert "hops-compact-lab-memory" in markdown
+    doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "警告" not in doctor.output
 
 
 def test_parallel_lab_dossier_creation_is_source_feedback_idempotent(copy_fixture, monkeypatch):

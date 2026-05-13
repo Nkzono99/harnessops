@@ -42,6 +42,7 @@ def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
 def test_harnessops_repo_has_repo_local_hops_skills() -> None:
     for skill_name in (
         "hops-add-failure",
+        "hops-compact-lab-memory",
         "hops-issue-triage",
         "hops-research-improvements",
         "hops-run-lab",
@@ -53,6 +54,7 @@ def test_harnessops_repo_has_repo_local_hops_skills() -> None:
     assert "hops lab capture" in run_lab
     assert "hops lab investigate" in run_lab
     assert "hops lab classify" in run_lab
+    assert "hops lab memory lint" in run_lab
     assert "メタ仮説スキャン" in run_lab
 
 
@@ -188,6 +190,7 @@ def test_lab_capture_contract_is_documented() -> None:
     for path in docs:
         assert "hops lab capture" in path.read_text(encoding="utf-8")
         assert "hops lab compact" in path.read_text(encoding="utf-8")
+        assert "hops lab memory lint" in path.read_text(encoding="utf-8")
         assert "hops lab research-scan" in path.read_text(encoding="utf-8")
     for host in ("codex", "claude"):
         text = (ROOT / f"plugins/{host}/harnessops/skills/hops-run-lab/SKILL.md").read_text(encoding="utf-8")
@@ -195,6 +198,7 @@ def test_lab_capture_contract_is_documented() -> None:
         assert "hops lab investigate" in text
         assert "hops lab classify" in text
         assert "hops lab compact" in text
+        assert "hops lab memory lint" in text
         assert "メタ仮説スキャン" in text
         assert_harness_contract(text)
 
@@ -213,6 +217,21 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
 
     for host in ("codex", "claude"):
         skill = ROOT / f"plugins/{host}/harnessops/skills/hops-research-improvements/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        assert text == repo_skill
+        assert_harness_contract(text)
+
+
+def test_lab_memory_compaction_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-compact-lab-memory/SKILL.md").read_text(encoding="utf-8")
+    assert "hops lab memory lint" in repo_skill
+    assert "hops lab memory prepare" in repo_skill
+    assert "lab-memory-abstraction.yml" in repo_skill
+    assert "deterministic snapshot" in repo_skill
+    assert_harness_contract(repo_skill)
+
+    for host in ("codex", "claude"):
+        skill = ROOT / f"plugins/{host}/harnessops/skills/hops-compact-lab-memory/SKILL.md"
         text = skill.read_text(encoding="utf-8")
         assert text == repo_skill
         assert_harness_contract(text)

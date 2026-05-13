@@ -16,7 +16,7 @@ hops init --profile <profile-id> --with-agent-bridge
 hops agent bridge --codex
 ```
 
-`hops-add-failure` や `hops-issue-triage` が `.agents/skills/` に展開されます。
+`hops-add-failure`、`hops-issue-triage`、`hops-compact-lab-memory` などが `.agents/skills/` に展開されます。
 
 ## Optional: user plugin
 
@@ -38,3 +38,4 @@ Codex の plugin は marketplace 登録だけでは使えず、Codex の plugin 
 - リモートIssue、PR、pushはユーザー確認なしに行いません。
 - target固有の triage skill は domain diagnosis だけを担当し、record schema、routing、sanitize、export/import は HarnessOps に委譲します。
 - GitHub issue は `hops-issue-triage` で imported feedback、eval case、hypothesis へ進めます。
+- lab memory の抽象化は `hops lab memory lint` と `hops-compact-lab-memory` で扱います。

@@ -1,17 +1,17 @@
 # Harness Lab Knowledge
 
-このファイルは `hops lab compact` が更新する mutable working memory です。
-`records/` と `improvements/` は引き続き監査可能な正本で、この知識層は再利用しやすい要約です。
+このファイルは `hops lab compact` が更新する deterministic working index です。
+`records/` と `improvements/` は引き続き監査可能な正本で、この snapshot は再利用しやすい索引です。
 
 ## Compaction State
 
-- updated_at: 2026-05-13T03:38:14+09:00
+- updated_at: 2026-05-13T09:29:06+09:00
 - mode: forced
 - triggers: forced-or-none
-- file_count: 152 / threshold 256
-- byte_count: 253630 / threshold 2000000
-- improvement_count: 13 / threshold 50
-- source_digest: `23d26796b16ad6759d1f087546bebe4132d5d7ed77d88ec1c06eca01973b2d65`
+- file_count: 162 / threshold 256
+- byte_count: 358516 / threshold 2000000
+- improvement_count: 14 / threshold 50
+- source_digest: `011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c`
 
 ## How To Use
 
@@ -52,6 +52,13 @@
 - lesson IMP0013 (adopted): Dossiers now summarize eval records and manual eval yml/md instead of embedding full eval-case template bodies. New eval cases are seeded from source feedback summary, reproduction, and expected change. Manual eval markdown no longer includes a full eval case...
 
 ### lab_memory_compaction
+#### deterministic_snapshot_conflates_trigger_and_abstraction
+- sources: `IMP0015`
+- status_counts: adopted=1
+- average_scores: anti_theater=4.0, evaluability=4.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=0.0, operator_burden=0.0, privacy_sanitization_risk=0.0, regression_risk=0.0
+- guards: IMP0015:implemented:tests/test_cli/test_mvp_flow.py
+- lesson IMP0015 (adopted): Lint/prepare commands separate trigger detection from semantic abstraction; tests cover nonzero lint, warn-only lint, and input bundle generation.
+
 #### record_sprawl_without_knowledge_consolidation
 - sources: `IMP0014`
 - status_counts: adopted=1
@@ -117,6 +124,7 @@
 - `IMP0012` record_lookup/generated_view_shadowed_record_id: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0013` lab_evaluation_review/eval_template_noise_in_dossier: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0014` lab_memory_compaction/record_sprawl_without_knowledge_consolidation: implemented tests/test_cli/test_mvp_flow.py
+- `IMP0015` lab_memory_compaction/deterministic_snapshot_conflates_trigger_and_abstraction: implemented tests/test_cli/test_mvp_flow.py
 
 ## Research Scans
 

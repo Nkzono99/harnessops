@@ -18,3 +18,4 @@
 - `FB0015` triaged record_lookup generated_view_shadowed_record_id
 - `FB0016` triaged lab_evaluation_review eval_template_noise_in_dossier
 - `FB0017` triaged lab_memory_compaction record_sprawl_without_knowledge_consolidation
+- `FB0018` triaged lab_memory_compaction deterministic_snapshot_conflates_trigger_and_abstraction

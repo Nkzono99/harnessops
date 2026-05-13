@@ -24,6 +24,7 @@ hops lab classify --from IMP0001 --source-type external-benchmark --scope harnes
 hops lab research-scan --title "<title>" --scope "<scope>" --capability "<capability>" --failure-class "<failure>" --candidate "<candidate>|<relation>|<recommendation>|<next command>" --recommendation "<recommendation>"
 hops lab capture --title "<title>" --summary "<observation>" --expected-change "<expected>"
 hops lab new-eval-case --from FB0001
+hops lab memory lint --warn-only
 hops lab compact --force
 hops propose --from E0001 --hypothesis "<hypothesis>" --mechanism "<mechanism>" --minimal-implementation "<minimal>"
 ```
@@ -46,7 +47,7 @@ hops propose --from E0001 --hypothesis "<hypothesis>" --mechanism "<mechanism>" 
 - 外部実務を輸入するときは、そのまま一般ルールにせず、HarnessOps の失敗クラス、能力、ガードへ写像する。
 - 「良さそう」だけで採用しない。評価ケース、比較ベースライン、ガード、または中止基準が作れないものは `park` する。
 - skill や rule を増やすより、既存 workflow への統合、削除、migration、`update-harness` で整理できないかを先に見る。
-- 既存 dossier が多くなり調査の入口が重い場合は、records を削除せず `hops lab compact` で `harness-lab/knowledge/` を更新し、source ID へ戻れる作業記憶として使う。
+- 既存 dossier が多くなり調査の入口が重い場合は、records を削除せず `hops lab memory lint --warn-only` で発火基準を確認する。`hops lab compact` は source ID へ戻れる deterministic snapshot として使い、抽象化が必要なら `hops-compact-lab-memory` skill に渡す。
 
 ## ガードレール
 
