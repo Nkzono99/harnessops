@@ -1,8 +1,8 @@
 ---
-id: IMP0030
+id: IMP0031
 record_type: improvement_dossier
 created_at: '2026-05-14T01:51:33+09:00'
-updated_at: '2026-05-14T01:51:44+09:00'
+updated_at: '2026-05-14T01:59:45+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -11,11 +11,11 @@ relation: extends
 promotion_level: harnessops-protocol
 source_feedback: FB0036
 eval_cases:
-- E0033
+- E0034
 hypotheses:
-- H0033
+- H0034
 decisions:
-- D0034
+- D0035
 research_scans: []
 classification:
   capability: harness_lab_traceability
@@ -28,7 +28,7 @@ links:
   issue_url:
 ---
 
-# IMP0030: FB0036: Let daily steward use lane budgets and merge automation branches
+# IMP0031: FB0036: Let daily steward use lane budgets and merge automation branches
 
 ## Status
 
@@ -39,7 +39,7 @@ links:
 - relation: extends
 - promotion_level: harnessops-protocol
 - source_feedback: `FB0036`
-- linked_records: `FB0036`, `E0033`, `H0033`, `D0034`
+- linked_records: `FB0036`, `E0034`, `H0034`, `D0035`
 
 ## Source Observation
 
@@ -75,30 +75,30 @@ research scan はまだありません。
 
 ## Evaluation
 
-### E0033: E0033: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価
+### E0034: E0034: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価
 
 
-- source: `harness-lab/records/eval-cases/E0033-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
+- source: `harness-lab/records/eval-cases/E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
 
 - capability: harness_lab_traceability
 
 - failure_class: missing_lab_capture
 
-- manual_eval_yml: `harness-lab/views/eval-results/E0033-manual-score.yml`
-- manual_eval_md: `harness-lab/views/eval-results/E0033-manual-score.md`
+- manual_eval_yml: `harness-lab/views/eval-results/E0034-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0034-manual-score.md`
 - scores: impact=4, mechanism_clarity=5, evaluability=5, minimality=4, regression_risk=2, operator_burden=1, anti_theater=5, maintainability=4, privacy_sanitization_risk=0
 - notes: Updated daily steward docs and repo-local/packaged skill copies to prefer GitHub Flow: automation feature branch, PR, and merge into protected main after validation/required checks. Added lane budgets for systemic candidates, metadata/guard backfills, and read-only park/reject decisions. Updated contract tests to assert the new automation prompt shape. Validation so far: uv run pytest tests/test_agent_harness_contract.py tests/test_cli/test_mvp_flow.py -q (63 passed), uv run ruff check src tests (passed), git diff --check (passed), hops doctor --check-overlay --check-records (ok).
 
 
 ## Hypotheses
 
-### H0033: H0033: E0033-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches の仮説
+### H0034: H0034: E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches の仮説
 
 
-Source: `harness-lab/records/hypotheses/H0033-e0033-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
+Source: `harness-lab/records/hypotheses/H0034-e0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
 
 
-# H0033: E0033-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches の仮説
+# H0034: E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches の仮説
 
 ## 仮説
 
@@ -135,7 +135,7 @@ Revert or revise if automation starts direct-pushing to protected main, merges w
 
 ## Evidence
 
-`harness-lab/views/eval-results/E0033-manual-score.md`
+`harness-lab/views/eval-results/E0034-manual-score.md`
 
 ## Guard
 
@@ -152,13 +152,13 @@ Revert or revise if automation starts direct-pushing to protected main, merges w
 
 ## Decision Log
 
-### D0034: D0034: adopted H0033
+### D0035: D0035: adopted H0034
 
 
-Source: `harness-lab/records/decisions/D0034-adopted-h0033.md`
+Source: `harness-lab/records/decisions/D0035-adopted-h0034.md`
 
 
-# D0034: adopted H0033
+# D0035: adopted H0034
 
 ## 判断
 

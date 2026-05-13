@@ -1,5 +1,5 @@
 ---
-id: E0033
+id: E0034
 record_type: eval_case
 created_at: '2026-05-14T01:48:55+09:00'
 status: active
@@ -8,12 +8,12 @@ failure_class: missing_lab_capture
 source_feedback: FB0036
 ---
 
-# E0033: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価
+# E0034: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価
 
 ## フィクスチャ
 
 - source_feedback: `harness-lab/records/feedback/FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
-- fixture_dir: `harness-lab/records/eval-cases/fixtures/E0033`
+- fixture_dir: `harness-lab/records/eval-cases/fixtures/E0034`
 - observation: Daily steward currently treats max-systemic-candidates as a single global cap and the recommended prompt stops after pushing an automation branch. User feedback prefers lane-specific budgets, automatic merge when validation passes, optional develop/integration branch workflow, and no direct main push.
 
 ## タスク
@@ -30,7 +30,7 @@ Document lane budgets, keep systemic candidates conservative, allow multiple met
 
 - `missing_lab_capture` の再現条件が検出または防止される。
 - 提案または実装される変更が source feedback の期待変更に対応している。
-- `hops eval --case E0033 --manual` の score と notes で採用判断に必要な証拠を説明できる。
+- `hops eval --case E0034 --manual` の score と notes で採用判断に必要な証拠を説明できる。
 - 非公開プロジェクト詳細を追加で要求しない。
 
 ## 不合格基準

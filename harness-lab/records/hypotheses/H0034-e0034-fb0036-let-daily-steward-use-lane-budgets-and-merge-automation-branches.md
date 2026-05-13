@@ -1,13 +1,13 @@
 ---
-id: H0033
+id: H0034
 record_type: hypothesis
 created_at: '2026-05-14T01:49:12+09:00'
 status: proposed
 target_capability: harness_lab_traceability
-source_eval_case: E0033
+source_eval_case: E0034
 ---
 
-# H0033: E0033-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches の仮説
+# H0034: E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches の仮説
 
 ## 仮説
 
