@@ -157,17 +157,17 @@ hops doctor --check-overlay --check-records
 `update-harness`:
 
 ```bash
-hops update-harness
+uvx --refresh-package harnessops --from harnessops hops update-harness
 ```
 
-`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
+`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。PATH 上の `hops` が古い可能性があるため、target repo の更新導線は uvx で最新版を確認してから実行します。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
 
-未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `hops update-harness --apply-migrations` または `hops migrate --apply` を呼びます。`hops init --force` や migration 適用を暗黙に実行しないでください。
+未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。`hops init --force` や migration 適用を暗黙に実行しないでください。
 
 repo-local skill 展開は対象repoの状態なので、明示オプションで入れてかまいません。
 
 ```bash
-hops agent bridge --codex
+uvx --from harnessops hops agent bridge --codex
 ```
 
 これにより `.agents/skills/hops-issue-triage/` などが対象repoに入ります。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。

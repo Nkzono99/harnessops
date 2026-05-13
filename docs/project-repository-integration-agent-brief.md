@@ -110,12 +110,12 @@ hops doctor --check-overlay --check-records
 更新時:
 
 ```bash
-hops update-harness
+uvx --refresh-package harnessops --from harnessops hops update-harness
 ```
 
-`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
+`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。PATH 上の `hops` が古い可能性があるため、project repo の更新導線は uvx で最新版を確認してから実行します。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
 
-未適用migrationを適用する場合は、人間確認または明示フラグ付きで `hops update-harness --apply-migrations` または `hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `hops update-harness --agent-bridge --codex` または `hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
 
 ## target固有triageとの分担
 

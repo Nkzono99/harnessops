@@ -3,11 +3,22 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover
+    import tomli as tomllib  # type: ignore
+
 from harnessops.core.lock import load_lock, sha256_file
 from harnessops.core.project import Project
 from harnessops.core.records import read_record
 from harnessops.core.routing import DISPOSITIONS
 from harnessops.profiles.registry import load_profile
+
+EDITABLE_HOPS_FALLBACK = "uv run --with-editable . hops"
+BRIDGE_SKILL_PATHS = (
+    ".agents/skills/harnessops-bridge/SKILL.md",
+    ".claude/skills/harnessops-bridge/SKILL.md",
+)
 
 ID_PREFIX_BY_TYPE = {
     "failure": "F",
@@ -132,6 +143,40 @@ def _validate_unique_improvement_sources(project: Project) -> list[str]:
     return errors
 
 
+def _project_declares_hops_script(root: Path) -> bool:
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        return False
+    try:
+        data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return False
+    project_data = data.get("project", {})
+    if not isinstance(project_data, dict):
+        return False
+    scripts = project_data.get("scripts", {})
+    return isinstance(scripts, dict) and "hops" in scripts
+
+
+def _validate_agent_bridge_invocation(project: Project) -> list[str]:
+    if _project_declares_hops_script(project.root):
+        return []
+    warnings: list[str] = []
+    for rel in BRIDGE_SKILL_PATHS:
+        path = project.root / rel
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if EDITABLE_HOPS_FALLBACK in text:
+            warnings.append(
+                "agent bridge fallback may be invalid for this repo: "
+                f"{rel} uses `{EDITABLE_HOPS_FALLBACK} <command>`, but this repo "
+                "does not declare a `hops` console script; run "
+                "`uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge`."
+            )
+    return warnings
+
+
 def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -169,6 +214,7 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
             errors.append(f"管理対象ファイルがありません: {rel}")
         elif sha256_file(path) != expected_hash:
             warnings.append(f"生成ビューが古いか編集されています: {rel}")
+    warnings.extend(_validate_agent_bridge_invocation(project))
     if check_records and project.overlay_dir.exists():
         for path in project.overlay_dir.glob("records/**/*.md"):
             errors.extend(validate_record(path))

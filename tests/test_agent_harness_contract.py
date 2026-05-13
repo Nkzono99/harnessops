@@ -19,7 +19,8 @@ def test_root_agent_docs_explain_hops_contract() -> None:
     for filename in ("AGENTS.md", "CLAUDE.md"):
         text = (ROOT / filename).read_text(encoding="utf-8")
         assert_harness_contract(text)
-        assert "uv run --with-editable . hops <command>" in text
+        assert "uvx --from harnessops hops <command>" in text
+        assert "uv run --with-editable . hops <command>" not in text
 
 
 def test_generated_bridge_explains_hops_contract() -> None:
@@ -193,6 +194,7 @@ def test_update_harness_skill_is_packaged() -> None:
         skill = ROOT / f"plugins/{host}/harnessops/skills/hops-update-harness/SKILL.md"
         text = skill.read_text(encoding="utf-8")
         assert "hops update-harness" in text
+        assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" in text
         assert ".new" in text
         assert_harness_contract(text)
 

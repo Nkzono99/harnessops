@@ -21,3 +21,7 @@ def copy_fixture(tmp_path: Path, repo_root: Path):
 
     return _copy
 
+
+@pytest.fixture(autouse=True)
+def disable_live_pypi_update_check(monkeypatch):
+    monkeypatch.setenv("HOPS_DISABLE_PYPI_UPDATE_CHECK", "1")

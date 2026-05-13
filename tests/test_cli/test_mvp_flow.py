@@ -7,9 +7,11 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib  # type: ignore
 
+from harnessops import __version__
 from typer.testing import CliRunner
 
 from harnessops.cli import feedback as feedback_cli
+from harnessops.cli import update_notice
 from harnessops.cli.main import app
 from harnessops.core import yamlio
 from harnessops.core.agent_bridge import packaged_bridge_files
@@ -178,6 +180,49 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
 
 
+def test_doctor_warns_about_stale_editable_bridge_fallback(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    bridge = root / ".agents/skills/harnessops-bridge/SKILL.md"
+    bridge.write_text(
+        bridge.read_text(encoding="utf-8").replace(
+            "uvx --from harnessops hops <command>",
+            "uv run --with-editable . hops <command>",
+        ),
+        encoding="utf-8",
+    )
+
+    doctor = run_cli(["doctor", "--check-overlay"])
+
+    assert "agent bridge fallback may be invalid for this repo" in doctor.output
+    assert ".agents/skills/harnessops-bridge/SKILL.md" in doctor.output
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" in doctor.output
+
+
+def test_doctor_allows_editable_bridge_fallback_when_repo_provides_hops(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    (root / "pyproject.toml").write_text(
+        "[project]\nname = \"local-hops-provider\"\nversion = \"0.1.0\"\n\n"
+        "[project.scripts]\nhops = \"local_hops:main\"\n",
+        encoding="utf-8",
+    )
+    bridge = root / ".agents/skills/harnessops-bridge/SKILL.md"
+    bridge.write_text(
+        bridge.read_text(encoding="utf-8").replace(
+            "uvx --from harnessops hops <command>",
+            "uv run --with-editable . hops <command>",
+        ),
+        encoding="utf-8",
+    )
+
+    doctor = run_cli(["doctor", "--check-overlay"])
+
+    assert "agent bridge fallback may be invalid for this repo" not in doctor.output
+
+
 def test_update_harness_preserves_edited_managed_file_as_new(copy_fixture, monkeypatch):
     root = copy_fixture("runops-project-minimal")
     monkeypatch.chdir(root)
@@ -287,15 +332,45 @@ def test_hops_usage_notices_stale_harnessops_lock_once(copy_fixture, monkeypatch
     lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     first = run_cli(["doctor"])
-    assert "HarnessOps managed artifacts may be behind current hops: 0.0.1 ->" in first.stderr
-    assert "`hops-update-harness` skill" in first.stderr
-    assert "hops update-harness" in first.stderr
+    assert "HarnessOps update path available" in first.stderr
+    assert "repo managed artifacts: 0.0.1" in first.stderr
+    assert "current hops runtime:" in first.stderr
+    assert "latest PyPI release:    unknown" in first.stderr
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" in first.stderr
+    assert "uvx --from harnessops hops doctor --check-overlay --check-records" in first.stderr
+    assert "uvx --from harnessops hops migrate --check" in first.stderr
 
     cache_path = root / ".harnessops" / "cache" / "update-notice.json"
     assert cache_path.exists()
 
     second = run_cli(["doctor"])
-    assert "HarnessOps managed artifacts may be behind current hops" not in second.stderr
+    assert "HarnessOps update path available" not in second.stderr
+
+
+def test_hops_usage_notices_when_current_runtime_is_behind_pypi(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    monkeypatch.delenv("HOPS_DISABLE_PYPI_UPDATE_CHECK", raising=False)
+    monkeypatch.setattr(update_notice, "_fetch_latest_pypi_version", lambda: "99.0.0")
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = __version__
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    first = run_cli(["doctor"])
+    assert "HarnessOps update path available" in first.stderr
+    assert f"repo managed artifacts: {__version__}" in first.stderr
+    assert f"current hops runtime:   {__version__}" in first.stderr
+    assert "latest PyPI release:    99.0.0" in first.stderr
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" in first.stderr
+
+    cache = json.loads((root / ".harnessops" / "cache" / "update-notice.json").read_text(encoding="utf-8"))
+    assert cache["latest_harnessops_version"] == "99.0.0"
+
+    second = run_cli(["doctor"])
+    assert "HarnessOps update path available" not in second.stderr
 
 
 def test_update_harness_command_suppresses_stale_lock_notice(copy_fixture, monkeypatch):
@@ -309,7 +384,7 @@ def test_update_harness_command_suppresses_stale_lock_notice(copy_fixture, monke
     lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     result = run_cli(["update-harness"])
-    assert "HarnessOps managed artifacts may be behind current hops" not in result.stderr
+    assert "HarnessOps update path available" not in result.stderr
 
 
 def test_update_notice_can_be_disabled_globally(copy_fixture, monkeypatch):
@@ -323,7 +398,7 @@ def test_update_notice_can_be_disabled_globally(copy_fixture, monkeypatch):
     lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     result = run_cli(["--disable-update-notice", "doctor"])
-    assert "HarnessOps managed artifacts may be behind current hops" not in result.stderr
+    assert "HarnessOps update path available" not in result.stderr
     assert not (root / ".harnessops" / "cache" / "update-notice.json").exists()
 
 

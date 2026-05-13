@@ -4,7 +4,7 @@
 
 ## 操作ルール
 
-- HarnessOps の状態変更には必ず `hops` を使います。PATH にない場合は `uv run --with-editable . hops <command>` を使います。
+- HarnessOps の状態変更には必ず `hops` を使います。PATH にない場合は `uvx --from harnessops hops <command>` を使います。
 - 作業開始時に `.harnessops/project.toml` を読み、必要に応じて `hops doctor --check-overlay --check-records` でリンク状態を確認します。
 - HarnessOps 自身の非自明な改善、issue化前の観測、またはrelease対象の挙動変更は、実装前または遅くともrelease前に `hops lab capture` で `harness-lab` に記録します。
 - HarnessOps 実装コード自体を編集する場合を除き、`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えないでください。
