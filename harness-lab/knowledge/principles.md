@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-13T11:10:00+09:00
-Source digest: `7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10`
+Updated: 2026-05-13T11:52:44+09:00
+Source digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -40,10 +40,10 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Managed Artifacts Must Be Honest About Staleness And Local Edits
 
 - Principle: update commands for managed bridge or generated artifacts must distinguish unchanged, updated, conflicted, stale, and locally edited states.
-- Sources: `IMP0002`, `IMP0011`
+- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`
 - Applies when: refreshing agent bridge files, generated records, generated views, or any managed file that users may edit.
-- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback.
-- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, and have doctor detect duplicate canonical mappings.
+- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts.
+- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, and make refresh commands cover the same managed artifact set that doctor validates.
 
 ## Remote And External Paths Must Be Encoding-Safe And Sanitized
 

@@ -20,6 +20,7 @@ from harnessops.core.lab_compaction import (
     prepare_lab_memory_abstraction,
 )
 from harnessops.core.paths import find_root
+from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.project import load_project
 from harnessops.core.records import (
     add_improvement_investigation,
@@ -494,8 +495,17 @@ def refresh_lab_views() -> None:
     """harness-lab の生成ビューを再生成します。"""
     root = find_root()
     project = load_project(root)
+    managed = refresh_managed_files(root, project.overlay_mode, project.overlay_path)
     written = refresh_views(root, project.overlay_path)
-    typer.echo("\n".join(path.relative_to(root).as_posix() for path in written))
+    paths = [*managed["updated"]]
+    paths.extend(item["new"] for item in managed["written_new"])
+    paths.extend(path.relative_to(root).as_posix() for path in written)
+    seen: set[str] = set()
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        typer.echo(path)
 
 
 def register(app: typer.Typer) -> None:

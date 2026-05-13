@@ -1,58 +1,54 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-13T11:09:09+09:00'
+updated_at: '2026-05-13T11:51:47+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: ok
   reason: thresholds-not-exceeded-no-sources-or-current
-  updated_at: '2026-05-13T11:09:09+09:00'
+  updated_at: '2026-05-13T11:51:43+09:00'
   metrics: &id002
-    file_count: 162
-    byte_count: 366362
-    record_count: 74
-    feedback_count: 18
-    eval_case_count: 18
-    hypothesis_count: 18
-    decision_count: 19
-    research_scan_count: 1
-    improvement_count: 14
-    manual_eval_count: 18
+    file_count: 176
+    byte_count: 412533
+    record_count: 79
+    feedback_count: 19
+    eval_case_count: 19
+    hypothesis_count: 19
+    decision_count: 20
+    research_scan_count: 2
+    improvement_count: 15
+    manual_eval_count: 19
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+  source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
   pressure: []
   triggers: &id003 []
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+    source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
     stale: false
   abstraction:
-    exists: false
+    exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest:
+    source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
-      exists: false
+      exists: true
       purpose: 採用/却下を越えて残った設計原則を source ID 付きで保つ。
     - path: harness-lab/knowledge/patterns.yml
-      exists: false
+      exists: true
       purpose: 再利用可能な改善パターン、適用条件、反例、ガードを構造化する。
     - path: harness-lab/knowledge/anti-patterns.md
-      exists: false
+      exists: true
       purpose: 繰り返し避けるべき改善劇場、過剰一般化、失敗クラスをまとめる。
     - path: harness-lab/knowledge/evaluation-playbook.md
-      exists: false
+      exists: true
       purpose: 評価軸、holdout、判断基準、kill criteria の経験をまとめる。
-    missing_targets:
-    - harness-lab/knowledge/principles.md
-    - harness-lab/knowledge/patterns.yml
-    - harness-lab/knowledge/anti-patterns.md
-    - harness-lab/knowledge/evaluation-playbook.md
+    missing_targets: []
   recommended_commands:
   - hops lab compact --force
   - hops lab memory prepare --force
@@ -69,7 +65,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-13T11:09:09+09:00'
+  updated_at: '2026-05-13T11:51:46+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -77,7 +73,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+    source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
     improvements:
     - IMP0001
     - IMP0002
@@ -93,13 +89,39 @@ deterministic_snapshot:
     - IMP0013
     - IMP0014
     - IMP0015
+    - IMP0016
   knowledge:
     summary:
-      improvement_count: 14
+      improvement_count: 15
       status_counts:
-        adopted: 14
-      capability_count: 10
+        adopted: 15
+      capability_count: 11
     capabilities:
+    - capability: generated_view_management
+      failure_classes:
+      - failure_class: stale_generated_view_repair_gap
+        improvements:
+        - IMP0016
+        status_counts:
+          adopted: 1
+        average_scores:
+          anti_theater: 5.0
+          evaluability: 5.0
+          impact: 4.0
+          maintainability: 4.0
+          mechanism_clarity: 5.0
+          minimality: 5.0
+          operator_burden: 5.0
+          privacy_sanitization_risk: 5.0
+          regression_risk: 2.0
+        guards:
+        - source: IMP0016
+          status: implemented
+          path: tests/test_cli/test_mvp_flow.py
+        lessons:
+        - source: IMP0016
+          status: adopted
+          lesson: Implemented lab refresh-views so it first refreshes doctor-managed overlay artifacts, then regenerates dynamic lab views with deduplicated output. Focused regression covers stale README/backlog/score-trajectory lock warnings and preserves research-scan view c...
     - capability: github_issue_import
       failure_classes:
       - failure_class: unicode_decode_failure
@@ -410,6 +432,28 @@ deterministic_snapshot:
         relation: extends
         recommendation: propose
         next_command: hops lab new-eval-case --from FB0013
+    - id: RS0002
+      title: 'RS0002: Clarify generated view refresh and stale warning repair'
+      path: harness-lab/records/research-scans/RS0002-clarify-generated-view-refresh-and-stale-warning-repair.md
+      status: captured
+      scope: harnessops-core generated view management
+      capability: generated_view_management
+      failure_class: stale_generated_view_repair_gap
+      recommendation: capture the stale generated-view repair gap before implementation; prefer one fix that makes refresh/status behavior match doctor-managed artifacts and gives operators an explicit next command.
+      candidate_count: 3
+      candidates:
+      - title: Make lab refresh-views cover all doctor-managed lab artifacts
+        relation: extends
+        recommendation: capture
+        next_command: hops lab capture --title Generated-view-refresh-leaves-managed-warnings --capability generated_view_management --failure-class stale_generated_view_repair_gap
+      - title: Add doctor next-action guidance for stale generated views
+        relation: extends
+        recommendation: capture
+        next_command: hops lab capture --title Doctor-stale-view-warnings-need-repair-commands --capability generated_view_management --failure-class stale_generated_view_repair_gap
+      - title: Align roadmap and CLI around views refresh/status
+        relation: extends
+        recommendation: note
+        next_command: hops lab investigate --from <future-IMP> --kind codebase --summary Roadmap-and-CLI-expose-different-generated-view-command-shapes
     guard_index:
     - source: IMP0006
       capability: improvement_loop_design
@@ -454,6 +498,11 @@ deterministic_snapshot:
     - source: IMP0015
       capability: lab_memory_compaction
       failure_class: deterministic_snapshot_conflates_trigger_and_abstraction
+      status: implemented
+      path: tests/test_cli/test_mvp_flow.py
+    - source: IMP0016
+      capability: generated_view_management
+      failure_class: stale_generated_view_repair_gap
       status: implemented
       path: tests/test_cli/test_mvp_flow.py
     external_evidence:
@@ -649,6 +698,18 @@ sources:
   failure_class: deterministic_snapshot_conflates_trigger_and_abstraction
   digest: sha256:560d547f34f24fdeebed60642e90d6afa6dd234bd4e96ceee946967af477cf14
   excerpt: "# IMP0015: FB0018: Separate lab memory triggers from abstraction\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: project-pattern\n- source_feedback: `FB0018`\n- linked_records: `FB0018`, `E0018`, `H0018`, `D0019`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0018-separate-lab-memory-triggers-from-abstraction.md`\n\n# FB0018: Separate lab memory triggers from abstraction\n\n## 概要\n\nCurrent lab compaction is a deterministic aggregation snapshot, but the desired dream-like behavior needs lint-style trigger checks and a skill-guided abstraction workflow.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nKeep source-linked deterministic snapshots as an index, add lint/prepare commands for compaction triggers, and provide an agent skill that performs higher-level lab memory abstraction with source traceability.\n\n## Target Capability\n\n- capability: lab_memory_compaction\n- failure_class: deterministic_snapshot_conflates_trigger_and_abstraction\n\n## Investigation\n\n- 2026-05-13T09:19:14+09:00 [codebase] Existing compact_lab provides deterministic metrics and source-linked lab-memory outputs. Keep it as an index/snapshot, then add memory lint/prepare commands for trigger detection and input bundling while moving higher-level abstraction into an agent skill. (evidence: src/harnessops/core/lab_compaction.py)\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0018: E0018: FB0018-separate-lab-memory-triggers-from-abstraction を評価\n\n\n- source: `harness-lab/records/eval-cases/E0018-fb0018-separate-lab-memory-triggers-from-abstraction.md`\n\n- capability: lab_memory_compaction\n\n- failure_class: deterministic_snapshot_conflates_trigger_and_abstraction\n\n- manual_eval_yml: `harness-lab/views/ev..."
+- id: IMP0016
+  record_type: improvement_dossier
+  title: 'IMP0016: FB0019: Generated view refresh leaves managed warnings'
+  path: harness-lab/improvements/IMP0016-fb0019-generated-view-refresh-leaves-managed-warnings.md
+  status: adopted
+  maturity: adopted
+  relation: extends
+  promotion_level: target-lab-case
+  capability: generated_view_management
+  failure_class: stale_generated_view_repair_gap
+  digest: sha256:e9c35b6b0b2ef66e09ea090fadd9f1c30ac2bf8fab3639de9be07f5eb0376423
+  excerpt: "# IMP0016: FB0019: Generated view refresh leaves managed warnings\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: research-scan\n- scope: harnessops-core\n- relation: extends\n- promotion_level: target-lab-case\n- source_feedback: `FB0019`\n- linked_records: `FB0019`, `E0019`, `H0019`, `D0020`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0019-generated-view-refresh-leaves-managed-warnings.md`\n\n# FB0019: Generated view refresh leaves managed warnings\n\n## 概要\n\nThe current lab refresh-views command refreshes dynamic lab views but leaves some doctor-managed generated artifacts stale, so doctor remains ok with generated-view warnings after the apparent repair command.\n\n## 再現\n\nRun hops doctor --check-overlay --check-records, then hops lab refresh-views, then doctor again; README, backlog, and score-trajectory warnings remain.\n\n## 期待する上流変更\n\nProvide a refresh path that updates every doctor-managed lab generated artifact or clearly reports the next repair action, so operators do not learn to ignore stale generated-view warnings.\n\n## Target Capability\n\n- capability: generated_view_management\n- failure_class: stale_generated_view_repair_gap\n\n## Investigation\n\n- 2026-05-13T11:45:19+09:00 [codebase] RS0002 and code inspection show refresh_views only regenerates imported-feedback, improvements, and research-scans for lab overlays, while doctor validates the lock hashes for README, backlog, imported-feedback, improvements, research-scans, and score-trajectory. A temporary-copy reproduction confirmed lab refresh-views leaves README, backlog, and score-trajectory warnings after refreshing dynamic views. (evidence: RS0002; src/harnessops/core/render.py; src/harnessops/core/validation.py; src/harnessops/core/overlay.py)\n\n## Research Scans\n\nresearch scan はまだあ..."
 - id: RS0001
   record_type: research_scan
   title: 'RS0001: Structure meta improvement research scan outputs'
@@ -661,11 +722,23 @@ sources:
   failure_class: unstructured_research_scan_results
   digest: sha256:621d94356d92321f61f46c4942c5c318c6013be7f4223d9147a5c8a9014a58e0
   excerpt: "# RS0001: Structure meta improvement research scan outputs\n\n## Scope\n\n- scope: harnessops-core deliberate meta improvement research\n- existing_dossier: IMP0009\n- capability: meta_improvement_research\n- failure_class: unstructured_research_scan_results\n\n## Evidence\n\n### Local\n\n- IMP0009 remained active because the dry-run result had useful candidates but no structured artifact (ref: harness-lab/improvements/IMP0009-fb0013-structure-meta-improvement-research-scan-outputs.md)\n\n### Codebase\n\n- hops-research-improvements had Scope/Evidence/Candidates/Recommendation prose guidance but no CLI record for it (ref: .agents/skills/hops-research-improvements/SKILL.md)\n- The new lab research-scan command stores candidate rows and refreshes views/research-scans.md (ref: src/harnessops/cli/lab.py)\n\n### External\n\n- External investigation for IMP0009 found postmortem, experiment, and maturity-ring practices favor structured action items and learning records (ref: https://sre.google/workbook/postmortem-culture/)\n\n### Risk And Counterexample\n\n- A new record type can create meta-noise if used for every small observation (ref: docs/design-principles.md)\n\n## Candidates\n\n| candidate | relation | recommendation | next_command |\n|---|---|---|---|\n| Add RS research_scan record and view | extends | propose | hops lab new-eval-case --from FB0013 |\n\n## Recommendation\n\nadopt: use research-scan for deliberate multi-candidate meta-improvement research before routing candidates to investigate/capture/propose/park/reject.\n\n## Next Commands\n\n- `hops lab new-eval-case --from FB0013`"
+- id: RS0002
+  record_type: research_scan
+  title: 'RS0002: Clarify generated view refresh and stale warning repair'
+  path: harness-lab/records/research-scans/RS0002-clarify-generated-view-refresh-and-stale-warning-repair.md
+  status: captured
+  maturity: ''
+  relation: ''
+  promotion_level: ''
+  capability: generated_view_management
+  failure_class: stale_generated_view_repair_gap
+  digest: sha256:4cb0dc04c08f1f5e4c2ffe890bbdf616e6bf8dd466c2e7d8c13c7585f3756e0e
+  excerpt: "# RS0002: Clarify generated view refresh and stale warning repair\n\n## Scope\n\n- scope: harnessops-core generated view management\n- existing_dossier: 未設定\n- capability: generated_view_management\n- failure_class: stale_generated_view_repair_gap\n\n## Evidence\n\n### Local\n\n- Doctor currently reports stale generated-view warnings for README, backlog, imported-feedback, improvements, research-scans, and score-trajectory in this repo (ref: uv run --with-editable . hops doctor --check-overlay --check-records)\n\n### Codebase\n\n- refresh_views rewrites only imported-feedback, improvements, and research-scans for lab overlays (ref: src/harnessops/core/render.py)\n- doctor compares every lock managed_file hash and emits a generic generated-view warning without a next command (ref: src/harnessops/core/validation.py)\n- generated_overlay_files registers lab README, backlog, imported-feedback, improvements, research-scans, and score-trajectory as managed files (ref: src/harnessops/core/overlay.py)\n- roadmap names hops views refresh/status, while the implemented command is hops lab refresh-views (ref: docs/roadmap.md ; src/harnessops/cli/lab.py)\n\n### External\n\n- なし\n\n### Risk And Counterexample\n\n- A refresh command that updates only some managed views can leave doctor ok with warnings, training operators to ignore generated-view staleness (ref: temporary copy run: doctor -> lab refresh-views -> doctor)\n\n## Candidates\n\n| candidate | relation | recommendation | next_command |\n|---|---|---|---|\n| Make lab refresh-views cover all doctor-managed lab artifacts | extends | capture | hops lab capture --title Generated-view-refresh-leaves-managed-warnings --capability generated_view_management --failure-class stale_generated_view_repair_gap |\n| Add doctor next-action guidance for stale generated views..."
 abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+  source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
   sources:
   - IMP0001
   - IMP0002
@@ -681,7 +754,9 @@ abstraction_manifest_template:
   - IMP0013
   - IMP0014
   - IMP0015
+  - IMP0016
   - RS0001
+  - RS0002
   outputs:
   - harness-lab/knowledge/principles.md
   - harness-lab/knowledge/patterns.yml

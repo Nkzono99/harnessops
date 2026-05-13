@@ -293,6 +293,52 @@ def test_update_harness_preserves_dynamic_imported_feedback_view(copy_fixture, m
     assert "警告" not in doctor.output
 
 
+def test_lab_refresh_views_repairs_all_managed_lab_artifact_warnings(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "research-scan",
+            "--title",
+            "Refresh generated views",
+            "--scope",
+            "harnessops-core generated views",
+            "--capability",
+            "generated_view_management",
+            "--failure-class",
+            "stale_generated_view_repair_gap",
+            "--candidate",
+            "Refresh all managed lab artifacts|extends|propose|hops lab new-eval-case --from FB0001",
+            "--recommendation",
+            "repair stale generated view warnings.",
+        ]
+    )
+
+    lock_path = root / ".harnessops/lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    for rel in [
+        "harness-lab/README.md",
+        "harness-lab/views/backlog.md",
+        "harness-lab/views/score-trajectory.md",
+    ]:
+        lock["managed_files"][rel] = "sha256:stale"
+    lock_path.write_text(json.dumps(lock, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    stale = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "harness-lab/README.md" in stale.output
+    assert "harness-lab/views/backlog.md" in stale.output
+    assert "harness-lab/views/score-trajectory.md" in stale.output
+
+    refreshed = run_cli(["lab", "refresh-views"])
+
+    assert "harness-lab/views/research-scans.md" in refreshed.output
+    assert "RS0001" in (root / "harness-lab/views/research-scans.md").read_text(encoding="utf-8")
+    doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
+    assert "警告" not in doctor.output
+
+
 def test_feedback_import_issue_captures_github_context(copy_fixture, monkeypatch):
     root = copy_fixture("paper-harness-upstream-minimal")
     monkeypatch.chdir(root)

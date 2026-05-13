@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-13T11:09:05+09:00'
+updated_at: '2026-05-13T11:51:30+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,19 +9,19 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 162
-    byte_count: 366942
-    record_count: 74
-    feedback_count: 18
-    eval_case_count: 18
-    hypothesis_count: 18
-    decision_count: 19
-    research_scan_count: 1
-    improvement_count: 14
-    manual_eval_count: 18
+    file_count: 176
+    byte_count: 408860
+    record_count: 79
+    feedback_count: 19
+    eval_case_count: 19
+    hypothesis_count: 19
+    decision_count: 20
+    research_scan_count: 2
+    improvement_count: 15
+    manual_eval_count: 19
   triggers: []
 sources:
-  source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+  source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
   improvements:
   - IMP0001
   - IMP0002
@@ -37,13 +37,39 @@ sources:
   - IMP0013
   - IMP0014
   - IMP0015
+  - IMP0016
 knowledge:
   summary:
-    improvement_count: 14
+    improvement_count: 15
     status_counts:
-      adopted: 14
-    capability_count: 10
+      adopted: 15
+    capability_count: 11
   capabilities:
+  - capability: generated_view_management
+    failure_classes:
+    - failure_class: stale_generated_view_repair_gap
+      improvements:
+      - IMP0016
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 5.0
+        operator_burden: 5.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 2.0
+      guards:
+      - source: IMP0016
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
+      lessons:
+      - source: IMP0016
+        status: adopted
+        lesson: Implemented lab refresh-views so it first refreshes doctor-managed overlay artifacts, then regenerates dynamic lab views with deduplicated output. Focused regression covers stale README/backlog/score-trajectory lock warnings and preserves research-scan view c...
   - capability: github_issue_import
     failure_classes:
     - failure_class: unicode_decode_failure
@@ -354,6 +380,28 @@ knowledge:
       relation: extends
       recommendation: propose
       next_command: hops lab new-eval-case --from FB0013
+  - id: RS0002
+    title: 'RS0002: Clarify generated view refresh and stale warning repair'
+    path: harness-lab/records/research-scans/RS0002-clarify-generated-view-refresh-and-stale-warning-repair.md
+    status: captured
+    scope: harnessops-core generated view management
+    capability: generated_view_management
+    failure_class: stale_generated_view_repair_gap
+    recommendation: capture the stale generated-view repair gap before implementation; prefer one fix that makes refresh/status behavior match doctor-managed artifacts and gives operators an explicit next command.
+    candidate_count: 3
+    candidates:
+    - title: Make lab refresh-views cover all doctor-managed lab artifacts
+      relation: extends
+      recommendation: capture
+      next_command: hops lab capture --title Generated-view-refresh-leaves-managed-warnings --capability generated_view_management --failure-class stale_generated_view_repair_gap
+    - title: Add doctor next-action guidance for stale generated views
+      relation: extends
+      recommendation: capture
+      next_command: hops lab capture --title Doctor-stale-view-warnings-need-repair-commands --capability generated_view_management --failure-class stale_generated_view_repair_gap
+    - title: Align roadmap and CLI around views refresh/status
+      relation: extends
+      recommendation: note
+      next_command: hops lab investigate --from <future-IMP> --kind codebase --summary Roadmap-and-CLI-expose-different-generated-view-command-shapes
   guard_index:
   - source: IMP0006
     capability: improvement_loop_design
@@ -398,6 +446,11 @@ knowledge:
   - source: IMP0015
     capability: lab_memory_compaction
     failure_class: deterministic_snapshot_conflates_trigger_and_abstraction
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0016
+    capability: generated_view_management
+    failure_class: stale_generated_view_repair_gap
     status: implemented
     path: tests/test_cli/test_mvp_flow.py
   external_evidence:

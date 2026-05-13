@@ -1,16 +1,16 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-13T11:10:00+09:00
-Source digest: `7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10`
+Updated: 2026-05-13T11:52:44+09:00
+Source digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
 ## Reporting Success While Leaving State Stale
 
 - Avoid when: an update or doctor path says `ok` but leaves stale managed files, duplicate dossiers, stale generated views, or shadowed record IDs unresolved.
-- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`
+- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`
 - Why it fails: operators trust the tool and stop looking, while the next agent inherits obsolete guidance or resolves an ID to the wrong artifact.
-- Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, and keep memory stale state visible.
+- Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, keep memory stale state visible, and make repair commands cover the same generated artifacts that doctor validates.
 
 ## Treating Boilerplate As Evidence
 

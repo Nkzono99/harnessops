@@ -15,3 +15,4 @@
 - `IMP0013` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0016 lab_evaluation_review eval_template_noise_in_dossier
 - `IMP0014` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0017 lab_memory_compaction record_sprawl_without_knowledge_consolidation
 - `IMP0015` adopted maturity=adopted scope=harnessops-core promotion=project-pattern source=FB0018 lab_memory_compaction deterministic_snapshot_conflates_trigger_and_abstraction
+- `IMP0016` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0019 generated_view_management stale_generated_view_repair_gap

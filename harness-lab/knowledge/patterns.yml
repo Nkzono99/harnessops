@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-13T11:10:00+09:00'
-source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+updated_at: '2026-05-13T11:52:44+09:00'
+source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -125,6 +125,26 @@ patterns:
   counterexamples:
   - source: IMP0002
     note: A blunt force mode can refresh stale files but cannot protect local edits.
+- id: doctor_aligned_generated_view_refresh
+  name: Doctor-aligned generated view refresh
+  capability: generated_view_management
+  failure_class: stale_generated_view_repair_gap
+  applies_when:
+  - A command claims to refresh generated lab views or managed artifacts.
+  - Doctor validates managed file hashes for a broader artifact set than the refresh command currently writes.
+  avoid_when:
+  - The artifact is intentionally user-maintained and should no longer be in the managed lock.
+  evidence:
+  - source: RS0002
+    note: The research scan showed doctor warnings remained after `hops lab refresh-views` because README, backlog, and score-trajectory were still stale.
+  - source: IMP0016
+    note: '`hops lab refresh-views` now refreshes doctor-managed overlay artifacts before regenerating dynamic lab views.'
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0016]
+  counterexamples:
+  - source: RS0002
+    note: Partial refresh commands train operators to ignore warning output even when doctor reports `ok`.
 - id: canonical_record_identity
   name: Canonical record identity before broad lookup
   capability: record_lookup

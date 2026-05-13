@@ -7,7 +7,7 @@
 
 - status: ok
 - reason: thresholds-not-exceeded-no-sources-or-current
-- source_digest: `7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10`
+- source_digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
 - pressure: none
 - triggers: none
 
@@ -798,6 +798,56 @@ research scan はまだありません。
 
 - manual_eval_yml: `harness-lab/views/ev...
 
+### `IMP0016` generated_view_management/stale_generated_view_repair_gap
+- path: `harness-lab/improvements/IMP0016-fb0019-generated-view-refresh-leaves-managed-warnings.md`
+- status: adopted
+- maturity: adopted
+- relation: extends
+
+# IMP0016: FB0019: Generated view refresh leaves managed warnings
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: research-scan
+- scope: harnessops-core
+- relation: extends
+- promotion_level: target-lab-case
+- source_feedback: `FB0019`
+- linked_records: `FB0019`, `E0019`, `H0019`, `D0020`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0019-generated-view-refresh-leaves-managed-warnings.md`
+
+# FB0019: Generated view refresh leaves managed warnings
+
+## 概要
+
+The current lab refresh-views command refreshes dynamic lab views but leaves some doctor-managed generated artifacts stale, so doctor remains ok with generated-view warnings after the apparent repair command.
+
+## 再現
+
+Run hops doctor --check-overlay --check-records, then hops lab refresh-views, then doctor again; README, backlog, and score-trajectory warnings remain.
+
+## 期待する上流変更
+
+Provide a refresh path that updates every doctor-managed lab generated artifact or clearly reports the next repair action, so operators do not learn to ignore stale generated-view warnings.
+
+## Target Capability
+
+- capability: generated_view_management
+- failure_class: stale_generated_view_repair_gap
+
+## Investigation
+
+- 2026-05-13T11:45:19+09:00 [codebase] RS0002 and code inspection show refresh_views only regenerates imported-feedback, improvements, and research-scans for lab overlays, while doctor validates the lock hashes for README, backlog, imported-feedback, improvements, research-scans, and score-trajectory. A temporary-copy reproduction confirmed lab refresh-views leaves README, backlog, and score-trajectory warnings after refreshing dynamic views. (evidence: RS0002; src/harnessops/core/render.py; src/harnessops/core/validation.py; src/harnessops/core/overlay.py)
+
+## Research Scans
+
+research scan はまだあ...
+
 ### `RS0001` meta_improvement_research/unstructured_research_scan_results
 - path: `harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md`
 - status: captured
@@ -844,13 +894,54 @@ adopt: use research-scan for deliberate multi-candidate meta-improvement researc
 
 - `hops lab new-eval-case --from FB0013`
 
+### `RS0002` generated_view_management/stale_generated_view_repair_gap
+- path: `harness-lab/records/research-scans/RS0002-clarify-generated-view-refresh-and-stale-warning-repair.md`
+- status: captured
+
+# RS0002: Clarify generated view refresh and stale warning repair
+
+## Scope
+
+- scope: harnessops-core generated view management
+- existing_dossier: 未設定
+- capability: generated_view_management
+- failure_class: stale_generated_view_repair_gap
+
+## Evidence
+
+### Local
+
+- Doctor currently reports stale generated-view warnings for README, backlog, imported-feedback, improvements, research-scans, and score-trajectory in this repo (ref: uv run --with-editable . hops doctor --check-overlay --check-records)
+
+### Codebase
+
+- refresh_views rewrites only imported-feedback, improvements, and research-scans for lab overlays (ref: src/harnessops/core/render.py)
+- doctor compares every lock managed_file hash and emits a generic generated-view warning without a next command (ref: src/harnessops/core/validation.py)
+- generated_overlay_files registers lab README, backlog, imported-feedback, improvements, research-scans, and score-trajectory as managed files (ref: src/harnessops/core/overlay.py)
+- roadmap names hops views refresh/status, while the implemented command is hops lab refresh-views (ref: docs/roadmap.md ; src/harnessops/cli/lab.py)
+
+### External
+
+- なし
+
+### Risk And Counterexample
+
+- A refresh command that updates only some managed views can leave doctor ok with warnings, training operators to ignore generated-view staleness (ref: temporary copy run: doctor -> lab refresh-views -> doctor)
+
+## Candidates
+
+| candidate | relation | recommendation | next_command |
+|---|---|---|---|
+| Make lab refresh-views cover all doctor-managed lab artifacts | extends | capture | hops lab capture --title Generated-view-refresh-leaves-managed-warnings --capability generated_view_management --failure-class stale_generated_view_repair_gap |
+| Add doctor next-action guidance for stale generated views...
+
 ## Abstraction Manifest Template
 
 ```yaml
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
 sources:
 - IMP0001
 - IMP0002
@@ -866,7 +957,9 @@ sources:
 - IMP0013
 - IMP0014
 - IMP0015
+- IMP0016
 - RS0001
+- RS0002
 outputs:
 - harness-lab/knowledge/principles.md
 - harness-lab/knowledge/patterns.yml

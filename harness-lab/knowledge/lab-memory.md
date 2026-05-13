@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-13T11:09:05+09:00
+- updated_at: 2026-05-13T11:51:30+09:00
 - mode: forced
 - triggers: forced-or-none
-- file_count: 162 / threshold 256
-- byte_count: 366942 / threshold 2000000
-- improvement_count: 14 / threshold 50
-- source_digest: `7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10`
+- file_count: 176 / threshold 256
+- byte_count: 408860 / threshold 2000000
+- improvement_count: 15 / threshold 50
+- source_digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
 
 ## How To Use
 
@@ -20,6 +20,14 @@
 - このファイルの Curator Notes は手で更新してよい。次回 compaction でも保持される。
 
 ## Capability Knowledge
+
+### generated_view_management
+#### stale_generated_view_repair_gap
+- sources: `IMP0016`
+- status_counts: adopted=1
+- average_scores: anti_theater=5.0, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=5.0, operator_burden=5.0, privacy_sanitization_risk=5.0, regression_risk=2.0
+- guards: IMP0016:implemented:tests/test_cli/test_mvp_flow.py
+- lesson IMP0016 (adopted): Implemented lab refresh-views so it first refreshes doctor-managed overlay artifacts, then regenerates dynamic lab views with deduplicated output. Focused regression covers stale README/backlog/score-trajectory lock warnings and preserves research-scan view c...
 
 ### github_issue_import
 #### unicode_decode_failure
@@ -125,10 +133,12 @@
 - `IMP0013` lab_evaluation_review/eval_template_noise_in_dossier: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0014` lab_memory_compaction/record_sprawl_without_knowledge_consolidation: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0015` lab_memory_compaction/deterministic_snapshot_conflates_trigger_and_abstraction: implemented tests/test_cli/test_mvp_flow.py
+- `IMP0016` generated_view_management/stale_generated_view_repair_gap: implemented tests/test_cli/test_mvp_flow.py
 
 ## Research Scans
 
 - `RS0001` meta_improvement_research/unstructured_research_scan_results: adopt: use research-scan for deliberate multi-candidate meta-improvement research before routing candidates to investigate/capture/propose/park/reject. (1 candidates)
+- `RS0002` generated_view_management/stale_generated_view_repair_gap: capture the stale generated-view repair gap before implementation; prefer one fix that makes refresh/status behavior match doctor-managed artifacts and gives operators an explicit next command. (3 candidates)
 
 ## External Evidence
 
