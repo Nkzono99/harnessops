@@ -4,8 +4,9 @@
 
 ## 基本原則
 
-- 先に `hops doctor --check-overlay` を実行し、リポジトリが HarnessOps にリンクされているか確認する。
-- リンクされていなければ `hops detect` を実行し、検出されたプロファイルで `hops init --profile <id>` を提案または実行する。
+- 下流の target/project repo では PATH 上の `hops` に依存せず、原則 `uvx --from harnessops hops <command>` で実行する。以下の例で `hops` と書かれている場合も、この形式で読み替えてよい。
+- 先に `uvx --from harnessops hops doctor --check-overlay` を実行し、リポジトリが HarnessOps にリンクされているか確認する。
+- リンクされていなければ `uvx --from harnessops hops detect` を実行し、検出されたプロファイルで `uvx --from harnessops hops init --profile <id>` を提案または実行する。
 - プロジェクト固有の内容は `research/` または `notes/` に残し、`harness-feedback/` へ混ぜない。
 - 上流またはメタ改善へ回す内容は、ルーティング後に `hops feedback export --sanitize` でサニタイズする。
 - 採用判断を作る前に、評価ケース、スコアカード、証拠、回帰ガードをそろえる。

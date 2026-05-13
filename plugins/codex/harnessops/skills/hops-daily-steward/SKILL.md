@@ -2,6 +2,7 @@
 name: hops-daily-steward
 description: Run the unattended HarnessOps daily improvement loop for HarnessOps core, target repositories, or project repositories. Sync a clean repo, inspect issue/feedback/lab/doctor state, delegate to existing HOPS skills, and autonomously advance role-appropriate local improvements through evidence/test/guard gates. Use for daily steward, scheduled HarnessOps maintenance, automatic improvement loop, or daily issue + feedback/lab advancement. Remote actions follow explicit automation prompt authorization.
 ---
+Use `uvx --from harnessops hops <command>` for CLI invocations in target/project repos; do not rely on `hops` being on PATH.
 
 # Intent
 
@@ -139,7 +140,7 @@ HarnessOps core, target, and meta lab repositories may perform:
 - `hops propose`
 - `hops eval --manual`
 - `hops decide`
-- `hops update-harness`
+- `hops-update-harness` skill or `uvx --refresh-package harnessops --from harnessops hops update-harness`
 - code / docs / skill edits for the selected candidate
 - validation commands, including tests and doctor checks
 

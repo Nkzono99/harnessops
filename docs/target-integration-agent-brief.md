@@ -48,7 +48,7 @@ HarnessOps をtarget repositoryに追加し、AI Agentが受け取ったフィ�
 - target repository に `harness-lab/` がある。
 - `.harness/manifest.toml` がある。
 - `.harnessops/project.toml` と `.harnessops/lock.json` がある。
-- `hops doctor --check-overlay --check-records` が通る。
+- `uvx --from harnessops hops doctor --check-overlay --check-records` が通る。
 - 必要に応じて repo-local HarnessOps skill が `.agents/skills/` にある。
 
 ## 絶対ルール
@@ -74,23 +74,11 @@ git status --short --branch
 
 ## HarnessOps CLIの実行方法
 
-対象環境に `hops` が入っているなら、そのまま使います。未導入またはクリーンな一回実行が必要なら、PyPI の `harnessops` パッケージから `uvx` で実行します。
+対象リポジトリでは、PATH 上の `hops` に依存せず、PyPI の `harnessops` パッケージから `uvx` で実行します。対象リポジトリから次の形式で実行します。
 
 ```bash
-hops --help
-```
-
-対象リポジトリから次の形式で実行します。
-
-```bash
-uvx --isolated --from harnessops hops --help
-uvx --isolated --from harnessops hops detect
-```
-
-以降の例で `hops` と書かれている箇所は、必要に応じて次に読み替えます。
-
-```bash
-uvx --isolated --from harnessops hops <command>
+uvx --from harnessops hops --help
+uvx --from harnessops hops detect
 ```
 
 ## Profile選択
@@ -98,8 +86,8 @@ uvx --isolated --from harnessops hops <command>
 まず検出を実行します。
 
 ```bash
-hops detect
-hops detect --json
+uvx --from harnessops hops detect
+uvx --from harnessops hops detect --json
 ```
 
 検出結果が明確なら、そのprofileを使います。判断に迷う場合は次の表を使います。
@@ -118,20 +106,20 @@ target repository に組み込む依頼なら、通常は `*-upstream` または
 profileが決まったら初期化します。
 
 ```bash
-hops init --profile <profile-id>
+uvx --from harnessops hops init --profile <profile-id>
 ```
 
 repo-local skillも入れる場合:
 
 ```bash
-hops init --profile <profile-id> --with-agent-bridge
+uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
 すでに初期化済みの場合は、むやみに `--force` を使いません。まず検証します。
 
 ```bash
-hops doctor --check-overlay --check-records
-hops migrate --check
+uvx --from harnessops hops doctor --check-overlay --check-records
+uvx --from harnessops hops migrate --check
 ```
 
 生成ファイルが編集済みで `init` が拒否した場合は、拒否を尊重して停止し、どのファイルが競合したか報告します。
@@ -143,15 +131,15 @@ target repository の `init`、`setup`、`update-harness` などに HarnessOps �
 project repository を生成する `init` の後処理:
 
 ```bash
-hops init --profile <target-project-profile>
-hops doctor --check-overlay --check-records
+uvx --from harnessops hops init --profile <target-project-profile>
+uvx --from harnessops hops doctor --check-overlay --check-records
 ```
 
 target repository 自身の `setup`:
 
 ```bash
-hops init --profile <target-upstream-profile>
-hops doctor --check-overlay --check-records
+uvx --from harnessops hops init --profile <target-upstream-profile>
+uvx --from harnessops hops doctor --check-overlay --check-records
 ```
 
 `update-harness`:
@@ -239,8 +227,8 @@ private_terms:
 最低限、次を実行します。
 
 ```bash
-hops doctor --check-overlay --check-records
-hops migrate --check
+uvx --from harnessops hops doctor --check-overlay --check-records
+uvx --from harnessops hops migrate --check
 ```
 
 Python packageやテスト環境がある場合は、そのリポジトリの通常テストも実行します。例:
@@ -252,8 +240,8 @@ python -m pytest -q
 PyPI の `harnessops` パッケージから実行する場合:
 
 ```bash
-uvx --isolated --from harnessops hops doctor --check-overlay --check-records
-uvx --isolated --from harnessops hops migrate --check
+uvx --from harnessops hops doctor --check-overlay --check-records
+uvx --from harnessops hops migrate --check
 ```
 
 ## 受け入れ条件
@@ -265,8 +253,8 @@ uvx --isolated --from harnessops hops migrate --check
 - target repository に `harness-lab/` が作成されている。
 - target repository に project repository用の `harness-feedback/` を作っていない。
 - `.harnessops/lock.json` が生成ファイルだけを管理している。
-- `hops doctor --check-overlay --check-records` が通る。
-- `hops migrate --check` が未適用マイグレーションなしを報告する。
+- `uvx --from harnessops hops doctor --check-overlay --check-records` が通る。
+- `uvx --from harnessops hops migrate --check` が未適用マイグレーションなしを報告する。
 - 既存の人間作成ファイルを安全でなく上書きしていない。
 - リモートIssue/PR/pushを作成していない。
 

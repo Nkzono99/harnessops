@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
@@ -371,6 +372,106 @@ def test_hops_usage_notices_when_current_runtime_is_behind_pypi(copy_fixture, mo
 
     second = run_cli(["doctor"])
     assert "HarnessOps update path available" not in second.stderr
+
+
+def test_update_notice_uses_pep440_version_ordering():
+    assert update_notice._is_older("0.1.8rc1", "0.1.8")
+    assert update_notice._is_older("0.1.8.dev0", "0.1.8")
+    assert update_notice._is_older("0.1.8", "0.1.8.post1")
+    assert not update_notice._is_older("0.1.8", "0.1.8rc1")
+
+
+def test_update_notice_retries_pypi_after_short_failure_backoff(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    monkeypatch.delenv("HOPS_DISABLE_PYPI_UPDATE_CHECK", raising=False)
+    calls = 0
+
+    def fail_fetch():
+        nonlocal calls
+        calls += 1
+        return None
+
+    monkeypatch.setattr(update_notice, "_fetch_latest_pypi_version", fail_fetch)
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    first = run_cli(["doctor"])
+    assert "latest PyPI release:    unknown" in first.stderr
+    assert calls == 1
+    cache_path = root / ".harnessops" / "cache" / "update-notice.json"
+    cache = json.loads(cache_path.read_text(encoding="utf-8"))
+    assert "last_pypi_failure_at" in cache
+    assert "last_pypi_success_at" not in cache
+
+    run_cli(["report"])
+    assert calls == 1
+
+    cache["last_pypi_failure_at"] = (
+        dt.datetime.now(dt.timezone.utc) - update_notice.PYPI_FAILURE_CHECK_INTERVAL - dt.timedelta(seconds=1)
+    ).isoformat()
+    cache_path.write_text(json.dumps(cache, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    run_cli(["report"])
+    assert calls == 2
+
+
+def test_update_notice_handles_unreleased_runtime_ahead_of_pypi(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    monkeypatch.delenv("HOPS_DISABLE_PYPI_UPDATE_CHECK", raising=False)
+    monkeypatch.setattr(update_notice, "__version__", "99.0.0")
+    monkeypatch.setattr(update_notice, "_fetch_latest_pypi_version", lambda: "0.1.7")
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.1.7"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    first = run_cli(["doctor"])
+    assert "current hops runtime:   99.0.0" in first.stderr
+    assert "current hops runtime is newer than the latest PyPI release" in first.stderr
+    assert "hops update-harness --agent-bridge" in first.stderr
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" not in first.stderr
+
+
+def test_update_notice_warns_when_repo_lock_is_newer_than_runtime(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    monkeypatch.delenv("HOPS_DISABLE_PYPI_UPDATE_CHECK", raising=False)
+    monkeypatch.setattr(update_notice, "_fetch_latest_pypi_version", lambda: "0.1.7")
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "99.0.0"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    first = run_cli(["doctor"])
+    assert "repo managed artifacts: 99.0.0" in first.stderr
+    assert "last updated by a newer HarnessOps runtime" in first.stderr
+    assert "latest PyPI release is older than this repo's managed artifacts" in first.stderr
+    assert "uvx --from harnessops==99.0.0 hops update-harness --agent-bridge" in first.stderr
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" not in first.stderr
+
+
+def test_update_notice_can_be_disabled_with_harnessops_env_alias(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    monkeypatch.setenv("HARNESSOPS_DISABLE_UPDATE_NOTICE", "1")
+
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops" / "lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    result = run_cli(["doctor"])
+    assert "HarnessOps update path available" not in result.stderr
 
 
 def test_update_harness_command_suppresses_stale_lock_notice(copy_fixture, monkeypatch):

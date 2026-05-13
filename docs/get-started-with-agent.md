@@ -20,9 +20,9 @@ HarnessOps は、人間がCLIを直接覚えて操作するより、AI Agent に
 Agent は通常、次を実行します。
 
 ```bash
-hops detect
-hops init --profile <detected-profile>
-hops doctor --check-overlay
+uvx --from harnessops hops detect
+uvx --from harnessops hops init --profile <detected-profile>
+uvx --from harnessops hops doctor --check-overlay
 ```
 
 すでに初期化済みなら、doctor だけで状態を確認します。
@@ -32,13 +32,13 @@ hops doctor --check-overlay
 通常は、対象リポジトリに repo-local skill を展開します。runops などの target CLI が project repository を生成する場合も、この方式を本筋にします。
 
 ```bash
-hops init --profile <profile-id> --with-agent-bridge
+uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
 すでに初期化済みなら、repo-local skill だけを展開します。
 
 ```bash
-hops agent bridge --codex
+uvx --from harnessops hops agent bridge --codex
 ```
 
 これにより `.agents/skills/harnessops-bridge/` に加えて、`hops-add-failure`、`hops-issue-triage` などの HarnessOps skill が `.agents/skills/` に入ります。Codex の新しいセッションでは repo-local skill として表示されます。
@@ -55,7 +55,7 @@ Codex の plugin は marketplace 登録だけでは使えず、Codex の plugin 
 Claude 用の repo-local skill も同じ考え方です。
 
 ```bash
-hops agent bridge --claude
+uvx --from harnessops hops agent bridge --claude
 ```
 
 どの場合も、スキルやブリッジは薄い案内に限定します。状態変更の正本は常に `hops` CLI です。

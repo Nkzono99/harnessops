@@ -37,31 +37,19 @@ project repository に `harness-lab/` を作らないでください。上流改
 ```bash
 pwd
 git status --short --branch
-hops detect
-hops detect --json
+uvx --from harnessops hops detect
+uvx --from harnessops hops detect --json
 ```
 
 未コミット変更があっても勝手に戻しません。HarnessOps組み込みに関係ない変更は触りません。
 
 ## HarnessOps CLIの実行方法
 
-対象環境に `hops` が入っているなら、そのまま使います。
+対象リポジトリでは、PATH 上の `hops` に依存せず、PyPI の `harnessops` パッケージから `uvx` で実行します。対象リポジトリから次の形式で実行します。
 
 ```bash
-hops --help
-```
-
-未導入またはクリーンな一回実行が必要なら、PyPI の `harnessops` パッケージから `uvx` で実行します。対象リポジトリから次の形式で実行します。
-
-```bash
-uvx --isolated --from harnessops hops --help
-uvx --isolated --from harnessops hops detect
-```
-
-以降の例で `hops` と書かれている箇所は、必要に応じて次に読み替えます。
-
-```bash
-uvx --isolated --from harnessops hops <command>
+uvx --from harnessops hops --help
+uvx --from harnessops hops detect
 ```
 
 ## Profile選択
@@ -80,20 +68,20 @@ uvx --isolated --from harnessops hops <command>
 profileが決まったら初期化します。
 
 ```bash
-hops init --profile <profile-id>
+uvx --from harnessops hops init --profile <profile-id>
 ```
 
 repo-local skillも入れる場合:
 
 ```bash
-hops init --profile <profile-id> --with-agent-bridge
+uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
 すでに初期化済みの場合は、むやみに `--force` を使いません。まず検証します。
 
 ```bash
-hops doctor --check-overlay --check-records
-hops migrate --check
+uvx --from harnessops hops doctor --check-overlay --check-records
+uvx --from harnessops hops migrate --check
 ```
 
 ## target CLIから生成される場合
@@ -103,8 +91,8 @@ project repository が target CLI の `init` や `update-harness` で作られ�
 初回生成後:
 
 ```bash
-hops init --profile <target-project-profile>
-hops doctor --check-overlay --check-records
+uvx --from harnessops hops init --profile <target-project-profile>
+uvx --from harnessops hops doctor --check-overlay --check-records
 ```
 
 更新時:
@@ -186,8 +174,8 @@ private_terms:
 最低限、次を実行します。
 
 ```bash
-hops doctor --check-overlay --check-records
-hops migrate --check
+uvx --from harnessops hops doctor --check-overlay --check-records
+uvx --from harnessops hops migrate --check
 ```
 
 通常テストがある場合は実行します。
@@ -203,8 +191,8 @@ python -m pytest -q
 - project repository に `harness-feedback/` が作成されている。
 - project repository に target repository用の `harness-lab/` を作っていない。
 - `.harnessops/lock.json` が生成ファイルだけを管理している。
-- `hops doctor --check-overlay --check-records` が通る。
-- `hops migrate --check` が未適用マイグレーションなしを報告する。
+- `uvx --from harnessops hops doctor --check-overlay --check-records` が通る。
+- `uvx --from harnessops hops migrate --check` が未適用マイグレーションなしを報告する。
 - 既存の人間作成ファイルを安全でなく上書きしていない。
 - 未サニタイズ情報を外部へ出していない。
 

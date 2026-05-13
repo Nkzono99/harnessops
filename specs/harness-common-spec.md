@@ -36,15 +36,15 @@ recommended_profile = "runops-project"
 
 ## HarnessOps lifecycle連携
 
-target harness の `init`、`setup`、`update-harness` などは、HarnessOps の管理対象状態を直接書かず、`hops` を呼び出します。
+target harness の `init`、`setup`、`update-harness` などは、HarnessOps の管理対象状態を直接書かず、`uvx --from harnessops hops` を呼び出します。
 
-- project repository 生成後: `hops init --profile <target-project-profile>` と `hops doctor --check-overlay --check-records`
-- target repository setup時: `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records`
-- update時: `hops update-harness`
+- project repository 生成後: `uvx --from harnessops hops init --profile <target-project-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records`
+- target repository setup時: `uvx --from harnessops hops init --profile <target-upstream-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records`
+- update時: `uvx --refresh-package harnessops --from harnessops hops update-harness`
 - `hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含む
-- migration適用時: 人間確認または明示フラグ付きで `hops update-harness --apply-migrations` または `hops migrate --apply`
+- migration適用時: 人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply`
 - 編集済みmanaged fileは上書きせず、runops と同様に `<path>.new` を作る
-- repo-local skill展開は、明示オプションで `hops agent bridge --codex` または `hops init --with-agent-bridge` を呼んでよい
+- repo-local skill展開は、明示オプションで `uvx --from harnessops hops agent bridge --codex` または `uvx --from harnessops hops init --with-agent-bridge` を呼んでよい
 - user領域のAgent plugin installは暗黙に実行せず、複数repoでglobal pluginを共有したい場合だけ任意手順として案内する
 
 ## 検出優先順位

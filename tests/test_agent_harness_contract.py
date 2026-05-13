@@ -68,6 +68,7 @@ def test_packaged_plugin_skills_explain_hops_contract() -> None:
     for path in skill_paths:
         text = path.read_text(encoding="utf-8")
         assert_harness_contract(text)
+        assert "uvx --from harnessops hops <command>" in text
         assert "uv run --with-editable . hops <command>" not in text
 
 

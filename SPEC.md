@@ -361,10 +361,10 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 原則:
 
 - target harness は `.harnessops/`、`harness-feedback/`、`harness-lab/` を直接生成・再編しない。
-- project repository を生成する `init` は、生成先で `hops init --profile <target-project-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
-- target repository 自身の `setup` は、target repo で `hops init --profile <target-upstream-profile>` と `hops doctor --check-overlay --check-records` を呼ぶ。
-- `update-harness` は `hops update-harness` を基本にする。これは `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含み、編集済みmanaged fileは runops と同様に `<path>.new` へ退避する。
-- migration適用は明示オプションまたは人間確認後に `hops update-harness --apply-migrations` または `hops migrate --apply` で行う。
+- project repository を生成する `init` は、生成先で `uvx --from harnessops hops init --profile <target-project-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records` を呼ぶ。
+- target repository 自身の `setup` は、target repo で `uvx --from harnessops hops init --profile <target-upstream-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records` を呼ぶ。
+- `update-harness` は `uvx --refresh-package harnessops --from harnessops hops update-harness` を基本にする。これは `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含み、編集済みmanaged fileは runops と同様に `<path>.new` へ退避する。
+- migration適用は明示オプションまたは人間確認後に `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` で行う。
 - target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
 - repo-local skill展開は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
 - user領域のAgent plugin installはグローバル副作用なので、target/project lifecycleの暗黙処理に含めない。複数repoで同じglobal pluginを使う場合だけ、任意手順として案内する。
@@ -373,15 +373,15 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 
 ```bash
 # target CLI が project repository を生成した後、生成先で実行する
-hops init --profile runops-project
-hops doctor --check-overlay --check-records
+uvx --from harnessops hops init --profile runops-project
+uvx --from harnessops hops doctor --check-overlay --check-records
 
 # target repository 自身のsetupで実行する
-hops init --profile runops-upstream
-hops doctor --check-overlay --check-records
+uvx --from harnessops hops init --profile runops-upstream
+uvx --from harnessops hops doctor --check-overlay --check-records
 
 # update-harnessで実行する
-hops update-harness
+uvx --refresh-package harnessops --from harnessops hops update-harness
 ```
 
 終了コード:
@@ -419,12 +419,12 @@ private_terms:
 
 ## Agent SkillとPluginの契約
 
-標準ルートは、`hops init --with-agent-bridge` または `hops agent bridge --codex` による repo-local skill 展開です。Codex / Claude plugin は、複数repoで同じグローバル入口を使いたい場合の任意UX層です。どちらも状態変更は `hops` に委譲します。
+標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。Codex / Claude plugin は、複数repoで同じグローバル入口を使いたい場合の任意UX層です。どちらも状態変更は `hops` に委譲します。
 
 必須契約:
 
 - 最初に `hops doctor --check-overlay` を実行する。
-- 未リンクなら `hops detect` と `hops init --profile <id>` を使う。
+- 未リンクなら `uvx --from harnessops hops detect` と `uvx --from harnessops hops init --profile <id>` を使う。
 - `.harnessops/`, `harness-feedback/`, `harness-lab/` の構造を直接再編しない。
 - レコード作成・更新はCLIに委譲する。
 - リモートIssue/PRは自動作成しない。Issue作成は `hops feedback issue create --confirm-create` のような明示確認付きコマンドに限定する。

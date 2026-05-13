@@ -7,13 +7,13 @@
 通常の target/project repository では、プラグインではなく repo-local skill 展開を使います。
 
 ```bash
-hops init --profile <profile-id> --with-agent-bridge
+uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
 すでに初期化済みなら:
 
 ```bash
-hops agent bridge --claude
+uvx --from harnessops hops agent bridge --claude
 ```
 
 `hops-add-failure`、`hops-issue-triage`、`hops-compact-lab-memory` などが `.claude/skills/` に展開されます。
@@ -28,8 +28,8 @@ uvx --from harnessops hops agent install --claude --scope user
 
 ## Contract
 
-- 先に `hops doctor --check-overlay` を実行します。
-- 未リンクなら `hops detect` を実行し、検出結果に基づく `hops init --profile <id>` を提案または実行します。
+- 先に `uvx --from harnessops hops doctor --check-overlay` を実行します。
+- 未リンクなら `uvx --from harnessops hops detect` を実行し、検出結果に基づく `uvx --from harnessops hops init --profile <id>` を提案または実行します。
 - レコード作成、ルーティング、エクスポート/インポート、ラボ評価、採用判断は `hops` に委譲します。
 - 外部共有前に `hops feedback export --sanitize` を使い、ローカルパス、非公開語、未公開研究の文脈を残しません。
 - リモートIssue、PR、pushはユーザー確認なしに行いません。
