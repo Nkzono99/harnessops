@@ -9,6 +9,7 @@ import time
 from typing import Any
 
 from harnessops.core import yamlio
+from harnessops.core.markdown import record_heading, section
 
 from harnessops.core.project import Project
 
@@ -69,24 +70,6 @@ def dump_record(frontmatter: dict[str, Any], body: str) -> str:
 
 def read_record(path: Path) -> tuple[dict[str, Any], str]:
     return split_frontmatter(path.read_text(encoding="utf-8"))
-
-
-def _markdown_section(body: str, heading: str) -> str:
-    marker = f"## {heading}"
-    lines = body.splitlines()
-    start: int | None = None
-    for index, line in enumerate(lines):
-        if line.strip() == marker:
-            start = index + 1
-            break
-    if start is None:
-        return ""
-    collected: list[str] = []
-    for line in lines[start:]:
-        if line.startswith("## "):
-            break
-        collected.append(line)
-    return "\n".join(collected).strip()
 
 
 def next_id(directory: Path, prefix: str) -> str:
@@ -517,11 +500,11 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
     (fixture / ".gitkeep").write_text("", encoding="utf-8")
     feedback_path = find_record(project, feedback_id)
     _, feedback_body = read_record(feedback_path)
-    summary = _markdown_section(feedback_body, "概要") or _record_heading(feedback_body, feedback_path.stem)
-    reproduction = _markdown_section(feedback_body, "再現") or "再現条件は source feedback を参照してください。"
+    summary = section(feedback_body, "概要") or record_heading(feedback_body, feedback_path.stem)
+    reproduction = section(feedback_body, "再現") or "再現条件は source feedback を参照してください。"
     expected_change = (
-        _markdown_section(feedback_body, "期待する上流変更")
-        or _markdown_section(feedback_body, "期待する上流改善")
+        section(feedback_body, "期待する上流変更")
+        or section(feedback_body, "期待する上流改善")
         or "期待される変更は source feedback を参照してください。"
     )
     feedback_rel = feedback_path.relative_to(project.root).as_posix()
@@ -636,13 +619,6 @@ def create_hypothesis(
     return path
 
 
-def _record_heading(body: str, fallback: str) -> str:
-    for line in body.splitlines():
-        if line.startswith("# "):
-            return line[2:].strip()
-    return fallback
-
-
 def _records_in(project: Project, record_type: str) -> list[tuple[Path, dict[str, Any], str]]:
     paths = sorted((project.overlay_dir / RECORD_DIRS[record_type]).glob("*.md"))
     records = []
@@ -683,7 +659,7 @@ def _evaluation_section(project: Project, records: list[tuple[Path, dict[str, An
     for record_path_item, record_frontmatter, record_body in records:
         eval_id = str(record_frontmatter.get("id"))
         rel = record_path_item.relative_to(project.root).as_posix()
-        title = _record_heading(record_body, record_path_item.stem)
+        title = record_heading(record_body, record_path_item.stem)
         parts.append(f"### {eval_id}: {title}\n\n")
         parts.append(f"- source: `{rel}`\n")
         parts.append(f"- capability: {record_frontmatter.get('capability', 'unclassified')}\n")
@@ -829,7 +805,7 @@ def _create_or_update_improvement_dossier_from_feedback(
         directory = project.overlay_dir / "improvements"
         record_id = next_id(directory, "IMP")
         created_at = now_iso()
-        title = _record_heading(feedback_body, feedback_path.stem)
+        title = record_heading(feedback_body, feedback_path.stem)
         path = record_path(project, "improvement_dossier", record_id, title)
         existing_frontmatter = {}
     research_scan_records = [
@@ -886,7 +862,7 @@ def _create_or_update_improvement_dossier_from_feedback(
         parts = [f"## {heading}\n"]
         for record_path_item, record_frontmatter, record_body in records:
             rel = record_path_item.relative_to(project.root).as_posix()
-            title = _record_heading(record_body, record_path_item.stem)
+            title = record_heading(record_body, record_path_item.stem)
             parts.append(f"### {record_frontmatter.get('id')}: {title}\n\n")
             parts.append(f"Source: `{rel}`\n\n")
             parts.append(record_body.strip() + "\n")
@@ -899,7 +875,7 @@ def _create_or_update_improvement_dossier_from_feedback(
         if (project.overlay_dir / "views" / "eval-results" / f"{eval_id}-manual-score.md").exists()
     ]
     linked_records = [feedback_id, *research_scan_ids, *eval_ids, *hypothesis_ids, *frontmatter["decisions"]]
-    body = f"""# {record_id}: {_record_heading(feedback_body, feedback_path.stem)}
+    body = f"""# {record_id}: {record_heading(feedback_body, feedback_path.stem)}
 
 ## Status
 

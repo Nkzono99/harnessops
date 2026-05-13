@@ -166,7 +166,7 @@ uvx --from harnessops hops agent bridge --codex
 
 target/meta lab repo では `.agents/skills/hops-issue-triage/`、`hops-run-lab/` など lab/eval/propose/decide 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
 
-Agent plugin のユーザー領域インストールはグローバル副作用なので、target/project lifecycle から暗黙に実行しません。複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
+HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin install は標準運用から外しているため、target/project lifecycle から実行しません。複数repoで使う場合も、各repoで `hops agent bridge` または `update-harness --agent-bridge` を実行します。
 
 ## feedback/triageを移行する場合
 
@@ -205,8 +205,8 @@ harness-lab/README.md
 harness-lab/records/feedback/
 harness-lab/records/eval-cases/
 harness-lab/records/hypotheses/
-harness-lab/records/experiments/
 harness-lab/records/decisions/
+harness-lab/records/research-scans/
 harness-lab/knowledge/
 harness-lab/views/
 ```

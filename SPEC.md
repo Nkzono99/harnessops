@@ -83,7 +83,6 @@ harness-lab/
     eval-cases/
       fixtures/
     hypotheses/
-    experiments/
     decisions/
     research-scans/
   improvements/
@@ -100,12 +99,15 @@ harness-lab/
   views/
     imported-feedback.md
     backlog.md
+    improvements.md
     research-scans.md
     score-trajectory.md
     eval-results/
+    lab-issue-drafts/
 ```
 
 `knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。records と dossier は正本として残し、knowledge layer は source ID と source digest から必ず正本へ戻れる必要があります。
+`records/experiments/` は現在の標準レイアウトから外しています。`hops eval --experiment` は既存の `X` record を読む互換入口として残しますが、experiment 作成 workflow が入るまでは既定生成しません。
 
 ### `.harnessops/`
 
@@ -293,7 +295,7 @@ HarnessOps が管理するもの:
 - disposition の保存、routing evidence、local/upstream/meta/external/private の分離。
 - sanitizer、feedback bundle、export/import。
 - imported feedback から eval case、hypothesis、decision へ進む共通ラボフロー。
-- repo-local skill と Codex / Claude plugin のCLI委譲契約。
+- repo-local skill のCLI委譲契約。
 
 target repository が提供するもの:
 
@@ -331,6 +333,8 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops doctor` | いいえ | link、overlay、lock、recordの検証。 |
 | `hops migrate --check/--apply` | `--apply` のみ | layout migrationの確認または適用。 |
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせる。編集済みmanaged fileは `<path>.new` に退避。 |
+| `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の preflight。git pull-first、doctor、migrate check、overlay counts、run ledger を返し、dirty/diverged/conflict では停止する。 |
+| `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | steward run 後の変更処理。`commit-local` は `--validation-passed` がある時だけ local automation branch に commit し、push は行わない。 |
 | `hops add-failure` | はい | project側失敗レコード作成。 |
 | `hops add-feedback --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
 | `hops route --record <id>` | はい | record dispositionの分類保存。 |
@@ -351,7 +355,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |
 | `hops eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
 | `hops decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
-| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と任意plugin成果物の管理。 |
+| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と検証。`install --scope repo` は `bridge` の互換入口で、user plugin install は標準運用から外す。 |
 | `hops report` | いいえ | 簡潔なrepository report表示。 |
 
 ## Target harness lifecycle連携
@@ -365,10 +369,11 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 - target repository 自身の `setup` は、target repo で `uvx --from harnessops hops init --profile <target-upstream-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records` を呼ぶ。
 - `update-harness` は `uvx --refresh-package harnessops --from harnessops hops update-harness` を基本にする。これは `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含み、編集済みmanaged fileは runops と同様に `<path>.new` へ退避する。lock の `harnessops_version` が古い場合は、PyPI 上の checkpoint 版を `uvx --from harnessops==<version> hops update-harness` で順に適用してから現在版の更新を続ける。
 - 段階更新の計画確認には `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade` を使う。明示的に exact version の subprocess 列だけを実行する場合は `--apply-upgrade-chain` を使う。checkpoint 粒度は既定で minor、必要なら `--upgrade-granularity patch|minor|major` で変える。
+- 通常コマンドは、`.harnessops/lock.json` の `harnessops_version`、現在 runtime、PyPI 最新 version を見て update notice を表示できる。抑止は `--disable-update-notice` / `HOPS_DISABLE_UPDATE_NOTICE`、PyPI 確認だけの抑止は `HOPS_DISABLE_PYPI_UPDATE_CHECK` を使う。
 - migration適用は明示オプションまたは人間確認後に `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` で行う。
 - target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
 - repo-local skill展開は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
-- user領域のAgent plugin installはグローバル副作用なので、target/project lifecycleの暗黙処理に含めない。複数repoで同じglobal pluginを使う場合だけ、任意手順として案内する。
+- user領域のAgent plugin installは標準運用から外す。複数repoで使う場合も、各repoで repo-local skill を展開する。
 
 例:
 
@@ -419,9 +424,9 @@ private_terms:
   - internal-method-name
 ```
 
-## Agent SkillとPluginの契約
+## Agent Skillの契約
 
-標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。Codex / Claude plugin は、複数repoで同じグローバル入口を使いたい場合の任意UX層です。どちらも状態変更は `hops` に委譲します。
+標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。root `plugins/` とユーザー領域 plugin install は標準導線から外し、状態変更は常に `hops` に委譲します。
 
 repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops propose`、`hops eval`、`hops decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
 
@@ -469,7 +474,7 @@ repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせ�
 - `hops eval --manual` がscorecardを保存する。
 - `hops decide --status adopted` は証拠、回帰リスク、ガードパスなしでは失敗する。
 - 生成ファイルのユーザー編集を安全でなく上書きしない。
-- repo-local skill と Codex/Claude plugin はCLI委譲の薄い契約を守る。
+- repo-local skill はCLI委譲の薄い契約を守る。
 
 標準確認:
 

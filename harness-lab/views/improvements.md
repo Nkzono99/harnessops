@@ -26,3 +26,4 @@
 - `IMP0024` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0027 unclassified unclassified
 - `IMP0025` adopted maturity=investigated scope=harnessops-core promotion=target-lab-case source=FB0029 unclassified unclassified
 - `IMP0026` adopted maturity=evaluated scope=harnessops-core promotion=shipped-behavior source=FB0030 harness_lab_traceability missing_lab_capture
+- `IMP0027` adopted maturity=evaluated scope=harnessops-core promotion=shipped-behavior source=FB0031 repository_maintainability surface_sprawl

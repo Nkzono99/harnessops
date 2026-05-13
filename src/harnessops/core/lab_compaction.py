@@ -7,6 +7,7 @@ from typing import Any
 
 from harnessops.core import yamlio
 from harnessops.core.lock import sha256_file
+from harnessops.core.markdown import record_heading, section
 from harnessops.core.project import Project
 from harnessops.core.records import now_iso, read_record
 
@@ -84,31 +85,6 @@ def _threshold_triggers(
 
 def _rel(project: Project, path: Path) -> str:
     return path.relative_to(project.root).as_posix()
-
-
-def _record_heading(body: str, fallback: str) -> str:
-    for line in body.splitlines():
-        if line.startswith("# "):
-            return line[2:].strip()
-    return fallback
-
-
-def _section(body: str, heading: str) -> str:
-    marker = f"## {heading}"
-    lines = body.splitlines()
-    start: int | None = None
-    for index, line in enumerate(lines):
-        if line.strip() == marker:
-            start = index + 1
-            break
-    if start is None:
-        return ""
-    collected: list[str] = []
-    for line in lines[start:]:
-        if line.startswith("## "):
-            break
-        collected.append(line)
-    return "\n".join(collected).strip()
 
 
 def _one_line(text: object, *, limit: int = 220) -> str:
@@ -310,12 +286,12 @@ def _collect_improvements(project: Project) -> list[dict[str, Any]]:
         ]
         note_lesson = next((card["notes"] for card in reversed(scorecards) if card.get("notes")), "")
         investigation_lesson = investigation_summaries[-1] if investigation_summaries else ""
-        observation_lesson = _one_line(_section(body, "Source Observation"), limit=240)
+        observation_lesson = _one_line(section(body, "Source Observation"), limit=240)
         lesson = note_lesson or investigation_lesson or observation_lesson or "No compact lesson recorded yet."
         items.append(
             {
                 "id": str(frontmatter.get("id")),
-                "title": _record_heading(body, path.stem),
+                "title": record_heading(body, path.stem),
                 "path": path.relative_to(project.root).as_posix(),
                 "status": str(frontmatter.get("status", "unknown")),
                 "maturity": str(frontmatter.get("maturity", "raw")),
@@ -400,7 +376,7 @@ def _collect_research_scans(project: Project) -> list[dict[str, Any]]:
         scans.append(
             {
                 "id": str(frontmatter.get("id")),
-                "title": _record_heading(body, path.stem),
+                "title": record_heading(body, path.stem),
                 "path": path.relative_to(project.root).as_posix(),
                 "status": str(frontmatter.get("status", "captured")),
                 "scope": str(frontmatter.get("scope", "")),
@@ -436,7 +412,7 @@ def _collect_abstraction_sources(project: Project) -> list[dict[str, Any]]:
                 {
                     "id": str(frontmatter.get("id", path.stem)),
                     "record_type": str(frontmatter.get("record_type", "unknown")),
-                    "title": _record_heading(body, path.stem),
+                    "title": record_heading(body, path.stem),
                     "path": _rel(project, path),
                     "status": str(frontmatter.get("status", "unknown")),
                     "maturity": str(frontmatter.get("maturity", "")),

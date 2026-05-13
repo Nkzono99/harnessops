@@ -5,6 +5,7 @@ from typing import Any
 
 from harnessops import __version__
 from harnessops.core.lock import build_lock, load_lock, sha256_file, sha256_text, write_lock
+from harnessops.core.managed_files import conflict_path
 from harnessops.core.manifest import write_manifest
 from harnessops.core.project import write_project
 from harnessops.profiles.registry import profile_fingerprint as registry_profile_fingerprint
@@ -102,18 +103,6 @@ def _write_generated(path: Path, text: str, *, force: bool, old_hash: str | None
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
-def _conflict_path(path: Path, text: str) -> Path:
-    candidate = path.with_name(path.name + ".new")
-    if not candidate.exists() or candidate.read_text(encoding="utf-8") == text:
-        return candidate
-    index = 1
-    while True:
-        numbered = path.with_name(f"{path.name}.new.{index}")
-        if not numbered.exists() or numbered.read_text(encoding="utf-8") == text:
-            return numbered
-        index += 1
-
-
 def _touch_gitkeep(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     gitkeep = path / ".gitkeep"
@@ -136,7 +125,6 @@ def overlay_dirs(overlay_mode: str) -> list[str]:
         "records/eval-cases",
         "records/eval-cases/fixtures",
         "records/hypotheses",
-        "records/experiments",
         "records/decisions",
         "records/research-scans",
         "improvements",
@@ -205,7 +193,7 @@ def refresh_managed_files(
                 managed[rel] = template_hash
             updated.append(rel)
         else:
-            conflict = _conflict_path(path, text)
+            conflict = conflict_path(path, text)
             if not dry_run:
                 conflict.write_text(text, encoding="utf-8", newline="\n")
             written_new.append({"path": rel, "new": conflict.relative_to(root).as_posix()})

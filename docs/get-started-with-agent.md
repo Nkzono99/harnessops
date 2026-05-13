@@ -43,14 +43,7 @@ uvx --from harnessops hops agent bridge --codex
 
 これにより `.agents/skills/harnessops-bridge/` に加えて、リポジトリの role に合う HarnessOps skill が `.agents/skills/` に入ります。project-side の `feedback-source` repo では `hops-add-failure`、`hops-route-feedback`、`hops-export-feedback`、`hops-update-harness` などに絞り、`hops-run-lab` や propose/eval/decide の導線は target/meta lab repo 側に置きます。Codex の新しいセッションでは repo-local skill として表示されます。
 
-同じAgentで複数リポジトリの HarnessOps を扱い、ユーザー領域へ一度だけ入れたい場合は、任意で同梱プラグインを使えます。
-
-```bash
-uvx --from harnessops hops agent install --codex --scope user
-codex plugin marketplace add "$HOME"
-```
-
-Codex の plugin は marketplace 登録だけでは使えず、Codex の plugin 画面または app-server 経由でインストールが必要です。通常の target/project integration では、この global plugin を必須にしません。
+HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin は配布・同期・権限の面が重く、標準運用からは外しています。複数リポジトリで使う場合も、各リポジトリで `hops agent bridge` または `update-harness --agent-bridge` を実行してください。
 
 Claude 用の repo-local skill も同じ考え方です。
 

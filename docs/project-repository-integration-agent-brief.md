@@ -111,7 +111,7 @@ uvx --refresh-package harnessops --from harnessops hops update-harness
 uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade
 ```
 
-未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。ユーザー領域の plugin install は標準運用から外しているため、複数repoで使う場合も各repoで repo-local skill を展開します。
 
 ## target固有triageとの分担
 

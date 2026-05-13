@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from harnessops.core.lock import load_lock, sha256_file, write_lock
+from harnessops.core.managed_files import conflict_path
 from harnessops.core.project import load_project
 
 FEEDBACK_SOURCE_MODES = {"feedback-source", "local-and-feedback"}
@@ -80,23 +81,8 @@ def _overlay_mode_for_root(root: Path) -> str | None:
         return None
 
 
-def packaged_plugin_source(host: str) -> Path:
-    source_root = Path(__file__).resolve().parents[3] / "plugins" / host / "harnessops"
-    if source_root.exists():
-        return source_root
-    return Path(str(resources.files("harnessops").joinpath("agent_assets", "plugins", host, "harnessops")))
-
-
-def _conflict_path(path: Path, text: str) -> Path:
-    candidate = path.with_name(path.name + ".new")
-    if not candidate.exists() or candidate.read_text(encoding="utf-8") == text:
-        return candidate
-    index = 1
-    while True:
-        numbered = path.with_name(f"{path.name}.new.{index}")
-        if not numbered.exists() or numbered.read_text(encoding="utf-8") == text:
-            return numbered
-        index += 1
+def packaged_skill_source(host: str) -> Path:
+    return Path(str(resources.files("harnessops").joinpath("agent_assets", "skills", host, "harnessops")))
 
 
 def _skill_allowlist_for_mode(overlay_mode: str | None) -> set[str] | None:
@@ -128,7 +114,7 @@ def packaged_bridge_files(root: Path, *, codex: bool = True, claude: bool = Fals
         files[root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md"] = bridge_text
         files.update(
             _packaged_skill_files(
-                packaged_plugin_source("codex"),
+                packaged_skill_source("codex"),
                 root / ".agents" / "skills",
                 allowlist=skill_allowlist,
             )
@@ -137,7 +123,7 @@ def packaged_bridge_files(root: Path, *, codex: bool = True, claude: bool = Fals
         files[root / ".claude" / "skills" / "harnessops-bridge" / "SKILL.md"] = bridge_text
         files.update(
             _packaged_skill_files(
-                packaged_plugin_source("claude"),
+                packaged_skill_source("claude"),
                 root / ".claude" / "skills",
                 allowlist=skill_allowlist,
             )
@@ -209,7 +195,7 @@ def refresh_bridge_files(
             updated.append(rel)
             continue
 
-        conflict = _conflict_path(path, text)
+        conflict = conflict_path(path, text)
         if not dry_run:
             conflict.write_text(text, encoding="utf-8", newline="\n")
         conflicted.append(rel)

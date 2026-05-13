@@ -56,6 +56,15 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 10. `hops steward preflight --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
 11. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
 
+## Update notice
+
+通常の CLI コマンドは、HarnessOps にリンクされた repo で `.harnessops/lock.json` の `harnessops_version`、現在の runtime、PyPI の最新 version を見て update notice を表示できます。`update-harness` と `version` 自体では notice を出しません。
+
+- 全体抑止: `hops --disable-update-notice <command>`、`HOPS_DISABLE_UPDATE_NOTICE=1`、または `HARNESSOPS_DISABLE_UPDATE_NOTICE=1`
+- PyPI 確認だけ抑止: `HOPS_DISABLE_PYPI_UPDATE_CHECK=1` または `HARNESSOPS_DISABLE_PYPI_UPDATE_CHECK=1`
+- 通常更新: `uvx --refresh-package harnessops --from harnessops hops update-harness`
+- 段階更新確認: `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
+
 ## 終了コード
 
 | コード | 意味 |

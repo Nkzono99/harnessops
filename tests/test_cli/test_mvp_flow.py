@@ -1153,19 +1153,16 @@ def test_doctor_rejects_duplicate_improvement_dossier_source_feedback(copy_fixtu
     assert "duplicate improvement dossier source_feedback FB0001" in doctor.output
 
 
-def test_agent_user_install_uses_home(copy_fixture, tmp_path, monkeypatch):
+def test_agent_user_install_is_removed(copy_fixture, tmp_path, monkeypatch):
     root = copy_fixture("harnessops-core-minimal")
     monkeypatch.chdir(root)
     monkeypatch.setenv("HOME", str(tmp_path))
     run_cli(["init", "--profile", "harnessops-core"])
-    result = run_cli(["agent", "install", "--codex", "--scope", "user"])
-    assert ".codex/plugins/harnessops" in result.output
-    assert ".agents/plugins/marketplace.json" in result.output
-    assert (tmp_path / ".codex/plugins/harnessops/.codex-plugin/plugin.json").exists()
-    marketplace = json.loads((tmp_path / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
-    entry = next(plugin for plugin in marketplace["plugins"] if plugin["name"] == "harnessops")
-    assert entry["source"]["path"] == "./.codex/plugins/harnessops"
-    assert entry["policy"]["installation"] == "AVAILABLE"
+    result = runner.invoke(app, ["agent", "install", "--codex", "--scope", "user"])
+    assert result.exit_code == 1
+    assert "user plugin install は廃止されました" in result.output
+    assert not (tmp_path / ".codex/plugins/harnessops").exists()
+    assert not (tmp_path / ".agents/plugins/marketplace.json").exists()
 
 
 def test_eval_by_experiment_record(copy_fixture, monkeypatch):

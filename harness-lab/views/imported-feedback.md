@@ -31,3 +31,4 @@
 - `FB0028` triaged uvx_update_guidance stale_hops_update_path
 - `FB0029` triaged unclassified unclassified
 - `FB0030` triaged harness_lab_traceability missing_lab_capture
+- `FB0031` triaged repository_maintainability surface_sprawl

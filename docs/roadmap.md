@@ -23,7 +23,6 @@
 - `eval --manual`
 - `decide`
 - repo-local HarnessOps skills
-- Codex / Claude plugin package as optional global UX
 
 意図的にまだ扱わないもの:
 
@@ -57,7 +56,7 @@
 - harness-owned profiles via entry points
 - profile `domain_triage` hooks for target-specific diagnostic skills
 
-0.2の設計では、repo-local skill展開をfirst-classにします。pluginは複数repoで共有する任意UXとし、どちらも状態を持たず、必ず `hops` CLIへ委譲します。
+0.2の設計では、repo-local skill展開をfirst-classにします。ユーザー領域の plugin 配布は標準導線から外し、各repoで role-scoped skill を展開します。
 
 ## 0.3: experiment runner とスコア推移
 
@@ -124,7 +123,6 @@ project event
 - GitHub issue draft/create helper
 - CI snippet generation
 - repo-local skill package verification
-- optional plugin package verification
 - optional MCP integration
 
 remote action の原則:
@@ -143,7 +141,7 @@ remote action の原則:
 - `.harnessops/project.toml` schema compatibility
 - `harness-feedback/` と `harness-lab/` のrecord compatibility
 - migration path
-- repo-local skill and plugin contract
+- repo-local skill contract
 - profile resolution order
 - sanitizer default behavior
 
@@ -171,7 +169,7 @@ stable directory:
 - decision record に evidence、regression risk、guard pathを必須化する。
 - scorecard に anti_theater dimensionを残す。
 - deletion/consolidation alternativeをhypothesisに残す。
-- repo-local skillとplugin skillはCLI commandだけを呼ぶ。
+- repo-local skillはCLI commandだけを呼ぶ。
 - public promotionはsanitized candidateを経由する。
 - single aggregate scoreだけで採用しない。
 - project-specific workaroundをtarget templateへ混ぜない。

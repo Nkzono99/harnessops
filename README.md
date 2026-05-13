@@ -31,6 +31,7 @@ HarnessOps は3つのリポジトリ役割を分けます。
 - target repositoryへ組み込むAgentに渡す文書: [docs/target-integration-agent-brief.md](docs/target-integration-agent-brief.md)
 - project repository単体へ組み込むAgentに渡す文書: [docs/project-repository-integration-agent-brief.md](docs/project-repository-integration-agent-brief.md)
 - 現行仕様の正本: [SPEC.md](SPEC.md)
+- 現在のCLI surface: [specs/cli-spec.md](specs/cli-spec.md)
 - 設計思想: [docs/design-principles.md](docs/design-principles.md)
 - 今後のロードマップ: [docs/roadmap.md](docs/roadmap.md)
 - 個別仕様の補助資料: [specs/](specs/)
@@ -41,6 +42,7 @@ HarnessOps は3つのリポジトリ役割を分けます。
 - 未サニタイズのフィードバックは既定で外部出力されません。
 - 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 - 生成ビューは更新されますが、人が作成した `records/` 配下の履歴はビュー更新で再生成されません。
+- `hops` は通常コマンド実行時に `.harnessops/lock.json` と PyPI の version を見て update notice を出します。抑止する場合は `--disable-update-notice`、`HOPS_DISABLE_UPDATE_NOTICE=1`、または PyPI 確認だけ `HOPS_DISABLE_PYPI_UPDATE_CHECK=1` を使います。
 
 ## 開発時の確認
 

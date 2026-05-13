@@ -48,7 +48,7 @@ target harness の `init`、`setup`、`update-harness` などは、HarnessOps �
 - 編集済みmanaged fileは上書きせず、runops と同様に `<path>.new` を作る
 - repo-local skill展開は、明示オプションで `uvx --from harnessops hops agent bridge --codex` または `uvx --from harnessops hops init --with-agent-bridge` を呼んでよい
 - repo-local bridge と skill 展開は overlay mode に合わせる。`feedback-source` / `local-and-feedback` は feedback capture/export と lifecycle 系に絞り、lab/eval/propose/decide は `upstream-lab` / `meta-lab` にだけ出す
-- user領域のAgent plugin installは暗黙に実行せず、複数repoでglobal pluginを共有したい場合だけ任意手順として案内する
+- user領域のAgent plugin installは標準運用から外す。複数repoで使う場合も各repoで repo-local skill を展開する
 
 ## 検出優先順位
 

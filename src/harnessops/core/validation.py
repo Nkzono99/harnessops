@@ -193,7 +193,6 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
             "records/feedback",
             "records/eval-cases",
             "records/hypotheses",
-            "records/experiments",
             "records/decisions",
             "records/research-scans",
             "views",
