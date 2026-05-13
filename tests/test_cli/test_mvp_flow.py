@@ -13,6 +13,7 @@ from typer.testing import CliRunner
 
 from harnessops.cli import feedback as feedback_cli
 from harnessops.cli import update_notice
+from harnessops.core import upgrade_chain
 from harnessops.cli.main import app
 from harnessops.core import yamlio
 from harnessops.core.agent_bridge import packaged_bridge_files
@@ -362,6 +363,100 @@ def test_update_harness_force_overwrites_edited_agent_bridge_file(copy_fixture, 
 
     assert skill.read_text(encoding="utf-8") == packaged_bridge_files(root, codex=True)[skill]
     assert not skill.with_name("SKILL.md.new").exists()
+
+
+def test_update_harness_plan_upgrade_reports_minor_checkpoints(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops/lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        upgrade_chain,
+        "fetch_pypi_versions",
+        lambda: (["0.0.3", "0.0.5", "0.1.6"], "0.1.6"),
+    )
+
+    result = run_cli(["update-harness", "--plan-upgrade"])
+
+    assert "upgrade chain: needed" in result.output
+    assert "0.0.5" in result.output
+    assert __version__ in result.output
+    assert "uvx --from harnessops==0.0.5 hops update-harness" in result.output
+
+
+def test_update_harness_apply_upgrade_chain_runs_exact_uvx_steps(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops/lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        upgrade_chain,
+        "fetch_pypi_versions",
+        lambda: (["0.0.5", "0.1.6"], "0.1.6"),
+    )
+    calls = []
+
+    def fake_run_step(step, *, cwd):
+        calls.append((step.version, step.command, cwd))
+        return upgrade_chain.UpgradeRun(
+            version=step.version,
+            command=step.command,
+            returncode=0,
+            stdout=f"updated {step.version}\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(upgrade_chain, "run_upgrade_step", fake_run_step)
+
+    result = run_cli(["update-harness", "--apply-upgrade-chain", "--agent-bridge", "--codex"])
+
+    assert [call[0] for call in calls] == ["0.0.5", __version__]
+    assert calls[0][1][:4] == ["uvx", "--from", "harnessops==0.0.5", "hops"]
+    assert "--agent-bridge" not in calls[0][1]
+    assert calls[-1][1][-2:] == ["--agent-bridge", "--codex"]
+    assert "upgrade chain: 0.0.5 ok" in result.output
+    assert "upgrade chain: " + __version__ + " ok" in result.output
+
+
+def test_update_harness_auto_chains_intermediate_steps_before_current_refresh(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    lock_path = root / ".harnessops/lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["harnessops_version"] = "0.0.1"
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        upgrade_chain,
+        "fetch_pypi_versions",
+        lambda: (["0.0.5", "0.1.6"], "0.1.6"),
+    )
+    calls = []
+
+    def fake_run_step(step, *, cwd):
+        calls.append(step.version)
+        return upgrade_chain.UpgradeRun(
+            version=step.version,
+            command=step.command,
+            returncode=0,
+            stdout="",
+            stderr="",
+        )
+
+    monkeypatch.setattr(upgrade_chain, "run_upgrade_step", fake_run_step)
+
+    result = run_cli(["update-harness"])
+
+    assert calls == ["0.0.5"]
+    assert "upgrade chain: 0.0.5 ok" in result.output
+    updated_lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    assert updated_lock["harnessops_version"] == __version__
 
 
 def test_hops_usage_notices_stale_harnessops_lock_once(copy_fixture, monkeypatch):

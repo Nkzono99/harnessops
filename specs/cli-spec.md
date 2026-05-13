@@ -15,7 +15,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops link --profile <id>` | はい | 既存リポジトリを HarnessOps に関連付けるエイリアスです。 |
 | `hops doctor` | いいえ | プロジェクトリンク、オーバーレイ、ロック、レコードを検証します。 |
 | `hops migrate --check/--apply` | `--apply` のみ | スキーマ/レイアウトマイグレーションを確認または適用します。 |
-| `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。編集済みmanaged fileは `<path>.new` に書きます。 |
+| `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。lock の `harnessops_version` が古い場合は PyPI checkpoint を順に適用します。編集済みmanaged fileは `<path>.new` に書きます。 |
 | `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の定型 preflight を実行します。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を返し、dirty/diverged/conflict では停止します。 |
 | `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | daily steward run 後の変更処理を行います。`patch-only` は worktree に残して報告し、`commit-local` は `--validation-passed` がある時だけ local automation branch に commit します。push は行いません。 |
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
@@ -47,13 +47,14 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 1. GitHub Issue、プルリクエスト、リモート変更は暗黙に作成しません。`hops feedback issue create` は title/body と重複候補を表示し、`--confirm-create` が明示された場合だけ GitHub Issue を作成します。
 2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。`--format github-issue` は公開共有前提のため、`--sanitize` を必須とし、`--allow-private` との併用を拒否します。
 3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。
-4. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
-5. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。
-6. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
-7. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
-8. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
-9. `hops steward preflight --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
-10. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
+4. `update-harness --plan-upgrade` は lock の `harnessops_version` から現在 runtime までの checkpoint 計画を表示します。`--apply-upgrade-chain` は exact version の `uvx --from harnessops==<version> hops update-harness` を順に実行します。
+5. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
+6. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。
+7. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
+8. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
+9. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
+10. `hops steward preflight --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
+11. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
 
 ## 終了コード
 

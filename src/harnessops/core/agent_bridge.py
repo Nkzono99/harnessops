@@ -40,6 +40,7 @@ PROJECT_BRIDGE_BODY = """
 - `uvx --from harnessops hops feedback export --sanitize`
 - `uvx --from harnessops hops feedback export --sanitize --format github-issue`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness`
+- `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
 - `uvx --from harnessops hops migrate --check`
 
 `hops feedback import`、`hops lab ...`、`hops propose`、`hops eval`、`hops decide` は upstream-lab または meta-lab repo で実行してください。project repo では未サニタイズ情報、ローカルパス、private term を外部向け bundle や issue コメントへ戻さないでください。
@@ -57,6 +58,7 @@ LAB_BRIDGE_BODY = """
 - `uvx --from harnessops hops eval --case <Eid> --manual`
 - `uvx --from harnessops hops decide --from <id> --status <status>`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness`
+- `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
 - `uvx --from harnessops hops migrate --check`
 
 外部共有前にサニタイズ済みバンドルを確認し、ローカルパス、非公開語、未公開研究の文脈を残さないでください。

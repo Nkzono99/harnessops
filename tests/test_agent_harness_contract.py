@@ -207,6 +207,8 @@ def test_update_harness_skill_is_packaged() -> None:
         text = skill.read_text(encoding="utf-8")
         assert "hops update-harness" in text
         assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" in text
+        assert "uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade" in text
+        assert "uvx --refresh-package harnessops --from harnessops hops update-harness --apply-upgrade-chain" in text
         assert ".new" in text
         assert_harness_contract(text)
 

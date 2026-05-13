@@ -4,13 +4,73 @@ import json
 
 import typer
 
+from harnessops import __version__
 from harnessops.core.agent_bridge import refresh_bridge_files
 from harnessops.core.migration import apply_migrations as apply_pending_migrations, check_migrations
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.render import refresh_views
+from harnessops.core.upgrade_chain import (
+    GRANULARITIES,
+    UpgradePlan,
+    UpgradeRun,
+    build_upgrade_plan,
+    run_upgrade_chain,
+    upgrade_chain_active,
+)
 from harnessops.core.validation import doctor as doctor_project
+
+
+def _chain_passthrough_args(
+    *,
+    apply_migrations: bool,
+    force: bool,
+    agent_bridge: bool,
+    codex: bool,
+    claude: bool,
+    force_agent_bridge: bool,
+) -> list[str]:
+    args: list[str] = []
+    if apply_migrations:
+        args.append("--apply-migrations")
+    if force:
+        args.append("--force")
+    if agent_bridge:
+        args.append("--agent-bridge")
+    if codex:
+        args.append("--codex")
+    if claude:
+        args.append("--claude")
+    if force_agent_bridge:
+        args.append("--force-agent-bridge")
+    return args
+
+
+def _echo_upgrade_plan(plan: UpgradePlan, *, prefix: str = "") -> None:
+    latest = plan.latest_pypi_version or "unknown"
+    recorded = plan.recorded_version or "unknown"
+    typer.echo(f"{prefix}upgrade chain: {'needed' if plan.needed else 'not needed'}")
+    typer.echo(f"{prefix}  repo managed artifacts: {recorded}")
+    typer.echo(f"{prefix}  current hops runtime:   {plan.current_version}")
+    typer.echo(f"{prefix}  target version:         {plan.target_version}")
+    typer.echo(f"{prefix}  latest PyPI release:    {latest}")
+    typer.echo(f"{prefix}  granularity:            {plan.granularity}")
+    if plan.reason:
+        typer.echo(f"{prefix}  reason:                 {plan.reason}")
+    for index, step in enumerate(plan.steps, start=1):
+        typer.echo(f"{prefix}  {index}. {step.version}")
+        typer.echo(f"{prefix}     {' '.join(step.command)}")
+
+
+def _echo_upgrade_runs(runs: list[UpgradeRun], *, prefix: str = "") -> None:
+    for run in runs:
+        status = "ok" if run.returncode == 0 else f"failed ({run.returncode})"
+        typer.echo(f"{prefix}upgrade chain: {run.version} {status}")
+        if run.stdout.strip():
+            typer.echo(run.stdout.rstrip())
+        if run.stderr.strip():
+            typer.echo(run.stderr.rstrip(), err=True)
 
 
 def update_harness_command(
@@ -24,11 +84,125 @@ def update_harness_command(
         False,
         "--force-agent-bridge/--no-force-agent-bridge",
     ),
+    plan_upgrade: bool = typer.Option(False, "--plan-upgrade"),
+    apply_upgrade_chain: bool = typer.Option(False, "--apply-upgrade-chain"),
+    upgrade_chain: bool = typer.Option(
+        True,
+        "--upgrade-chain/--no-upgrade-chain",
+        help="古い HarnessOps managed artifacts を checkpoint 版で段階更新します。",
+    ),
+    upgrade_granularity: str = typer.Option(
+        "minor",
+        "--upgrade-granularity",
+        help="upgrade chain の checkpoint 粒度: patch, minor, major。",
+    ),
+    upgrade_target: str | None = typer.Option(
+        None,
+        "--upgrade-target",
+        help="upgrade chain の到達 HarnessOps version。既定は現在の runtime。",
+    ),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """HarnessOps 管理状態を現在の hops 実装に合わせて更新または検証します。"""
+    if upgrade_granularity not in GRANULARITIES:
+        raise typer.BadParameter(f"--upgrade-granularity must be one of: {', '.join(sorted(GRANULARITIES))}")
+
     root = find_root()
     project = load_project(root)
+    chain_args = _chain_passthrough_args(
+        apply_migrations=apply_migrations,
+        force=force,
+        agent_bridge=agent_bridge,
+        codex=codex,
+        claude=claude,
+        force_agent_bridge=force_agent_bridge,
+    )
+    intermediate_chain_args = _chain_passthrough_args(
+        apply_migrations=apply_migrations,
+        force=force,
+        agent_bridge=False,
+        codex=False,
+        claude=False,
+        force_agent_bridge=False,
+    )
+    chain_plan = build_upgrade_plan(
+        root,
+        target_version=upgrade_target,
+        granularity=upgrade_granularity,
+        extra_args=chain_args,
+        intermediate_args=intermediate_chain_args,
+    )
+    chain_runs: list[UpgradeRun] = []
+
+    if plan_upgrade:
+        if json_output:
+            typer.echo(json.dumps({"upgrade_chain": chain_plan.as_dict()}, ensure_ascii=False, indent=2, sort_keys=True))
+        else:
+            _echo_upgrade_plan(chain_plan)
+        return
+
+    if apply_upgrade_chain:
+        chain_runs = run_upgrade_chain(chain_plan, cwd=root)
+        ok = all(run.returncode == 0 for run in chain_runs)
+        if json_output:
+            typer.echo(
+                json.dumps(
+                    {
+                        "ok": ok,
+                        "upgrade_chain": chain_plan.as_dict(),
+                        "runs": [run.as_dict() for run in chain_runs],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                    sort_keys=True,
+                )
+            )
+        else:
+            _echo_upgrade_plan(chain_plan)
+            _echo_upgrade_runs(chain_runs)
+        if not ok:
+            raise typer.Exit(1)
+        return
+
+    auto_chain_steps = []
+    if (
+        upgrade_chain
+        and not dry_run
+        and not upgrade_chain_active()
+        and chain_plan.needed
+        and (upgrade_target is None or upgrade_target == __version__)
+    ):
+        auto_chain_steps = [step for step in chain_plan.steps if step.version != __version__]
+        if auto_chain_steps:
+            auto_plan = UpgradePlan(
+                recorded_version=chain_plan.recorded_version,
+                current_version=chain_plan.current_version,
+                target_version=chain_plan.target_version,
+                latest_pypi_version=chain_plan.latest_pypi_version,
+                granularity=chain_plan.granularity,
+                steps=auto_chain_steps,
+                available_versions=chain_plan.available_versions,
+                reason=chain_plan.reason,
+            )
+            chain_runs = run_upgrade_chain(auto_plan, cwd=root)
+            if not all(run.returncode == 0 for run in chain_runs):
+                if json_output:
+                    typer.echo(
+                        json.dumps(
+                            {
+                                "ok": False,
+                                "upgrade_chain": auto_plan.as_dict(),
+                                "runs": [run.as_dict() for run in chain_runs],
+                            },
+                            ensure_ascii=False,
+                            indent=2,
+                            sort_keys=True,
+                        )
+                    )
+                else:
+                    _echo_upgrade_plan(auto_plan)
+                    _echo_upgrade_runs(chain_runs)
+                raise typer.Exit(1)
 
     if apply_migrations and not dry_run:
         migration_entry = apply_pending_migrations(project)
@@ -106,11 +280,30 @@ def update_harness_command(
             "written_new": agent_result["written_new"],
         },
         "doctor": report,
+        "upgrade_chain": {
+            "plan": chain_plan.as_dict(),
+            "auto_applied": [run.as_dict() for run in chain_runs],
+        },
     }
     if json_output:
         typer.echo(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     else:
         prefix = "[dry-run] " if dry_run else ""
+        if chain_runs:
+            _echo_upgrade_plan(
+                UpgradePlan(
+                    recorded_version=chain_plan.recorded_version,
+                    current_version=chain_plan.current_version,
+                    target_version=chain_plan.target_version,
+                    latest_pypi_version=chain_plan.latest_pypi_version,
+                    granularity=chain_plan.granularity,
+                    steps=auto_chain_steps,
+                    available_versions=chain_plan.available_versions,
+                    reason=chain_plan.reason,
+                ),
+                prefix=prefix,
+            )
+            _echo_upgrade_runs(chain_runs, prefix=prefix)
         typer.echo(f"{prefix}{'ok' if result['ok'] else '失敗'}")
         if migration_entry:
             typer.echo(f"migration: applied {migration_entry.relative_to(root).as_posix()}")

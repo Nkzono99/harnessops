@@ -25,6 +25,7 @@ DISABLE_PYPI_ENV_VARS = ("HOPS_DISABLE_PYPI_UPDATE_CHECK", "HARNESSOPS_DISABLE_P
 SKIPPED_COMMANDS = {"update-harness", "version"}
 
 UPDATE_COMMAND = "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge"
+PLAN_UPGRADE_COMMAND = "uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade"
 DOCTOR_COMMAND = "uvx --from harnessops hops doctor --check-overlay --check-records"
 MIGRATE_CHECK_COMMAND = "uvx --from harnessops hops migrate --check"
 LOCAL_UPDATE_COMMAND = "hops update-harness --agent-bridge"
@@ -251,6 +252,8 @@ def _format_notice(notice: UpdateNotice) -> list[str]:
         )
     lines.extend(
         [
+            "[notice] To inspect checkpointed version steps first:",
+            f"[notice]   {PLAN_UPGRADE_COMMAND}",
             "[notice] Then verify without applying migrations automatically:",
             f"[notice]   {DOCTOR_COMMAND}",
             f"[notice]   {MIGRATE_CHECK_COMMAND}",

@@ -1,7 +1,7 @@
 {
   "agent_bridge": {
     "managed_files": {
-      ".agents/skills/harnessops-bridge/SKILL.md": "sha256:460a7646e56021a286b0bc98a5ea75407fbb514dab733251a1fedbdb36fcdf40",
+      ".agents/skills/harnessops-bridge/SKILL.md": "sha256:54fbcc3fd3b62c22564e7f4f78acdc41e3448acf3abc3733bb030e4852bce173",
       ".agents/skills/hops-add-failure/SKILL.md": "sha256:74406e5bd9a2cbf51748f5a7b40c040ba0e3fd10055cc96eb72d8185e3cefc20",
       ".agents/skills/hops-compact-lab-memory/SKILL.md": "sha256:565e0293d2512910fb3093a3b4c55fd61d987dd4f2cbe5401063ecec50397484",
       ".agents/skills/hops-daily-steward/SKILL.md": "sha256:1db2777252e5bc85e6c1da351f8242576f42ad20fb21c2ce8c11fa4040714887",
@@ -13,7 +13,7 @@
       ".agents/skills/hops-research-improvements/SKILL.md": "sha256:6edc21944a7bd9e131c450aa84a4e91e0b113c9fc3ed08079012deac51c8a9b1",
       ".agents/skills/hops-route-feedback/SKILL.md": "sha256:f23fd38bab9d37a5fbe98b78bd3bee8c35acc4f4e24110df678241d39df96c5a",
       ".agents/skills/hops-run-lab/SKILL.md": "sha256:a1e110438dc4857f76ca6ee5d7625c49ba2b7fa49d66fc7e194a652a6fc7fc65",
-      ".agents/skills/hops-update-harness/SKILL.md": "sha256:4b29a28f032d2fdd7843c2eae1feddc59167ca3f5a1dc4ac610be22eeea9c10b"
+      ".agents/skills/hops-update-harness/SKILL.md": "sha256:77cb72caefdf8f0d92cdaa4e7c2cf74580df7bd9b6dbeba6c9fe2c9f5685c1ee"
     }
   },
   "harnessops_version": "0.1.7",
@@ -21,8 +21,8 @@
   "managed_files": {
     "harness-lab/README.md": "sha256:789a733220c9918b65f6d7afbddb13ccc2d842485cca9426bb8e5dc52c24a797",
     "harness-lab/views/backlog.md": "sha256:0ed4436872ad24f9c73737b7f84290306dc4baaf36154b7e36be521e985b791c",
-    "harness-lab/views/imported-feedback.md": "sha256:f59cc6bda55400836b831a89054d7dfeb8aa9bd91505794ad952a5048951a78d",
-    "harness-lab/views/improvements.md": "sha256:8c7fea0b6bf34b0ce055d5d530bf82b05d0c7ca30126ac33ed85503f9ce9a010",
+    "harness-lab/views/imported-feedback.md": "sha256:023ed7e8a19a401a512c425a20e39730cf06ae3c9a9fde8bd809785c9cf7d5b9",
+    "harness-lab/views/improvements.md": "sha256:53745ffb31ab16bb615c12734e5b6a60c74aef847a6e7e3d0194ee674109b7a0",
     "harness-lab/views/research-scans.md": "sha256:1df6b482ebe1fb1ed95b8b65f55a92b8b7b025b35c095dee3fa10af9965461c6",
     "harness-lab/views/score-trajectory.md": "sha256:a3d2f445609e5e9da0269ece3b10aff2414f3830bd185ad257d32ae19026b616"
   },

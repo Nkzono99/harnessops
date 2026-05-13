@@ -103,7 +103,13 @@ uvx --from harnessops hops doctor --check-overlay --check-records
 uvx --refresh-package harnessops --from harnessops hops update-harness
 ```
 
-`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。PATH 上の `hops` が古い可能性があるため、project repo の更新導線は uvx で最新版を確認してから実行します。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
+`hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含みます。PATH 上の `hops` が古い可能性があるため、project repo の更新導線は uvx で最新版を確認してから実行します。lock の `harnessops_version` が古い場合、通常の `update-harness` は PyPI 上の checkpoint 版を `uvx --from harnessops==<version> hops update-harness` で順に適用してから現在版の更新を続けます。編集済みmanaged fileは runops と同様に `<path>.new` へ書き、元ファイルを保持します。
+
+段階更新を事前確認する場合:
+
+```bash
+uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade
+```
 
 未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。user領域のAgent plugin installは暗黙に行わず、複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
 

@@ -6,6 +6,7 @@ Use `uvx --from harnessops hops <command>` for CLI invocations in target/project
 
 `.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えない。更新は `uvx --refresh-package harnessops --from harnessops hops update-harness` に委譲します。
 事前確認だけをしたい場合は `uvx --from harnessops hops doctor --check-overlay --check-records` を使います。
+lock に記録された `harnessops_version` が古い場合、通常の `update-harness` は PyPI 上の checkpoint 版を uvx で順に適用してから現在版の更新を続けます。更新チェーンだけを確認したい場合は `--plan-upgrade` を使います。
 
 基本手順:
 
@@ -16,16 +17,28 @@ Use `uvx --from harnessops hops <command>` for CLI invocations in target/project
 uvx --refresh-package harnessops --from harnessops hops update-harness
 ```
 
-3. repo-local HarnessOps skills を明示的に入れる、または再展開する場合:
+3. 古い repo で段階更新の中身を先に確認する場合:
+
+```bash
+uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade
+```
+
+4. repo-local HarnessOps skills を明示的に入れる、または再展開する場合:
 
 ```bash
 uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex
 ```
 
-4. 未適用 migration を適用する場合は、人間の指示または target CLI 側の明示フラグがあるときだけ実行する。
+5. 未適用 migration を適用する場合は、人間の指示または target CLI 側の明示フラグがあるときだけ実行する。
 
 ```bash
 uvx --refresh-package harnessops --from harnessops hops update-harness --apply-migrations
+```
+
+6. update-harness 自体の自動 chain ではなく、exact version の subprocess 列だけを明示的に実行する場合:
+
+```bash
+uvx --refresh-package harnessops --from harnessops hops update-harness --apply-upgrade-chain
 ```
 
 target CLI の `update-harness` から呼ぶ場合も、target CLI は HarnessOps 管理ファイルを直接書かず、この uvx 導線を subprocess として呼ぶ。

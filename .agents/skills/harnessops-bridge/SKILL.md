@@ -21,6 +21,7 @@ description: プロジェクト失敗の記録、上流フィードバックの�
 - `uvx --from harnessops hops eval --case <Eid> --manual`
 - `uvx --from harnessops hops decide --from <id> --status <status>`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness`
+- `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
 - `uvx --from harnessops hops migrate --check`
 
 外部共有前にサニタイズ済みバンドルを確認し、ローカルパス、非公開語、未公開研究の文脈を残さないでください。

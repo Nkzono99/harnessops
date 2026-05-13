@@ -363,7 +363,8 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 - target harness は `.harnessops/`、`harness-feedback/`、`harness-lab/` を直接生成・再編しない。
 - project repository を生成する `init` は、生成先で `uvx --from harnessops hops init --profile <target-project-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records` を呼ぶ。
 - target repository 自身の `setup` は、target repo で `uvx --from harnessops hops init --profile <target-upstream-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records` を呼ぶ。
-- `update-harness` は `uvx --refresh-package harnessops --from harnessops hops update-harness` を基本にする。これは `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含み、編集済みmanaged fileは runops と同様に `<path>.new` へ退避する。
+- `update-harness` は `uvx --refresh-package harnessops --from harnessops hops update-harness` を基本にする。これは `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含み、編集済みmanaged fileは runops と同様に `<path>.new` へ退避する。lock の `harnessops_version` が古い場合は、PyPI 上の checkpoint 版を `uvx --from harnessops==<version> hops update-harness` で順に適用してから現在版の更新を続ける。
+- 段階更新の計画確認には `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade` を使う。明示的に exact version の subprocess 列だけを実行する場合は `--apply-upgrade-chain` を使う。checkpoint 粒度は既定で minor、必要なら `--upgrade-granularity patch|minor|major` で変える。
 - migration適用は明示オプションまたは人間確認後に `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` で行う。
 - target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
 - repo-local skill展開は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
@@ -382,6 +383,7 @@ uvx --from harnessops hops doctor --check-overlay --check-records
 
 # update-harnessで実行する
 uvx --refresh-package harnessops --from harnessops hops update-harness
+uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade
 ```
 
 終了コード:

@@ -42,6 +42,8 @@ target harness の `init`、`setup`、`update-harness` などは、HarnessOps �
 - target repository setup時: `uvx --from harnessops hops init --profile <target-upstream-profile>` と `uvx --from harnessops hops doctor --check-overlay --check-records`
 - update時: `uvx --refresh-package harnessops --from harnessops hops update-harness`
 - `hops update-harness` は `hops doctor --check-overlay --check-records` と `hops migrate --check` 相当の確認を含む
+- lock の `harnessops_version` が古い場合、`hops update-harness` は PyPI checkpoint 版を `uvx --from harnessops==<version> hops update-harness` で順に適用してから現在版の更新を続ける
+- 段階更新の事前確認: `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
 - migration適用時: 人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply`
 - 編集済みmanaged fileは上書きせず、runops と同様に `<path>.new` を作る
 - repo-local skill展開は、明示オプションで `uvx --from harnessops hops agent bridge --codex` または `uvx --from harnessops hops init --with-agent-bridge` を呼んでよい
