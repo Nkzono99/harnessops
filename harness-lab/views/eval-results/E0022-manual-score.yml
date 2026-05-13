@@ -1,0 +1,17 @@
+schema_version: '0.1'
+record_type: manual_eval_result
+created_at: '2026-05-13T17:57:19+09:00'
+eval_case: E0022
+experiment:
+scores:
+  impact: 4
+  mechanism_clarity: 5
+  evaluability: 5
+  minimality: 5
+  regression_risk: 1
+  operator_burden: 1
+  anti_theater: 5
+  maintainability: 4
+  privacy_sanitization_risk: 0
+notes: Updated the PyPI publish workflow to actions/checkout@v5 and actions/setup-python@v6 while preserving the pypi environment, id-token permission, Python 3.11, build, twine check, and publish steps. Added a workflow contract test. Focused test, full pytest, ruff, doctor, and migrate all passed.
+source_record: harness-lab/records/eval-cases/E0022-fb0022-release-workflow-uses-node20-action-majors.md

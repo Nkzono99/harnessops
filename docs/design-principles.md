@@ -208,7 +208,7 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 
 ## 手動メタ改善調査
 
-作業中の `メタ仮説スキャン` は短い捕捉です。それとは別に、意図的に時間を取って改善候補を探す `hops-research-improvements` skill を持ちます。
+作業中の `メタ仮説スキャン` は短い捕捉です。それとは別に、意図的に時間を取って改善候補を探す `hops-research-improvements` skill を持ちます。この skill は HarnessOps core 専用ではなく、HarnessOps を導入した target/project repository でも使います。target/meta lab repo では lab research/eval/propose へ進め、project repo では現場観測を feedback/export へ流します。
 
 使う場面:
 
@@ -216,6 +216,7 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 - release 前に、最近の lab/dossier/issue/skill 変更を棚卸ししたい。
 - 同じ摩擦や説明が複数回出ており、局所修正ではなく workflow、profile、protocol の問題かもしれない。
 - 採用済み改善に反する観測、またはもう一歩進んだ改善案が出た。
+- target repository や project repository で、導入済み harness の改善余地を意図的に調査したい。
 
 この調査は、コードベース、既存 dossier、過去判断、tests、skills、docs を見たうえで、必要な場合だけ web や外部プロジェクト、公式 docs、論文、実務パターンを比較します。外部知見はそのまま輸入せず、HarnessOps の failure class、capability、評価ケース、guard、promotion level へ写像してから採否を考えます。
 

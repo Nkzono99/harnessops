@@ -22,3 +22,5 @@
 - `FB0019` triaged generated_view_management stale_generated_view_repair_gap
 - `FB0020` triaged harness_lab_traceability missing_lab_capture
 - `FB0021` triaged unclassified unclassified
+- `FB0022` triaged harness_lab_traceability missing_lab_capture
+- `FB0023` triaged harness_lab_traceability missing_lab_capture

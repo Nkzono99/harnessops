@@ -101,7 +101,7 @@ hops lab memory prepare --force
 
 `harness-lab/knowledge/lab-memory.yml` と `.md` は source-linked な索引です。`harness-lab/knowledge/lab-memory-input.yml` と `.md` は skill の入力です。skill は `principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md`、`lab-memory-abstraction.yml` を更新し、すべての抽象知に source ID と source digest を持たせます。records と dossier は引き続き正本です。`lab-memory.md` の `Curator Notes` は手編集してよく、次回 snapshot でも保持されます。
 
-メタ改善案を意図的に調査する時は `hops-research-improvements` skill を使います。これは作業中の短いメタ仮説スキャンとは別の調査モードで、コードベース、既存 dossier、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。調査結果は、まず `hops lab research-scan` で scope、evidence、candidate、relation、recommendation、next command を構造化できます。その後、新規レコード乱立を避けながら `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。
+メタ改善案を意図的に調査する時は `hops-research-improvements` skill を使います。これは HarnessOps core だけでなく、HarnessOps を導入した target/project repository でも使う調査モードです。作業中の短いメタ仮説スキャンとは別に、コードベース、既存 dossier/feedback、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。target/meta lab repo では、まず `hops lab research-scan` で scope、evidence、candidate、relation、recommendation、next command を構造化できます。その後、新規レコード乱立を避けながら `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。project repo では `harness-lab/` を作らず、観測を `hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize` に流します。
 
 lab 起点の改善を GitHub Issue に昇格する時は、まず下書きで title/body を確認します。
 

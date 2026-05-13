@@ -159,6 +159,16 @@ def test_release_skill_is_repo_local() -> None:
     assert not (ROOT / "plugins/claude/harnessops/skills/hops-release/SKILL.md").exists()
 
 
+def test_pypi_publish_workflow_uses_node24_ready_actions() -> None:
+    workflow = (ROOT / ".github/workflows/publish-pypi.yml").read_text(encoding="utf-8")
+    assert "uses: actions/checkout@v5" in workflow
+    assert "uses: actions/setup-python@v6" in workflow
+    assert "uses: actions/checkout@v4" not in workflow
+    assert "uses: actions/setup-python@v5" not in workflow
+    assert "environment: pypi" in workflow
+    assert "id-token: write" in workflow
+
+
 def test_codex_marketplace_exposes_packaged_plugin() -> None:
     marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
     entry = next(plugin for plugin in marketplace["plugins"] if plugin["name"] == "harnessops")
@@ -212,11 +222,17 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
     repo_skill = (ROOT / ".agents/skills/hops-research-improvements/SKILL.md").read_text(encoding="utf-8")
     assert "web" in repo_skill
     assert "rg" in repo_skill
+    assert "target/project repository" in repo_skill
+    assert "harness-feedback" in repo_skill
+    assert "harness-lab" in repo_skill
     assert "hops lab investigate" in repo_skill
     assert "hops lab classify" in repo_skill
     assert "hops lab research-scan" in repo_skill
     assert "hops lab capture" in repo_skill
     assert "hops propose" in repo_skill
+    assert "hops add-failure" in repo_skill
+    assert "hops feedback export --target <target> --sanitize" in repo_skill
+    assert "project repo で `harness-lab/` を作らない" in repo_skill
     assert "メタ仮説スキャン" in repo_skill
     assert_harness_contract(repo_skill)
 
