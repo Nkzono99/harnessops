@@ -332,8 +332,14 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "base-branch: main" in prompt_doc
     assert "project repo に `harness-lab/` を作らないでください" in prompt_doc
     assert "subagents: explicitly allowed" in prompt_doc
-    assert "remote-write: automation-branch-only" in prompt_doc
+    assert "merge-target-branch: main" in prompt_doc
+    assert "lane-budgets:" in prompt_doc
+    assert "metadata-guard-backfills: 3" in prompt_doc
+    assert "read-only-park-reject: 5" in prompt_doc
+    assert "remote-write: automation-branch-merge" in prompt_doc
     assert "base-branch-push: false" in prompt_doc
+    assert "protected-branch-direct-push: false" in prompt_doc
+    assert "merge-automation-branch: true" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
     assert "lab_health.status" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
@@ -344,16 +350,15 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "uv run ruff" not in prompt_doc
     assert "<repo-native test command>" in prompt_doc
     assert "git push -u origin HEAD" in prompt_doc
-    assert "PR、コメント、Issue、release、既定 branch push は作成しないでください。" in prompt_doc
-    assert "完全自動化プロンプト: 既定 branch push と remote action" in prompt_doc
-    assert "remote-write: full" in prompt_doc
-    assert "base-branch-push: true" in prompt_doc
+    assert "automation branch から `merge-target-branch` への PR を作成または更新してください" in prompt_doc
+    assert "コメント、Issue、release、既定 branch direct push は作成しないでください。" in prompt_doc
+    assert "完全自動化プロンプト: automation branch merge と remote action" in prompt_doc
     assert "create-pr: true" in prompt_doc
     assert "issue-comment-close-create: true" in prompt_doc
     assert "release: true" in prompt_doc
-    assert "hops steward finalize --policy commit-local --validation-passed --branch <base-branch>" in prompt_doc
-    assert "git push origin <base-branch>" in prompt_doc
-    assert "Issue の作成/コメント/クローズ、PR の作成/更新/merge、既定 branch push、release は、選択した候補の自然な次の一手であれば実行してよいです。" in prompt_doc
+    assert 'hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily"' in prompt_doc
+    assert "既定 branch direct push はしないでください。" in prompt_doc
+    assert "Issue の作成/コメント/クローズ、PR の作成/更新/merge、release は、選択した候補の自然な次の一手であれば実行してよいです。" in prompt_doc
     assert "repo-local の `release` skill または対象リポジトリの documented release command" in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide
