@@ -331,6 +331,12 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "base-branch-push: false" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
+    assert "uv run --with-editable . hops steward" not in prompt_doc
+    assert "uv run --with-editable . hops doctor" not in prompt_doc
+    assert "uv run --with-editable . hops migrate" not in prompt_doc
+    assert "uv run pytest" not in prompt_doc
+    assert "uv run ruff" not in prompt_doc
+    assert "<repo-native test command>" in prompt_doc
     assert "git push -u origin HEAD" in prompt_doc
     assert "PR、コメント、Issue、release、既定 branch push は作成しないでください。" in prompt_doc
     assert "完全自動化プロンプト: 既定 branch push と remote action" in prompt_doc

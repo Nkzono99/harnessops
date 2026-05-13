@@ -31,7 +31,7 @@ Runtime config:
 
 開始:
 1. worktree が `base-branch` 上にあることを確認してください。別 branch 上で clean なら `base-branch` に切り替えてください。dirty なら停止して報告してください。
-2. `uv run --with-editable . hops steward preflight --pull --json` を実行してください。
+2. `hops steward preflight --pull --json` を実行してください。
 3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
 4. `.harnessops/project.toml` の repo role を読み、target/meta lab repo では `harness-lab/`、project repo では `harness-feedback/` を使うように routing してください。project repo に `harness-lab/` を作らないでください。
 
@@ -61,18 +61,18 @@ Runtime config:
 - local advance に人間レビューは不要ですが、evidence、validation、guard、kill criteria は必須です。
 
 Validation:
-対象リポジトリの test / lint / build / domain check を実行してください。HarnessOps 実装リポジトリなら少なくとも次を実行します。
-- `uv run pytest -q`
-- `uv run ruff check src tests`
-- `uv run --with-editable . hops doctor --check-overlay --check-records`
-- `uv run --with-editable . hops migrate --check`
+対象リポジトリの README、CI、package metadata、Makefile、task runner から test / lint / build / domain check を選んで実行してください。
+- `<repo-native test command>`
+- `<repo-native lint/build/domain check command>`
+- `hops doctor --check-overlay --check-records`
+- `hops migrate --check`
 
-target/project repo で `uv`、`pytest`、`ruff` が該当しない場合は、その repo の README、CI、package metadata、Makefile、task runner から妥当な validation を選んでください。見つからない場合は、HOPS の doctor / migrate check と、実行できなかった validation gap を報告してください。
+妥当な validation command が見つからない場合は、HOPS の doctor / migrate check と、実行できなかった validation gap を報告してください。
 
 終了:
 - 変更がない場合は no-op として報告してください。
 - 変更があり、validation が成功した場合:
-  1. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation"` を実行してください。
+  1. `hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation"` を実行してください。
   2. automation branch だけを push してください: `git push -u origin HEAD`
   3. `base-branch` に戻ってください。
   4. PR、コメント、Issue、release、既定 branch push は作成しないでください。
@@ -122,7 +122,7 @@ Runtime config:
 
 開始:
 1. worktree が `base-branch` 上にあることを確認してください。別 branch 上で clean なら `base-branch` に切り替えてください。dirty なら停止して報告してください。
-2. `uv run --with-editable . hops steward preflight --pull --json` を実行してください。
+2. `hops steward preflight --pull --json` を実行してください。
 3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
 4. `.harnessops/project.toml` の repo role を読み、target/meta lab repo では `harness-lab/`、project repo では `harness-feedback/` を使うように routing してください。project repo に `harness-lab/` を作らないでください。
 
@@ -153,13 +153,13 @@ Runtime config:
 - Issue の作成/コメント/クローズ、PR の作成/更新/merge、既定 branch push、release は、選択した候補の自然な次の一手であれば実行してよいです。
 
 Validation:
-対象リポジトリの test / lint / build / domain check を実行してください。HarnessOps 実装リポジトリなら少なくとも次を実行します。
-- `uv run pytest -q`
-- `uv run ruff check src tests`
-- `uv run --with-editable . hops doctor --check-overlay --check-records`
-- `uv run --with-editable . hops migrate --check`
+対象リポジトリの README、CI、package metadata、Makefile、task runner から test / lint / build / domain check を選んで実行してください。
+- `<repo-native test command>`
+- `<repo-native lint/build/domain check command>`
+- `hops doctor --check-overlay --check-records`
+- `hops migrate --check`
 
-target/project repo で `uv`、`pytest`、`ruff` が該当しない場合は、その repo の README、CI、package metadata、Makefile、task runner から妥当な validation を選んでください。見つからない場合は、HOPS の doctor / migrate check と、実行できなかった validation gap を報告してください。
+妥当な validation command が見つからない場合は、HOPS の doctor / migrate check と、実行できなかった validation gap を報告してください。
 
 終了:
 - 変更がない場合は no-op として報告してください。
@@ -167,7 +167,7 @@ target/project repo で `uv`、`pytest`、`ruff` が該当しない場合は、�
 - 変更があり、validation が成功した場合:
   1. `git fetch --prune origin` を実行してください。
   2. `git rev-list --left-right --count HEAD...origin/<base-branch>` で、現在の branch が behind または diverged ではないことを確認してください。remote が進んでいる場合は、可能なら fast-forward pull してください。できない場合は停止して報告してください。
-  3. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch <base-branch> --message "Daily steward automation"` を実行してください。
+  3. `hops steward finalize --policy commit-local --validation-passed --branch <base-branch> --message "Daily steward automation"` を実行してください。
   4. `git status --short --branch` が clean で、`base-branch` が `origin/<base-branch>` より ahead であることを確認してください。
   5. 既定 branch を push してください: `git push origin <base-branch>`
   6. GitHub Issue の作成、更新、コメント、クローズが必要なら実行してください。
