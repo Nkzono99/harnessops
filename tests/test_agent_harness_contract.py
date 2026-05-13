@@ -45,6 +45,7 @@ def test_harnessops_repo_has_repo_local_hops_skills() -> None:
         "hops-add-failure",
         "hops-compact-lab-memory",
         "hops-issue-triage",
+        "hops-open-meta-scan",
         "hops-research-improvements",
         "hops-run-lab",
         "hops-update-harness",
@@ -222,6 +223,17 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
     repo_skill = (ROOT / ".agents/skills/hops-research-improvements/SKILL.md").read_text(encoding="utf-8")
     assert "web" in repo_skill
     assert "rg" in repo_skill
+    assert "hops-open-meta-scan" in repo_skill
+    assert "selection/routing lane" in repo_skill
+    assert "Raw Ideas Considered" in repo_skill
+    assert "anti-myopia strategy pass" in repo_skill
+    assert "immediate bugfix / workflow design / evaluation methodology / cross-project harness principle" in repo_skill
+    assert "`local-only` / `repeated-pattern` / `cross-project` / `strategic`" in repo_skill
+    assert "systemic candidate" in repo_skill
+    assert "Candidate Horizon" in repo_skill
+    assert "reject as local" in repo_skill
+    assert "少なくとも2つの target/project repo" in repo_skill
+    assert "candidate selection needs a horizon/generalization guard" in repo_skill
     assert "target/project repository" in repo_skill
     assert "harness-feedback" in repo_skill
     assert "harness-lab" in repo_skill
@@ -240,6 +252,27 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
         skill = ROOT / f"plugins/{host}/harnessops/skills/hops-research-improvements/SKILL.md"
         text = skill.read_text(encoding="utf-8")
         assert text == repo_skill
+        assert_harness_contract(text)
+
+
+def test_open_meta_scan_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-open-meta-scan/SKILL.md").read_text(encoding="utf-8")
+    assert "open scan" in repo_skill
+    assert "invention lane" in repo_skill
+    assert "Raw Ideas" in repo_skill
+    assert "Counterframes" in repo_skill
+    assert "Do Not Record Yet" in repo_skill
+    assert "hops-research-improvements" in repo_skill
+    assert "デフォルトでは `hops lab capture`" in repo_skill
+    assert "発想を recordable にしすぎない" in repo_skill
+    assert_harness_contract(repo_skill)
+
+    for host in ("codex", "claude"):
+        skill = ROOT / f"plugins/{host}/harnessops/skills/hops-open-meta-scan/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        asset = ROOT / f"src/harnessops/agent_assets/plugins/{host}/harnessops/skills/hops-open-meta-scan/SKILL.md"
+        assert text == repo_skill
+        assert asset.read_text(encoding="utf-8") == repo_skill
         assert_harness_contract(text)
 
 

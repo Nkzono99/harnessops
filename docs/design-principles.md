@@ -210,6 +210,8 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 
 作業中の `メタ仮説スキャン` は短い捕捉です。それとは別に、意図的に時間を取って改善候補を探す `hops-research-improvements` skill を持ちます。この skill は HarnessOps core 専用ではなく、HarnessOps を導入した target/project repository でも使います。target/meta lab repo では lab research/eval/propose へ進め、project repo では現場観測を feedback/export へ流します。
 
+ただし、発想と管理は分けます。最初から failure class、既存 dossier、next command へ押し込むと、agent は recordable な近視眼的候補を探しやすくなります。自由な違和感検出や構造的な逆張りが目的なら、まず `hops-open-meta-scan` で open invention lane を走らせ、Raw Ideas と Counterframes を出します。その後、残す価値がある候補だけ `hops-research-improvements` で evidence、routing、park/reject、lab workflow へ接続します。
+
 使う場面:
 
 - ユーザーが「meta改善を調査したい」「外部知見も含めて比較したい」と明示した。
@@ -224,6 +226,7 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 
 | 出力 | 意味 |
 |---|---|
+| `hops-open-meta-scan` | まだ記録しない発散的な meta scan。構造的な違和感、Raw Ideas、Counterframes、Routing Hints を出す。 |
 | `hops lab research-scan` | 複数候補を含むメタ改善調査結果を、scope、evidence、candidate、relation、recommendation、next command 付きの `RS` レコードにする。 |
 | `hops lab investigate` | 既存 dossier へコード調査、外部比較、反例、追加観測を足す。 |
 | `hops lab classify` | maturity、relation、promotion、guard を更新する。 |
