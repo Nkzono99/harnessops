@@ -23,7 +23,7 @@ hops agent bridge --claude
 複数リポジトリで同じ global plugin を共有したい場合だけ、HarnessOps リポジトリからユーザー領域へインストールします。
 
 ```bash
-uv run --with-editable . hops agent install --claude --scope user
+uvx --from harnessops hops agent install --claude --scope user
 ```
 
 ## Contract

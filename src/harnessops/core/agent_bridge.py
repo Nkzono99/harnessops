@@ -14,7 +14,7 @@ description: プロジェクト失敗の記録、上流フィードバックの�
 このリポジトリは HarnessOps にリンクされています。
 
 ハーネス状態の正本は `hops` CLI です。まず `.harnessops/project.toml` を読み、profile、overlay mode、overlay path を確認してください。
-PATH に `hops` がない環境では `uv run --with-editable . hops <command>` を使います。
+PATH に `hops` がない環境では `uvx --from harnessops hops <command>` を使います。
 
 `.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えないでください。レコード作成、ルーティング、エクスポート/インポート、ラボ評価、採用判断は CLI に委譲します。
 

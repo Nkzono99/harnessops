@@ -24,7 +24,8 @@ def test_root_agent_docs_explain_hops_contract() -> None:
 
 def test_generated_bridge_explains_hops_contract() -> None:
     assert_harness_contract(BRIDGE_TEXT)
-    assert "uv run --with-editable . hops <command>" in BRIDGE_TEXT
+    assert "uvx --from harnessops hops <command>" in BRIDGE_TEXT
+    assert "uv run --with-editable . hops <command>" not in BRIDGE_TEXT
     assert "hops feedback export --sanitize" in BRIDGE_TEXT
     assert "hops lab capture" in BRIDGE_TEXT
 
@@ -62,7 +63,9 @@ def test_packaged_plugin_skills_explain_hops_contract() -> None:
     skill_paths = sorted((ROOT / "plugins").glob("*/harnessops/skills/*/SKILL.md"))
     assert skill_paths
     for path in skill_paths:
-        assert_harness_contract(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
+        assert_harness_contract(text)
+        assert "uv run --with-editable . hops <command>" not in text
 
 
 def test_packaged_agent_assets_match_plugin_skills() -> None:
@@ -83,6 +86,8 @@ def test_packaged_plugin_readmes_explain_hops_contract() -> None:
     for path in readme_paths:
         text = path.read_text(encoding="utf-8")
         assert_harness_contract(text)
+        assert "uvx --from harnessops hops agent install" in text
+        assert "uv run --with-editable . hops agent install" not in text
     for path in readme_paths:
         assert "hops agent bridge" in path.read_text(encoding="utf-8")
 

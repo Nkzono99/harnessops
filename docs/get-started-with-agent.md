@@ -46,7 +46,7 @@ hops agent bridge --codex
 同じAgentで複数リポジトリの HarnessOps を扱い、ユーザー領域へ一度だけ入れたい場合は、任意で同梱プラグインを使えます。
 
 ```bash
-uv run --with-editable . hops agent install --codex --scope user
+uvx --from harnessops hops agent install --codex --scope user
 codex plugin marketplace add "$HOME"
 ```
 

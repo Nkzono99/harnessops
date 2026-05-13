@@ -17,3 +17,4 @@
 - `IMP0015` adopted maturity=adopted scope=harnessops-core promotion=project-pattern source=FB0018 lab_memory_compaction deterministic_snapshot_conflates_trigger_and_abstraction
 - `IMP0016` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0019 generated_view_management stale_generated_view_repair_gap
 - `IMP0017` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0020 harness_lab_traceability missing_lab_capture
+- `IMP0018` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0021 unclassified unclassified

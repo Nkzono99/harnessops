@@ -5,7 +5,7 @@ description: harness-lab が大きくなった時、または人間が依頼し�
 
 この skill は `hops lab compact` を置き換えるものではない。`hops lab compact` は deterministic knowledge snapshot、つまり source ID、score、guard、open question へ戻るための索引として扱う。抽象化、統合、反例整理、評価則への昇格はこの skill が行う。
 
-開始時に `.harnessops/project.toml` を読み、PATH に `hops` がなければ `uv run --with-editable . hops <command>` を使う。`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えず、records/dossier の作成や分類は CLI に委譲する。
+開始時に `.harnessops/project.toml` を読み、PATH に `hops` がなければ `uvx --from harnessops hops <command>` を使う。`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えず、records/dossier の作成や分類は CLI に委譲する。
 
 手順:
 

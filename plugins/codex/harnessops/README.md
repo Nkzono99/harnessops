@@ -23,7 +23,7 @@ hops agent bridge --codex
 複数リポジトリで同じ global plugin を共有したい場合だけ、HarnessOps リポジトリからユーザー領域へインストールします。
 
 ```bash
-uv run --with-editable . hops agent install --codex --scope user
+uvx --from harnessops hops agent install --codex --scope user
 codex plugin marketplace add "$HOME"
 ```
 
