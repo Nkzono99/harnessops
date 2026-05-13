@@ -1,8 +1,10 @@
 # Daily Steward 自動化プロンプト
 
-この文書は、常時起動している PC の Codex App automation で `hops-daily-steward` を定期実行するための推奨プロンプトです。
+この文書は、常時起動している PC の Codex App automation で `hops-daily-steward` を定期実行するための推奨プロンプトです。HarnessOps core だけでなく、HarnessOps を導入した target repository / project repository にも配布して使えます。
 
-目的は、夜間に clean な `main` を pull してから、issue / feedback / lab / doctor の状態を読み、既存 skill に委譲しながら最大 1 件の改善候補を local advance することです。通常運用では remote write は automation branch の push までに留め、main push、PR、Issue 操作、release は人間確認に残します。
+目的は、夜間に clean な既定 branch を pull してから、issue / feedback / lab / doctor の状態を読み、repo role に応じて既存 skill に委譲しながら最大 1 件の改善候補を local advance することです。通常運用では remote write は automation branch の push までに留め、既定 branch push、PR、Issue 操作、release は人間確認に残します。
+
+以下の prompt では `base-branch: main` としています。対象リポジトリの既定 branch が `master` や `develop` なら置き換えてください。validation も対象リポジトリの実際の test / lint / build / domain check に置き換えます。
 
 ## 推奨プロンプト
 
@@ -12,10 +14,11 @@
 Runtime config:
 - mode: advance-local
 - timezone: Asia/Tokyo
+- base-branch: main
 - subagents: explicitly allowed
 - max-systemic-candidates: 1
 - remote-write: automation-branch-only
-- main-push: false
+- base-branch-push: false
 - create-pr: false
 - issue-comment-close-create: false
 - release: false
@@ -27,9 +30,10 @@ Runtime config:
 - stop-on-privacy-risk: true
 
 開始:
-1. worktree が `main` 上にあることを確認してください。別 branch 上で clean なら `main` に切り替えてください。dirty なら停止して報告してください。
+1. worktree が `base-branch` 上にあることを確認してください。別 branch 上で clean なら `base-branch` に切り替えてください。dirty なら停止して報告してください。
 2. `uv run --with-editable . hops steward preflight --pull --json` を実行してください。
 3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
+4. `.harnessops/project.toml` の repo role を読み、target/meta lab repo では `harness-lab/`、project repo では `harness-feedback/` を使うように routing してください。project repo に `harness-lab/` を作らないでください。
 
 サブエージェント:
 - サブエージェントの利用を明示的に許可します。
@@ -57,19 +61,21 @@ Runtime config:
 - local advance に人間レビューは不要ですが、evidence、validation、guard、kill criteria は必須です。
 
 Validation:
-少なくとも次を実行してください。
+対象リポジトリの test / lint / build / domain check を実行してください。HarnessOps 実装リポジトリなら少なくとも次を実行します。
 - `uv run pytest -q`
 - `uv run ruff check src tests`
 - `uv run --with-editable . hops doctor --check-overlay --check-records`
 - `uv run --with-editable . hops migrate --check`
+
+target/project repo で `uv`、`pytest`、`ruff` が該当しない場合は、その repo の README、CI、package metadata、Makefile、task runner から妥当な validation を選んでください。見つからない場合は、HOPS の doctor / migrate check と、実行できなかった validation gap を報告してください。
 
 終了:
 - 変更がない場合は no-op として報告してください。
 - 変更があり、validation が成功した場合:
   1. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation"` を実行してください。
   2. automation branch だけを push してください: `git push -u origin HEAD`
-  3. `main` に戻ってください。
-  4. PR、コメント、Issue、release、main push は作成しないでください。
+  3. `base-branch` に戻ってください。
+  4. PR、コメント、Issue、release、既定 branch push は作成しないでください。
 - validation が失敗した場合は patch を残し、失敗内容を報告してください。
 
 最終報告:
@@ -86,12 +92,12 @@ Validation:
 
 ## 運用メモ
 
-- `main-push: false` により、夜間ループが review なしで release branch を変更しないようにします。
+- `base-branch-push: false` により、夜間ループが review なしで既定 branch を変更しないようにします。
 - `end-policy: commit-local` により、前回 run の dirty worktree が次回の scheduled run を止め続ける事態を避けます。
 - automation branch は、あとで人間が review、merge、削除できます。
 - より慎重に運用したい場合は `end-policy` を `patch-only` に変更してください。その場合、次回 run は patch が review されるまで停止します。
 
-## 完全自動化プロンプト: main push と remote action
+## 完全自動化プロンプト: 既定 branch push と remote action
 
 この章は、nightly run が validation 済みの変更を `main` へ直接 push し、必要に応じて Issue、PR、release などの remote action も実行してよい完全自動化運用向けです。停止条件は、開始時の同期不備、validation failure、git の明確な競合に絞ります。
 
@@ -101,10 +107,11 @@ Validation:
 Runtime config:
 - mode: advance-local
 - timezone: Asia/Tokyo
+- base-branch: main
 - subagents: explicitly allowed
 - max-systemic-candidates: 1
 - remote-write: full
-- main-push: true
+- base-branch-push: true
 - create-pr: true
 - issue-comment-close-create: true
 - release: true
@@ -114,9 +121,10 @@ Runtime config:
 - stop-on-validation-failure: true
 
 開始:
-1. worktree が `main` 上にあることを確認してください。別 branch 上で clean なら `main` に切り替えてください。dirty なら停止して報告してください。
+1. worktree が `base-branch` 上にあることを確認してください。別 branch 上で clean なら `base-branch` に切り替えてください。dirty なら停止して報告してください。
 2. `uv run --with-editable . hops steward preflight --pull --json` を実行してください。
 3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
+4. `.harnessops/project.toml` の repo role を読み、target/meta lab repo では `harness-lab/`、project repo では `harness-feedback/` を使うように routing してください。project repo に `harness-lab/` を作らないでください。
 
 サブエージェント:
 - サブエージェントの利用を明示的に許可します。
@@ -142,27 +150,29 @@ Runtime config:
 - eval case、hypothesis、manual eval、decision、guard には `hops-run-lab` を使ってください。
 - doctor / update / bridge / managed-file の signal がある場合だけ `hops-update-harness` を使ってください。
 - local advance に人間レビューは不要ですが、evidence、validation、guard、kill criteria は必須です。
-- Issue の作成/コメント/クローズ、PR の作成/更新/merge、main push、release は、選択した候補の自然な次の一手であれば実行してよいです。
+- Issue の作成/コメント/クローズ、PR の作成/更新/merge、既定 branch push、release は、選択した候補の自然な次の一手であれば実行してよいです。
 
 Validation:
-少なくとも次を実行してください。
+対象リポジトリの test / lint / build / domain check を実行してください。HarnessOps 実装リポジトリなら少なくとも次を実行します。
 - `uv run pytest -q`
 - `uv run ruff check src tests`
 - `uv run --with-editable . hops doctor --check-overlay --check-records`
 - `uv run --with-editable . hops migrate --check`
+
+target/project repo で `uv`、`pytest`、`ruff` が該当しない場合は、その repo の README、CI、package metadata、Makefile、task runner から妥当な validation を選んでください。見つからない場合は、HOPS の doctor / migrate check と、実行できなかった validation gap を報告してください。
 
 終了:
 - 変更がない場合は no-op として報告してください。
 - validation が失敗した場合は patch を残し、失敗内容を報告してください。push はしないでください。
 - 変更があり、validation が成功した場合:
   1. `git fetch --prune origin` を実行してください。
-  2. `git rev-list --left-right --count HEAD...origin/main` で、現在の branch が behind または diverged ではないことを確認してください。remote が進んでいる場合は、可能なら fast-forward pull してください。できない場合は停止して報告してください。
-  3. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch main --message "Daily steward automation"` を実行してください。
-  4. `git status --short --branch` が clean で、`main` が `origin/main` より ahead であることを確認してください。
-  5. main を push してください: `git push origin main`
+  2. `git rev-list --left-right --count HEAD...origin/<base-branch>` で、現在の branch が behind または diverged ではないことを確認してください。remote が進んでいる場合は、可能なら fast-forward pull してください。できない場合は停止して報告してください。
+  3. `uv run --with-editable . hops steward finalize --policy commit-local --validation-passed --branch <base-branch> --message "Daily steward automation"` を実行してください。
+  4. `git status --short --branch` が clean で、`base-branch` が `origin/<base-branch>` より ahead であることを確認してください。
+  5. 既定 branch を push してください: `git push origin <base-branch>`
   6. GitHub Issue の作成、更新、コメント、クローズが必要なら実行してください。
   7. branch-based change に PR が適している場合は、PR を作成、更新、または merge してください。
-  8. release が適切で、version/tag 条件を満たしているなら、repo-local の `release` skill を使って release を作成してください。
+  8. release が適切で、version/tag 条件を満たしているなら、repo-local の `release` skill または対象リポジトリの documented release command を使って release を作成してください。
 
 最終報告:
 - sync / doctor result

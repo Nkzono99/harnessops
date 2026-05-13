@@ -283,6 +283,9 @@ def test_daily_steward_skill_is_packaged() -> None:
     assert "compact steward / conductor" in repo_skill
     assert "Default automation mode is `advance-local`" in repo_skill
     assert "Human review is not required for local advance" in repo_skill
+    assert "Repo Role Routing" in repo_skill
+    assert "project repo | Use `harness-feedback/`" in repo_skill
+    assert "Do not assume this is the HarnessOps implementation repository" in repo_skill
     assert "Non-Negotiable Gates" in repo_skill
     assert "Sync Gate" in repo_skill
     assert "hops steward preflight --pull --json" in repo_skill
@@ -302,7 +305,7 @@ def test_daily_steward_skill_is_packaged() -> None:
     assert "hops-open-meta-scan" in repo_skill
     assert "hops-research-improvements" in repo_skill
     assert "hops-run-lab" in repo_skill
-    assert "Remote writes require explicit confirmation" in repo_skill
+    assert "Remote actions follow explicit automation prompt authorization" in repo_skill
     assert_harness_contract(repo_skill)
 
     for host in ("codex", "claude"):
@@ -320,23 +323,26 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     agent_guide = (ROOT / "docs/agent-user-guide.md").read_text(encoding="utf-8")
 
     assert "このリポジトリで repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` を実行してください。" in prompt_doc
+    assert "HarnessOps を導入した target repository / project repository にも配布して使えます" in prompt_doc
+    assert "base-branch: main" in prompt_doc
+    assert "project repo に `harness-lab/` を作らないでください" in prompt_doc
     assert "subagents: explicitly allowed" in prompt_doc
     assert "remote-write: automation-branch-only" in prompt_doc
-    assert "main-push: false" in prompt_doc
+    assert "base-branch-push: false" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
     assert "git push -u origin HEAD" in prompt_doc
-    assert "PR、コメント、Issue、release、main push は作成しないでください。" in prompt_doc
-    assert "完全自動化プロンプト: main push と remote action" in prompt_doc
+    assert "PR、コメント、Issue、release、既定 branch push は作成しないでください。" in prompt_doc
+    assert "完全自動化プロンプト: 既定 branch push と remote action" in prompt_doc
     assert "remote-write: full" in prompt_doc
-    assert "main-push: true" in prompt_doc
+    assert "base-branch-push: true" in prompt_doc
     assert "create-pr: true" in prompt_doc
     assert "issue-comment-close-create: true" in prompt_doc
     assert "release: true" in prompt_doc
-    assert "hops steward finalize --policy commit-local --validation-passed --branch main" in prompt_doc
-    assert "git push origin main" in prompt_doc
-    assert "Issue の作成/コメント/クローズ、PR の作成/更新/merge、main push、release は、選択した候補の自然な次の一手であれば実行してよいです。" in prompt_doc
-    assert "repo-local の `release` skill を使って release を作成してください" in prompt_doc
+    assert "hops steward finalize --policy commit-local --validation-passed --branch <base-branch>" in prompt_doc
+    assert "git push origin <base-branch>" in prompt_doc
+    assert "Issue の作成/コメント/クローズ、PR の作成/更新/merge、既定 branch push、release は、選択した候補の自然な次の一手であれば実行してよいです。" in prompt_doc
+    assert "repo-local の `release` skill または対象リポジトリの documented release command" in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide
 

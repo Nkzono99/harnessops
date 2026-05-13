@@ -2,7 +2,7 @@
 id: IMP0023
 record_type: improvement_dossier
 created_at: '2026-05-13T19:15:21+09:00'
-updated_at: '2026-05-13T21:22:26+09:00'
+updated_at: '2026-05-13T21:40:34+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -56,6 +56,10 @@ investigation:
   kind: docs
   summary: Translated docs/daily-steward-automation.md into natural Japanese while preserving the automation config keys, HOPS commands, validation gates, and full remote automation semantics. The contract test now asserts the Japanese prompt text instead of the previous English wording.
   evidence_ref: docs/daily-steward-automation.md
+- created_at: '2026-05-13T21:40:34+09:00'
+  kind: docs
+  summary: Generalized the daily steward skill and automation prompt for distribution to target and project repositories. The skill now routes by repo role, keeps project repos on harness-feedback instead of harness-lab, treats validation/branch/release conventions as repo-native, and allows remote actions only when explicitly authorized by the automation prompt.
+  evidence_ref: docs/daily-steward-automation.md
 links:
   issue_url:
 ---
@@ -106,6 +110,7 @@ Add a packaged hops-daily-steward skill that orchestrates issue triage, open met
 - 2026-05-13T20:33:37+09:00 [docs] Added a separate Full Automation Prompt: Push Main section to docs/daily-steward-automation.md. It keeps pull-first and validation gates, allows direct main push after validation, blocks if origin/main changes after validation, and keeps PR/issue/release remote writes disabled for this prompt. (evidence: docs/daily-steward-automation.md)
 - 2026-05-13T21:19:48+09:00 [docs] Updated the Full Automation Prompt to allow full remote automation: main push, GitHub issue create/comment/close, PR create/update/merge, and release. The prompt now keeps only minimal operational stop conditions around dirty start, diverged branch, and validation failure, while removing the prior main-push-only restriction. (evidence: docs/daily-steward-automation.md)
 - 2026-05-13T21:22:26+09:00 [docs] Translated docs/daily-steward-automation.md into natural Japanese while preserving the automation config keys, HOPS commands, validation gates, and full remote automation semantics. The contract test now asserts the Japanese prompt text instead of the previous English wording. (evidence: docs/daily-steward-automation.md)
+- 2026-05-13T21:40:34+09:00 [docs] Generalized the daily steward skill and automation prompt for distribution to target and project repositories. The skill now routes by repo role, keeps project repos on harness-feedback instead of harness-lab, treats validation/branch/release conventions as repo-native, and allows remote actions only when explicitly authorized by the automation prompt. (evidence: docs/daily-steward-automation.md)
 
 ## Research Scans
 
