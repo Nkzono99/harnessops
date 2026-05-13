@@ -32,7 +32,7 @@ Runtime config:
 開始:
 1. worktree が `base-branch` 上にあることを確認してください。別 branch 上で clean なら `base-branch` に切り替えてください。dirty なら停止して報告してください。
 2. `hops steward preflight --pull --json` を実行してください。
-3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
+3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。`lab_health.status` が `needs-abstraction` の場合は、librarian lane の入力として扱い、preflight 内では memory 更新を書き込まないでください。
 4. `.harnessops/project.toml` の repo role を読み、target/meta lab repo では `harness-lab/`、project repo では `harness-feedback/` を使うように routing してください。project repo に `harness-lab/` を作らないでください。
 
 サブエージェント:
@@ -123,7 +123,7 @@ Runtime config:
 開始:
 1. worktree が `base-branch` 上にあることを確認してください。別 branch 上で clean なら `base-branch` に切り替えてください。dirty なら停止して報告してください。
 2. `hops steward preflight --pull --json` を実行してください。
-3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。
+3. `can_continue` が false の場合は、HOPS state change に進む前に停止し、blocker を報告してください。`lab_health.status` が `needs-abstraction` の場合は、librarian lane の入力として扱い、preflight 内では memory 更新を書き込まないでください。
 4. `.harnessops/project.toml` の repo role を読み、target/meta lab repo では `harness-lab/`、project repo では `harness-feedback/` を使うように routing してください。project repo に `harness-lab/` を作らないでください。
 
 サブエージェント:

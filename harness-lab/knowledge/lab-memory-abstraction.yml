@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-13T11:52:44+09:00'
-source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
+updated_at: '2026-05-14T01:10:08+09:00'
+source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
 sources:
 - IMP0001
 - IMP0002
@@ -18,8 +18,24 @@ sources:
 - IMP0014
 - IMP0015
 - IMP0016
+- IMP0017
+- IMP0018
+- IMP0019
+- IMP0020
+- IMP0021
+- IMP0022
+- IMP0023
+- IMP0024
+- IMP0025
+- IMP0026
+- IMP0027
+- IMP0028
+- IMP0029
 - RS0001
 - RS0002
+- RS0003
+- RS0004
+- RS0005
 outputs:
 - harness-lab/knowledge/principles.md
 - harness-lab/knowledge/patterns.yml
@@ -28,11 +44,12 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-13T11:51:47+09:00'
-lint_reason: thresholds-not-exceeded-no-sources-or-current
+  prepared_at: '2026-05-14T01:09:34+09:00'
+lint_reason: triggers-present
 manual_run: true
 notes:
 - Deterministic snapshot is an index only; source records and dossiers remain authoritative for decisions.
 - RS0002/IMP0016 added the doctor-aligned generated-view refresh pattern and guard.
+- IMP0029/RS0005 added the deterministic lab-health intake pattern for daily steward routing.
 contradiction_watch: []
 open_questions: []

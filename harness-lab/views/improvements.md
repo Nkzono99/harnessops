@@ -28,3 +28,4 @@
 - `IMP0026` adopted maturity=evaluated scope=harnessops-core promotion=shipped-behavior source=FB0030 harness_lab_traceability missing_lab_capture
 - `IMP0027` adopted maturity=evaluated scope=harnessops-core promotion=shipped-behavior source=FB0031 repository_maintainability surface_sprawl
 - `IMP0028` adopted maturity=evaluated scope=harnessops-core promotion=shipped-behavior source=FB0032 repository_maintainability records_module_sprawl
+- `IMP0029` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0035 daily_steward_orchestration count_based_preflight_misses_stale_lab_health

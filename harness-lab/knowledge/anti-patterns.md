@@ -1,16 +1,23 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-13T11:52:44+09:00
-Source digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
+Updated: 2026-05-14T01:10:08+09:00
+Source digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
 ## Reporting Success While Leaving State Stale
 
 - Avoid when: an update or doctor path says `ok` but leaves stale managed files, duplicate dossiers, stale generated views, or shadowed record IDs unresolved.
-- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`
+- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`, `IMP0029`
 - Why it fails: operators trust the tool and stop looking, while the next agent inherits obsolete guidance or resolves an ID to the wrong artifact.
 - Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, keep memory stale state visible, and make repair commands cover the same generated artifacts that doctor validates.
+
+## Treating Counts As Health
+
+- Avoid when: a steward, dashboard, or automation preflight reports only record counts and generic lane triggers while hiding stale memory, stale generated views, missing abstraction, guard gaps, or pending migration state.
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`
+- Why it fails: counts prove that records exist, not that the lab is usable today; the next agent may skip librarian work even though the source digest has moved.
+- Guard: expose read-only health signals such as `lab_health.status`, pressure triggers, stale snapshot/abstraction flags, and recommended commands, then delegate compaction or abstraction to the librarian lane.
 
 ## Treating Boilerplate As Evidence
 

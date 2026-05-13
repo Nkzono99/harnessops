@@ -61,7 +61,7 @@ For scheduled automation, delegate routine intake to CLI:
 hops steward preflight --pull --json
 ```
 
-If `can_continue` is false, stop and report. This command performs pull-first safety, doctor/check-records, migrate check, overlay counts, lane trigger scaffold, subagent plan scaffold, and run ledger creation.
+If `can_continue` is false, stop and report. This command performs pull-first safety, doctor/check-records, migrate check, overlay counts, lab health/stale-memory intake, lane trigger scaffold, subagent plan scaffold, and run ledger creation.
 
 Manual fallback only when the CLI is unavailable:
 

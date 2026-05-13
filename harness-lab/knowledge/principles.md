@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-13T11:52:44+09:00
-Source digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
+Updated: 2026-05-14T01:10:08+09:00
+Source digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -60,3 +60,11 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 - Applies when: lab size grows, source digest changes, targets are missing or stale, or a human manually asks for memory compaction.
 - Counterexamples: replacing deterministic snapshots with free-form skill memory loses digest checks; treating snapshots as semantic memory loses contradiction handling.
 - Guard: run lint/prepare, read the input bundle and source records, update abstract outputs with source IDs, then set `lab-memory-abstraction.yml` to the input source digest.
+
+## Deterministic Intake Should Surface Actionable Health, Not Decide The Work
+
+- Principle: scheduled or recurring intake commands should expose read-only health signals that affect routing, while leaving synthesis, abstraction, and implementation to the appropriate lane or skill.
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`
+- Applies when: adding daily steward preflight fields, lane triggers, lab health summaries, stale memory checks, or automation run ledgers.
+- Counterexamples: overlay counts alone can trigger a vague librarian lane while hiding stale snapshot or semantic-memory state; a preflight that writes memory or ranks every candidate would turn deterministic intake into a workflow engine.
+- Guard: keep preflight read-only, include source-linked `lab_health` status and recommended commands for lab repos, skip lab memory probing in project repos, and route `needs-abstraction` to `hops-compact-lab-memory`.

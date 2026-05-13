@@ -35,3 +35,4 @@
 - `FB0032` triaged repository_maintainability records_module_sprawl
 - `FB0033` triaged repository_maintainability lab_compaction_module_sprawl
 - `FB0034` triaged repository_maintainability cli_private_helper_coupling
+- `FB0035` triaged daily_steward_orchestration count_based_preflight_misses_stale_lab_health

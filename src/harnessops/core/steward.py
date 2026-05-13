@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from harnessops.core.lab_memory_lint import lint_lab_memory
 from harnessops.core.migration import check_migrations
 from harnessops.core.project import Project
 from harnessops.core.validation import doctor as doctor_project
@@ -179,14 +180,49 @@ def _pull_first(project: Project, *, pull: bool) -> dict[str, Any]:
     return result
 
 
-def _lane_triggers(counts: dict[str, int], doctor: dict[str, Any], migration: dict[str, Any]) -> dict[str, Any]:
+def _lab_health(project: Project) -> dict[str, Any]:
+    if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
+        return {
+            "available": False,
+            "reason": f"overlay mode {project.overlay_mode} does not use harness-lab memory",
+        }
+
+    lint = lint_lab_memory(project)
+    return {
+        "available": True,
+        "status": lint["status"],
+        "reason": lint["reason"],
+        "metrics": lint["metrics"],
+        "thresholds": lint["thresholds"],
+        "pressure": lint["pressure"],
+        "triggers": lint["triggers"],
+        "snapshot": lint["snapshot"],
+        "abstraction": lint["abstraction"],
+        "recommended_commands": lint["recommended_commands"] if lint["status"] != "ok" else [],
+    }
+
+
+def _lane_triggers(
+    counts: dict[str, int],
+    doctor: dict[str, Any],
+    migration: dict[str, Any],
+    lab_health: dict[str, Any],
+) -> dict[str, Any]:
     has_feedback = any(
         counts[key] > 0
         for key in ("feedback_records", "failure_records", "upstream_feedback_records", "meta_feedback_records")
     )
-    has_lab_memory = any(
-        counts[key] > 0 for key in ("feedback_records", "research_scans", "improvements")
-    )
+    has_lab_memory = any(counts[key] > 0 for key in ("feedback_records", "research_scans", "improvements"))
+    lab_health_triggered = bool(lab_health.get("available") and lab_health.get("status") != "ok")
+    if lab_health_triggered:
+        lab_reason = "lab health " + str(lab_health.get("status"))
+        triggers = lab_health.get("triggers") or []
+        if triggers:
+            lab_reason += ": " + ", ".join(str(trigger) for trigger in triggers)
+    elif has_lab_memory:
+        lab_reason = "lab records or dossiers exist"
+    else:
+        lab_reason = "no local lab records detected"
     has_eval_flow = any(counts[key] > 0 for key in ("eval_cases", "hypotheses"))
     maintainer = bool(doctor.get("warnings") or doctor.get("errors") or not migration.get("ok", True))
     return {
@@ -203,8 +239,8 @@ def _lane_triggers(counts: dict[str, int], doctor: dict[str, Any], migration: di
             "reason": "requires weekly/release/user/cluster trigger outside deterministic preflight",
         },
         "librarian": {
-            "triggered": has_lab_memory,
-            "reason": "lab records or dossiers exist" if has_lab_memory else "no local lab records detected",
+            "triggered": lab_health_triggered or has_lab_memory,
+            "reason": lab_reason,
         },
         "critic": {
             "triggered": False,
@@ -238,11 +274,13 @@ def steward_preflight(project: Project, *, pull: bool, check_records: bool = Tru
     if git["can_continue"]:
         doctor = doctor_project(project, check_records=check_records)
         migration = check_migrations(project)
+        lab_health = _lab_health(project)
     else:
         doctor = {"ok": None, "errors": [], "warnings": [], "skipped": "pull-first blocked"}
         migration = {"ok": None, "pending": [], "skipped": "pull-first blocked"}
+        lab_health = {"available": False, "reason": "pull-first blocked"}
     counts = _overlay_counts(project)
-    lanes = _lane_triggers(counts, doctor, migration)
+    lanes = _lane_triggers(counts, doctor, migration, lab_health)
     can_continue = bool(git["can_continue"] and doctor.get("ok") is not False and migration.get("ok") is not False)
     return {
         "ok": can_continue,
@@ -260,6 +298,7 @@ def steward_preflight(project: Project, *, pull: bool, check_records: bool = Tru
         "doctor": doctor,
         "migration": migration,
         "counts": counts,
+        "lab_health": lab_health,
         "lane_triggers": lanes,
         "subagent_plan": _subagent_plan(lanes),
         "next_agent_step": (

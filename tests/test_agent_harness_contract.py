@@ -295,6 +295,7 @@ def test_daily_steward_skill_is_packaged() -> None:
     assert "Non-Negotiable Gates" in repo_skill
     assert "Sync Gate" in repo_skill
     assert "hops steward preflight --pull --json" in repo_skill
+    assert "lab health/stale-memory intake" in repo_skill
     assert "git fetch --prune" in repo_skill
     assert "git pull --ff-only" in repo_skill
     assert "stash, reset, rebase, force pull" in repo_skill
@@ -334,6 +335,7 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "remote-write: automation-branch-only" in prompt_doc
     assert "base-branch-push: false" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
+    assert "lab_health.status" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
     assert "uv run --with-editable . hops steward" not in prompt_doc
     assert "uv run --with-editable . hops doctor" not in prompt_doc

@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-13T11:52:44+09:00
-Source digest: `a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b`
+Updated: 2026-05-14T01:10:08+09:00
+Source digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -27,6 +27,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Record lookup by ID should prefer canonical record directories over generated views. Source: `IMP0012`
 - Generated dossiers should not embed full generic eval-case template bodies when manual eval summaries carry the signal. Source: `IMP0013`
 - Lab memory lint/prepare should expose stale or missing abstraction state without treating deterministic snapshots as semantic memory. Sources: `IMP0014`, `IMP0015`
+- Steward preflight should expose lab-health triggers for lab repositories and skip harness-lab memory probing in project repositories. Source: `IMP0029`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
 - `hops lab refresh-views` should clear doctor-managed lab generated-view warnings for README, backlog, dynamic lab views, research scans, and score trajectory without losing dynamic view content. Sources: `RS0002`, `IMP0016`
 
@@ -45,11 +46,13 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject generated review surfaces that add more template text than decision signal. Sources: `IMP0003`, `IMP0013`
 - Reject generated-view repair changes that leave doctor warnings after the advertised refresh command. Sources: `RS0002`, `IMP0016`
 - Reject compaction changes that erase canonical source links, source digests, or contradiction/guard context. Sources: `IMP0014`, `IMP0015`
+- Reject steward/preflight changes that write lab memory, perform semantic abstraction, or create `harness-lab/` behavior in project repositories. Sources: `IMP0023`, `IMP0029`, `RS0005`
 
 ## Guard Catalogue
 
 - `tests/test_cli/test_mvp_flow.py`: guards improvement loop, research scans, dossier creation consistency, canonical lookup, dossier evaluation summaries, lab compaction, memory lint/prepare, and generated-view refresh repair. Sources: `IMP0006`, `IMP0009`, `IMP0011`, `IMP0012`, `IMP0013`, `IMP0014`, `IMP0015`, `IMP0016`
 - `tests/test_agent_harness_contract.py`: guards packaged skills and bridge guidance for meta scan, research skill, and memory abstraction. Sources: `IMP0007`, `IMP0008`, `IMP0015`
+- `tests/test_cli/test_steward.py`: guards pull-first safety, finalize behavior, project-repo lab-health skip, and stale lab-health routing to librarian. Sources: `IMP0023`, `IMP0029`
 - Full `hops doctor --check-overlay --check-records` and `hops migrate --check` remain release-level checks for layout and managed-artifact consistency. Sources: `IMP0001`, `IMP0002`, `IMP0004`, `IMP0005`, `IMP0006`
 
 ## Reading Rules

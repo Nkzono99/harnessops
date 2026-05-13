@@ -38,6 +38,11 @@ def preflight_command(
         typer.echo(f"can_continue: {str(result['can_continue']).lower()}")
         typer.echo(f"doctor: {result['doctor'].get('ok')}")
         typer.echo(f"migration: {result['migration'].get('ok')}")
+        lab_health = result["lab_health"]
+        if lab_health.get("available"):
+            typer.echo(f"lab_health: {lab_health.get('status')} ({lab_health.get('reason')})")
+        else:
+            typer.echo(f"lab_health: unavailable ({lab_health.get('reason')})")
         triggered = [
             lane for lane, data in result["lane_triggers"].items() if data["triggered"]
         ]

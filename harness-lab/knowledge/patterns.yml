@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-13T11:52:44+09:00'
-source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
+updated_at: '2026-05-14T01:10:08+09:00'
+source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -85,6 +85,31 @@ patterns:
   counterexamples:
   - source: IMP0015
     note: Relying only on a skill loses cheap digest checks and machine-readable source indexes.
+- id: deterministic_health_intake
+  name: Deterministic health intake before steward routing
+  capability: daily_steward_orchestration
+  failure_class: count_based_preflight_misses_stale_lab_health
+  applies_when:
+  - A scheduled steward run needs to choose lanes from repository state.
+  - A lab repository has read-only health signals such as stale snapshot, stale semantic memory, pressure thresholds, doctor warnings, or migration status.
+  avoid_when:
+  - The repository is a project-side feedback source without harness-lab memory.
+  - The command would need to write files, rank speculative candidates, or perform semantic abstraction.
+  evidence:
+  - source: IMP0023
+    note: Daily steward preflight became the deterministic intake point for pull-first safety, doctor, migration, overlay counts, lane triggers, and run ledger state.
+  - source: IMP0029
+    note: Preflight now exposes lab_health from the existing read-only memory lint result and routes stale memory to the librarian lane.
+  - source: RS0005
+    note: The research scan recommended adding lab_health narrowly while keeping downstream judgment in the librarian lane.
+  guard:
+  - path: tests/test_cli/test_steward.py
+    sources: [IMP0023, IMP0029]
+  - path: tests/test_agent_harness_contract.py
+    sources: [IMP0023, IMP0029]
+  counterexamples:
+  - source: RS0005
+    note: Putting too much analysis into preflight would turn the steward into a workflow engine instead of deterministic intake.
 - id: concise_review_surface
   name: Concise generated review surface
   capability: lab_evaluation_review
