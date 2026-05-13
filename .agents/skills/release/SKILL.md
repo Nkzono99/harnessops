@@ -20,7 +20,7 @@ uv run --with-editable . hops doctor --check-overlay --check-records
 uv run --with-editable . hops migrate --check
 ```
 
-5. `main` がリリース対象なら必要な commit を作り、`git push origin main` で remote に反映する。
+5. `main` がリリース対象なら、現在の未コミット変更を release 対象として扱う。検証が通った後、version bump、lab 記録、docs、tests、skill、generated views、lock 更新を含めて必要な commit を作り、`git push origin main` で remote に反映する。dirty worktree のまま既存 `main` を release しない。
 6. この repository は published GitHub release で PyPI publish workflow が走る。PyPI Trusted Publisher の environment は `pypi` なので、workflow の publish job は `environment: pypi` を持つ必要がある。
 7. `gh release create v<version> --target main --title "harnessops v<version>" --notes <notes>` で release を作る。
 8. 作成後に `gh release view v<version>`、`gh run list --limit 5`、`git status --short --branch` を確認する。

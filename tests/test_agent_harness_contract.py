@@ -44,6 +44,7 @@ def test_harnessops_repo_has_repo_local_hops_skills() -> None:
     for skill_name in (
         "hops-add-failure",
         "hops-compact-lab-memory",
+        "hops-daily-steward",
         "hops-issue-triage",
         "hops-open-meta-scan",
         "hops-research-improvements",
@@ -271,6 +272,43 @@ def test_open_meta_scan_skill_is_packaged() -> None:
         skill = ROOT / f"plugins/{host}/harnessops/skills/hops-open-meta-scan/SKILL.md"
         text = skill.read_text(encoding="utf-8")
         asset = ROOT / f"src/harnessops/agent_assets/plugins/{host}/harnessops/skills/hops-open-meta-scan/SKILL.md"
+        assert text == repo_skill
+        assert asset.read_text(encoding="utf-8") == repo_skill
+        assert_harness_contract(text)
+
+
+def test_daily_steward_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-daily-steward/SKILL.md").read_text(encoding="utf-8")
+    assert "steward / conductor" in repo_skill
+    assert "compact steward / conductor" in repo_skill
+    assert "Default automation mode is `advance-local`" in repo_skill
+    assert "Human review is not required for local advance" in repo_skill
+    assert "Non-Negotiable Gates" in repo_skill
+    assert "Sync Gate" in repo_skill
+    assert "hops steward preflight --pull --json" in repo_skill
+    assert "git fetch --prune" in repo_skill
+    assert "git pull --ff-only" in repo_skill
+    assert "stash, reset, rebase, force pull" in repo_skill
+    assert "automation prompt" in repo_skill
+    assert "open divergent invention lane" in repo_skill
+    assert "Selection Rules" in repo_skill
+    assert "Advance-Local" in repo_skill
+    assert "End-Of-Run Policy" in repo_skill
+    assert "patch-only" in repo_skill
+    assert "commit-local" in repo_skill
+    assert "hops steward finalize --policy commit-local --validation-passed --json" in repo_skill
+    assert "Decision Card" in repo_skill
+    assert "no-op are valid outcomes" in repo_skill
+    assert "hops-open-meta-scan" in repo_skill
+    assert "hops-research-improvements" in repo_skill
+    assert "hops-run-lab" in repo_skill
+    assert "Remote writes require explicit confirmation" in repo_skill
+    assert_harness_contract(repo_skill)
+
+    for host in ("codex", "claude"):
+        skill = ROOT / f"plugins/{host}/harnessops/skills/hops-daily-steward/SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        asset = ROOT / f"src/harnessops/agent_assets/plugins/{host}/harnessops/skills/hops-daily-steward/SKILL.md"
         assert text == repo_skill
         assert asset.read_text(encoding="utf-8") == repo_skill
         assert_harness_contract(text)

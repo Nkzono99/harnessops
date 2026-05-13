@@ -26,3 +26,4 @@
 - `FB0023` triaged harness_lab_traceability missing_lab_capture
 - `FB0024` triaged unclassified unclassified
 - `FB0025` triaged meta_improvement_research premature_research_routing
+- `FB0026` triaged daily_steward_orchestration fragmented_improvement_loop

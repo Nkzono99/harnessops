@@ -18,6 +18,7 @@ from harnessops.cli import (
     propose,
     report,
     route,
+    steward,
     update_harness,
 )
 
@@ -62,6 +63,7 @@ decide.register(app)
 report.register(app)
 agent.register(app)
 route.register(app)
+steward.register(app)
 update_harness.register(app)
 
 

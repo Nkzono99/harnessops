@@ -236,6 +236,14 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 
 手動調査は非定期に行います。定期実行だけにすると棚卸し儀式になりやすいため、強い発火条件、release前、または人間の依頼で起動します。将来的に自動化する場合も、即実装や即Issue化ではなく、まず `research-scan` として候補一覧と lab への追記案を出すだけに留めます。
 
+## Daily Steward
+
+定期実行で改善ループを回す時は、単一の賢い agent ではなく `hops-daily-steward` を薄い conductor として扱います。daily steward は新しい workflow engine ではなく、sync、intake、停止条件、委譲先、最大作業量、end-of-run policy だけを決め、issue triage、open invention、selection、E/H/D、update は既存 skill に委譲します。
+
+常時起動PCの Codex App automation を標準的な実行環境として想定します。他のPCから push された更新を取り込んでから夜間実行するため、最初に `hops steward preflight --pull --json` を実行します。この command は fetch、clean worktree 上の fast-forward pull、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を機械化します。dirty worktree、diverged branch、pull conflict は自動 stash や merge で解決せず、改善ループを止めて人間判断に戻します。夜間発火では run 中の remote 更新は原則ない前提でよく、開始SHA、pull結果、実行SHAを run ledger に残します。
+
+Advance は完全自動化に必要な lane として残します。ただし、Human review is not a precondition for local advance; automated gates are mandatory. 採用判断、guard 更新、update-harness、実装前進は evidence、regression risk、guard path、kill criteria を要求し、remote write は人間確認に留めます。run 後に変更が残った場合は、`patch-only` で翌朝レビューに渡すか、validation 後に `commit-local` で local automation branch へ commit します。No-op、park、reject、local-only は正常系です。daily steward の成功条件は、毎日何かを作ることではなく、改善すべきもの、保留すべきもの、触ってはいけないものを正しく分けることです。
+
 ## 3種類の改善を混ぜない
 
 | 種別 | 置き場所 | 意味 |

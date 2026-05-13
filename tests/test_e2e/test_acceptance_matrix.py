@@ -15,6 +15,7 @@ def test_cli_smoke_commands(copy_fixture, monkeypatch):
         ["init", "--profile", "harnessops-core"],
         ["doctor"],
         ["migrate", "--check"],
+        ["steward", "preflight", "--json"],
         ["agent", "bridge", "--codex"],
         ["agent", "verify"],
     ]:

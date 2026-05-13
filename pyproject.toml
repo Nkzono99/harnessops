@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "harnessops"
-version = "0.1.5"
+version = "0.1.6"
 description = "AI支援ハーネスプロジェクト向けのフィードバックと改善実験OS"
 readme = "README.md"
 license = "Apache-2.0"

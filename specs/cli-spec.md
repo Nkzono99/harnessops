@@ -16,6 +16,8 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops doctor` | いいえ | プロジェクトリンク、オーバーレイ、ロック、レコードを検証します。 |
 | `hops migrate --check/--apply` | `--apply` のみ | スキーマ/レイアウトマイグレーションを確認または適用します。 |
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。編集済みmanaged fileは `<path>.new` に書きます。 |
+| `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の定型 preflight を実行します。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を返し、dirty/diverged/conflict では停止します。 |
+| `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | daily steward run 後の変更処理を行います。`patch-only` は worktree に残して報告し、`commit-local` は `--validation-passed` がある時だけ local automation branch に commit します。push は行いません。 |
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
 | `hops add-feedback --from <Fid>` | はい | 非公開の上流/メタフィードバック下書きを作成します。 |
 | `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |
@@ -50,6 +52,8 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 6. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
 7. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
 8. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
+9. `hops steward preflight --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
+10. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
 
 ## 終了コード
 
@@ -69,6 +73,8 @@ hops detect --json
 hops init --profile runops-project
 hops doctor --check-overlay --check-records
 hops migrate --check
+hops steward preflight --json
+hops steward finalize --policy patch-only --json
 hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001 --json
 hops feedback export --sanitize
