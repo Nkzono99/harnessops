@@ -327,6 +327,13 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
     assert "git push -u origin HEAD" in prompt_doc
     assert "Do not create PRs, comments, issues, releases, or push main." in prompt_doc
+    assert "Full Automation Prompt: Push Main" in prompt_doc
+    assert "remote-write: main-push" in prompt_doc
+    assert "main-push: true" in prompt_doc
+    assert "stop-on-remote-change-after-validation: true" in prompt_doc
+    assert "hops steward finalize --policy commit-local --validation-passed --branch main" in prompt_doc
+    assert "git push origin main" in prompt_doc
+    assert "Main push is the only remote write." in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide
 
