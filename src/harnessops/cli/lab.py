@@ -22,17 +22,14 @@ from harnessops.core.lab_compaction import (
 from harnessops.core.paths import find_root
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.project import load_project
-from harnessops.core.records import (
+from harnessops.core.improvement_dossier import (
     add_improvement_investigation,
-    create_eval_case,
-    create_lab_feedback,
     create_or_update_improvement_dossier,
-    create_research_scan,
-    dump_record,
-    find_record,
-    read_record,
     update_improvement_dossier_metadata,
 )
+from harnessops.core.lab_records import create_eval_case, create_lab_feedback, create_research_scan
+from harnessops.core.record_index import find_record
+from harnessops.core.record_io import dump_record, read_record
 from harnessops.core.render import refresh_views
 from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile

@@ -2,6 +2,8 @@
 
 HarnessOps レコードは YAML frontmatter 付きのMarkdownファイルです。frontmatter は機械検証され、本文には人間が読む証拠と根拠を書きます。
 
+実装上は、レコード種別と保存先の正本を `harnessops.core.record_types` に置き、frontmatter IO を `record_io`、ID/path lookup を `record_index`、作成系を `lab_records`、dossier 集約と更新を `improvement_dossier` に分けます。`harnessops.core.records` は既存 import 互換の facade として残します。
+
 ## 共通ルール
 
 - すべてのレコードに `id`、`record_type`、`created_at` が必要です。

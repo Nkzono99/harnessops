@@ -8,14 +8,11 @@ from typing import Any, Optional
 import typer
 
 from harnessops.core import yamlio
+from harnessops.core.lab_records import create_imported_feedback
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import (
-    create_imported_feedback,
-    dump_record,
-    next_id,
-    read_record,
-)
+from harnessops.core.record_index import next_id
+from harnessops.core.record_io import dump_record, read_record
 from harnessops.core.render import refresh_views
 from harnessops.core.sanitize import DEFAULT_PATTERNS, sanitize_text
 from harnessops.profiles.registry import load_profile

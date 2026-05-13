@@ -7,7 +7,8 @@ import typer
 
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import dump_record, find_record, read_record
+from harnessops.core.record_index import find_record
+from harnessops.core.record_io import dump_record, read_record
 from harnessops.core.render import refresh_views
 from harnessops.core.routing import classify_text
 

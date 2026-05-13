@@ -32,3 +32,4 @@
 - `FB0029` triaged unclassified unclassified
 - `FB0030` triaged harness_lab_traceability missing_lab_capture
 - `FB0031` triaged repository_maintainability surface_sprawl
+- `FB0032` triaged repository_maintainability records_module_sprawl

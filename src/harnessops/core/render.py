@@ -4,7 +4,7 @@ from pathlib import Path
 
 from harnessops.core.lock import load_lock, sha256_file, write_lock
 from harnessops.core.overlay import GENERATED_MARKER
-from harnessops.core.records import read_record
+from harnessops.core.record_io import read_record
 
 
 def _refresh_managed_hashes(root: Path, written: list[Path]) -> None:

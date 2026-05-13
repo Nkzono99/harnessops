@@ -9,7 +9,7 @@ from harnessops.core import yamlio
 from harnessops.core.lock import sha256_file
 from harnessops.core.markdown import record_heading, section
 from harnessops.core.project import Project
-from harnessops.core.records import now_iso, read_record
+from harnessops.core.record_io import now_iso, read_record
 
 
 DEFAULT_MAX_FILES = 256

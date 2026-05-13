@@ -10,7 +10,8 @@ except ModuleNotFoundError:  # pragma: no cover
 
 from harnessops.core.lock import load_lock, sha256_file
 from harnessops.core.project import Project
-from harnessops.core.records import read_record
+from harnessops.core.record_io import read_record
+from harnessops.core.record_types import ID_PREFIXES
 from harnessops.core.routing import DISPOSITIONS
 from harnessops.profiles.registry import load_profile
 
@@ -19,20 +20,6 @@ BRIDGE_SKILL_PATHS = (
     ".agents/skills/harnessops-bridge/SKILL.md",
     ".claude/skills/harnessops-bridge/SKILL.md",
 )
-
-ID_PREFIX_BY_TYPE = {
-    "failure": "F",
-    "local_workaround": "LW",
-    "upstream_feedback": "UF",
-    "meta_feedback": "MF",
-    "imported_feedback": "FB",
-    "eval_case": "E",
-    "hypothesis": "H",
-    "experiment": "X",
-    "decision": "D",
-    "improvement_dossier": "IMP",
-    "research_scan": "RS",
-}
 
 REQUIRED_SECTIONS = {
     "failure": ["文脈", "起きたこと", "重要性", "望ましい挙動", "ローカル回避策", "ルーティング根拠"],
@@ -76,7 +63,7 @@ def validate_record(path: Path) -> list[str]:
             errors.append(f"{path}: {key} がありません")
     record_type = frontmatter.get("record_type")
     record_id = str(frontmatter.get("id", ""))
-    expected_prefix = ID_PREFIX_BY_TYPE.get(str(record_type))
+    expected_prefix = ID_PREFIXES.get(str(record_type))
     if expected_prefix and not record_id.startswith(expected_prefix):
         errors.append(f"{path}: idプレフィックスがrecord_typeと一致しません")
     if record_type == "failure":

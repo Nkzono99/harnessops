@@ -4,7 +4,7 @@ import typer
 
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import create_decision
+from harnessops.core.lab_records import create_decision
 
 STATUSES = {"adopted", "rejected", "parked", "needs-more-evidence", "merged-into-other", "not-upstreamable"}
 

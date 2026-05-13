@@ -6,7 +6,8 @@ from typing import Any
 from harnessops.core import yamlio
 from harnessops.core.overlay import GENERATED_MARKER
 from harnessops.core.project import Project
-from harnessops.core.records import find_record, now_iso, read_record
+from harnessops.core.record_index import find_record
+from harnessops.core.record_io import now_iso, read_record
 
 DEFAULT_RUBRIC = {
     "impact": 0,

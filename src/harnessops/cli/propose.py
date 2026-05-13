@@ -4,7 +4,9 @@ import typer
 
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.records import create_hypothesis, find_record, read_record
+from harnessops.core.lab_records import create_hypothesis
+from harnessops.core.record_index import find_record
+from harnessops.core.record_io import read_record
 
 
 def propose_command(
