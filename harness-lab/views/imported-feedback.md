@@ -33,3 +33,5 @@
 - `FB0030` triaged harness_lab_traceability missing_lab_capture
 - `FB0031` triaged repository_maintainability surface_sprawl
 - `FB0032` triaged repository_maintainability records_module_sprawl
+- `FB0033` triaged repository_maintainability lab_compaction_module_sprawl
+- `FB0034` triaged repository_maintainability cli_private_helper_coupling

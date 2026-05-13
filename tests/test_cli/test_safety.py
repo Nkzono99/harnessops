@@ -3,8 +3,8 @@ import subprocess
 
 from typer.testing import CliRunner
 
-from harnessops.cli import feedback as feedback_cli
 from harnessops.cli.main import app
+from harnessops.core import issue_bridge
 from harnessops.core.records import read_record
 
 
@@ -177,7 +177,7 @@ def test_feedback_issue_create_previews_and_searches_without_confirm(
             )
         raise AssertionError(f"unexpected gh call: {args}")
 
-    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+    monkeypatch.setattr(issue_bridge.subprocess, "run", fake_run)
 
     result = runner.invoke(
         app,
@@ -313,7 +313,7 @@ def test_feedback_issue_create_writes_fallback_draft_when_gh_unavailable(
     def fake_run(args, check, capture_output, text):
         raise FileNotFoundError("gh")
 
-    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+    monkeypatch.setattr(issue_bridge.subprocess, "run", fake_run)
 
     result = runner.invoke(
         app,
@@ -396,7 +396,7 @@ def test_feedback_issue_create_writes_back_created_issue_url(copy_fixture, monke
             )
         raise AssertionError(f"unexpected gh call: {args}")
 
-    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+    monkeypatch.setattr(issue_bridge.subprocess, "run", fake_run)
 
     result = runner.invoke(
         app,
@@ -497,7 +497,7 @@ def test_lab_issue_create_writes_back_created_issue_url(copy_fixture, monkeypatc
             )
         raise AssertionError(f"unexpected gh call: {args}")
 
-    monkeypatch.setattr(feedback_cli.subprocess, "run", fake_run)
+    monkeypatch.setattr(issue_bridge.subprocess, "run", fake_run)
 
     result = runner.invoke(
         app,

@@ -7,14 +7,19 @@ from typing import Any, Optional
 
 import typer
 
-from harnessops.core import yamlio
+from harnessops.core.issue_bridge import (
+    create_github_issue,
+    remaining_private_markers,
+    search_duplicate_issues,
+    validate_repo,
+)
 from harnessops.core.lab_records import create_imported_feedback
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.record_index import next_id
 from harnessops.core.record_io import dump_record, read_record
 from harnessops.core.render import refresh_views
-from harnessops.core.sanitize import DEFAULT_PATTERNS, sanitize_text
+from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile
 
 feedback_app = typer.Typer(
@@ -158,42 +163,6 @@ def _resolve_bundle_path(root: Path, bundle: Path) -> Path:
     return bundle if bundle.is_absolute() else root / bundle
 
 
-def _validate_repo(repo: str) -> None:
-    parts = repo.split("/")
-    if len(parts) != 2 or not all(parts) or any(char.isspace() for char in repo):
-        typer.echo("--repo は owner/repo 形式で指定してください")
-        raise typer.Exit(1)
-
-
-def _configured_private_terms(root: Path) -> list[str]:
-    path = root / ".harnessops" / "sanitize.yml"
-    if not path.exists():
-        return []
-    config = yamlio.safe_load(path.read_text(encoding="utf-8")) or {}
-    return [str(term) for term in config.get("private_terms", [])]
-
-
-def _remaining_private_markers(
-    root: Path, profile: dict[str, Any], body: str
-) -> list[str]:
-    markers: list[str] = []
-    for root_text in {str(root), root.as_posix()}:
-        if root_text and root_text in body:
-            markers.append("project-root")
-    for pattern, _ in DEFAULT_PATTERNS:
-        if pattern.search(body):
-            markers.append(pattern.pattern)
-    for term in _configured_private_terms(root):
-        if term and term in body:
-            markers.append("private-term")
-    for key in ["private_paths", "protected_paths"]:
-        for pattern in profile.get(key, []) or []:
-            literal = str(pattern).replace("**", "").replace("*", "")
-            if literal and literal in body:
-                markers.append(key)
-    return sorted(set(markers))
-
-
 def _load_issue_bundle(
     root: Path, profile: dict[str, Any], bundle_path: Path
 ) -> tuple[dict[str, Any], str]:
@@ -212,7 +181,7 @@ def _load_issue_bundle(
     if source.get("format") not in {"issue", "github-issue"}:
         typer.echo("GitHub Issue化には --format github-issue のバンドルが必要です")
         raise typer.Exit(1)
-    markers = _remaining_private_markers(root, profile, body)
+    markers = remaining_private_markers(root, profile, body)
     if markers:
         typer.echo(
             "GitHub Issue化する前に再サニタイズが必要です: " + ", ".join(markers)
@@ -230,45 +199,6 @@ def _issue_title(source: dict[str, Any], body: str, override: str | None) -> str
             return stripped[2:].strip()
     target = source.get("target") or "feedback"
     return f"{target} feedback"
-
-
-def _run_gh(args: list[str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["gh", *args],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-
-
-def _search_duplicate_issues(
-    repo: str, title: str
-) -> tuple[list[dict[str, Any]], str | None]:
-    try:
-        result = _run_gh(
-            [
-                "issue",
-                "list",
-                "--repo",
-                repo,
-                "--state",
-                "open",
-                "--search",
-                f"{title} in:title",
-                "--limit",
-                "5",
-                "--json",
-                "number,title,url,state",
-            ]
-        )
-        payload = json.loads(result.stdout)
-    except FileNotFoundError:
-        return [], "gh が見つかりません"
-    except (json.JSONDecodeError, subprocess.CalledProcessError) as exc:
-        return [], f"GitHub Issue検索に失敗しました: {exc}"
-    if not isinstance(payload, list):
-        return [], "GitHub Issue検索の応答形式が不正です"
-    return [item for item in payload if isinstance(item, dict)], None
 
 
 def _write_fallback_issue_draft(bundle_path: Path, title: str, body: str) -> Path:
@@ -362,31 +292,6 @@ def _write_issue_url_to_records(
         updated += 1
     refresh_views(root, project.overlay_path)
     return updated
-
-
-def _create_github_issue(repo: str, title: str, body: str) -> str:
-    try:
-        result = _run_gh(
-            [
-                "issue",
-                "create",
-                "--repo",
-                repo,
-                "--title",
-                title,
-                "--body",
-                body,
-            ]
-        )
-    except FileNotFoundError as exc:
-        raise RuntimeError("gh が見つかりません") from exc
-    except subprocess.CalledProcessError as exc:
-        message = exc.stderr.strip() or str(exc)
-        raise RuntimeError(f"GitHub Issue作成に失敗しました: {message}") from exc
-    url = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
-    if not url.startswith("https://"):
-        raise RuntimeError("GitHub Issue URLを取得できませんでした")
-    return url
 
 
 @feedback_app.command("export")
@@ -503,7 +408,11 @@ def create_issue(
     root = find_root()
     project = load_project(root)
     profile = load_profile(project.profile_id)
-    _validate_repo(repo)
+    try:
+        validate_repo(repo)
+    except ValueError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(1) from exc
     bundle_path = _resolve_bundle_path(root, bundle)
     source, body = _load_issue_bundle(root, profile, bundle_path)
     issue_title = _issue_title(source, body, title)
@@ -513,7 +422,7 @@ def create_issue(
     typer.echo("\nIssue body:")
     typer.echo(body)
 
-    duplicates, search_error = _search_duplicate_issues(repo, issue_title)
+    duplicates, search_error = search_duplicate_issues(repo, issue_title)
     if search_error:
         draft_path = _write_fallback_issue_draft(bundle_path, issue_title, body)
         typer.echo(f"\n重複検索をスキップしました: {search_error}")
@@ -542,7 +451,7 @@ def create_issue(
         return
 
     try:
-        issue_url = _create_github_issue(repo, issue_title, body)
+        issue_url = create_github_issue(repo, issue_title, body)
     except RuntimeError as exc:
         typer.echo(str(exc))
         raise typer.Exit(1) from exc

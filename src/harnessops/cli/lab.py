@@ -4,12 +4,12 @@ from pathlib import Path
 
 import typer
 
-from harnessops.cli.feedback import (
-    _create_github_issue,
-    _remaining_private_markers,
-    _search_duplicate_issues,
-    _validate_repo,
-    import_feedback,
+from harnessops.cli.feedback import import_feedback
+from harnessops.core.issue_bridge import (
+    create_github_issue,
+    remaining_private_markers,
+    search_duplicate_issues,
+    validate_repo,
 )
 from harnessops.core.lab_compaction import (
     DEFAULT_MAX_BYTES,
@@ -367,7 +367,7 @@ Source dossier: `{rel}`
 This body was sanitized by HarnessOps before issue creation.
 """
     sanitized = sanitize_text(body, root=root, profile=profile)
-    markers = _remaining_private_markers(root, profile, sanitized)
+    markers = remaining_private_markers(root, profile, sanitized)
     if markers:
         typer.echo("GitHub Issue化する前に再サニタイズが必要です: " + ", ".join(markers))
         raise typer.Exit(1)
@@ -445,14 +445,18 @@ def issue_create(
     """lab record からGitHub Issueを作成します。"""
     root = find_root()
     project = load_project(root)
-    _validate_repo(repo)
+    try:
+        validate_repo(repo)
+    except ValueError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(1) from exc
     source_path, _, issue_title, body = _lab_issue_body(root, project, from_id, title)
     typer.echo("Issue title:")
     typer.echo(issue_title)
     typer.echo("\nIssue body:")
     typer.echo(body)
 
-    duplicates, search_error = _search_duplicate_issues(repo, issue_title)
+    duplicates, search_error = search_duplicate_issues(repo, issue_title)
     if search_error:
         draft_path = _lab_issue_draft_path(project, source_path)
         draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8", newline="\n")
@@ -478,7 +482,7 @@ def issue_create(
         return
 
     try:
-        issue_url = _create_github_issue(repo, issue_title, body)
+        issue_url = create_github_issue(repo, issue_title, body)
     except RuntimeError as exc:
         typer.echo(str(exc))
         raise typer.Exit(1) from exc
