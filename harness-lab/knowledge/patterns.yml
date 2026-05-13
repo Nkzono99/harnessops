@@ -1,0 +1,169 @@
+schema_version: '0.1'
+kind: harness_lab_patterns
+updated_at: '2026-05-13T11:10:00+09:00'
+source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+patterns:
+- id: lab_first_improvement_loop
+  name: Lab-first improvement loop
+  capability: improvement_loop_design
+  failure_class: ambiguous_improvement_workflow
+  applies_when:
+  - A HarnessOps change affects CLI behavior, skills, bridge contracts, release behavior, schema, or protocol-level workflow.
+  - The observation is local but may become a reusable failure class or promotion candidate.
+  avoid_when:
+  - The change is a trivial mechanical edit with no behavioral or workflow implication.
+  evidence:
+  - source: IMP0001
+    note: Local HarnessOps improvements could ship without a lab trace until capture/eval guidance was made first-class.
+  - source: IMP0006
+    note: The standard loop became explicit about observation, investigation, classification, hypothesis, evaluation, decision, guard, and promotion.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0006]
+  counterexamples:
+  - source: IMP0001
+    note: Storage existed, but without a first-step capture path the trace was still skipped.
+- id: bounded_meta_scan
+  name: Bounded in-task meta-hypothesis scan
+  capability: meta_hypothesis_scan
+  failure_class: missed_second_order_observation
+  applies_when:
+  - Work is interrupted by a reusable design concern, repeated friction, migration/compatibility decision, evaluation gap, or external analogy.
+  - The observation affects future agent behavior or cross-project promotion.
+  avoid_when:
+  - The idea is merely interesting and does not change future behavior, evaluation, migration, or promotion.
+  evidence:
+  - source: IMP0007
+    note: The run-lab skills now instruct agents to run a bounded scan at meaningful checkpoints.
+  guard:
+  - path: tests/test_agent_harness_contract.py
+    sources: [IMP0007]
+  counterexamples:
+  - source: IMP0007
+    note: Broad autonomous capture would create noisy meta-records.
+- id: deliberate_research_scan
+  name: Deliberate meta-improvement research scan
+  capability: meta_improvement_research
+  failure_class: unstructured_research_scan_results
+  applies_when:
+  - A user asks for meta-level improvement research or a candidate list needs local, codebase, and external evidence.
+  - Multiple candidates must be compared before routing to investigate, capture, propose, park, or reject.
+  avoid_when:
+  - A single known failure already has a clear feedback record and hypothesis path.
+  evidence:
+  - source: IMP0008
+    note: The manual research skill is separate from the shorter in-task meta scan and must route durable outputs through the lab.
+  - source: IMP0009
+    note: Research scans persist evidence, candidates, relation, recommendation, and next command.
+  - source: RS0001
+    note: The first scan recommended using RS records for deliberate multi-candidate meta-improvement research.
+  guard:
+  - path: tests/test_agent_harness_contract.py
+    sources: [IMP0008]
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0009]
+  counterexamples:
+  - source: RS0001
+    note: A new record type creates meta-noise if used for every small observation.
+- id: source_linked_memory_compaction
+  name: Source-linked memory compaction
+  capability: lab_memory_compaction
+  failure_class: record_sprawl_without_knowledge_consolidation
+  applies_when:
+  - Lab record count, byte count, or improvement count crosses thresholds.
+  - The abstraction targets are missing, stale, or manually requested.
+  avoid_when:
+  - The operator wants an adoption decision; compact memory is only an index and working memory.
+  evidence:
+  - source: IMP0014
+    note: Compaction preserves canonical records and keeps mutable knowledge source-linked.
+  - source: IMP0015
+    note: Lint/prepare separate trigger detection and input bundling from semantic abstraction.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0014, IMP0015]
+  counterexamples:
+  - source: IMP0015
+    note: Relying only on a skill loses cheap digest checks and machine-readable source indexes.
+- id: concise_review_surface
+  name: Concise generated review surface
+  capability: lab_evaluation_review
+  failure_class: eval_template_noise_in_dossier
+  applies_when:
+  - Generated dossiers or views are meant to help readers review current state quickly.
+  - Eval records exist mainly to anchor hypotheses and decisions, while manual scores carry the review signal.
+  avoid_when:
+  - The full record body is the actual subject of review.
+  evidence:
+  - source: IMP0003
+    note: Per-improvement dossiers reduce cross-file scanning while preserving normalized records.
+  - source: IMP0013
+    note: Dossiers now summarize eval records and manual eval outputs instead of embedding template bodies.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0013]
+  counterexamples:
+  - source: IMP0013
+    note: Deleting eval-case records entirely would remove the hook used by hypotheses and decisions.
+- id: managed_artifact_conflict_awareness
+  name: Conflict-aware managed artifact refresh
+  capability: managed_artifact_update
+  failure_class: stale_managed_file_reported_ok
+  applies_when:
+  - A packaged skill, bridge file, generated view, or other managed artifact can be locally edited.
+  - An update command must report whether it changed, skipped, or wrote a conflict copy.
+  avoid_when:
+  - The artifact is purely generated and explicitly safe to overwrite.
+  evidence:
+  - source: IMP0002
+    note: Managed bridge hashes let unmodified stale files update while local edits get `.new` files.
+  - source: IMP0011
+    note: Source-feedback locking and doctor uniqueness checks prevent duplicate dossier creation under concurrent lab commands.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0011]
+  counterexamples:
+  - source: IMP0002
+    note: A blunt force mode can refresh stale files but cannot protect local edits.
+- id: canonical_record_identity
+  name: Canonical record identity before broad lookup
+  capability: record_lookup
+  failure_class: generated_view_shadowed_record_id
+  applies_when:
+  - Resolving IDs such as FB, E, H, D, IMP, or RS in a tree that also contains generated views.
+  - Generated views can contain the same visible ID as a canonical record.
+  avoid_when:
+  - The caller explicitly asks for a generated view path.
+  evidence:
+  - source: IMP0012
+    note: '`find_record` now searches the canonical directory implied by known ID prefixes before broad overlay lookup.'
+  - source: IMP0011
+    note: Duplicate source-feedback mappings must be surfaced by doctor rather than hidden by broad scans.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0011, IMP0012]
+  counterexamples:
+  - source: IMP0012
+    note: Rerunning eval by ID resolved to a generated manual-score view before canonical lookup was preferred.
+- id: privacy_and_encoding_safe_remote_paths
+  name: Privacy- and encoding-safe remote paths
+  capability: remote_feedback_workflow
+  failure_class: unsanitized_or_misdecoded_remote_context
+  applies_when:
+  - Importing issue JSON, creating issue drafts, citing external evidence, or moving lab-first records toward a remote issue.
+  - Windows console encoding or remote publication can corrupt or leak context.
+  avoid_when:
+  - The workflow stays entirely local and contains no Unicode or private context risk.
+  evidence:
+  - source: IMP0004
+    note: Lab-first issue drafts/creation sanitize bodies, search duplicates, require confirmation, and write back created URLs.
+  - source: IMP0005
+    note: GitHub issue import now decodes `gh` output as UTF-8 and tests Unicode Japanese issue content.
+  - source: IMP0008
+    note: Manual meta-research must be privacy-aware when using external evidence.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0004]
+  counterexamples:
+  - source: IMP0005
+    note: Default Windows console decoding can break JSON reads and erase the original error path.

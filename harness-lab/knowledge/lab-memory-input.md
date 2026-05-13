@@ -7,7 +7,7 @@
 
 - status: ok
 - reason: thresholds-not-exceeded-no-sources-or-current
-- source_digest: `011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c`
+- source_digest: `7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10`
 - pressure: none
 - triggers: none
 
@@ -850,7 +850,7 @@ adopt: use research-scan for deliberate multi-candidate meta-improvement researc
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: 011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c
+source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
 sources:
 - IMP0001
 - IMP0002

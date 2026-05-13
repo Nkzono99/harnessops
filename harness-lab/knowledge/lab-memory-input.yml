@@ -1,15 +1,15 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-13T09:29:17+09:00'
+updated_at: '2026-05-13T11:09:09+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: ok
   reason: thresholds-not-exceeded-no-sources-or-current
-  updated_at: '2026-05-13T09:29:17+09:00'
+  updated_at: '2026-05-13T11:09:09+09:00'
   metrics: &id002
     file_count: 162
-    byte_count: 359014
+    byte_count: 366362
     record_count: 74
     feedback_count: 18
     eval_case_count: 18
@@ -22,13 +22,13 @@ lint:
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: 011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c
+  source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
   pressure: []
   triggers: &id003 []
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: 011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c
+    source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
     stale: false
   abstraction:
     exists: false
@@ -69,7 +69,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-13T09:29:17+09:00'
+  updated_at: '2026-05-13T11:09:09+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -77,7 +77,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: 011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c
+    source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
     improvements:
     - IMP0001
     - IMP0002
@@ -491,7 +491,7 @@ sources:
   promotion_level: target-lab-case
   capability: harness_lab_traceability
   failure_class: missing_lab_capture
-  digest: sha256:6712cd788ab46a16b887835ddfc67def5889e1fe67366c62df5976961bb1680d
+  digest: sha256:bf64a8bd5124e8db29c2b2551914dc2530da010725f29646eee7aa3d55cb5e15
   excerpt: "# IMP0001: FB0001: HarnessOps improvements lacked lab trace\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0001`\n- linked_records: `FB0001`, `E0001`, `H0001`, `D0001`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0001-harnessops-improvements-lacked-lab-trace.md`\n\n# FB0001: HarnessOps improvements lacked lab trace\n\n## 概要\n\nHarnessOps CLI and skill improvements could be implemented, committed, released, and published without any harness-lab record.\n\n## 再現\n\nRun a nontrivial HarnessOps improvement from local conversation without an upstream feedback bundle or GitHub issue. Existing hops-run-lab guidance assumed an FB record already existed.\n\n## 期待する上流変更\n\nProvide a first-class lab capture command and update agent, release, and lab skills so local HarnessOps improvements start with a harness-lab record.\n\n## Target Capability\n\n- capability: harness_lab_traceability\n- failure_class: missing_lab_capture\n\n## Investigation\n\n調査メモはまだありません。\n\n## Evaluation\n\n### E0001: E0001: FB0001-harnessops-improvements-lacked-lab-trace を評価\n\n\n- source: `harness-lab/records/eval-cases/E0001-fb0001-harnessops-improvements-lacked-lab-trace.md`\n\n- capability: harness_lab_traceability\n\n- failure_class: missing_lab_capture\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0001-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0001-manual-score.md`\n- scores: impact=4, mechanism_clarity=4, evaluability=5, minimality=4, regression_risk=0, operator_burden=0, anti_theater=4, maintainability=4, privacy_sanitization_risk=0\n- notes: CLI tests exercise lab capture and eval conversion. Contract tests assert bridge, packaged skills, release skill, and..."
 - id: IMP0002
   record_type: improvement_dossier
@@ -503,7 +503,7 @@ sources:
   promotion_level: target-lab-case
   capability: unclassified
   failure_class: unclassified
-  digest: sha256:8519872de546d78cf269bd87884aeadf8d4260f8d5b891d9ee0a5b95bd228241
+  digest: sha256:7903d6a88b0d194e8a7b8c602666fba8018c451f426884941d6bdc9a9dea047c
   excerpt: "# IMP0002: FB0006: Make update-harness conflict-aware for agent bridge files\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0006`\n- linked_records: `FB0006`, `E0006`, `H0006`, `D0007`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0006-make-update-harness-conflict-aware-for-agent-bridge-files.md`\n\n# FB0006: Make update-harness conflict-aware for agent bridge files\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/6\nauthor: Nkzono99\nlabels: enhancement\ncreated_at: 2026-05-12T14:53:22Z\nupdated_at: 2026-05-12T14:53:22Z\n\n## Issue本文\n## Context\n\nWhile updating runops' HarnessOps bridge, `.agents/skills/hops-export-feedback/SKILL.md` was stale. Running:\n\n```bash\nhops update-harness --agent-bridge --codex\n```\n\nreported `ok` and `agent bridge: checked 9 paths`, but the stale skill file was not updated because existing skill directories are skipped unless `--force-agent-bridge` is used.\n\nUsing `--force-agent-bridge` did update the file, but that is a blunt overwrite mode. It does not distinguish between an unmodified managed file that should be refreshed and a locally edited file that should be preserved.\n\n## Proposal\n\nMake `hops update-harness` conflict-aware for agent bridge files, similar to the behavior expected from `runo update-harness`:\n\n- If a managed file has not been changed locally, overwrite it with the current packaged version.\n- If a managed file has local edits, preserve it and write `<path>.new` for the updated packaged version.\n- `--force-agent-bridge` should remain available for explicit overwrite.\n- JSON and text output should report exact counts and paths for `updated`, `unchanged`, `conflicted`, an..."
 - id: IMP0003
   record_type: improvement_dossier
@@ -515,7 +515,7 @@ sources:
   promotion_level: target-lab-case
   capability: unclassified
   failure_class: unclassified
-  digest: sha256:1f9e733fe4ffcdcd5799f8b5c42c70562e0915554f2c584be68011b8bbc29445
+  digest: sha256:e473e87d8c8fc25b4705510984dfbbd752de19f2aad8a6ec80750839c3ac6639
   excerpt: "# IMP0003: FB0007: Simplify harness-lab around per-improvement dossiers\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0007`\n- linked_records: `FB0007`, `E0007`, `H0007`, `D0008`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0007-simplify-harness-lab-around-per-improvement-dossiers.md`\n\n# FB0007: Simplify harness-lab around per-improvement dossiers\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/7\nauthor: Nkzono99\nlabels: enhancement\ncreated_at: 2026-05-12T14:53:47Z\nupdated_at: 2026-05-12T14:53:47Z\n\n## Issue本文\n## Context\n\n`harness-lab/` has a good theory: GitHub Issues remain the task tracker, while the lab keeps evaluation memory, hypotheses, experiments, and decisions.\n\nIn actual use, the current structure feels too heavy for the common case. A single improvement can quickly spread across multiple thin files and directories:\n\n- `records/feedback/FB0001-...md`\n- `records/eval-cases/E0001-...md`\n- `records/hypotheses/H0001-...md`\n- `records/experiments/`\n- `records/decisions/D0001-...md`\n- generated views under `views/`\n\nThe individual files are often mostly boilerplate at the moment they are created. More importantly, the workflow for recording an improvement and later using that record during implementation/review is not yet obvious enough.\n\n## Concern\n\nFor day-to-day harness improvement, this may create more bookkeeping than memory:\n\n- The directory structure is cognitively expensive.\n- The relationship between feedback, eval case, hypothesis, experiment, and decision is hard to scan.\n- The content starts thin, so agents/users may create records but not return to them.\n- The capture path exists, but the..."
 - id: IMP0004
   record_type: improvement_dossier
@@ -527,7 +527,7 @@ sources:
   promotion_level: target-lab-case
   capability: unclassified
   failure_class: unclassified
-  digest: sha256:3d11d15794fc13b212c417228806e9da5fafabc4e73fba7291d2797e74929972
+  digest: sha256:c7f33b4a53c4aa0f2c056f331beb128cf860306221f9db9e29c88253f92e4c6b
   excerpt: "# IMP0004: FB0008: Add GitHub issue workflow for lab-first improvement records\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0008`\n- linked_records: `FB0008`, `E0008`, `H0008`, `D0009`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0008-add-github-issue-workflow-for-lab-first-improvement-records.md`\n\n# FB0008: Add GitHub issue workflow for lab-first improvement records\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/8\nauthor: Nkzono99\nlabels: enhancement\ncreated_at: 2026-05-12T14:54:12Z\nupdated_at: 2026-05-12T14:54:12Z\n\n## Issue本文\n## Context\n\nHarnessOps now has `hops feedback issue create` for sanitized exported feedback bundles. That is useful for project-side feedback records.\n\nHowever, in the current runops workflow we captured a HarnessOps improvement directly via:\n\n```bash\nhops lab capture ...\nhops lab new-eval-case --from FB0001\nhops propose --from E0001\n```\n\nWhen asked to create a GitHub issue from that lab-first record, `hops feedback export --target harnessops --sanitize --format github-issue` did not find a matching project-side feedback bundle. We had to create the GitHub issue manually with `gh issue create`.\n\nThis is a gap for the lab-first improvement workflow proposed in #5.\n\n## Proposal\n\nAdd a first-class path from `harness-lab` records to GitHub Issue drafts/creation.\n\nPossible command shapes:\n\n```bash\nhops lab issue draft --from FB0001\nhops lab issue create --from FB0001 --repo owner/repo --confirm-create\n```\n\nor:\n\n```bash\nhops feedback issue create --from-lab FB0001 --repo owner/repo --confirm-create\n```\n\nExpected behavior:\n\n- Build an issue title/body from a lab record or improvement do..."
 - id: IMP0005
   record_type: improvement_dossier
@@ -539,7 +539,7 @@ sources:
   promotion_level: target-lab-case
   capability: github_issue_import
   failure_class: unicode_decode_failure
-  digest: sha256:18d0f259c27e25e4b73367734b2e95df3da4d12267125a6513016df3e2b477cc
+  digest: sha256:c9e8781b9aa9b916c5a697f7960faa5138dde789ace1c2133700af52a087bca3
   excerpt: "# IMP0005: FB0009: GitHub issue import fails on Windows console decoding\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0009`\n- linked_records: `FB0009`, `E0009`, `H0009`, `D0010`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0009-github-issue-import-fails-on-windows-console-decoding.md`\n\n# FB0009: GitHub issue import fails on Windows console decoding\n\n## 概要\n\nhops feedback import --issue 7 --repo Nkzono99/harnessops crashed on Windows cp932 decoding while reading gh JSON for a Unicode issue body; setting PYTHONUTF8=1 allowed the import to complete.\n\n## 再現\n\nOn Windows PowerShell with the default cp932 locale, run uv run --with-editable . hops feedback import --issue 7 --repo Nkzono99/harnessops. The subprocess reader raises UnicodeDecodeError and json.loads receives None.\n\n## 期待する上流変更\n\nDecode gh issue JSON as UTF-8 explicitly, or capture bytes and decode UTF-8, then add coverage for Unicode issue bodies on Windows.\n\n## Target Capability\n\n- capability: github_issue_import\n- failure_class: unicode_decode_failure\n\n## Investigation\n\n調査メモはまだありません。\n\n## Evaluation\n\n### E0009: E0009: FB0009-github-issue-import-fails-on-windows-console-decoding を評価\n\n\n- source: `harness-lab/records/eval-cases/E0009-fb0009-github-issue-import-fails-on-windows-console-decoding.md`\n\n- capability: github_issue_import\n\n- failure_class: unicode_decode_failure\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0009-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0009-manual-score.md`\n- scores: impact=3, mechanism_clarity=5, evaluability=5, minimality=5, regression_risk=2, operator_burden=5, anti_theater=5, maintainability=5, privacy_sani..."
 - id: IMP0006
   record_type: improvement_dossier
@@ -551,7 +551,7 @@ sources:
   promotion_level: harnessops-protocol
   capability: improvement_loop_design
   failure_class: ambiguous_improvement_workflow
-  digest: sha256:f65e171e783a3efb6cd3de06f22f20f6390048d1b98ce3815cd8207735b14013
+  digest: sha256:4e7f6c5de1c4dd30d9c7ada7bbb77015a7416abfc3818eaf2a9099d3316a1d4b
   excerpt: "# IMP0006: FB0010: Redesign standard improvement loop around investigation and themes\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0010`\n- linked_records: `FB0010`, `E0010`, `H0010`, `D0011`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0010-redesign-standard-improvement-loop-around-investigation-and-themes.md`\n\n# FB0010: Redesign standard improvement loop around investigation and themes\n\n## 概要\n\nThe current design-principles standard improvement loop is too abstract: observation, routing, guard, and promotion are unclear, and it does not explicitly include investigation, external comparison, improvement classification, theme maturity, or later contradictory/extension observations.\n\n## 再現\n\nWhile reviewing docs/design-principles.md, the loop leaves agents unsure whether observation includes issues/friction/external research, whether routing means periodic review or classification, what guard means, and how promotion should be designed.\n\n## 期待する上流変更\n\nDefine a concrete improvement-loop vocabulary and add lightweight harness support so agents naturally capture observations, investigation notes, classification, theme status, relations, guards, and promotion levels before implementation and review.\n\n## Target Capability\n\n- capability: improvement_loop_design\n- failure_class: ambiguous_improvement_workflow\n\n## Investigation\n\n- 2026-05-13T00:56:19+09:00 [external-benchmark] Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity, guard status, and p..."
 - id: IMP0007
   record_type: improvement_dossier
@@ -563,7 +563,7 @@ sources:
   promotion_level: harnessops-protocol
   capability: meta_hypothesis_scan
   failure_class: missed_second_order_observation
-  digest: sha256:94469f484d4e7954615527080328756d505f5cdcf73d286777b3b4941f22a00f
+  digest: sha256:77cfcb01ace5ec3945c65c998792901257646999a78f21a19968b9d1cbea65b1
   excerpt: "# IMP0007: FB0011: Add meta-hypothesis scan harness for autonomous second-order observations\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: extension\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0011`\n- linked_records: `FB0011`, `E0011`, `H0011`, `D0012`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0011-add-meta-hypothesis-scan-harness-for-autonomous-second-order-observations.md`\n\n# FB0011: Add meta-hypothesis scan harness for autonomous second-order observations\n\n## 概要\n\nHarnessOps should help agents notice second-order improvement hypotheses during work, not only when the user explicitly names them. Signals include user interruptions, cross-cutting design principles, repeated friction, migration/compatibility choices, external analogies, and moments where a local idea appears reusable elsewhere.\n\n## 再現\n\nDuring the standard improvement loop redesign, the user supplied a meta-level compatibility principle mid-work. The agent applied it, but did not autonomously create a separate hypothesis about detecting such second-order observations.\n\n## 期待する上流変更\n\nDefine and document a lightweight meta-hypothesis scan harness with trigger signals, checkpoint timing, capture thresholds, outputs, and anti-spam guardrails; update agent lab guidance so the scan runs naturally during substantial work.\n\n## Target Capability\n\n- capability: meta_hypothesis_scan\n- failure_class: missed_second_order_observation\n\n## Investigation\n\n- 2026-05-13T01:34:21+09:00 [design] The scan should be event-triggered and checkpoint-triggered, but bounded: record only high-signal second-order observations that affect future agent behavior, migration policy, evaluation design, or cross-project promotion. (evidence:..."
 - id: IMP0008
   record_type: improvement_dossier
@@ -575,7 +575,7 @@ sources:
   promotion_level: harnessops-protocol
   capability: meta_improvement_research
   failure_class: missing_research_skill
-  digest: sha256:9c75a6bb92959cc6568cf6795766688763f7c24e92178be4e7a4410b9d456c47
+  digest: sha256:c970e4eaf129177bb58eee67def2502959b4907d6d02f17797c31a3cec97e422
   excerpt: "# IMP0008: FB0012: Add manual meta improvement research skill\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: extension\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0012`\n- linked_records: `FB0012`, `E0012`, `H0012`, `D0013`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0012-add-manual-meta-improvement-research-skill.md`\n\n# FB0012: Add manual meta improvement research skill\n\n## 概要\n\nHarnessOps needs a deliberate research skill for meta-level improvement discovery, separate from in-task meta-hypothesis scan. The skill should guide agents through codebase investigation, external web research, comparison, classification, and conversion into lab notes or hypotheses.\n\n## 再現\n\nThe user asked for a skill that can be manually triggered to investigate meta-level improvement ideas, including codebase and web research, while still allowing future non-periodic autonomous triggering.\n\n## 期待する上流変更\n\nAdd a packaged and repo-local HOPS skill for meta improvement research, with workflow steps, web/source requirements, output thresholds, and lab integration commands.\n\n## Target Capability\n\n- capability: meta_improvement_research\n- failure_class: missing_research_skill\n\n## Investigation\n\n- 2026-05-13T01:43:56+09:00 [external-benchmark] Manual meta-improvement research should borrow from external practice patterns: Google SRE stresses reviewed postmortem action items and repositories of learning; Open Practice Library experiment guidance stresses explicit hypotheses, measures, pass criteria, and learning; Technology Radar style maturity rings provide a useful model for non-binary promotion status. (evidence: https://sre.google/sre-book/postmortem-culture/ ; https://openpracticelibrary.com/practice..."
 - id: IMP0009
   record_type: improvement_dossier
@@ -587,7 +587,7 @@ sources:
   promotion_level: harnessops-protocol
   capability: meta_improvement_research
   failure_class: unstructured_research_scan_results
-  digest: sha256:eadf78cd2196d1ad5c631f46035deecde1fea43020bf84c6e43b8f6d93e559a4
+  digest: sha256:6a42040e3e3e3d7449646468ab1282477ee70fcb4e819ae032d1fc2230a00343
   excerpt: "# IMP0009: FB0013: Structure meta improvement research scan outputs\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: dry-run\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0013`\n- linked_records: `FB0013`, `RS0001`, `E0017`, `H0017`, `D0018`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0013-structure-meta-improvement-research-scan-outputs.md`\n\n# FB0013: Structure meta improvement research scan outputs\n\n## 概要\n\nDry-running the manual meta improvement research skill produced useful candidates, but the result exists only as prose in the agent response or as free-form investigation summaries. HarnessOps lacks a structured research-scan artifact or view for candidate, evidence, relation, recommendation, and next command.\n\n## 再現\n\nRun hops-research-improvements against the current repository. The skill instructs the agent to output Scope, Evidence, Candidates, and Recommendation, but CLI support stops at lab investigate/classify/capture/propose.\n\n## 期待する上流変更\n\nAdd a lightweight structured research-scan record or command, for example a lab research/scan artifact that can hold candidates with evidence refs, relation, recommended action, and optional conversion to investigate/capture/propose.\n\n## Target Capability\n\n- capability: meta_improvement_research\n- failure_class: unstructured_research_scan_results\n\n## Investigation\n\n- 2026-05-13T02:03:24+09:00 [external-benchmark] External practices suggest the research result should be more structured than a prose note: SRE postmortem tooling captures sections/tables for repository analysis; Open Practice Library experiment design requires explicit hypothesis, current condition, target condition, pass, measures, and learning; Technology Radar use..."
 - id: IMP0011
   record_type: improvement_dossier
@@ -599,7 +599,7 @@ sources:
   promotion_level: target-lab-case
   capability: lab_record_consistency
   failure_class: duplicate_improvement_dossier_race
-  digest: sha256:c6c12e3a9c59858b0ca0d1115290433ade8b332107d93156a25cd4e194612eec
+  digest: sha256:02c00090a761be547660d9a544562415fa9fe0253e3008408c0c19c42aeab6d9
   excerpt: "# IMP0011: FB0014: Prevent duplicate improvement dossiers from concurrent lab commands\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: failure\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0014`\n- linked_records: `FB0014`, `E0013`, `H0013`, `D0014`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0014-prevent-duplicate-improvement-dossiers-from-concurrent-lab-commands.md`\n\n# FB0014: Prevent duplicate improvement dossiers from concurrent lab commands\n\n## 概要\n\nRunning lab dossier, lab classify, and lab investigate concurrently for the same source feedback created two improvement dossiers for FB0013. Doctor did not detect the duplicate source_feedback mapping.\n\n## 再現\n\nInvoke multiple hops lab commands for a new FB in parallel, such as dossier/classify/investigate. Each command can call create_or_update_improvement_dossier before another command's new dossier is visible, causing duplicate IMP records.\n\n## 期待する上流変更\n\nMake improvement dossier creation idempotent under concurrent calls or add doctor validation that detects duplicate IMP source_feedback values and tells the operator how to repair them.\n\n## Target Capability\n\n- capability: lab_record_consistency\n- failure_class: duplicate_improvement_dossier_race\n\n## Investigation\n\n- 2026-05-13T02:05:22+09:00 [codebase] create_or_update_improvement_dossier first scans existing IMP files by source_feedback and otherwise allocates next_id from the directory. Without locking or duplicate validation, concurrent commands can both miss the existing dossier and allocate different IMP IDs. Current doctor validates individual records but not uniqueness of source_feedback across improvement dossiers. (evidence: src/harnessops/core/records.py::_find_existing..."
 - id: IMP0012
   record_type: improvement_dossier
@@ -611,7 +611,7 @@ sources:
   promotion_level: target-lab-case
   capability: record_lookup
   failure_class: generated_view_shadowed_record_id
-  digest: sha256:8b7c00c2f330c1c0d93f817ab240b868c02ad9abf798ac0e11b883af422e91f7
+  digest: sha256:231639dc93a7aa43892acabafd4e61262a40f11c2d0a0ef43a1b1b8a6b8acd99
   excerpt: "# IMP0012: FB0015: Prefer canonical records over generated views in record lookup\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: implementation-followup\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0015`\n- linked_records: `FB0015`, `E0014`, `H0014`, `D0015`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0015-prefer-canonical-records-over-generated-views-in-record-lookup.md`\n\n# FB0015: Prefer canonical records over generated views in record lookup\n\n## 概要\n\nAfter a manual eval result exists, rerunning hops eval --case E0013 can resolve E0013 to harness-lab/views/eval-results/E0013-manual-score.md instead of the canonical records/eval-cases/E0013 record.\n\n## 再現\n\nCreate a manual eval result for E0013, then run hops eval --case E0013 again. find_record scans overlay markdown files broadly and can return the generated eval result view whose record_type is manual_eval_result.\n\n## 期待する上流変更\n\nMake find_record prefer the canonical record directory implied by the ID prefix before falling back to broad overlay lookup, so generated views do not shadow FB/E/H/D/IMP records.\n\n## Target Capability\n\n- capability: record_lookup\n- failure_class: generated_view_shadowed_record_id\n\n## Investigation\n\n調査メモはまだありません。\n\n## Evaluation\n\n### E0014: E0014: FB0015-prefer-canonical-records-over-generated-views-in-record-lookup を評価\n\n\n- source: `harness-lab/records/eval-cases/E0014-fb0015-prefer-canonical-records-over-generated-views-in-record-lookup.md`\n\n- capability: record_lookup\n\n- failure_class: generated_view_shadowed_record_id\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0014-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0014-manual-score.md`\n- scores: impact=4, mechanism_clarity=5..."
 - id: IMP0013
   record_type: improvement_dossier
@@ -623,7 +623,7 @@ sources:
   promotion_level: target-lab-case
   capability: lab_evaluation_review
   failure_class: eval_template_noise_in_dossier
-  digest: sha256:7e7c614c0da78ab5494962d58539e935d5d6e4f1da319f7bc30cdd838281021a
+  digest: sha256:9f199bd165e4c891900a408690ad4259a26171c9f18e6111fb8960e908168223
   excerpt: "# IMP0013: FB0016: Remove unused eval-case template noise from dossiers\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: user-review\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0016`\n- linked_records: `FB0016`, `E0015`, `H0015`, `D0016`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0016-remove-unused-eval-case-template-noise-from-dossiers.md`\n\n# FB0016: Remove unused eval-case template noise from dossiers\n\n## 概要\n\nImprovement dossiers render the full eval_case record body under ## Evaluation, so readers see generic sections like fixtures, task, expected behavior, pass/fail criteria that often remain template text. Manual eval yml results are the part that actually functions.\n\n## 再現\n\nOpen harness-lab/improvements/IMP*.md and inspect ## Evaluation. It embeds # E000*: ## フィクスチャ, ## タスク, ## 期待される挙動 and similar sections even when they are template text.\n\n## 期待する上流変更\n\nEither make eval cases meaningful in the flow or stop rendering template bodies into dossiers. Prefer summarizing eval records and manual score outputs in dossiers, and generate more source-specific eval case text for new cases.\n\n## Target Capability\n\n- capability: lab_evaluation_review\n- failure_class: eval_template_noise_in_dossier\n\n## Investigation\n\n調査メモはまだありません。\n\n## Evaluation\n\n### E0015: E0015: FB0016-remove-unused-eval-case-template-noise-from-dossiers を評価\n\n\n- source: `harness-lab/records/eval-cases/E0015-fb0016-remove-unused-eval-case-template-noise-from-dossiers.md`\n\n- capability: lab_evaluation_review\n\n- failure_class: eval_template_noise_in_dossier\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0015-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0015-manual-score.md`\n- scores: impact=4, m..."
 - id: IMP0014
   record_type: improvement_dossier
@@ -635,7 +635,7 @@ sources:
   promotion_level: harnessops-protocol
   capability: lab_memory_compaction
   failure_class: record_sprawl_without_knowledge_consolidation
-  digest: sha256:585c1cfff43c2c7617699602aa3ad7df4f562d03149450422cef7b9d802ba4c6
+  digest: sha256:a6d9cff18f6ba65fe3e6b3d67963ca515ee6b9366f05628eb37d1270a7d10c76
   excerpt: "# IMP0014: FB0017: Compact lab records into mutable knowledge\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: external-benchmark\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0017`\n- linked_records: `FB0017`, `E0016`, `H0016`, `D0017`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0017-compact-lab-records-into-mutable-knowledge.md`\n\n# FB0017: Compact lab records into mutable knowledge\n\n## 概要\n\nAs harness-lab grows, append-only records and generated dossiers will become too large to scan. The lab needs a compaction path that preserves canonical records while updating a smaller knowledge layer for reusable lessons, contradictions, guards, and promotion patterns.\n\n## 再現\n\nAccumulate feedback, eval cases, hypotheses, decisions, manual scores, and dossiers until reviewing harness-lab requires reading many files instead of consulting a compiled knowledge surface.\n\n## 期待する上流変更\n\nProvide a first-class lab compaction command that checks size thresholds, compiles source-linked mutable knowledge files, and leaves canonical records intact for audit and regeneration.\n\n## Target Capability\n\n- capability: lab_memory_compaction\n- failure_class: record_sprawl_without_knowledge_consolidation\n\n## Investigation\n\n- 2026-05-13T02:53:41+09:00 [external-benchmark] Anthropic Managed Agents 'dreaming' is a scheduled process that reviews prior sessions and memory stores, extracts patterns, and curates memory; this supports a background/threshold compaction layer rather than stuffing all lab history into context. (evidence: https://claude.com/blog/new-in-claude-managed-agents)\n- 2026-05-13T02:53:53+09:00 [external-benchmark] Claude memory docs frame durable memory as client-controlled files that are created..."
 - id: IMP0015
   record_type: improvement_dossier
@@ -647,7 +647,7 @@ sources:
   promotion_level: project-pattern
   capability: lab_memory_compaction
   failure_class: deterministic_snapshot_conflates_trigger_and_abstraction
-  digest: sha256:754d7090cbf3633ec890993e5027dc18e15b7e1dfb7d0021f0999d76dc37c46a
+  digest: sha256:560d547f34f24fdeebed60642e90d6afa6dd234bd4e96ceee946967af477cf14
   excerpt: "# IMP0015: FB0018: Separate lab memory triggers from abstraction\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: project-pattern\n- source_feedback: `FB0018`\n- linked_records: `FB0018`, `E0018`, `H0018`, `D0019`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0018-separate-lab-memory-triggers-from-abstraction.md`\n\n# FB0018: Separate lab memory triggers from abstraction\n\n## 概要\n\nCurrent lab compaction is a deterministic aggregation snapshot, but the desired dream-like behavior needs lint-style trigger checks and a skill-guided abstraction workflow.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nKeep source-linked deterministic snapshots as an index, add lint/prepare commands for compaction triggers, and provide an agent skill that performs higher-level lab memory abstraction with source traceability.\n\n## Target Capability\n\n- capability: lab_memory_compaction\n- failure_class: deterministic_snapshot_conflates_trigger_and_abstraction\n\n## Investigation\n\n- 2026-05-13T09:19:14+09:00 [codebase] Existing compact_lab provides deterministic metrics and source-linked lab-memory outputs. Keep it as an index/snapshot, then add memory lint/prepare commands for trigger detection and input bundling while moving higher-level abstraction into an agent skill. (evidence: src/harnessops/core/lab_compaction.py)\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0018: E0018: FB0018-separate-lab-memory-triggers-from-abstraction を評価\n\n\n- source: `harness-lab/records/eval-cases/E0018-fb0018-separate-lab-memory-triggers-from-abstraction.md`\n\n- capability: lab_memory_compaction\n\n- failure_class: deterministic_snapshot_conflates_trigger_and_abstraction\n\n- manual_eval_yml: `harness-lab/views/ev..."
 - id: RS0001
   record_type: research_scan
@@ -659,13 +659,13 @@ sources:
   promotion_level: ''
   capability: meta_improvement_research
   failure_class: unstructured_research_scan_results
-  digest: sha256:78650afa1bc4416409513bdeffa1c75fb22f913b1b19b0ba80e56a5d61bfdd9b
+  digest: sha256:621d94356d92321f61f46c4942c5c318c6013be7f4223d9147a5c8a9014a58e0
   excerpt: "# RS0001: Structure meta improvement research scan outputs\n\n## Scope\n\n- scope: harnessops-core deliberate meta improvement research\n- existing_dossier: IMP0009\n- capability: meta_improvement_research\n- failure_class: unstructured_research_scan_results\n\n## Evidence\n\n### Local\n\n- IMP0009 remained active because the dry-run result had useful candidates but no structured artifact (ref: harness-lab/improvements/IMP0009-fb0013-structure-meta-improvement-research-scan-outputs.md)\n\n### Codebase\n\n- hops-research-improvements had Scope/Evidence/Candidates/Recommendation prose guidance but no CLI record for it (ref: .agents/skills/hops-research-improvements/SKILL.md)\n- The new lab research-scan command stores candidate rows and refreshes views/research-scans.md (ref: src/harnessops/cli/lab.py)\n\n### External\n\n- External investigation for IMP0009 found postmortem, experiment, and maturity-ring practices favor structured action items and learning records (ref: https://sre.google/workbook/postmortem-culture/)\n\n### Risk And Counterexample\n\n- A new record type can create meta-noise if used for every small observation (ref: docs/design-principles.md)\n\n## Candidates\n\n| candidate | relation | recommendation | next_command |\n|---|---|---|---|\n| Add RS research_scan record and view | extends | propose | hops lab new-eval-case --from FB0013 |\n\n## Recommendation\n\nadopt: use research-scan for deliberate multi-candidate meta-improvement research before routing candidates to investigate/capture/propose/park/reject.\n\n## Next Commands\n\n- `hops lab new-eval-case --from FB0013`"
 abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: 011a809c1c52093bc69d4a3e91fcc6e815b589038e86803305338152a18ac93c
+  source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
   sources:
   - IMP0001
   - IMP0002

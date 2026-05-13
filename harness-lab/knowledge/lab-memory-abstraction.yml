@@ -1,0 +1,36 @@
+schema_version: '0.1'
+kind: harness_lab_memory_abstraction
+updated_at: '2026-05-13T11:10:00+09:00'
+source_digest: 7a9c16eb5100f77018e0478d08eac536ce840489a881dfd8a2d02dfa1769ee10
+sources:
+- IMP0001
+- IMP0002
+- IMP0003
+- IMP0004
+- IMP0005
+- IMP0006
+- IMP0007
+- IMP0008
+- IMP0009
+- IMP0011
+- IMP0012
+- IMP0013
+- IMP0014
+- IMP0015
+- RS0001
+outputs:
+- harness-lab/knowledge/principles.md
+- harness-lab/knowledge/patterns.yml
+- harness-lab/knowledge/anti-patterns.md
+- harness-lab/knowledge/evaluation-playbook.md
+input_bundle:
+  yml: harness-lab/knowledge/lab-memory-input.yml
+  markdown: harness-lab/knowledge/lab-memory-input.md
+  prepared_at: '2026-05-13T11:09:09+09:00'
+lint_reason: thresholds-not-exceeded-no-sources-or-current
+manual_run: true
+notes:
+- Deterministic snapshot is an index only; source records and dossiers remain authoritative for decisions.
+- This first abstraction pass created the missing knowledge targets from the prepared input bundle and source-linked dossiers.
+contradiction_watch: []
+open_questions: []
