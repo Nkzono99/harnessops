@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-14T01:10:08+09:00
-Source digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
+Updated: 2026-05-14T03:08:52+09:00
+Source digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -40,10 +40,10 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Managed Artifacts Must Be Honest About Staleness And Local Edits
 
 - Principle: update commands for managed bridge or generated artifacts must distinguish unchanged, updated, conflicted, stale, and locally edited states.
-- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`
-- Applies when: refreshing agent bridge files, generated records, generated views, or any managed file that users may edit.
-- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts.
-- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, and make refresh commands cover the same managed artifact set that doctor validates.
+- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`
+- Applies when: refreshing agent bridge files, generated records, generated views, update guidance, or any managed file that users may edit.
+- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts; an update notice that compares only one version pair and omits the recommended `uvx --refresh-package` path.
+- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, make refresh commands cover the same managed artifact set that doctor validates, and keep update notices tied to recorded/current/latest version checks plus explicit migrate/doctor follow-up.
 
 ## Remote And External Paths Must Be Encoding-Safe And Sanitized
 
@@ -64,7 +64,15 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Deterministic Intake Should Surface Actionable Health, Not Decide The Work
 
 - Principle: scheduled or recurring intake commands should expose read-only health signals that affect routing, while leaving synthesis, abstraction, and implementation to the appropriate lane or skill.
-- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`
-- Applies when: adding daily steward preflight fields, lane triggers, lab health summaries, stale memory checks, or automation run ledgers.
-- Counterexamples: overlay counts alone can trigger a vague librarian lane while hiding stale snapshot or semantic-memory state; a preflight that writes memory or ranks every candidate would turn deterministic intake into a workflow engine.
-- Guard: keep preflight read-only, include source-linked `lab_health` status and recommended commands for lab repos, skip lab memory probing in project repos, and route `needs-abstraction` to `hops-compact-lab-memory`.
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`
+- Applies when: adding daily steward preflight fields, lane triggers, lab health summaries, stale memory checks, automation run ledgers, or branch/merge completion rules.
+- Counterexamples: overlay counts alone can trigger a vague librarian lane while hiding stale snapshot or semantic-memory state; a preflight that writes memory or ranks every candidate would turn deterministic intake into a workflow engine; a scheduled run that pushes a branch but never attempts the authorized PR/merge path leaves validated work half-finished.
+- Guard: keep preflight read-only, include source-linked `lab_health` status and recommended commands for lab repos, skip lab memory probing in project repos, route `needs-abstraction` to `hops-compact-lab-memory`, and require validation plus protected-branch checks before automation merges.
+
+## Automation Should Finish Through Reviewable Branch Paths
+
+- Principle: unattended steward work should use explicit lane budgets and complete validated changes through an automation branch and PR/merge path, not direct protected-branch pushes or unbounded backlog processing.
+- Sources: `IMP0023`, `IMP0031`
+- Applies when: daily steward prompts, repo-local skills, packaged skills, or automation docs describe remote writes, branch targets, PR updates, merges, or lane scope.
+- Counterexamples: treating `max-systemic-candidates` as the only cap ignores lightweight metadata/read-only work; stopping after push leaves completed work pending forever; direct main pushes bypass branch protection.
+- Guard: separate systemic candidates, metadata/guard backfills, and read-only decisions; push only the automation branch; confirm validation, target freshness, required checks, and branch protection before merge; report blockers without force-pushing.

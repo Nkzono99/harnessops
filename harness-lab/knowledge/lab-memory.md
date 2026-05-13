@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-14T01:09:16+09:00
+- updated_at: 2026-05-14T03:08:12+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 285 / threshold 256
-- byte_count: 656826 / threshold 2000000
-- improvement_count: 28 / threshold 50
-- source_digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
+- file_count: 300 / threshold 256
+- byte_count: 806152 / threshold 2000000
+- improvement_count: 30 / threshold 50
+- source_digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
 
 ## How To Use
 
@@ -53,15 +53,16 @@
 
 ### harness_lab_traceability
 #### missing_lab_capture
-- sources: `IMP0001`, `IMP0017`, `IMP0019`, `IMP0020`, `IMP0026`
-- status_counts: adopted=5
-- average_scores: anti_theater=4.6, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=4.4, minimality=4.2, operator_burden=1.0, privacy_sanitization_risk=0.6, regression_risk=1.4
-- guards: IMP0017:implemented:tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once, IMP0019:implemented:tests/test_agent_harness_contract.py::test_pypi_publish_workflow_uses_node24_ready_actions, IMP0020:implemented:tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged, IMP0026:implemented:src/harnessops/core/upgrade_chain.py
+- sources: `IMP0001`, `IMP0017`, `IMP0019`, `IMP0020`, `IMP0026`, `IMP0031`
+- status_counts: adopted=6
+- average_scores: anti_theater=4.67, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=4.5, minimality=4.17, operator_burden=1.0, privacy_sanitization_risk=0.5, regression_risk=1.5
+- guards: IMP0017:implemented:tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once, IMP0019:implemented:tests/test_agent_harness_contract.py::test_pypi_publish_workflow_uses_node24_ready_actions, IMP0020:implemented:tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged, IMP0026:implemented:src/harnessops/core/upgrade_chain.py, IMP0031:implemented:tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
 - lesson IMP0001 (adopted): CLI tests exercise lab capture and eval conversion. Contract tests assert bridge, packaged skills, release skill, and docs mention hops lab capture. This record captures the previously missing lab trace.
 - lesson IMP0017 (adopted): Focused regression tests show stale harnessops_version emits a hops-update-harness notice once and suppresses it for update-harness itself; a real doctor run in this repository surfaced the stale 0.1.2 -> 0.1.3 lock.
 - lesson IMP0019 (adopted): Updated the PyPI publish workflow to actions/checkout@v5 and actions/setup-python@v6 while preserving the pypi environment, id-token permission, Python 3.11, build, twine check, and publish steps. Added a workflow contract test. Focused test, full pytest, ruf...
 - lesson IMP0020 (adopted): Broadened hops-research-improvements to HarnessOps core plus linked target/project repositories. The skill now branches by repo role: target/meta lab repos use research-scan/investigate/classify/capture/propose, while project repos use failure/feedback/export...
 - lesson IMP0026 (adopted): Implemented checkpointed uvx update chains in update-harness with --plan-upgrade and --apply-upgrade-chain, refreshed update skill/docs, and verified with ruff check ., pytest -q (93 passed), doctor --check-overlay --check-records, migrate --check, and git di...
+- lesson IMP0031 (adopted): Updated daily steward docs and repo-local/packaged skill copies to prefer GitHub Flow: automation feature branch, PR, and merge into protected main after validation/required checks. Added lane budgets for systemic candidates, metadata/guard backfills, and rea...
 
 ### improvement_loop_design
 #### ambiguous_improvement_workflow
@@ -169,6 +170,14 @@
 - lesson IMP0024 (adopted): Doctor now warns when a target repo bridge contains the stale editable fallback and the repo does not declare a local hops console script. Focused positive/negative tests, full pytest, ruff, doctor, and migrate passed.
 - lesson IMP0025 (adopted): Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.
 
+### uvx_update_guidance
+#### stale_hops_update_path
+- sources: `IMP0030`
+- status_counts: adopted=1
+- average_scores: anti_theater=5.0, evaluability=5.0, impact=3.0, maintainability=4.0, mechanism_clarity=5.0, minimality=5.0, operator_burden=0.0, privacy_sanitization_risk=0.0, regression_risk=1.0
+- guards: IMP0030:implemented:tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+- lesson IMP0030 (adopted): Existing behavior satisfies FB0028: update_notice.py compares repo-managed, current runtime, and latest PyPI versions; CLI spec documents uvx update-harness, plan-upgrade, doctor, and migrate-check guidance; targeted guard passed with uv run pytest tests/test...
+
 ## Guard Index
 
 - `IMP0006` improvement_loop_design/ambiguous_improvement_workflow: implemented tests/test_cli/test_mvp_flow.py
@@ -194,6 +203,8 @@
 - `IMP0027` repository_maintainability/surface_sprawl: implemented src/harnessops/cli/agent.py
 - `IMP0028` repository_maintainability/records_module_sprawl: implemented src/harnessops/core/improvement_dossier.py
 - `IMP0029` daily_steward_orchestration/count_based_preflight_misses_stale_lab_health: implemented tests/test_cli/test_steward.py; tests/test_agent_harness_contract.py
+- `IMP0030` uvx_update_guidance/stale_hops_update_path: implemented tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+- `IMP0031` harness_lab_traceability/missing_lab_capture: implemented tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
 
 ## Research Scans
 

@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-14T01:10:08+09:00
-Source digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
+Updated: 2026-05-14T03:08:52+09:00
+Source digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -28,6 +28,8 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Generated dossiers should not embed full generic eval-case template bodies when manual eval summaries carry the signal. Source: `IMP0013`
 - Lab memory lint/prepare should expose stale or missing abstraction state without treating deterministic snapshots as semantic memory. Sources: `IMP0014`, `IMP0015`
 - Steward preflight should expose lab-health triggers for lab repositories and skip harness-lab memory probing in project repositories. Source: `IMP0029`
+- Update notices should cover recorded/current/latest HarnessOps version drift, point to `uvx --refresh-package harnessops --from harnessops hops update-harness`, and keep migration application explicit. Source: `IMP0030`
+- Daily steward remote completion should push only an automation branch, open or update a PR, and merge only after validation, target freshness, required checks, and branch protection allow it. Source: `IMP0031`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
 - `hops lab refresh-views` should clear doctor-managed lab generated-view warnings for README, backlog, dynamic lab views, research scans, and score trajectory without losing dynamic view content. Sources: `RS0002`, `IMP0016`
 
@@ -47,12 +49,16 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject generated-view repair changes that leave doctor warnings after the advertised refresh command. Sources: `RS0002`, `IMP0016`
 - Reject compaction changes that erase canonical source links, source digests, or contradiction/guard context. Sources: `IMP0014`, `IMP0015`
 - Reject steward/preflight changes that write lab memory, perform semantic abstraction, or create `harness-lab/` behavior in project repositories. Sources: `IMP0023`, `IMP0029`, `RS0005`
+- Reject update guidance that cannot name the safe uvx refresh path or that auto-applies migrations during ordinary command use. Source: `IMP0030`
+- Reject automation merge guidance that bypasses branch protection, merges without validation/checks, or turns daily steward into an unbounded systemic backlog processor. Source: `IMP0031`
 
 ## Guard Catalogue
 
 - `tests/test_cli/test_mvp_flow.py`: guards improvement loop, research scans, dossier creation consistency, canonical lookup, dossier evaluation summaries, lab compaction, memory lint/prepare, and generated-view refresh repair. Sources: `IMP0006`, `IMP0009`, `IMP0011`, `IMP0012`, `IMP0013`, `IMP0014`, `IMP0015`, `IMP0016`
 - `tests/test_agent_harness_contract.py`: guards packaged skills and bridge guidance for meta scan, research skill, and memory abstraction. Sources: `IMP0007`, `IMP0008`, `IMP0015`
 - `tests/test_cli/test_steward.py`: guards pull-first safety, finalize behavior, project-repo lab-health skip, and stale lab-health routing to librarian. Sources: `IMP0023`, `IMP0029`
+- `tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once` and adjacent update-notice tests: guard recorded/current/latest version notice behavior and uvx update guidance. Source: `IMP0030`
+- `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents`: guard lane budgets plus branch/PR/merge automation guidance. Source: `IMP0031`
 - Full `hops doctor --check-overlay --check-records` and `hops migrate --check` remain release-level checks for layout and managed-artifact consistency. Sources: `IMP0001`, `IMP0002`, `IMP0004`, `IMP0005`, `IMP0006`
 
 ## Reading Rules

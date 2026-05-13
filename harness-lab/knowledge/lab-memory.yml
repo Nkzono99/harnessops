@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-14T01:09:16+09:00'
+updated_at: '2026-05-14T03:08:12+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,20 +9,20 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 285
-    byte_count: 656826
-    record_count: 137
-    feedback_count: 35
-    eval_case_count: 32
-    hypothesis_count: 32
-    decision_count: 33
+    file_count: 300
+    byte_count: 806152
+    record_count: 144
+    feedback_count: 36
+    eval_case_count: 34
+    hypothesis_count: 34
+    decision_count: 35
     research_scan_count: 5
-    improvement_count: 28
-    manual_eval_count: 32
+    improvement_count: 30
+    manual_eval_count: 34
   triggers:
   - file_count>256
 sources:
-  source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+  source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
   improvements:
   - IMP0001
   - IMP0002
@@ -52,12 +52,14 @@ sources:
   - IMP0027
   - IMP0028
   - IMP0029
+  - IMP0030
+  - IMP0031
 knowledge:
   summary:
-    improvement_count: 28
+    improvement_count: 30
     status_counts:
-      adopted: 28
-    capability_count: 13
+      adopted: 30
+    capability_count: 14
   capabilities:
   - capability: daily_steward_orchestration
     failure_classes:
@@ -163,18 +165,19 @@ knowledge:
       - IMP0019
       - IMP0020
       - IMP0026
+      - IMP0031
       status_counts:
-        adopted: 5
+        adopted: 6
       average_scores:
-        anti_theater: 4.6
+        anti_theater: 4.67
         evaluability: 5.0
         impact: 4.0
         maintainability: 4.0
-        mechanism_clarity: 4.4
-        minimality: 4.2
+        mechanism_clarity: 4.5
+        minimality: 4.17
         operator_burden: 1.0
-        privacy_sanitization_risk: 0.6
-        regression_risk: 1.4
+        privacy_sanitization_risk: 0.5
+        regression_risk: 1.5
       guards:
       - source: IMP0017
         status: implemented
@@ -188,6 +191,9 @@ knowledge:
       - source: IMP0026
         status: implemented
         path: src/harnessops/core/upgrade_chain.py
+      - source: IMP0031
+        status: implemented
+        path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
       lessons:
       - source: IMP0001
         status: adopted
@@ -204,6 +210,9 @@ knowledge:
       - source: IMP0026
         status: adopted
         lesson: Implemented checkpointed uvx update chains in update-harness with --plan-upgrade and --apply-upgrade-chain, refreshed update skill/docs, and verified with ruff check ., pytest -q (93 passed), doctor --check-overlay --check-records, migrate --check, and git di...
+      - source: IMP0031
+        status: adopted
+        lesson: 'Updated daily steward docs and repo-local/packaged skill copies to prefer GitHub Flow: automation feature branch, PR, and merge into protected main after validation/required checks. Added lane budgets for systemic candidates, metadata/guard backfills, and rea...'
   - capability: improvement_loop_design
     failure_classes:
     - failure_class: ambiguous_improvement_workflow
@@ -554,6 +563,31 @@ knowledge:
       - source: IMP0025
         status: adopted
         lesson: 'Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.'
+  - capability: uvx_update_guidance
+    failure_classes:
+    - failure_class: stale_hops_update_path
+      improvements:
+      - IMP0030
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 3.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 5.0
+        operator_burden: 0.0
+        privacy_sanitization_risk: 0.0
+        regression_risk: 1.0
+      guards:
+      - source: IMP0030
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+      lessons:
+      - source: IMP0030
+        status: adopted
+        lesson: 'Existing behavior satisfies FB0028: update_notice.py compares repo-managed, current runtime, and latest PyPI versions; CLI spec documents uvx update-harness, plan-upgrade, doctor, and migrate-check guidance; targeted guard passed with uv run pytest tests/test...'
   research_scans:
   - id: RS0001
     title: 'RS0001: Structure meta improvement research scan outputs'
@@ -769,6 +803,16 @@ knowledge:
     failure_class: count_based_preflight_misses_stale_lab_health
     status: implemented
     path: tests/test_cli/test_steward.py; tests/test_agent_harness_contract.py
+  - source: IMP0030
+    capability: uvx_update_guidance
+    failure_class: stale_hops_update_path
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+  - source: IMP0031
+    capability: harness_lab_traceability
+    failure_class: missing_lab_capture
+    status: implemented
+    path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
   external_evidence:
   - source: IMP0006
     summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
