@@ -2,7 +2,7 @@
 id: IMP0023
 record_type: improvement_dossier
 created_at: '2026-05-13T19:15:21+09:00'
-updated_at: '2026-05-13T19:45:33+09:00'
+updated_at: '2026-05-13T20:29:52+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -40,6 +40,10 @@ investigation:
   kind: implementation-note
   summary: 'Daily steward was compacted into a thin conductor skill: intent, stop gates, delegation, triggers, selection, advance-local, end-of-run policy, decision card, and report only. Routine preflight remains in hops steward preflight; the new hops steward finalize command handles patch-only versus commit-local so unattended advance does not leave the next scheduled run permanently blocked by its own dirty worktree. The wording now treats Advance as human-review-independent local progress, while preserving automated evidence, validation, guard, and privacy gates.'
   evidence_ref: .agents/skills/hops-daily-steward/SKILL.md
+- created_at: '2026-05-13T20:29:51+09:00'
+  kind: docs
+  summary: 'Added docs/daily-steward-automation.md as the canonical Codex App automation prompt for nightly daily steward runs. README and agent guide now link to it, and the contract test checks the key runtime settings: advance-local, explicit subagents, automation-branch-only remote write, no main push, preflight, validation, commit-local finalize, and final report expectations.'
+  evidence_ref: docs/daily-steward-automation.md
 links:
   issue_url:
 ---
@@ -86,6 +90,7 @@ Add a packaged hops-daily-steward skill that orchestrates issue triage, open met
 - 2026-05-13T19:28:31+09:00 [implementation-note] Daily steward skill now documents that SKILL.md cannot force subagent startup by itself; when the automation prompt explicitly authorizes subagents, the main agent should produce a Subagent Plan, spawn triggered lanes where available, and report inline-fallback reasons when tool/runtime constraints prevent delegation. The open divergent invention lane is named explicitly through open-inventor / Open Meta Scan so daily runs keep the divergent idea source separate from selection and routing.
 - 2026-05-13T19:36:10+09:00 [implementation-note] Deterministic daily steward work is now coded as hops steward preflight. The command handles pull-first safety, doctor/check-records, migrate check, overlay counts, lane trigger scaffold, subagent plan scaffold, and run ledger JSON so agents do not spend reasoning on routine intake. The skill now starts automation runs with hops steward preflight --pull --json and only delegates the judgment-heavy lanes to agents/subagents. (evidence: tests/test_cli/test_steward.py)
 - 2026-05-13T19:45:33+09:00 [implementation-note] Daily steward was compacted into a thin conductor skill: intent, stop gates, delegation, triggers, selection, advance-local, end-of-run policy, decision card, and report only. Routine preflight remains in hops steward preflight; the new hops steward finalize command handles patch-only versus commit-local so unattended advance does not leave the next scheduled run permanently blocked by its own dirty worktree. The wording now treats Advance as human-review-independent local progress, while preserving automated evidence, validation, guard, and privacy gates. (evidence: .agents/skills/hops-daily-steward/SKILL.md)
+- 2026-05-13T20:29:51+09:00 [docs] Added docs/daily-steward-automation.md as the canonical Codex App automation prompt for nightly daily steward runs. README and agent guide now link to it, and the contract test checks the key runtime settings: advance-local, explicit subagents, automation-branch-only remote write, no main push, preflight, validation, commit-local finalize, and final report expectations. (evidence: docs/daily-steward-automation.md)
 
 ## Research Scans
 

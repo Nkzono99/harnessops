@@ -314,6 +314,23 @@ def test_daily_steward_skill_is_packaged() -> None:
         assert_harness_contract(text)
 
 
+def test_daily_steward_automation_prompt_is_documented() -> None:
+    prompt_doc = (ROOT / "docs/daily-steward-automation.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    agent_guide = (ROOT / "docs/agent-user-guide.md").read_text(encoding="utf-8")
+
+    assert "Run the repo-local skill `.agents/skills/hops-daily-steward/SKILL.md`" in prompt_doc
+    assert "subagents: explicitly allowed" in prompt_doc
+    assert "remote-write: automation-branch-only" in prompt_doc
+    assert "main-push: false" in prompt_doc
+    assert "hops steward preflight --pull --json" in prompt_doc
+    assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
+    assert "git push -u origin HEAD" in prompt_doc
+    assert "Do not create PRs, comments, issues, releases, or push main." in prompt_doc
+    assert "daily-steward-automation.md" in readme
+    assert "daily-steward-automation.md" in agent_guide
+
+
 def test_lab_memory_compaction_skill_is_packaged() -> None:
     repo_skill = (ROOT / ".agents/skills/hops-compact-lab-memory/SKILL.md").read_text(encoding="utf-8")
     assert "hops lab memory lint" in repo_skill

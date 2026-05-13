@@ -27,6 +27,7 @@ HarnessOps は3つのリポジトリ役割を分けます。
 
 - 人間がAI Agent経由で使い始める: [docs/get-started-with-agent.md](docs/get-started-with-agent.md)
 - AI Agent向けの運用手順: [docs/agent-user-guide.md](docs/agent-user-guide.md)
+- Codex App automationで日次改善ループを回す: [docs/daily-steward-automation.md](docs/daily-steward-automation.md)
 - target repositoryへ組み込むAgentに渡す文書: [docs/target-integration-agent-brief.md](docs/target-integration-agent-brief.md)
 - project repository単体へ組み込むAgentに渡す文書: [docs/project-repository-integration-agent-brief.md](docs/project-repository-integration-agent-brief.md)
 - 現行仕様の正本: [SPEC.md](SPEC.md)
