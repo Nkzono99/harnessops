@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from harnessops.core import yamlio
-from harnessops.core.agent_bridge import BRIDGE_TEXT
+from harnessops.core.agent_bridge import BRIDGE_TEXT, bridge_text_for_mode
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,8 +27,19 @@ def test_generated_bridge_explains_hops_contract() -> None:
     assert_harness_contract(BRIDGE_TEXT)
     assert "uvx --from harnessops hops <command>" in BRIDGE_TEXT
     assert "uv run --with-editable . hops <command>" not in BRIDGE_TEXT
-    assert "hops feedback export --sanitize" in BRIDGE_TEXT
+    assert "hops feedback import <bundle-path>" in BRIDGE_TEXT
     assert "hops lab capture" in BRIDGE_TEXT
+
+
+def test_generated_bridge_scopes_feedback_source_interface() -> None:
+    text = bridge_text_for_mode("feedback-source")
+    assert_harness_contract(text)
+    assert "feedback-source interface" in text
+    assert "hops feedback export --sanitize" in text
+    assert "hops add-failure" in text
+    assert "uvx --from harnessops hops lab capture" not in text
+    assert "uvx --from harnessops hops propose" not in text
+    assert "uvx --from harnessops hops decide" not in text
 
 
 def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:

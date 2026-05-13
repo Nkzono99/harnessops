@@ -45,6 +45,7 @@ target harness の `init`、`setup`、`update-harness` などは、HarnessOps �
 - migration適用時: 人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply`
 - 編集済みmanaged fileは上書きせず、runops と同様に `<path>.new` を作る
 - repo-local skill展開は、明示オプションで `uvx --from harnessops hops agent bridge --codex` または `uvx --from harnessops hops init --with-agent-bridge` を呼んでよい
+- repo-local bridge と skill 展開は overlay mode に合わせる。`feedback-source` / `local-and-feedback` は feedback capture/export と lifecycle 系に絞り、lab/eval/propose/decide は `upstream-lab` / `meta-lab` にだけ出す
 - user領域のAgent plugin installは暗黙に実行せず、複数repoでglobal pluginを共有したい場合だけ任意手順として案内する
 
 ## 検出優先順位

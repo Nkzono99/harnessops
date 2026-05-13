@@ -61,6 +61,8 @@ def update_harness_command(
         "updated": [],
         "unchanged": [],
         "conflicted": [],
+        "retired": [],
+        "retained": [],
         "written_new": [],
         "managed_files": {},
     }
@@ -99,6 +101,8 @@ def update_harness_command(
             "updated": agent_result["updated"],
             "unchanged": agent_result["unchanged"],
             "conflicted": agent_result["conflicted"],
+            "retired": agent_result["retired"],
+            "retained": agent_result["retained"],
             "written_new": agent_result["written_new"],
         },
         "doctor": report,
@@ -131,6 +135,14 @@ def update_harness_command(
             typer.echo(f"{prefix}agent bridge: conflicted {len(agent_result['conflicted'])}")
             for item in agent_result["conflicted"]:
                 typer.echo(f"  conflicted: {item}")
+            if agent_result["retired"]:
+                typer.echo(f"{prefix}agent bridge: retired {len(agent_result['retired'])}")
+                for item in agent_result["retired"]:
+                    typer.echo(f"  retired: {item}")
+            if agent_result["retained"]:
+                typer.echo(f"{prefix}agent bridge: retained edited retired files {len(agent_result['retained'])}")
+                for item in agent_result["retained"]:
+                    typer.echo(f"  retained: {item}")
             if agent_result["written_new"]:
                 typer.echo(f"{prefix}agent bridge: wrote {len(agent_result['written_new'])} .new file(s)")
                 for item in agent_result["written_new"]:

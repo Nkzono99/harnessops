@@ -1,7 +1,7 @@
 {
   "agent_bridge": {
     "managed_files": {
-      ".agents/skills/harnessops-bridge/SKILL.md": "sha256:44fe55b7b1376517053bbe3f3447e6c900d8a9f3a7141ae5d6edde64edfe935b",
+      ".agents/skills/harnessops-bridge/SKILL.md": "sha256:460a7646e56021a286b0bc98a5ea75407fbb514dab733251a1fedbdb36fcdf40",
       ".agents/skills/hops-add-failure/SKILL.md": "sha256:74406e5bd9a2cbf51748f5a7b40c040ba0e3fd10055cc96eb72d8185e3cefc20",
       ".agents/skills/hops-compact-lab-memory/SKILL.md": "sha256:565e0293d2512910fb3093a3b4c55fd61d987dd4f2cbe5401063ecec50397484",
       ".agents/skills/hops-daily-steward/SKILL.md": "sha256:1db2777252e5bc85e6c1da351f8242576f42ad20fb21c2ce8c11fa4040714887",
@@ -21,8 +21,8 @@
   "managed_files": {
     "harness-lab/README.md": "sha256:789a733220c9918b65f6d7afbddb13ccc2d842485cca9426bb8e5dc52c24a797",
     "harness-lab/views/backlog.md": "sha256:0ed4436872ad24f9c73737b7f84290306dc4baaf36154b7e36be521e985b791c",
-    "harness-lab/views/imported-feedback.md": "sha256:99f0812ea2ff1210a9d89d58b469a83bd292f82d9ebfc2d72e52405246bf07a2",
-    "harness-lab/views/improvements.md": "sha256:5aa7d636943c128c92229b892c3f20dc524508121d73264109c95970584941eb",
+    "harness-lab/views/imported-feedback.md": "sha256:f59cc6bda55400836b831a89054d7dfeb8aa9bd91505794ad952a5048951a78d",
+    "harness-lab/views/improvements.md": "sha256:8c7fea0b6bf34b0ce055d5d530bf82b05d0c7ca30126ac33ed85503f9ce9a010",
     "harness-lab/views/research-scans.md": "sha256:1df6b482ebe1fb1ed95b8b65f55a92b8b7b025b35c095dee3fa10af9965461c6",
     "harness-lab/views/score-trajectory.md": "sha256:a3d2f445609e5e9da0269ece3b10aff2414f3830bd185ad257d32ae19026b616"
   },

@@ -41,7 +41,7 @@ uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 uvx --from harnessops hops agent bridge --codex
 ```
 
-これにより `.agents/skills/harnessops-bridge/` に加えて、`hops-add-failure`、`hops-issue-triage` などの HarnessOps skill が `.agents/skills/` に入ります。Codex の新しいセッションでは repo-local skill として表示されます。
+これにより `.agents/skills/harnessops-bridge/` に加えて、リポジトリの role に合う HarnessOps skill が `.agents/skills/` に入ります。project-side の `feedback-source` repo では `hops-add-failure`、`hops-route-feedback`、`hops-export-feedback`、`hops-update-harness` などに絞り、`hops-run-lab` や propose/eval/decide の導線は target/meta lab repo 側に置きます。Codex の新しいセッションでは repo-local skill として表示されます。
 
 同じAgentで複数リポジトリの HarnessOps を扱い、ユーザー領域へ一度だけ入れたい場合は、任意で同梱プラグインを使えます。
 

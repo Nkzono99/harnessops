@@ -158,7 +158,7 @@ repo-local skill 展開は対象repoの状態なので、明示オプション�
 uvx --from harnessops hops agent bridge --codex
 ```
 
-これにより `.agents/skills/hops-issue-triage/` などが対象repoに入ります。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
+target/meta lab repo では `.agents/skills/hops-issue-triage/`、`hops-run-lab/` など lab/eval/propose/decide 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
 
 Agent plugin のユーザー領域インストールはグローバル副作用なので、target/project lifecycle から暗黙に実行しません。複数repoで同じglobal pluginを共有したい場合だけ任意手順として案内します。
 

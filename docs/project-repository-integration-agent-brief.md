@@ -77,6 +77,8 @@ repo-local skillも入れる場合:
 uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
+project repository の repo-local bridge は role-scoped です。`feedback-source` / `local-and-feedback` では `hops-add-failure`、routing、feedback export、update/doctor/migrate を中心に展開し、`hops-run-lab`、`hops-issue-triage`、propose/eval/decide など upstream/meta lab 側の skill は展開しません。
+
 すでに初期化済みの場合は、むやみに `--force` を使いません。まず検証します。
 
 ```bash

@@ -421,6 +421,8 @@ private_terms:
 
 標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。Codex / Claude plugin は、複数repoで同じグローバル入口を使いたい場合の任意UX層です。どちらも状態変更は `hops` に委譲します。
 
+repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops propose`、`hops eval`、`hops decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
+
 必須契約:
 
 - 最初に `hops doctor --check-overlay` を実行する。

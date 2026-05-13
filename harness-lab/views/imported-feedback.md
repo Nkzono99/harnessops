@@ -29,3 +29,4 @@
 - `FB0026` triaged daily_steward_orchestration fragmented_improvement_loop
 - `FB0027` triaged unclassified unclassified
 - `FB0028` triaged uvx_update_guidance stale_hops_update_path
+- `FB0029` triaged unclassified unclassified

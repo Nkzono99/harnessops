@@ -175,9 +175,28 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     assert skill.exists()
     text = skill.read_text(encoding="utf-8")
     assert "hops doctor" in text
+    assert "feedback-source interface" in text
+    assert "hops feedback export --sanitize" in text
+    assert "uvx --from harnessops hops lab capture" not in text
+    assert "uvx --from harnessops hops propose" not in text
     assert "直接組み替えない" in text
     assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
+    assert not (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
+    assert not (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
+
+
+def test_agent_bridge_generation_for_lab_repo_includes_lab_interface(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream", "--with-agent-bridge"])
+    skill = root / ".agents/skills/harnessops-bridge/SKILL.md"
+    text = skill.read_text(encoding="utf-8")
+    assert "hops feedback import <bundle-path>" in text
+    assert "hops lab capture" in text
+    assert "hops propose" in text
     assert (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
 
 
@@ -272,7 +291,30 @@ def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatc
     run_cli(["update-harness", "--agent-bridge", "--codex"])
 
     assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
+    assert not (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
+
+
+def test_update_harness_retires_project_side_lab_agent_skills(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project", "--with-agent-bridge"])
+    stale = root / ".agents/skills/hops-run-lab/SKILL.md"
+    stale.parent.mkdir(parents=True)
+    stale.write_text("# old generated lab skill\n", encoding="utf-8")
+    rel = stale.relative_to(root).as_posix()
+    lock_path = root / ".harnessops/lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    lock["agent_bridge"]["managed_files"][rel] = sha256_file(stale)
+    lock_path.write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    result = run_cli(["update-harness", "--agent-bridge", "--codex"])
+
+    assert "agent bridge: retired 1" in result.output
+    assert not stale.exists()
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    assert rel not in lock["agent_bridge"]["managed_files"]
 
 
 def test_update_harness_refreshes_unmodified_stale_agent_bridge(copy_fixture, monkeypatch):

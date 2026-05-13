@@ -11,10 +11,6 @@ description: プロジェクト失敗の記録、上流フィードバックの�
 `.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えないでください。レコード作成、ルーティング、エクスポート/インポート、ラボ評価、採用判断は CLI に委譲します。
 
 - `uvx --from harnessops hops doctor --check-overlay`
-- `uvx --from harnessops hops add-failure`
-- `uvx --from harnessops hops route`
-- `uvx --from harnessops hops add-feedback`
-- `uvx --from harnessops hops feedback export --sanitize`
 - `uvx --from harnessops hops feedback import <bundle-path>`
 - `uvx --from harnessops hops lab capture --title <title> --summary <summary> --expected-change <expected>`
 - `uvx --from harnessops hops lab dossier --from <FBid>`
