@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-14T01:10:08+09:00'
-source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+updated_at: '2026-05-14T03:08:52+09:00'
+source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -100,16 +100,57 @@ patterns:
     note: Daily steward preflight became the deterministic intake point for pull-first safety, doctor, migration, overlay counts, lane triggers, and run ledger state.
   - source: IMP0029
     note: Preflight now exposes lab_health from the existing read-only memory lint result and routes stale memory to the librarian lane.
+  - source: IMP0031
+    note: Daily steward guidance now separates systemic candidates, metadata/guard backfills, and read-only decisions, then finishes validated work through an automation branch and PR/merge path.
   - source: RS0005
     note: The research scan recommended adding lab_health narrowly while keeping downstream judgment in the librarian lane.
   guard:
   - path: tests/test_cli/test_steward.py
     sources: [IMP0023, IMP0029]
   - path: tests/test_agent_harness_contract.py
-    sources: [IMP0023, IMP0029]
+    sources: [IMP0023, IMP0029, IMP0031]
   counterexamples:
   - source: RS0005
     note: Putting too much analysis into preflight would turn the steward into a workflow engine instead of deterministic intake.
+  - source: IMP0031
+    note: A run that only pushes a branch, or direct-pushes protected main, fails the reviewable automation path.
+- id: version_aware_update_notice
+  name: Version-aware uvx update notice
+  capability: uvx_update_guidance
+  failure_class: stale_hops_update_path
+  applies_when:
+  - A linked repository runs `hops` and its recorded HarnessOps version, current runtime version, or latest PyPI version can differ.
+  - The next action should guide agents through a reproducible update path without applying migrations implicitly.
+  avoid_when:
+  - The command is already the explicit update or migration command and repeating the notice would add noise.
+  - Network/PyPI lookup is disabled; local recorded/current comparison should still be low-noise.
+  evidence:
+  - source: IMP0030
+    note: Existing update notice behavior now compares recorded, current, and latest PyPI versions and points to `uvx --refresh-package harnessops --from harnessops hops update-harness`.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+    sources: [IMP0030]
+  counterexamples:
+  - source: IMP0030
+    note: Treating FB0028 as only a stale-lock duplicate would leave latest-PyPI drift and uvx refresh guidance untraceable.
+- id: reviewable_automation_branch_merge
+  name: Reviewable automation branch merge
+  capability: daily_steward_orchestration
+  failure_class: missing_lab_capture
+  applies_when:
+  - A scheduled steward run has validated local changes and remote-write authorization.
+  - The repo uses protected `main` or an explicit integration branch as the merge target.
+  avoid_when:
+  - Validation failed, required checks are pending or failing, the target branch is behind/diverged, or the run lacks remote-write authorization.
+  evidence:
+  - source: IMP0031
+    note: 'Daily steward docs and packaged skills now prefer GitHub Flow: automation feature branch, PR, and merge after validation and required checks.'
+  guard:
+  - path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
+    sources: [IMP0031]
+  counterexamples:
+  - source: IMP0031
+    note: Direct protected-branch pushes or unbounded systemic candidates are explicit kill criteria.
 - id: concise_review_surface
   name: Concise generated review surface
   capability: lab_evaluation_review

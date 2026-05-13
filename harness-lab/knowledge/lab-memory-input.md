@@ -7,7 +7,7 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
+- source_digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
 - pressure: file_count>256
 - triggers: file_count>256, semantic_memory_stale
 
@@ -1609,6 +1609,137 @@ Steward preflight should include source-linked lab health status and trigger rea
 
 ### RS0005:...
 
+### `IMP0030` uvx_update_guidance/stale_hops_update_path
+- path: `harness-lab/improvements/IMP0030-fb0028-make-update-notices-guide-uvx-based-harnessops-upgrades.md`
+- status: adopted
+- maturity: adopted
+- relation: extends
+
+# IMP0030: FB0028: Make update notices guide uvx-based HarnessOps upgrades
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: friction
+- scope: harnessops-core
+- relation: extends
+- promotion_level: shipped-behavior
+- source_feedback: `FB0028`
+- linked_records: `FB0028`, `E0033`, `H0033`, `D0034`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0028-make-update-notices-guide-uvx-based-harnessops-upgrades.md`
+
+# FB0028: Make update notices guide uvx-based HarnessOps upgrades
+
+## 概要
+
+Target and project repositories need a single update path when repo-managed HarnessOps artifacts, the currently running hops runtime, and the latest PyPI release differ. The existing notice only compares the repo lock with the current runtime and still points agents at the hops-update-harness skill or bare hops command.
+
+## 再現
+
+ローカル改善作業中に観測。
+
+## 期待する上流変更
+
+Update the CLI notice so ordinary hops usage in linked repos compares recorded, current, and latest PyPI HarnessOps versions when available, emits uvx --refresh-package harnessops --from harnessops hops update-harness guidance, and keeps migration application behind an explicit follow-up check.
+
+## Target Capability
+
+- capability: uvx_update_guidance
+- failure_class: stale_hops_update_path
+
+## Investigation
+
+調査メモはまだありません。
+
+## Research Scans
+
+research scan はまだありません。
+
+
+## Evaluation
+
+### E0033: E0033: FB0028-make-update-notices-guide-uvx-based-harnessops-upgrades を評価
+
+
+- source: `harness-lab/records/eval-cases/E0033-fb0028-make-update-notices-guide-uvx-based-harnessops-upgrades.md`
+
+- capability: uvx_update_guidance
+
+- failure_class: stale_hops_update_path
+
+- manual_eval_yml: `harness-lab/views/eval-results/E0033-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0033-manual-score.md`
+- scores: i...
+
+### `IMP0031` harness_lab_traceability/missing_lab_capture
+- path: `harness-lab/improvements/IMP0031-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
+- status: adopted
+- maturity: adopted
+- relation: extends
+
+# IMP0031: FB0036: Let daily steward use lane budgets and merge automation branches
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: friction
+- scope: harnessops-core
+- relation: extends
+- promotion_level: harnessops-protocol
+- source_feedback: `FB0036`
+- linked_records: `FB0036`, `E0034`, `H0034`, `D0035`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
+
+# FB0036: Let daily steward use lane budgets and merge automation branches
+
+## 概要
+
+Daily steward currently treats max-systemic-candidates as a single global cap and the recommended prompt stops after pushing an automation branch. User feedback prefers lane-specific budgets, automatic merge when validation passes, optional develop/integration branch workflow, and no direct main push.
+
+## 再現
+
+ローカル改善作業中に観測。
+
+## 期待する上流変更
+
+Document lane budgets, keep systemic candidates conservative, allow multiple metadata/backfill/read-only items, and update full automation guidance so validated automation branches can be merged into an authorized base or integration branch without direct protected-branch push.
+
+## Target Capability
+
+- capability: harness_lab_traceability
+- failure_class: missing_lab_capture
+
+## Investigation
+
+調査メモはまだありません。
+
+## Research Scans
+
+research scan はまだありません。
+
+
+## Evaluation
+
+### E0034: E0034: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価
+
+
+- source: `harness-lab/records/eval-cases/E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`
+
+- capability: harness_lab_traceability
+
+- failure_class: missing_lab_capture
+
+- manual_eval_yml: `harness-lab/views/eval-results/E0034-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0034-manual-score...
+
 ### `RS0001` meta_improvement_research/unstructured_research_scan_results
 - path: `harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md`
 - status: captured
@@ -1817,7 +1948,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
 sources:
 - IMP0001
 - IMP0002
@@ -1847,6 +1978,8 @@ sources:
 - IMP0027
 - IMP0028
 - IMP0029
+- IMP0030
+- IMP0031
 - RS0001
 - RS0002
 - RS0003

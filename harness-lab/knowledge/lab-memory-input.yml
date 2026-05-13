@@ -1,28 +1,28 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-14T01:09:34+09:00'
+updated_at: '2026-05-14T03:08:14+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-14T01:09:33+09:00'
+  updated_at: '2026-05-14T03:08:14+09:00'
   metrics: &id002
-    file_count: 285
-    byte_count: 769006
-    record_count: 137
-    feedback_count: 35
-    eval_case_count: 32
-    hypothesis_count: 32
-    decision_count: 33
+    file_count: 300
+    byte_count: 810990
+    record_count: 144
+    feedback_count: 36
+    eval_case_count: 34
+    hypothesis_count: 34
+    decision_count: 35
     research_scan_count: 5
-    improvement_count: 28
-    manual_eval_count: 32
+    improvement_count: 30
+    manual_eval_count: 34
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+  source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
   pressure:
   - file_count>256
   triggers: &id003
@@ -31,12 +31,12 @@ lint:
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+    source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
     stale: false
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: a475562f28434dcb0ec9f3111fd1eab187caea0298d9b946a45447809f089e4b
+    source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
@@ -68,7 +68,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-14T01:09:34+09:00'
+  updated_at: '2026-05-14T03:08:14+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +76,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+    source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
     improvements:
     - IMP0001
     - IMP0002
@@ -106,12 +106,14 @@ deterministic_snapshot:
     - IMP0027
     - IMP0028
     - IMP0029
+    - IMP0030
+    - IMP0031
   knowledge:
     summary:
-      improvement_count: 28
+      improvement_count: 30
       status_counts:
-        adopted: 28
-      capability_count: 13
+        adopted: 30
+      capability_count: 14
     capabilities:
     - capability: daily_steward_orchestration
       failure_classes:
@@ -217,18 +219,19 @@ deterministic_snapshot:
         - IMP0019
         - IMP0020
         - IMP0026
+        - IMP0031
         status_counts:
-          adopted: 5
+          adopted: 6
         average_scores:
-          anti_theater: 4.6
+          anti_theater: 4.67
           evaluability: 5.0
           impact: 4.0
           maintainability: 4.0
-          mechanism_clarity: 4.4
-          minimality: 4.2
+          mechanism_clarity: 4.5
+          minimality: 4.17
           operator_burden: 1.0
-          privacy_sanitization_risk: 0.6
-          regression_risk: 1.4
+          privacy_sanitization_risk: 0.5
+          regression_risk: 1.5
         guards:
         - source: IMP0017
           status: implemented
@@ -242,6 +245,9 @@ deterministic_snapshot:
         - source: IMP0026
           status: implemented
           path: src/harnessops/core/upgrade_chain.py
+        - source: IMP0031
+          status: implemented
+          path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
         lessons:
         - source: IMP0001
           status: adopted
@@ -258,6 +264,9 @@ deterministic_snapshot:
         - source: IMP0026
           status: adopted
           lesson: Implemented checkpointed uvx update chains in update-harness with --plan-upgrade and --apply-upgrade-chain, refreshed update skill/docs, and verified with ruff check ., pytest -q (93 passed), doctor --check-overlay --check-records, migrate --check, and git di...
+        - source: IMP0031
+          status: adopted
+          lesson: 'Updated daily steward docs and repo-local/packaged skill copies to prefer GitHub Flow: automation feature branch, PR, and merge into protected main after validation/required checks. Added lane budgets for systemic candidates, metadata/guard backfills, and rea...'
     - capability: improvement_loop_design
       failure_classes:
       - failure_class: ambiguous_improvement_workflow
@@ -608,6 +617,31 @@ deterministic_snapshot:
         - source: IMP0025
           status: adopted
           lesson: 'Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.'
+    - capability: uvx_update_guidance
+      failure_classes:
+      - failure_class: stale_hops_update_path
+        improvements:
+        - IMP0030
+        status_counts:
+          adopted: 1
+        average_scores:
+          anti_theater: 5.0
+          evaluability: 5.0
+          impact: 3.0
+          maintainability: 4.0
+          mechanism_clarity: 5.0
+          minimality: 5.0
+          operator_burden: 0.0
+          privacy_sanitization_risk: 0.0
+          regression_risk: 1.0
+        guards:
+        - source: IMP0030
+          status: implemented
+          path: tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+        lessons:
+        - source: IMP0030
+          status: adopted
+          lesson: 'Existing behavior satisfies FB0028: update_notice.py compares repo-managed, current runtime, and latest PyPI versions; CLI spec documents uvx update-harness, plan-upgrade, doctor, and migrate-check guidance; targeted guard passed with uv run pytest tests/test...'
     research_scans:
     - id: RS0001
       title: 'RS0001: Structure meta improvement research scan outputs'
@@ -823,6 +857,16 @@ deterministic_snapshot:
       failure_class: count_based_preflight_misses_stale_lab_health
       status: implemented
       path: tests/test_cli/test_steward.py; tests/test_agent_harness_contract.py
+    - source: IMP0030
+      capability: uvx_update_guidance
+      failure_class: stale_hops_update_path
+      status: implemented
+      path: tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
+    - source: IMP0031
+      capability: harness_lab_traceability
+      failure_class: missing_lab_capture
+      status: implemented
+      path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
     external_evidence:
     - source: IMP0006
       summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -1190,6 +1234,30 @@ sources:
   failure_class: count_based_preflight_misses_stale_lab_health
   digest: sha256:df850fb05adcb01f5f5f723deba38ed9bbb87e8364649217a5e39449b1e02e76
   excerpt: "# IMP0029: FB0035: Expose lab health in steward preflight\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0035`\n- linked_records: `FB0035`, `RS0005`, `E0032`, `H0032`, `D0033`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0035-expose-lab-health-in-steward-preflight.md`\n\n# FB0035: Expose lab health in steward preflight\n\n## 概要\n\nhops steward preflight reports overlay counts and lane triggers, but it does not surface lab memory pressure or stale snapshot/semantic memory state as actionable daily steward input.\n\n## 再現\n\nRun hops steward preflight --json in a meta-lab repository where hops lab memory lint --warn-only reports needs-abstraction; the preflight JSON only shows counts and generic librarian trigger information.\n\n## 期待する上流変更\n\nSteward preflight should include source-linked lab health status and trigger reasons so daily runs can route stale memory or lab pressure to the librarian lane without relying on manual follow-up commands.\n\n## Target Capability\n\n- capability: daily_steward_orchestration\n- failure_class: count_based_preflight_misses_stale_lab_health\n\n## Investigation\n\n- 2026-05-14T01:04:35+09:00 [implementation-note] Implemented lab_health in steward_preflight by reusing the existing non-writing lab memory lint result for upstream/meta lab repos. The JSON now includes status, pressure, triggers, stale snapshot/abstraction state, and recommended commands; the librarian lane reason names needs-abstraction triggers. Feedback-source project repos report lab_health unavailable instead of probing harness-lab memory. (evidence: src/harnessops/core/steward.py; tests/test_cli/test_steward.py)\n\n## Research Scans\n\n### RS0005:..."
+- id: IMP0030
+  record_type: improvement_dossier
+  title: 'IMP0030: FB0028: Make update notices guide uvx-based HarnessOps upgrades'
+  path: harness-lab/improvements/IMP0030-fb0028-make-update-notices-guide-uvx-based-harnessops-upgrades.md
+  status: adopted
+  maturity: adopted
+  relation: extends
+  promotion_level: shipped-behavior
+  capability: uvx_update_guidance
+  failure_class: stale_hops_update_path
+  digest: sha256:096a6c95db6e935d422a177f82a3cdf971fe6bc195940f0dc02af83d8e9bbe47
+  excerpt: "# IMP0030: FB0028: Make update notices guide uvx-based HarnessOps upgrades\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: shipped-behavior\n- source_feedback: `FB0028`\n- linked_records: `FB0028`, `E0033`, `H0033`, `D0034`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0028-make-update-notices-guide-uvx-based-harnessops-upgrades.md`\n\n# FB0028: Make update notices guide uvx-based HarnessOps upgrades\n\n## 概要\n\nTarget and project repositories need a single update path when repo-managed HarnessOps artifacts, the currently running hops runtime, and the latest PyPI release differ. The existing notice only compares the repo lock with the current runtime and still points agents at the hops-update-harness skill or bare hops command.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nUpdate the CLI notice so ordinary hops usage in linked repos compares recorded, current, and latest PyPI HarnessOps versions when available, emits uvx --refresh-package harnessops --from harnessops hops update-harness guidance, and keeps migration application behind an explicit follow-up check.\n\n## Target Capability\n\n- capability: uvx_update_guidance\n- failure_class: stale_hops_update_path\n\n## Investigation\n\n調査メモはまだありません。\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0033: E0033: FB0028-make-update-notices-guide-uvx-based-harnessops-upgrades を評価\n\n\n- source: `harness-lab/records/eval-cases/E0033-fb0028-make-update-notices-guide-uvx-based-harnessops-upgrades.md`\n\n- capability: uvx_update_guidance\n\n- failure_class: stale_hops_update_path\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0033-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0033-manual-score.md`\n- scores: i..."
+- id: IMP0031
+  record_type: improvement_dossier
+  title: 'IMP0031: FB0036: Let daily steward use lane budgets and merge automation branches'
+  path: harness-lab/improvements/IMP0031-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md
+  status: adopted
+  maturity: adopted
+  relation: extends
+  promotion_level: harnessops-protocol
+  capability: harness_lab_traceability
+  failure_class: missing_lab_capture
+  digest: sha256:7bada6fcda267620c160f7d9720c77e7f36a22df98d9011de218aea6c69735d9
+  excerpt: "# IMP0031: FB0036: Let daily steward use lane budgets and merge automation branches\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0036`\n- linked_records: `FB0036`, `E0034`, `H0034`, `D0035`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`\n\n# FB0036: Let daily steward use lane budgets and merge automation branches\n\n## 概要\n\nDaily steward currently treats max-systemic-candidates as a single global cap and the recommended prompt stops after pushing an automation branch. User feedback prefers lane-specific budgets, automatic merge when validation passes, optional develop/integration branch workflow, and no direct main push.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nDocument lane budgets, keep systemic candidates conservative, allow multiple metadata/backfill/read-only items, and update full automation guidance so validated automation branches can be merged into an authorized base or integration branch without direct protected-branch push.\n\n## Target Capability\n\n- capability: harness_lab_traceability\n- failure_class: missing_lab_capture\n\n## Investigation\n\n調査メモはまだありません。\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0034: E0034: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価\n\n\n- source: `harness-lab/records/eval-cases/E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`\n\n- capability: harness_lab_traceability\n\n- failure_class: missing_lab_capture\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0034-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0034-manual-score..."
 - id: RS0001
   record_type: research_scan
   title: 'RS0001: Structure meta improvement research scan outputs'
@@ -1254,7 +1322,7 @@ abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823
+  source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
   sources:
   - IMP0001
   - IMP0002
@@ -1284,6 +1352,8 @@ abstraction_manifest_template:
   - IMP0027
   - IMP0028
   - IMP0029
+  - IMP0030
+  - IMP0031
   - RS0001
   - RS0002
   - RS0003

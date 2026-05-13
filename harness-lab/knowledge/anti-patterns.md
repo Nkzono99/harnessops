@@ -1,23 +1,30 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-14T01:10:08+09:00
-Source digest: `b52b8f6c8c026009c5e0cef42f497c2e8e85d0ab89754ea9da3298b6b2f7d823`
+Updated: 2026-05-14T03:08:52+09:00
+Source digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
 ## Reporting Success While Leaving State Stale
 
 - Avoid when: an update or doctor path says `ok` but leaves stale managed files, duplicate dossiers, stale generated views, or shadowed record IDs unresolved.
-- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`, `IMP0029`
+- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`, `IMP0029`, `IMP0030`
 - Why it fails: operators trust the tool and stop looking, while the next agent inherits obsolete guidance or resolves an ID to the wrong artifact.
-- Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, keep memory stale state visible, and make repair commands cover the same generated artifacts that doctor validates.
+- Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, keep memory stale state visible, make repair commands cover the same generated artifacts that doctor validates, and keep update notices pointed at the recorded/current/latest version mismatch plus the uvx refresh path.
 
 ## Treating Counts As Health
 
 - Avoid when: a steward, dashboard, or automation preflight reports only record counts and generic lane triggers while hiding stale memory, stale generated views, missing abstraction, guard gaps, or pending migration state.
-- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`
 - Why it fails: counts prove that records exist, not that the lab is usable today; the next agent may skip librarian work even though the source digest has moved.
-- Guard: expose read-only health signals such as `lab_health.status`, pressure triggers, stale snapshot/abstraction flags, and recommended commands, then delegate compaction or abstraction to the librarian lane.
+- Guard: expose read-only health signals such as `lab_health.status`, pressure triggers, stale snapshot/abstraction flags, and recommended commands, then delegate compaction or abstraction to the librarian lane; keep remote completion gates separate from intake and require validation/checks before merge.
+
+## Ending Validated Automation At A Pushed Branch
+
+- Avoid when: a scheduled run validates changes, pushes an automation branch, and then stops even though the prompt authorized PR creation and merge through the normal protected-branch path.
+- Sources: `IMP0031`
+- Why it fails: the work is neither merged nor clearly blocked, so the next run may repeat or stop on its own dirty/branch state instead of advancing a reviewed change.
+- Guard: after validation, fetch, confirm the merge target freshness, finalize onto the automation branch, push only that branch, open or update the PR, wait for required checks, merge only when allowed, and report the exact blocker otherwise.
 
 ## Treating Boilerplate As Evidence
 
