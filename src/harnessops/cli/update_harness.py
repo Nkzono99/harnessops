@@ -6,6 +6,7 @@ import typer
 
 from harnessops import __version__
 from harnessops.core.agent_bridge import refresh_bridge_files
+from harnessops.core.gitignore import ensure_gitignore
 from harnessops.core.migration import apply_migrations as apply_pending_migrations, check_migrations
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.paths import find_root
@@ -218,6 +219,7 @@ def update_harness_command(
         force=force,
         dry_run=dry_run,
     )
+    gitignore_result = ensure_gitignore(root, dry_run=dry_run)
     if not dry_run:
         refresh_views(root, project.overlay_path)
 
@@ -269,6 +271,7 @@ def update_harness_command(
             "pending": migration["pending"],
         },
         "managed_files": managed,
+        "gitignore": gitignore_result,
         "agent_bridge": {
             "refreshed": bool(agent_result["checked"]),
             "paths": agent_result["checked"],
@@ -317,6 +320,8 @@ def update_harness_command(
             typer.echo(f"{prefix}managed files: wrote {len(managed['written_new'])} .new file(s)")
             for item in managed["written_new"]:
                 typer.echo(f"  {item['new']}")
+        if gitignore_result["updated"]:
+            typer.echo(f"{prefix}gitignore: updated .gitignore")
         if agent_result["checked"]:
             typer.echo(f"{prefix}agent bridge: checked {len(agent_result['checked'])} paths")
             typer.echo(f"{prefix}agent bridge: updated {len(agent_result['updated'])}")

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from harnessops import __version__
+from harnessops.core.gitignore import ensure_gitignore
 from harnessops.core.lock import build_lock, load_lock, sha256_file, sha256_text, write_lock
 from harnessops.core.managed_files import conflict_path
 from harnessops.core.manifest import write_manifest
@@ -234,6 +235,7 @@ def init_overlay(
     write_manifest(root, profile, force=force)
     _touch_gitkeep(root / ".harnessops" / "migrations")
     _touch_gitkeep(root / ".harnessops" / "cache")
+    gitignore_result = ensure_gitignore(root)
 
     project_data = {
         "schema_version": "0.1",
@@ -282,4 +284,10 @@ def init_overlay(
     if bridge_managed is not None:
         lock["agent_bridge"] = {"managed_files": bridge_managed}
     write_lock(root, lock)
-    return {"profile": profile_id, "mode": overlay_mode, "path": overlay_rel, "managed_files": managed}
+    return {
+        "profile": profile_id,
+        "mode": overlay_mode,
+        "path": overlay_rel,
+        "managed_files": managed,
+        "gitignore": gitignore_result,
+    }

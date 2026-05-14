@@ -37,3 +37,5 @@
 - `FB0034` triaged repository_maintainability cli_private_helper_coupling
 - `FB0035` triaged daily_steward_orchestration count_based_preflight_misses_stale_lab_health
 - `FB0036` triaged harness_lab_traceability missing_lab_capture
+- `FB0037` triaged harness_lab_traceability missing_lab_capture
+- `FB0038` triaged harness_lab_traceability missing_lab_capture

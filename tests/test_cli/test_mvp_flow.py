@@ -40,6 +40,11 @@ def test_init_doctor_migrate_project(copy_fixture, monkeypatch):
     assert (root / ".harnessops/lock.json").exists()
     assert (root / "harness-feedback/README.md").exists()
     assert (root / "harness-feedback/records/failures").is_dir()
+    gitignore = (root / ".gitignore").read_text(encoding="utf-8")
+    assert "# BEGIN harnessops" in gitignore
+    assert ".harnessops/cache/*" in gitignore
+    assert "!.harnessops/cache/.gitkeep" in gitignore
+    assert ".harnessops/tmp/" in gitignore
 
     run_cli(["doctor", "--check-overlay", "--check-records"])
     run_cli(["migrate", "--check"])
@@ -282,6 +287,25 @@ def test_update_harness_recreates_missing_lock(copy_fixture, monkeypatch):
     lock = json.loads((root / ".harnessops/lock.json").read_text(encoding="utf-8"))
     assert lock["overlay"] == {"mode": "feedback-source", "path": "harness-feedback"}
     assert "harness-feedback/README.md" in lock["managed_files"]
+
+
+def test_update_harness_repairs_harnessops_gitignore_block(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    gitignore_path = root / ".gitignore"
+    gitignore_path.write_text("dist/\n.harnessops/cache/*\n!.harnessops/cache/.gitkeep\n", encoding="utf-8")
+
+    result = run_cli(["update-harness"])
+
+    gitignore = gitignore_path.read_text(encoding="utf-8")
+    assert "gitignore: updated .gitignore" in result.output
+    assert "dist/" in gitignore
+    assert gitignore.count(".harnessops/cache/*") == 1
+    assert gitignore.count("!.harnessops/cache/.gitkeep") == 1
+    assert "# BEGIN harnessops" in gitignore
+    assert "# END harnessops" in gitignore
+    assert ".harnessops/tmp/" in gitignore
 
 
 def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatch):
