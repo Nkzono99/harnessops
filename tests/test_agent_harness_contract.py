@@ -24,6 +24,7 @@ def test_root_agent_docs_explain_hops_contract() -> None:
         assert_harness_contract(text)
         assert "uvx --from harnessops hops <command>" in text
         assert "uv run --with-editable . hops <command>" not in text
+    assert "GitHub Flow" in (ROOT / "AGENTS.md").read_text(encoding="utf-8")
 
 
 def test_generated_bridge_explains_hops_contract() -> None:
@@ -240,6 +241,11 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
     assert "`local-only` / `repeated-pattern` / `cross-project` / `strategic`" in repo_skill
     assert "systemic candidate" in repo_skill
     assert "Candidate Horizon" in repo_skill
+    assert "Candidate Queue" in repo_skill
+    assert "selected_for_execution" in repo_skill
+    assert "queued_for_later" in repo_skill
+    assert "record_only" in repo_skill
+    assert "単一候補へ潰さない" in repo_skill
     assert "reject as local" in repo_skill
     assert "少なくとも2つの target/project repo" in repo_skill
     assert "candidate selection needs a horizon/generalization guard" in repo_skill
@@ -286,33 +292,33 @@ def test_open_meta_scan_skill_is_packaged() -> None:
 def test_daily_steward_skill_is_packaged() -> None:
     repo_skill = (ROOT / ".agents/skills/hops-daily-steward/SKILL.md").read_text(encoding="utf-8")
     assert "steward / conductor" in repo_skill
-    assert "compact steward / conductor" in repo_skill
-    assert "Default automation mode is `advance-local`" in repo_skill
-    assert "Human review is not required for local advance" in repo_skill
-    assert "Repo Role Routing" in repo_skill
-    assert "project repo | Use `harness-feedback/`" in repo_skill
-    assert "Do not assume this is the HarnessOps implementation repository" in repo_skill
-    assert "Non-Negotiable Gates" in repo_skill
-    assert "Sync Gate" in repo_skill
+    assert "must not stop at status reporting" in repo_skill
+    assert "proactive discovery" in repo_skill
+    assert "Role Routing" in repo_skill
+    assert "Project repo: use `harness-feedback/`" in repo_skill
+    assert "Global Gates" in repo_skill
+    assert "Gate Levels" in repo_skill
     assert "hops steward preflight --pull --json" in repo_skill
-    assert "lab health/stale-memory intake" in repo_skill
-    assert "git fetch --prune" in repo_skill
-    assert "git pull --ff-only" in repo_skill
-    assert "stash, reset, rebase, force pull" in repo_skill
+    assert "Update Lane" in repo_skill
+    assert "Do not start every daily run by updating HarnessOps to the latest release" in repo_skill
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness" in repo_skill
+    assert "Record gate" in repo_skill
+    assert "Implementation gate" in repo_skill
+    assert "Merge gate" in repo_skill
+    assert "stash, reset, rebase, force-push" in repo_skill
     assert "automation prompt" in repo_skill
-    assert "open divergent invention lane" in repo_skill
-    assert "Selection Rules" in repo_skill
-    assert "Advance-Local" in repo_skill
-    assert "End-Of-Run Policy" in repo_skill
-    assert "patch-only" in repo_skill
-    assert "commit-local" in repo_skill
-    assert "hops steward finalize --policy commit-local --validation-passed --json" in repo_skill
-    assert "Decision Card" in repo_skill
-    assert "no-op are valid outcomes" in repo_skill
+    assert "Work Budgets" in repo_skill
+    assert "discovery cards: 8" in repo_skill
+    assert "Candidate count is not the primary limit" in repo_skill
+    assert "No-Idle Policy" in repo_skill
+    assert "No-op is valid only" in repo_skill
+    assert "status-only no-op" in repo_skill
     assert "hops-open-meta-scan" in repo_skill
     assert "hops-research-improvements" in repo_skill
     assert "hops-run-lab" in repo_skill
     assert "Remote actions follow explicit automation prompt authorization" in repo_skill
+    assert "max-systemic-candidates" not in repo_skill
+    assert "systemic candidate: max 1" not in repo_skill
     assert_harness_contract(repo_skill)
 
     for host in ("codex", "claude"):
@@ -329,37 +335,43 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
 
     assert "このリポジトリで repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` を実行してください。" in prompt_doc
     assert "HarnessOps を導入した target repository / project repository にも配布して使えます" in prompt_doc
+    assert "強い自動化" in prompt_doc
+    assert "status-only no-op を通常結果にせず" in prompt_doc
     assert "base-branch: main" in prompt_doc
     assert "project repo に `harness-lab/` を作らないでください" in prompt_doc
     assert "subagents: explicitly allowed" in prompt_doc
     assert "merge-target-branch: main" in prompt_doc
-    assert "lane-budgets:" in prompt_doc
-    assert "metadata-guard-backfills: 3" in prompt_doc
-    assert "read-only-park-reject: 5" in prompt_doc
+    assert "Budgets:" in prompt_doc
+    assert "discovery-cards: 8" in prompt_doc
+    assert "recordable-candidates: 5" in prompt_doc
+    assert "low-risk-work-packets: 5" in prompt_doc
+    assert "medium-risk-work-packets: 3" in prompt_doc
+    assert "high-risk-work-packets: 1" in prompt_doc
     assert "remote-write: automation-branch-merge" in prompt_doc
-    assert "base-branch-push: false" in prompt_doc
     assert "protected-branch-direct-push: false" in prompt_doc
-    assert "merge-automation-branch: true" in prompt_doc
+    assert "create/update/merge automation PRs: true" in prompt_doc
+    assert "create/comment/close GitHub issues: true" in prompt_doc
+    assert "release: true, only when repo-native release criteria are met" in prompt_doc
+    assert "Update lane:" in prompt_doc
+    assert "do not update HarnessOps to latest as a mandatory start step" in prompt_doc
+    assert "uvx --refresh-package harnessops --from harnessops hops update-harness" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
-    assert "lab_health.status" in prompt_doc
     assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
     assert "uv run --with-editable . hops steward" not in prompt_doc
     assert "uv run --with-editable . hops doctor" not in prompt_doc
     assert "uv run --with-editable . hops migrate" not in prompt_doc
     assert "uv run pytest" not in prompt_doc
     assert "uv run ruff" not in prompt_doc
-    assert "<repo-native test command>" in prompt_doc
+    assert "repo-native test/lint/build/domain checks" in prompt_doc
     assert "git push -u origin HEAD" in prompt_doc
-    assert "automation branch から `merge-target-branch` への PR を作成または更新してください" in prompt_doc
-    assert "コメント、Issue、release、既定 branch direct push は作成しないでください。" in prompt_doc
-    assert "完全自動化プロンプト: automation branch merge と remote action" in prompt_doc
-    assert "create-pr: true" in prompt_doc
-    assert "issue-comment-close-create: true" in prompt_doc
-    assert "release: true" in prompt_doc
+    assert "max-systemic-candidates" not in prompt_doc
+    assert "release: false" not in prompt_doc
+    assert "推奨プロンプト" not in prompt_doc
+    assert "## Prompt" in prompt_doc
+    assert "hops-open-meta-scan" in prompt_doc
+    assert "hops-research-improvements" in prompt_doc
     assert 'hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily"' in prompt_doc
-    assert "既定 branch direct push はしないでください。" in prompt_doc
-    assert "Issue の作成/コメント/クローズ、PR の作成/更新/merge、release は、選択した候補の自然な次の一手であれば実行してよいです。" in prompt_doc
-    assert "repo-local の `release` skill または対象リポジトリの documented release command" in prompt_doc
+    assert "documented release command or repo-local release skill" in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide
 

@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-14T03:08:52+09:00'
-source_digest: 2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532
+updated_at: '2026-05-14T09:25:08+09:00'
+source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -151,6 +151,44 @@ patterns:
   counterexamples:
   - source: IMP0031
     note: Direct protected-branch pushes or unbounded systemic candidates are explicit kill criteria.
+- id: risk_budgeted_no_idle_steward
+  name: Risk-budgeted no-idle steward
+  capability: daily_steward_orchestration
+  failure_class: over_conservative_automation_loop
+  applies_when:
+  - A clean scheduled steward run has no obvious reactive issue, feedback, doctor, update, or lab-health blocker.
+  - Automation authority includes PR, merge, issue, or release actions, so the loop should generate or advance work rather than only report state.
+  avoid_when:
+  - Global gates fail, privacy risk is unresolved, validation failed, or the run has exhausted explicit discovery/work-packet budget.
+  evidence:
+  - source: FB0037
+    note: The previous daily automation shape gave strong remote authority but retained a weak discovery trigger, a single systemic-candidate cap, and status-only no-op as a normal result.
+  - source: FB0038
+    note: Update-harness/latest-runtime work belongs in the steward update lane only when stale state is signaled; starting every run with latest update would blur validation.
+  guard:
+  - path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents; tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged
+    sources: [FB0037, FB0038]
+  counterexamples:
+  - source: FB0037
+    note: Record-level research and queue creation should not require implementation-level validation/guard; merge and release still do.
+- id: harnessops_gitignore_hygiene
+  name: HarnessOps transient gitignore hygiene
+  capability: managed_artifact_update
+  failure_class: transient_state_not_ignored
+  applies_when:
+  - A repository is initialized, linked, or updated by HarnessOps and local cache/tmp paths may be produced by ordinary CLI use.
+  - '`.harnessops/cache/` must keep `.gitkeep` trackable while ignoring runtime files such as update notice cache JSON.'
+  avoid_when:
+  - 'The path is canonical project state such as `.harnessops/project.toml`, `.harnessops/lock.json`, migrations, feedback records, or lab records.'
+  evidence:
+  - source: FB0038
+    note: HarnessOps already writes `.harnessops/cache/update-notice.json`; init/link/update-harness should maintain a marker-managed ignore block instead of leaving users to discover untracked cache files.
+  guard:
+  - path: tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project; tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block
+    sources: [FB0038]
+  counterexamples:
+  - source: FB0038
+    note: Ignoring all of `.harnessops/` would hide canonical lock/project/migration state and break the audit trail.
 - id: concise_review_surface
   name: Concise generated review surface
   capability: lab_evaluation_review

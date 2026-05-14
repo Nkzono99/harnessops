@@ -9,5 +9,9 @@ dist/
 build/
 *.pyc
 _handoff
+
+# BEGIN harnessops
 .harnessops/cache/*
 !.harnessops/cache/.gitkeep
+.harnessops/tmp/
+# END harnessops

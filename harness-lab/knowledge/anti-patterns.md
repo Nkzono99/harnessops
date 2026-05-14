@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-14T03:08:52+09:00
-Source digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
+Updated: 2026-05-14T09:25:08+09:00
+Source digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -22,9 +22,23 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Ending Validated Automation At A Pushed Branch
 
 - Avoid when: a scheduled run validates changes, pushes an automation branch, and then stops even though the prompt authorized PR creation and merge through the normal protected-branch path.
-- Sources: `IMP0031`
+- Sources: `IMP0031`, `FB0037`
 - Why it fails: the work is neither merged nor clearly blocked, so the next run may repeat or stop on its own dirty/branch state instead of advancing a reviewed change.
 - Guard: after validation, fetch, confirm the merge target freshness, finalize onto the automation branch, push only that branch, open or update the PR, wait for required checks, merge only when allowed, and report the exact blocker otherwise.
+
+## Treating No-Op As Daily Success
+
+- Avoid when: a clean autonomous run with remote authority reports only preflight/doctor state because no obvious reactive work was waiting.
+- Sources: `FB0037`, `FB0038`
+- Why it fails: healthy repositories slowly train the automation into status polling, so queue discovery, record-only work, small guards, and safe cleanup never start.
+- Guard: make proactive discovery mandatory when reactive work and queue are thin, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
+
+## Tracking Runtime Cache As Project State
+
+- Avoid when: transient files under `.harnessops/cache/` or future HarnessOps tmp paths are left to appear as normal untracked project changes.
+- Sources: `FB0038`
+- Why it fails: cache churn can stop dirty-worktree automation and hides the difference between canonical HarnessOps state and local runtime state.
+- Guard: init/link/update-harness should maintain a marker-managed `.gitignore` block that ignores cache contents while preserving `.harnessops/cache/.gitkeep`.
 
 ## Treating Boilerplate As Evidence
 

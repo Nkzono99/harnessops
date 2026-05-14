@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-14T03:08:52+09:00
-Source digest: `2172da30944f7a33c114f8c7bfada6bcce47e5f7b2d7ef29f005ac251e658532`
+Updated: 2026-05-14T09:25:08+09:00
+Source digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -40,10 +40,10 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Managed Artifacts Must Be Honest About Staleness And Local Edits
 
 - Principle: update commands for managed bridge or generated artifacts must distinguish unchanged, updated, conflicted, stale, and locally edited states.
-- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`
+- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`, `FB0038`
 - Applies when: refreshing agent bridge files, generated records, generated views, update guidance, or any managed file that users may edit.
-- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts; an update notice that compares only one version pair and omits the recommended `uvx --refresh-package` path.
-- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, make refresh commands cover the same managed artifact set that doctor validates, and keep update notices tied to recorded/current/latest version checks plus explicit migrate/doctor follow-up.
+- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts; an update notice that compares only one version pair and omits the recommended `uvx --refresh-package` path; generated cache files appearing as untracked repo noise.
+- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, make refresh commands cover the same managed artifact set that doctor validates, keep update notices tied to recorded/current/latest version checks plus explicit migrate/doctor follow-up, and maintain a marker-managed `.gitignore` block for HarnessOps transient paths.
 
 ## Remote And External Paths Must Be Encoding-Safe And Sanitized
 
@@ -72,7 +72,15 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Automation Should Finish Through Reviewable Branch Paths
 
 - Principle: unattended steward work should use explicit lane budgets and complete validated changes through an automation branch and PR/merge path, not direct protected-branch pushes or unbounded backlog processing.
-- Sources: `IMP0023`, `IMP0031`
+- Sources: `IMP0023`, `IMP0031`, `FB0037`
 - Applies when: daily steward prompts, repo-local skills, packaged skills, or automation docs describe remote writes, branch targets, PR updates, merges, or lane scope.
 - Counterexamples: treating `max-systemic-candidates` as the only cap ignores lightweight metadata/read-only work; stopping after push leaves completed work pending forever; direct main pushes bypass branch protection.
 - Guard: separate systemic candidates, metadata/guard backfills, and read-only decisions; push only the automation branch; confirm validation, target freshness, required checks, and branch protection before merge; report blockers without force-pushing.
+
+## Steward Automation Needs Discovery Pressure
+
+- Principle: a clean autonomous steward run should create or advance a queue instead of treating status-only no-op as success.
+- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`
+- Applies when: configuring daily automation, deciding whether to run `hops-open-meta-scan`, splitting record/implementation/merge gates, setting work-packet budgets, or handling update-harness/latest-version work.
+- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; requiring implementation-level guards before research-scan or classify prevents queue creation.
+- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap.
