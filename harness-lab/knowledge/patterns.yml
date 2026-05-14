@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-14T09:25:08+09:00'
-source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+updated_at: '2026-05-15T03:04:08+09:00'
+source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -151,6 +151,27 @@ patterns:
   counterexamples:
   - source: IMP0031
     note: Direct protected-branch pushes or unbounded systemic candidates are explicit kill criteria.
+- id: no_argument_issue_triage
+  name: No-argument open issue triage
+  capability: daily_steward_orchestration
+  failure_class: target_specific_issue_triage_drift
+  applies_when:
+  - A steward or issue-triage run receives no specific issue number but the repository may have open GitHub issues.
+  - A target repository is replacing local triage prompts with HarnessOps-distributed issue triage behavior.
+  avoid_when:
+  - GitHub access is unavailable and the run cannot gather issue body, comments, labels, or reproduction details.
+  - The requested action is a remote close/comment/label and explicit authority is absent.
+  evidence:
+  - source: IMP0032
+    note: HOPS issue triage now covers no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundaries, and completion close conventions.
+  - source: IMP0023
+    note: Daily steward delegates issue intake to the issue-triager lane while keeping state changes in HOPS records.
+  guard:
+  - path: tests/test_agent_harness_contract.py
+    sources: [IMP0032]
+  counterexamples:
+  - source: IMP0032
+    note: A repo-local triage skill can drift from HarnessOps routing and remote-action safety rules.
 - id: risk_budgeted_no_idle_steward
   name: Risk-budgeted no-idle steward
   capability: daily_steward_orchestration

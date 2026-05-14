@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-14T09:24:55+09:00
+- updated_at: 2026-05-15T03:03:51+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 302 / threshold 256
-- byte_count: 835229 / threshold 2000000
-- improvement_count: 30 / threshold 50
-- source_digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
+- file_count: 311 / threshold 256
+- byte_count: 848391 / threshold 2000000
+- improvement_count: 31 / threshold 50
+- source_digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
 
 ## How To Use
 
@@ -158,10 +158,10 @@
 
 ### unclassified
 #### unclassified
-- sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`
-- status_counts: adopted=7
-- average_scores: anti_theater=4.57, evaluability=5.0, impact=4.0, maintainability=4.14, mechanism_clarity=4.57, minimality=4.14, operator_burden=2.43, privacy_sanitization_risk=1.14, regression_risk=2.14
-- guards: IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:planned:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
+- sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`, `IMP0032`
+- status_counts: adopted=8
+- average_scores: anti_theater=4.62, evaluability=4.88, impact=4.0, maintainability=4.25, mechanism_clarity=4.62, minimality=4.25, operator_burden=2.38, privacy_sanitization_risk=1.25, regression_risk=2.12
+- guards: IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:planned:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py
 - lesson IMP0002 (adopted): Implemented conflict-aware agent bridge refresh: managed bridge hashes are stored in lock metadata; unmodified stale files update automatically, local edits produce .new files, --force-agent-bridge overwrites explicitly, and JSON/text output reports checked,...
 - lesson IMP0003 (adopted): Implemented lab dossiers as a generated compatibility layer: hops lab dossier --from <FB/E/H/D> creates or updates harness-lab/improvements/IMP*.md from normalized records, refreshes views/improvements.md, preserves FB/E/H/D as the source of truth, and docume...
 - lesson IMP0004 (adopted): Implemented lab-first GitHub issue promotion: hops lab issue draft/create --from <FB/E/H/D/IMP> builds a sanitized issue body from the generated dossier, writes local markdown drafts, searches duplicates, requires --confirm-create for remote creation, and wri...
@@ -169,6 +169,7 @@
 - lesson IMP0021 (adopted): Implemented the anti-myopia gate directly in the hops-research-improvements skill: it now requires horizon/generalization classification before capture or issue creation, parks local-only frictions, limits promotion to one systemic candidate, and includes a c...
 - lesson IMP0024 (adopted): Doctor now warns when a target repo bridge contains the stale editable fallback and the repo does not declare a local hops console script. Focused positive/negative tests, full pytest, ruff, doctor, and migrate passed.
 - lesson IMP0025 (adopted): Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.
+- lesson IMP0032 (adopted): Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
 
 ### uvx_update_guidance
 #### stale_hops_update_path
@@ -205,6 +206,7 @@
 - `IMP0029` daily_steward_orchestration/count_based_preflight_misses_stale_lab_health: implemented tests/test_cli/test_steward.py; tests/test_agent_harness_contract.py
 - `IMP0030` uvx_update_guidance/stale_hops_update_path: implemented tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
 - `IMP0031` harness_lab_traceability/missing_lab_capture: implemented tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
+- `IMP0032` unclassified/unclassified: implemented tests/test_agent_harness_contract.py
 
 ## Research Scans
 

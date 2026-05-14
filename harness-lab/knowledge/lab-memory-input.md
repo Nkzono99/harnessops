@@ -7,7 +7,7 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
+- source_digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
 - pressure: file_count>256
 - triggers: file_count>256, semantic_memory_stale
 
@@ -1740,6 +1740,71 @@ research scan はまだありません。
 - manual_eval_yml: `harness-lab/views/eval-results/E0034-manual-score.yml`
 - manual_eval_md: `harness-lab/views/eval-results/E0034-manual-score...
 
+### `IMP0032` unclassified/unclassified
+- path: `harness-lab/improvements/IMP0032-fb0039-consolidate-repo-local-issue-triage-into-hops-daily-steward.md`
+- status: adopted
+- maturity: adopted
+- relation: extends
+
+# IMP0032: FB0039: Consolidate repo-local issue triage into HOPS daily steward
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: github-issue
+- scope: harnessops-core
+- relation: extends
+- promotion_level: harnessops-protocol
+- source_feedback: `FB0039`
+- linked_records: `FB0039`, `E0035`, `H0035`, `D0036`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0039-consolidate-repo-local-issue-triage-into-hops-daily-steward.md`
+
+# FB0039: Consolidate repo-local issue triage into HOPS daily steward
+
+## 概要
+
+GitHub issue: https://github.com/Nkzono99/harnessops/issues/18
+author: Nkzono99
+labels: なし
+created_at: 2026-05-14T02:03:28Z
+updated_at: 2026-05-14T02:03:28Z
+
+## Issue本文
+## 背景
+
+runops 側にあった repo-local `triage` skill と `runops-issue-triage-and-run` automation prompt を削除し、issue triage / unattended daily loop は HarnessOps 側の `hops-daily-steward` と `hops-issue-triage` に統一する方針にした。
+
+runops 側の `triage` skill が持っていた汎用機能のうち、HarnessOps 側に寄せるべきものをこの issue で追跡したい。
+
+## 移譲したい機能
+
+- open issue を優先度つきで分類する報告形式を持つ
+  - 対応推奨 (高)
+  - 対応推奨 (中)
+  - 保留 / 要議論
+  - close 推奨
+- spam / malicious / unrelated issue の close 候補判定を明文化する
+- issue close は人間または automation prompt の明示権限がある場合だけ行う、という安全ルールを HOPS daily / issue triage 側へ寄せる
+- 対応完了時の issue close 作法を HOPS 側に持つ
+  - commit message の `Closes #N`
+  - 手動 close コメント
+  - won't fix コメント
+- `gh issue view` / GitHub connector で本文・コメント・ラベル・再現情報を確認し、不足情報を triage 報告に含める
+
+## 完了条件
+
+- `hops-issue-triage` または `hops-daily-steward` の skill / docs が上記の汎用 issue triage 作法をカバーしている
+- repo-local な `triage` skill がなくても、target repository の daily run で issue triage の判断と報告が迷子にならない
+- remote actions は automation prompt の権限に従う、という境界が明記されている
+
+## 関連
+
+- runops 側では `.agents/skills/triage`, `.claude/skills/triage`, `.codex/automation-prompts/runops-issue-triage-...
+
 ### `RS0001` meta_improvement_research/unstructured_research_scan_results
 - path: `harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md`
 - status: captured
@@ -1948,7 +2013,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
 sources:
 - IMP0001
 - IMP0002
@@ -1980,6 +2045,7 @@ sources:
 - IMP0029
 - IMP0030
 - IMP0031
+- IMP0032
 - RS0001
 - RS0002
 - RS0003

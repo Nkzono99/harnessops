@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-14T09:25:08+09:00
-Source digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
+Updated: 2026-05-15T03:04:08+09:00
+Source digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -60,6 +60,13 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 - Sources: `IMP0004`, `IMP0005`, `IMP0008`, `IMP0014`
 - Why it fails: private paths or research context can leak, and Unicode can be corrupted before the record is even parsed.
 - Guard: use UTF-8 subprocess decoding, run sanitizer paths before external sharing, require explicit remote-create confirmation, and keep privacy risk visible in evaluation.
+
+## Acting On Issues Without Authority Or Record Routing
+
+- Avoid when: an agent closes, comments on, labels, imports, or implements from GitHub issues before checking remote-action authority and deciding which HOPS record path owns the work.
+- Sources: `IMP0032`, `IMP0023`, `IMP0004`
+- Why it fails: issue triage becomes target-specific operational behavior instead of audited HarnessOps memory, and remote changes can bypass the prompt's authority boundary.
+- Guard: default no-argument triage to a read/report step, include `remote_action_allowed` in the triage report, import or capture durable work before implementation, and close issues only with validation plus related PR/commit evidence.
 
 ## Replacing Canonical Records With Summaries
 

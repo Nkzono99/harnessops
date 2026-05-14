@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-14T09:25:08+09:00'
-source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+updated_at: '2026-05-15T03:04:08+09:00'
+source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
 sources:
 - FB0037
 - FB0038
@@ -35,6 +35,7 @@ sources:
 - IMP0029
 - IMP0030
 - IMP0031
+- IMP0032
 - RS0001
 - RS0002
 - RS0003
@@ -48,7 +49,7 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-14T09:24:58+09:00'
+  prepared_at: '2026-05-15T03:04:08+09:00'
 lint_reason: triggers-present
 manual_run: true
 notes:
@@ -57,6 +58,7 @@ notes:
 - IMP0029/RS0005 added the deterministic lab-health intake pattern for daily steward routing.
 - IMP0030 added uvx update guidance for recorded/current/latest version drift without implicit migrations.
 - IMP0031 added lane-budgeted steward automation plus branch/PR/merge completion gates.
+- IMP0032 added no-argument issue triage, priority buckets, close-candidate heuristics, and remote-action authority boundaries.
 - FB0037 added no-idle daily steward guidance, risk-tier work-packet budgets, and ranked queue expectations.
 - FB0038 added signal-driven update lane guidance and marker-managed HarnessOps gitignore hygiene.
 contradiction_watch: []

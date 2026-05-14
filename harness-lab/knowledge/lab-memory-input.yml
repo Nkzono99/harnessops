@@ -1,28 +1,28 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-14T09:24:58+09:00'
+updated_at: '2026-05-15T03:04:08+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-14T09:24:57+09:00'
+  updated_at: '2026-05-15T03:04:08+09:00'
   metrics: &id002
-    file_count: 302
-    byte_count: 835229
-    record_count: 146
-    feedback_count: 38
-    eval_case_count: 34
-    hypothesis_count: 34
-    decision_count: 35
+    file_count: 311
+    byte_count: 857935
+    record_count: 151
+    feedback_count: 40
+    eval_case_count: 35
+    hypothesis_count: 35
+    decision_count: 36
     research_scan_count: 5
-    improvement_count: 30
-    manual_eval_count: 34
+    improvement_count: 31
+    manual_eval_count: 35
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+  source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
   pressure:
   - file_count>256
   triggers: &id003
@@ -31,12 +31,12 @@ lint:
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+    source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
     stale: false
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: e91c416b5928b2c82e00ff32d0a5ddf828d96c6b28018553262b8f2e2dc6c9c8
+    source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
@@ -68,7 +68,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-14T09:24:57+09:00'
+  updated_at: '2026-05-15T03:04:08+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +76,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+    source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
     improvements:
     - IMP0001
     - IMP0002
@@ -108,11 +108,12 @@ deterministic_snapshot:
     - IMP0029
     - IMP0030
     - IMP0031
+    - IMP0032
   knowledge:
     summary:
-      improvement_count: 30
+      improvement_count: 31
       status_counts:
-        adopted: 30
+        adopted: 31
       capability_count: 14
     capabilities:
     - capability: daily_steward_orchestration
@@ -570,18 +571,19 @@ deterministic_snapshot:
         - IMP0021
         - IMP0024
         - IMP0025
+        - IMP0032
         status_counts:
-          adopted: 7
+          adopted: 8
         average_scores:
-          anti_theater: 4.57
-          evaluability: 5.0
+          anti_theater: 4.62
+          evaluability: 4.88
           impact: 4.0
-          maintainability: 4.14
-          mechanism_clarity: 4.57
-          minimality: 4.14
-          operator_burden: 2.43
-          privacy_sanitization_risk: 1.14
-          regression_risk: 2.14
+          maintainability: 4.25
+          mechanism_clarity: 4.62
+          minimality: 4.25
+          operator_burden: 2.38
+          privacy_sanitization_risk: 1.25
+          regression_risk: 2.12
         guards:
         - source: IMP0018
           status: implemented
@@ -595,6 +597,9 @@ deterministic_snapshot:
         - source: IMP0025
           status: planned
           path: tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
+        - source: IMP0032
+          status: implemented
+          path: tests/test_agent_harness_contract.py
         lessons:
         - source: IMP0002
           status: adopted
@@ -617,6 +622,9 @@ deterministic_snapshot:
         - source: IMP0025
           status: adopted
           lesson: 'Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.'
+        - source: IMP0032
+          status: adopted
+          lesson: Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
     - capability: uvx_update_guidance
       failure_classes:
       - failure_class: stale_hops_update_path
@@ -867,6 +875,11 @@ deterministic_snapshot:
       failure_class: missing_lab_capture
       status: implemented
       path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
+    - source: IMP0032
+      capability: unclassified
+      failure_class: unclassified
+      status: implemented
+      path: tests/test_agent_harness_contract.py
     external_evidence:
     - source: IMP0006
       summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -1258,6 +1271,18 @@ sources:
   failure_class: missing_lab_capture
   digest: sha256:7bada6fcda267620c160f7d9720c77e7f36a22df98d9011de218aea6c69735d9
   excerpt: "# IMP0031: FB0036: Let daily steward use lane budgets and merge automation branches\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0036`\n- linked_records: `FB0036`, `E0034`, `H0034`, `D0035`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`\n\n# FB0036: Let daily steward use lane budgets and merge automation branches\n\n## 概要\n\nDaily steward currently treats max-systemic-candidates as a single global cap and the recommended prompt stops after pushing an automation branch. User feedback prefers lane-specific budgets, automatic merge when validation passes, optional develop/integration branch workflow, and no direct main push.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nDocument lane budgets, keep systemic candidates conservative, allow multiple metadata/backfill/read-only items, and update full automation guidance so validated automation branches can be merged into an authorized base or integration branch without direct protected-branch push.\n\n## Target Capability\n\n- capability: harness_lab_traceability\n- failure_class: missing_lab_capture\n\n## Investigation\n\n調査メモはまだありません。\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0034: E0034: FB0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches を評価\n\n\n- source: `harness-lab/records/eval-cases/E0034-fb0036-let-daily-steward-use-lane-budgets-and-merge-automation-branches.md`\n\n- capability: harness_lab_traceability\n\n- failure_class: missing_lab_capture\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0034-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0034-manual-score..."
+- id: IMP0032
+  record_type: improvement_dossier
+  title: 'IMP0032: FB0039: Consolidate repo-local issue triage into HOPS daily steward'
+  path: harness-lab/improvements/IMP0032-fb0039-consolidate-repo-local-issue-triage-into-hops-daily-steward.md
+  status: adopted
+  maturity: adopted
+  relation: extends
+  promotion_level: harnessops-protocol
+  capability: unclassified
+  failure_class: unclassified
+  digest: sha256:e2e84843e2bcb8410485a3276881b21d5edf13695e81d78a689482a9692ac32d
+  excerpt: "# IMP0032: FB0039: Consolidate repo-local issue triage into HOPS daily steward\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: github-issue\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0039`\n- linked_records: `FB0039`, `E0035`, `H0035`, `D0036`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0039-consolidate-repo-local-issue-triage-into-hops-daily-steward.md`\n\n# FB0039: Consolidate repo-local issue triage into HOPS daily steward\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/18\nauthor: Nkzono99\nlabels: なし\ncreated_at: 2026-05-14T02:03:28Z\nupdated_at: 2026-05-14T02:03:28Z\n\n## Issue本文\n## 背景\n\nrunops 側にあった repo-local `triage` skill と `runops-issue-triage-and-run` automation prompt を削除し、issue triage / unattended daily loop は HarnessOps 側の `hops-daily-steward` と `hops-issue-triage` に統一する方針にした。\n\nrunops 側の `triage` skill が持っていた汎用機能のうち、HarnessOps 側に寄せるべきものをこの issue で追跡したい。\n\n## 移譲したい機能\n\n- open issue を優先度つきで分類する報告形式を持つ\n  - 対応推奨 (高)\n  - 対応推奨 (中)\n  - 保留 / 要議論\n  - close 推奨\n- spam / malicious / unrelated issue の close 候補判定を明文化する\n- issue close は人間または automation prompt の明示権限がある場合だけ行う、という安全ルールを HOPS daily / issue triage 側へ寄せる\n- 対応完了時の issue close 作法を HOPS 側に持つ\n  - commit message の `Closes #N`\n  - 手動 close コメント\n  - won't fix コメント\n- `gh issue view` / GitHub connector で本文・コメント・ラベル・再現情報を確認し、不足情報を triage 報告に含める\n\n## 完了条件\n\n- `hops-issue-triage` または `hops-daily-steward` の skill / docs が上記の汎用 issue triage 作法をカバーしている\n- repo-local な `triage` skill がなくても、target repository の daily run で issue triage の判断と報告が迷子にならない\n- remote actions は automation prompt の権限に従う、という境界が明記されている\n\n## 関連\n\n- runops 側では `.agents/skills/triage`, `.claude/skills/triage`, `.codex/automation-prompts/runops-issue-triage-..."
 - id: RS0001
   record_type: research_scan
   title: 'RS0001: Structure meta improvement research scan outputs'
@@ -1322,7 +1347,7 @@ abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+  source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
   sources:
   - IMP0001
   - IMP0002
@@ -1354,6 +1379,7 @@ abstraction_manifest_template:
   - IMP0029
   - IMP0030
   - IMP0031
+  - IMP0032
   - RS0001
   - RS0002
   - RS0003

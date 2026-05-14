@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-14T09:25:08+09:00
-Source digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
+Updated: 2026-05-15T03:04:08+09:00
+Source digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -52,6 +52,14 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 - Applies when: importing GitHub issues, drafting lab-first issues, creating remote issues, citing external benchmarks, or exporting project feedback.
 - Counterexamples: Windows console decoding can corrupt `gh` JSON; lab-first issue creation can leak unsanitized body text if the remote path bypasses the sanitizer.
 - Guard: decode `gh` JSON as UTF-8, require confirmation for remote issue creation, keep privacy risk as an evaluation axis, and retain evidence refs without copying private project context into knowledge files.
+
+## Issue Triage Needs Explicit Intake, Routing, And Authority
+
+- Principle: issue triage should be a reusable HarnessOps lane that discovers open issues when no issue is named, reports priority and missing information, routes durable work through lab or feedback records, and performs remote actions only when the prompt or human explicitly authorizes them.
+- Sources: `IMP0023`, `IMP0032`, `IMP0004`, `IMP0005`
+- Applies when: daily steward runs without a specific issue, importing GitHub issues, deciding whether to close spam/unrelated items, or replacing repo-local triage prompts in target repositories.
+- Counterexamples: target-specific triage prompts drift from HarnessOps guidance; a no-argument run that skips open issue discovery; closing or commenting on issues because a skill suggested it but the run lacks remote-action authority.
+- Guard: `hops-issue-triage` reports priority buckets, evidence, missing info, recommended HOPS action, and remote-action authorization; issue changes flow through `hops feedback import` or project feedback export/import paths before implementation; close comments name validation and related PR/commit evidence.
 
 ## Memory Compaction Separates Triggering From Abstraction
 
