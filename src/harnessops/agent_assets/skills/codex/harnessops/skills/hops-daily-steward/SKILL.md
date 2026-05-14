@@ -30,6 +30,7 @@ Do not stash, reset, rebase, force-push, force-pull, or direct-push a protected 
 Read `.harnessops/project.toml` before choosing write paths.
 
 - HarnessOps core / target / meta lab repo: use `harness-lab/` through `hops lab ...`, `hops propose`, `hops eval`, and `hops decide`.
+- HarnessOps core / target / meta lab repo: when `[github_flow] enabled = true`, use `hops-github-flow` / `hops github-flow ...` for automation branch push, PR, merge, and related issue close work.
 - Project repo: use `harness-feedback/` through `hops add-failure`, `hops route`, `hops add-feedback`, and `hops feedback export --sanitize`.
 - Project repos must not create `harness-lab/`.
 - Unknown repo role: stop and report the missing role context.
@@ -63,7 +64,7 @@ Merge gate:
 6. Selection: use `hops-research-improvements` for evidence, routing, park/reject, queueing, and ranked candidates.
 7. Execution: use `hops-run-lab`, `hops-update-harness`, `hops-compact-lab-memory`, or repo-native edits for selected work packets.
 8. Validation: run repo-native tests/checks plus `hops doctor --check-overlay --check-records` and `hops migrate --check`.
-9. Finalize: commit, PR, merge, issue, and release only as authorized by the automation prompt.
+9. Finalize: in target/meta repos prefer `hops-github-flow`; commit, PR, merge, issue, and release only as authorized by the automation prompt.
 
 # Update Lane
 
@@ -114,6 +115,7 @@ Use subagents when available and authorized:
 - evidence/routing: `hops-research-improvements`
 - eval/decision/guard: `hops-run-lab`
 - update/bridge: `hops-update-harness`
+- GitHub Flow: `hops-github-flow` for target/meta repo push, PR, merge, and issue close routing
 - memory: `hops-compact-lab-memory`
 
 Pass minimal context. Do not let invention read lab memory unless acting as librarian.

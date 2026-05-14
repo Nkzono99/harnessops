@@ -115,6 +115,12 @@ repo-local skillも入れる場合:
 uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
+target/meta repo では GitHub Flow skill が既定で配布されます。target 側で PR/merge automation を持たせない場合は、初期化時に明示的に外します。
+
+```bash
+uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge --no-github-flow
+```
+
 すでに初期化済みの場合は、むやみに `--force` を使いません。まず検証します。
 
 ```bash
@@ -164,7 +170,14 @@ repo-local skill 展開は対象repoの状態なので、明示オプション�
 uvx --from harnessops hops agent bridge --codex
 ```
 
-target/meta lab repo では `.agents/skills/hops-issue-triage/`、`hops-run-lab/` など lab/eval/propose/decide 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
+target/meta lab repo では `.agents/skills/hops-issue-triage/`、`hops-run-lab/`、`hops-github-flow/` など lab/eval/propose/decide/GitHub Flow 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
+
+GitHub Flow skill を再展開時に外す場合は、`.harnessops/project.toml` で `[github_flow] enabled = false` にするか、次を使います。
+
+```bash
+uvx --from harnessops hops agent bridge --codex --no-github-flow
+uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex --no-github-flow
+```
 
 HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin install は標準運用から外しているため、target/project lifecycle から実行しません。複数repoで使う場合も、各repoで `hops agent bridge` または `update-harness --agent-bridge` を実行します。
 

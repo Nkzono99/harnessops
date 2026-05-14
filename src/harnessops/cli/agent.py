@@ -11,7 +11,7 @@ agent_app = typer.Typer(help="repo-local エージェントブリッジ/skill �
 
 
 @agent_app.command("bridge")
-def bridge(codex: bool = typer.Option(False, "--codex"), claude: bool = typer.Option(False, "--claude"), force: bool = typer.Option(False, "--force")) -> None:
+def bridge(codex: bool = typer.Option(False, "--codex"), claude: bool = typer.Option(False, "--claude"), no_github_flow: bool = typer.Option(False, "--no-github-flow"), force: bool = typer.Option(False, "--force")) -> None:
     """リポジトリローカルの HarnessOps skills を生成します。"""
     if not codex and not claude:
         codex = True
@@ -22,6 +22,7 @@ def bridge(codex: bool = typer.Option(False, "--codex"), claude: bool = typer.Op
         claude=claude,
         force=force,
         update_lock=(root / ".harnessops" / "lock.json").exists(),
+        github_flow=False if no_github_flow else None,
     )
     typer.echo(json.dumps(result["checked"], indent=2))
 
@@ -30,6 +31,7 @@ def bridge(codex: bool = typer.Option(False, "--codex"), claude: bool = typer.Op
 def install(
     codex: bool = typer.Option(False, "--codex"),
     claude: bool = typer.Option(False, "--claude"),
+    no_github_flow: bool = typer.Option(False, "--no-github-flow"),
     scope: str = typer.Option("repo", "--scope"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
@@ -37,7 +39,7 @@ def install(
     if not codex and not claude:
         codex = True
     if scope == "repo":
-        bridge(codex=codex, claude=claude, force=force)
+        bridge(codex=codex, claude=claude, no_github_flow=no_github_flow, force=force)
         return
     typer.echo("user plugin install は廃止されました。repo-local skill は --scope repo または `hops agent bridge` で生成してください。")
     raise typer.Exit(1)

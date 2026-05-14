@@ -11,6 +11,7 @@ from harnessops.cli import (
     doctor,
     eval,
     feedback,
+    github_flow,
     init,
     lab,
     migrate,
@@ -63,6 +64,7 @@ decide.register(app)
 report.register(app)
 agent.register(app)
 route.register(app)
+github_flow.register(app)
 steward.register(app)
 update_harness.register(app)
 

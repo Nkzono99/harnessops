@@ -81,6 +81,7 @@ def update_harness_command(
     agent_bridge: bool = typer.Option(False, "--agent-bridge"),
     codex: bool = typer.Option(False, "--codex"),
     claude: bool = typer.Option(False, "--claude"),
+    no_github_flow: bool = typer.Option(False, "--no-github-flow"),
     force_agent_bridge: bool = typer.Option(
         False,
         "--force-agent-bridge/--no-force-agent-bridge",
@@ -250,6 +251,7 @@ def update_harness_command(
                 claude=refresh_claude,
                 force=force_agent_bridge,
                 dry_run=True,
+                github_flow=False if no_github_flow else None,
             )
         else:
             agent_result = refresh_bridge_files(
@@ -257,6 +259,7 @@ def update_harness_command(
                 codex=refresh_codex,
                 claude=refresh_claude,
                 force=force_agent_bridge,
+                github_flow=False if no_github_flow else None,
             )
 
     report = doctor_project(project, check_records=True)
@@ -274,6 +277,7 @@ def update_harness_command(
         "gitignore": gitignore_result,
         "agent_bridge": {
             "refreshed": bool(agent_result["checked"]),
+            "github_flow": "disabled" if no_github_flow else "project-config",
             "paths": agent_result["checked"],
             "updated": agent_result["updated"],
             "unchanged": agent_result["unchanged"],

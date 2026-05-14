@@ -29,6 +29,12 @@ uvx --refresh-package harnessops --from harnessops hops update-harness --plan-up
 uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex
 ```
 
+target/meta repo では `[github_flow] enabled = true` が既定で、`hops-github-flow` が配布されます。配布しない場合は `.harnessops/project.toml` で `[github_flow] enabled = false` にするか、次のように実行します。project repo では role-scoped bridge により通常配布されません。
+
+```bash
+uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex --no-github-flow
+```
+
 5. 未適用 migration を適用する場合は、人間の指示または target CLI 側の明示フラグがあるときだけ実行する。
 
 ```bash

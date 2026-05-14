@@ -5,6 +5,7 @@ from typing import Any
 
 from harnessops import __version__
 from harnessops.core.gitignore import ensure_gitignore
+from harnessops.core.github_flow import default_github_flow_config
 from harnessops.core.lock import build_lock, load_lock, sha256_file, sha256_text, write_lock
 from harnessops.core.managed_files import conflict_path
 from harnessops.core.manifest import write_manifest
@@ -218,6 +219,7 @@ def init_overlay(
     with_agent_bridge: bool = False,
     dry_run: bool = False,
     force: bool = False,
+    github_flow_enabled: bool | None = None,
 ) -> dict[str, Any]:
     profile_id = profile["id"]
     overlay_mode = mode or default_mode(profile_id, profile)
@@ -250,6 +252,7 @@ def init_overlay(
         "overlay": {"mode": overlay_mode, "path": overlay_rel, "managed_by": "harnessops"},
         "privacy": {"default_visibility": "private-until-sanitized"},
         "agents": {"codex": True, "claude": True},
+        "github_flow": default_github_flow_config(overlay_mode, enabled=github_flow_enabled),
     }
     target_provider = profile.get("provider")
     if target_provider:
@@ -270,7 +273,14 @@ def init_overlay(
     if with_agent_bridge:
         from harnessops.core.agent_bridge import refresh_bridge_files
 
-        bridge_result = refresh_bridge_files(root, codex=True, claude=False, force=force, update_lock=False)
+        bridge_result = refresh_bridge_files(
+            root,
+            codex=True,
+            claude=False,
+            force=force,
+            update_lock=False,
+            github_flow=github_flow_enabled,
+        )
         bridge_managed = bridge_result["managed_files"]
 
     lock = build_lock(
