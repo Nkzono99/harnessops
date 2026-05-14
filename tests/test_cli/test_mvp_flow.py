@@ -37,6 +37,8 @@ def test_init_doctor_migrate_project(copy_fixture, monkeypatch):
 
     run_cli(["init"])
     assert (root / ".harnessops/project.toml").exists()
+    project_toml = tomllib.loads((root / ".harnessops/project.toml").read_text(encoding="utf-8"))
+    assert project_toml["github_flow"]["enabled"] is False
     assert (root / ".harnessops/lock.json").exists()
     assert (root / "harness-feedback/README.md").exists()
     assert (root / "harness-feedback/records/failures").is_dir()
@@ -55,6 +57,8 @@ def test_init_doctor_migrate_upstream(copy_fixture, monkeypatch):
     monkeypatch.chdir(root)
 
     run_cli(["init", "--profile", "runops-upstream"])
+    project_toml = tomllib.loads((root / ".harnessops/project.toml").read_text(encoding="utf-8"))
+    assert project_toml["github_flow"]["enabled"] is True
     assert (root / "harness-lab/README.md").exists()
     assert (root / "harness-lab/records/feedback").is_dir()
     run_cli(["doctor", "--check-overlay", "--check-records"])
@@ -187,6 +191,7 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     assert "uvx --from harnessops hops propose" not in text
     assert "直接組み替えない" in text
     assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
+    assert not (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
     assert not (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
     assert not (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
@@ -201,6 +206,8 @@ def test_agent_bridge_generation_for_lab_repo_includes_lab_interface(copy_fixtur
     assert "hops feedback import <bundle-path>" in text
     assert "hops lab capture" in text
     assert "hops propose" in text
+    assert "hops github-flow preflight" in text
+    assert (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
     assert (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
     assert (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
@@ -317,6 +324,7 @@ def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatc
 
     assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
     assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
+    assert not (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
     assert not (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
 
@@ -340,6 +348,72 @@ def test_update_harness_retires_project_side_lab_agent_skills(copy_fixture, monk
     assert not stale.exists()
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
     assert rel not in lock["agent_bridge"]["managed_files"]
+
+
+def test_init_can_disable_github_flow_for_target_repo(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "runops-upstream", "--with-agent-bridge", "--no-github-flow"])
+
+    project_toml = tomllib.loads((root / ".harnessops/project.toml").read_text(encoding="utf-8"))
+    assert project_toml["github_flow"]["enabled"] is False
+    assert not (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
+
+
+def test_agent_bridge_can_disable_github_flow_for_target_repo(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+
+    run_cli(["agent", "bridge", "--codex", "--no-github-flow"])
+
+    assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
+    assert not (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
+
+
+def test_update_harness_retires_disabled_github_flow_skill(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream", "--with-agent-bridge"])
+    skill = root / ".agents/skills/hops-github-flow/SKILL.md"
+    assert skill.exists()
+    project_path = root / ".harnessops/project.toml"
+    project_path.write_text(
+        project_path.read_text(encoding="utf-8").replace("enabled = true", "enabled = false"),
+        encoding="utf-8",
+    )
+
+    result = run_cli(["update-harness", "--agent-bridge", "--codex"])
+
+    assert "agent bridge: retired 1" in result.output
+    assert not skill.exists()
+
+
+def test_github_flow_cli_stops_in_project_repo(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+
+    result = runner.invoke(app, ["github-flow", "preflight", "--json"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert "not a target/meta harness repository" in payload["reason"]
+
+
+def test_github_flow_publish_requires_validation(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+
+    result = runner.invoke(app, ["github-flow", "publish", "--json"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert payload["reason"] == "--validation-passed is required"
 
 
 def test_update_harness_refreshes_unmodified_stale_agent_bridge(copy_fixture, monkeypatch):

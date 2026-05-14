@@ -48,6 +48,8 @@ target harness の `init`、`setup`、`update-harness` などは、HarnessOps �
 - 編集済みmanaged fileは上書きせず、runops と同様に `<path>.new` を作る
 - repo-local skill展開は、明示オプションで `uvx --from harnessops hops agent bridge --codex` または `uvx --from harnessops hops init --with-agent-bridge` を呼んでよい
 - repo-local bridge と skill 展開は overlay mode に合わせる。`feedback-source` / `local-and-feedback` は feedback capture/export と lifecycle 系に絞り、lab/eval/propose/decide は `upstream-lab` / `meta-lab` にだけ出す
+- target/meta repo では GitHub Flow skill を既定で配布し、`uvx --from harnessops hops github-flow preflight/publish/pr/merge` で automation branch、PR、required checks 後の merge を標準化する
+- project repo では GitHub Flow skill を通常配布しない。target/meta repo でも `.harnessops/project.toml` の `[github_flow] enabled = false` または `--no-github-flow` で配布を止められる
 - user領域のAgent plugin installは標準運用から外す。複数repoで使う場合も各repoで repo-local skill を展開する
 
 ## 検出優先順位

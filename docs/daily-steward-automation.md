@@ -17,6 +17,7 @@ Runtime:
 - merge-target-branch: main
 - subagents: explicitly allowed
 - remote-write: automation-branch-merge
+- github-flow: use `hops github-flow ...` in target/meta repos when available
 - protected-branch-direct-push: false
 - direct-push-protected-branch: false
 - end-policy: commit-local
@@ -83,10 +84,10 @@ Finalize:
 - if validation fails, leave patch and do not push
 - if validation passes:
   - fetch/prune and confirm `merge-target-branch` is not behind or diverged
-  - finalize to automation branch with `hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation"`
-  - push only the automation branch with `git push -u origin HEAD`
-  - create or update PR to `merge-target-branch`
-  - merge according to repo policy when checks and branch protection pass
+  - in target/meta repos with GitHub Flow enabled, publish with `hops github-flow publish --branch "codex/steward/<YYYYMMDD>-daily" --message "Daily steward automation" --validation-passed`
+  - create PR with `hops github-flow pr --base <merge-target-branch> --title "Daily steward automation" --body "<summary>"`
+  - merge with `hops github-flow merge --require-checks` when checks and branch protection pass
+  - in repos without GitHub Flow enabled, use the repo-native finalize path documented by that repo
   - perform authorized issue actions tied to the selected work packet
   - release only if documented release criteria are satisfied
 
@@ -117,4 +118,4 @@ Final report:
 - `hops-open-meta-scan` is the proactive discovery lane when reactive work and queue work are thin.
 - `no-op` is not the happy path. It is valid only for a concrete blocker, failed validation, exhausted budget, or explicit discovery failure.
 - Record-level work can create useful queue depth before implementation guards exist. Implementation, merge, issue close, and release still require the stronger gates.
-- GitHub Flow is the default remote path: automation branch, PR, required checks / branch protection, then merge. Git Flow-style repositories can set `merge-target-branch: develop`.
+- GitHub Flow is the default remote path for target/meta repos: automation branch, PR, required checks / branch protection, then merge. Project repos usually do not receive `hops-github-flow`. Git Flow-style repositories can set `merge-target-branch: develop`.

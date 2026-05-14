@@ -18,6 +18,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。lock の `harnessops_version` が古い場合は PyPI checkpoint を順に適用します。編集済みmanaged fileは `<path>.new` に書きます。 |
 | `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の定型 preflight を実行します。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を返し、dirty/diverged/conflict では停止します。 |
 | `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | daily steward run 後の変更処理を行います。`patch-only` は worktree に残して報告し、`commit-local` は `--validation-passed` がある時だけ local automation branch に commit します。push は行いません。 |
+| `hops github-flow preflight/publish/pr/merge` | publish/pr/merge ははい | target/meta repo の GitHub Flow を実行します。project repo では既定で無効です。`publish` は validation 済み branch commit/push、`pr` は PR 作成、`merge` は required checks と conflict guard 後の merge を担当します。 |
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
 | `hops add-feedback --from <Fid>` | はい | 非公開の上流/メタフィードバック下書きを作成します。 |
 | `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |
@@ -55,6 +56,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 9. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 10. `hops steward preflight --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
 11. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
+12. `hops github-flow ...` は `[github_flow] enabled = true` かつ target/meta overlay の repo だけで有効です。`hops init --no-github-flow`、`hops agent bridge --no-github-flow`、`hops update-harness --agent-bridge --no-github-flow`、または `.harnessops/project.toml` の `[github_flow] enabled = false` で配布と実行を抑止できます。
 
 ## Update notice
 
@@ -85,6 +87,7 @@ hops doctor --check-overlay --check-records
 hops migrate --check
 hops steward preflight --json
 hops steward finalize --policy patch-only --json
+hops github-flow preflight --json
 hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001 --json
 hops feedback export --sanitize

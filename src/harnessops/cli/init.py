@@ -21,6 +21,7 @@ def _run_init(
     with_agent_bridge: bool,
     dry_run: bool,
     force: bool,
+    no_github_flow: bool,
 ) -> None:
     root = Path.cwd().resolve()
     if profile is None:
@@ -39,6 +40,7 @@ def _run_init(
             with_agent_bridge=with_agent_bridge,
             dry_run=dry_run,
             force=force,
+            github_flow_enabled=False if no_github_flow else None,
         )
     except UnsafeOverwrite as exc:
         typer.echo(str(exc))
@@ -57,22 +59,24 @@ def init_command(
     mode: Optional[str] = typer.Option(None, "--mode"),
     path: Optional[str] = typer.Option(None, "--path"),
     with_agent_bridge: bool = typer.Option(False, "--with-agent-bridge"),
+    no_github_flow: bool = typer.Option(False, "--no-github-flow"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
     """リポジトリ用の HarnessOps メタデータとオーバーレイを作成します。"""
-    _run_init(profile=profile, mode=mode, path=path, with_agent_bridge=with_agent_bridge, dry_run=dry_run, force=force)
+    _run_init(profile=profile, mode=mode, path=path, with_agent_bridge=with_agent_bridge, dry_run=dry_run, force=force, no_github_flow=no_github_flow)
 
 
 def link_command(
     profile: Optional[str] = typer.Option(None, "--profile"),
     mode: Optional[str] = typer.Option(None, "--mode"),
     path: Optional[str] = typer.Option(None, "--path"),
+    no_github_flow: bool = typer.Option(False, "--no-github-flow"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     force: bool = typer.Option(False, "--force"),
 ) -> None:
     """既存リポジトリを HarnessOps にリンクします。"""
-    _run_init(profile=profile, mode=mode, path=path, with_agent_bridge=False, dry_run=dry_run, force=force)
+    _run_init(profile=profile, mode=mode, path=path, with_agent_bridge=False, dry_run=dry_run, force=force, no_github_flow=no_github_flow)
 
 
 def register(app: typer.Typer) -> None:

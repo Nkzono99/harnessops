@@ -53,6 +53,7 @@ def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
     rel_paths = {path.relative_to(tmp_path).as_posix() for path in paths}
     assert ".agents/skills/harnessops-bridge/SKILL.md" in rel_paths
     assert ".agents/skills/hops-add-failure/SKILL.md" in rel_paths
+    assert ".agents/skills/hops-github-flow/SKILL.md" in rel_paths
     assert ".agents/skills/hops-issue-triage/SKILL.md" in rel_paths
 
 
@@ -61,6 +62,7 @@ def test_harnessops_repo_has_repo_local_hops_skills() -> None:
         "hops-add-failure",
         "hops-compact-lab-memory",
         "hops-daily-steward",
+        "hops-github-flow",
         "hops-issue-triage",
         "hops-open-meta-scan",
         "hops-research-improvements",
@@ -219,6 +221,22 @@ def test_update_harness_skill_is_packaged() -> None:
         assert_harness_contract(text)
 
 
+def test_github_flow_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-github-flow/SKILL.md").read_text(encoding="utf-8")
+    assert "hops github-flow preflight" in repo_skill
+    assert "hops github-flow publish" in repo_skill
+    assert "hops github-flow pr" in repo_skill
+    assert "hops github-flow merge" in repo_skill
+    assert "project repo" in repo_skill
+    assert "--no-github-flow" in repo_skill
+    assert_harness_contract(repo_skill)
+
+    for host in ("codex", "claude"):
+        text = packaged_skill(host, "hops-github-flow").read_text(encoding="utf-8")
+        assert text == repo_skill
+        assert_harness_contract(text)
+
+
 def test_lab_capture_contract_is_documented() -> None:
     docs = [
         ROOT / "SPEC.md",
@@ -370,21 +388,23 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "do not update HarnessOps to latest as a mandatory start step" in prompt_doc
     assert "uvx --refresh-package harnessops --from harnessops hops update-harness" in prompt_doc
     assert "hops steward preflight --pull --json" in prompt_doc
-    assert "hops steward finalize --policy commit-local --validation-passed" in prompt_doc
+    assert "hops github-flow publish" in prompt_doc
+    assert "hops github-flow pr" in prompt_doc
+    assert "hops github-flow merge --require-checks" in prompt_doc
     assert "uv run --with-editable . hops steward" not in prompt_doc
     assert "uv run --with-editable . hops doctor" not in prompt_doc
     assert "uv run --with-editable . hops migrate" not in prompt_doc
     assert "uv run pytest" not in prompt_doc
     assert "uv run ruff" not in prompt_doc
     assert "repo-native test/lint/build/domain checks" in prompt_doc
-    assert "git push -u origin HEAD" in prompt_doc
+    assert "git push -u origin HEAD" not in prompt_doc
     assert "max-systemic-candidates" not in prompt_doc
     assert "release: false" not in prompt_doc
     assert "推奨プロンプト" not in prompt_doc
     assert "## Prompt" in prompt_doc
     assert "hops-open-meta-scan" in prompt_doc
     assert "hops-research-improvements" in prompt_doc
-    assert 'hops steward finalize --policy commit-local --validation-passed --branch "codex/steward/<YYYYMMDD>-daily"' in prompt_doc
+    assert 'hops github-flow publish --branch "codex/steward/<YYYYMMDD>-daily"' in prompt_doc
     assert "documented release command or repo-local release skill" in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide

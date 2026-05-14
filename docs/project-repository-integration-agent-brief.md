@@ -77,7 +77,7 @@ repo-local skillも入れる場合:
 uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
 ```
 
-project repository の repo-local bridge は role-scoped です。`feedback-source` / `local-and-feedback` では `hops-add-failure`、routing、feedback export、update/doctor/migrate を中心に展開し、`hops-run-lab`、`hops-issue-triage`、propose/eval/decide など upstream/meta lab 側の skill は展開しません。
+project repository の repo-local bridge は role-scoped です。`feedback-source` / `local-and-feedback` では `hops-add-failure`、routing、feedback export、update/doctor/migrate を中心に展開し、`hops-run-lab`、`hops-issue-triage`、`hops-github-flow`、propose/eval/decide など upstream/meta lab 側の skill は展開しません。
 
 すでに初期化済みの場合は、むやみに `--force` を使いません。まず検証します。
 
@@ -111,7 +111,7 @@ uvx --refresh-package harnessops --from harnessops hops update-harness
 uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade
 ```
 
-未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。ユーザー領域の plugin install は標準運用から外しているため、複数repoで使う場合も各repoで repo-local skill を展開します。
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。project repo では GitHub Flow skill は通常配布されません。ユーザー領域の plugin install は標準運用から外しているため、複数repoで使う場合も各repoで repo-local skill を展開します。
 
 ## target固有triageとの分担
 
