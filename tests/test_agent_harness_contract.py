@@ -186,9 +186,22 @@ def test_root_plugin_surface_is_removed() -> None:
 
 
 def test_issue_triage_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-issue-triage/SKILL.md").read_text(encoding="utf-8")
+    assert "引数なしの open issue triage" in repo_skill
+    assert "gh issue list --repo <owner/repo> --state open" in repo_skill
+    assert "対応推奨 (高)" in repo_skill
+    assert "対応推奨 (中)" in repo_skill
+    assert "保留 / 要議論" in repo_skill
+    assert "close 推奨" in repo_skill
+    assert "spam、malicious、unrelated" in repo_skill
+    assert "Closes #N" in repo_skill
+    assert "remote_action_allowed" in repo_skill
+    assert_harness_contract(repo_skill)
+
     for host in ("codex", "claude"):
         skill = packaged_skill(host, "hops-issue-triage")
         text = skill.read_text(encoding="utf-8")
+        assert text == repo_skill
         assert "hops feedback import --issue" in text
         assert "hops lab new-eval-case" in text
         assert_harness_contract(text)
@@ -313,6 +326,7 @@ def test_daily_steward_skill_is_packaged() -> None:
     assert "No-Idle Policy" in repo_skill
     assert "No-op is valid only" in repo_skill
     assert "status-only no-op" in repo_skill
+    assert "no-argument open issue discovery" in repo_skill
     assert "hops-open-meta-scan" in repo_skill
     assert "hops-research-improvements" in repo_skill
     assert "hops-run-lab" in repo_skill

@@ -56,7 +56,7 @@ Merge gate:
 # Lane Order
 
 1. Preflight: run `hops steward preflight --pull --json`.
-2. Intake: read issues, feedback, lab health, doctor/update signals, and existing queue state.
+2. Intake: read issues, feedback, lab health, doctor/update signals, and existing queue state. If no specific issue is provided, delegate no-argument open issue discovery and priority reporting to `hops-issue-triage`.
 3. Reactive work: handle issue/feedback/doctor/update/lab-health signals first.
 4. Queue work: if a candidate queue exists, select work packets within the risk budget.
 5. Proactive discovery: if no reactive work exists or the queue is thin, run `hops-open-meta-scan`.
@@ -109,7 +109,7 @@ No-op is valid only with a concrete blocker, failed validation, exhausted budget
 
 Use subagents when available and authorized:
 
-- issue triage: `hops-issue-triage`
+- issue triage: `hops-issue-triage` for specific issues or no-argument open issue discovery
 - invention: `hops-open-meta-scan`
 - evidence/routing: `hops-research-improvements`
 - eval/decision/guard: `hops-run-lab`
