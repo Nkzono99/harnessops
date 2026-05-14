@@ -31,3 +31,4 @@
 - `IMP0029` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0035 daily_steward_orchestration count_based_preflight_misses_stale_lab_health
 - `IMP0030` adopted maturity=adopted scope=harnessops-core promotion=shipped-behavior source=FB0028 uvx_update_guidance stale_hops_update_path
 - `IMP0031` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0036 harness_lab_traceability missing_lab_capture
+- `IMP0032` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0039 unclassified unclassified
