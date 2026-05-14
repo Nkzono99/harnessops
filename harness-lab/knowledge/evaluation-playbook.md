@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-14T09:25:08+09:00
-Source digest: `a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91`
+Updated: 2026-05-15T03:04:08+09:00
+Source digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -30,6 +30,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Steward preflight should expose lab-health triggers for lab repositories and skip harness-lab memory probing in project repositories. Source: `IMP0029`
 - Update notices should cover recorded/current/latest HarnessOps version drift, point to `uvx --refresh-package harnessops --from harnessops hops update-harness`, and keep migration application explicit. Source: `IMP0030`
 - Daily steward remote completion should push only an automation branch, open or update a PR, and merge only after validation, target freshness, required checks, and branch protection allow it. Source: `IMP0031`
+- No-argument issue triage should inspect open issues, report priority buckets, evidence, missing information, recommended HOPS action, and remote-action authorization before importing, closing, or implementing. Source: `IMP0032`
 - Daily steward should not return status-only no-op on clean runs until it has processed reactive work, advanced queue work, run proactive discovery, or exhausted explicit budget. Source: `FB0037`
 - HarnessOps latest/update-harness work should be signal-driven, and init/link/update-harness should maintain `.gitignore` hygiene for `.harnessops/cache/*` without hiding canonical `.harnessops` state. Source: `FB0038`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
@@ -53,6 +54,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject steward/preflight changes that write lab memory, perform semantic abstraction, or create `harness-lab/` behavior in project repositories. Sources: `IMP0023`, `IMP0029`, `RS0005`
 - Reject update guidance that cannot name the safe uvx refresh path or that auto-applies migrations during ordinary command use. Source: `IMP0030`
 - Reject automation merge guidance that bypasses branch protection, merges without validation/checks, or turns daily steward into an unbounded systemic backlog processor. Source: `IMP0031`
+- Reject issue-triage guidance that closes, comments on, labels, or imports issues without explicit remote-action authority and a HOPS-owned record path. Source: `IMP0032`
 - Reject steward guidance that applies implementation-level validation/guard gates to record-only discovery, or that restores a single global systemic-candidate cap as the main throughput control. Source: `FB0037`
 - Reject update-lane guidance that updates HarnessOps to latest at the start of every daily run, or `.gitignore` hygiene that ignores canonical `.harnessops/project.toml`, lock, migrations, feedback, or lab records. Source: `FB0038`
 
@@ -63,6 +65,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - `tests/test_cli/test_steward.py`: guards pull-first safety, finalize behavior, project-repo lab-health skip, and stale lab-health routing to librarian. Sources: `IMP0023`, `IMP0029`
 - `tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once` and adjacent update-notice tests: guard recorded/current/latest version notice behavior and uvx update guidance. Source: `IMP0030`
 - `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents`: guard lane budgets plus branch/PR/merge automation guidance. Source: `IMP0031`
+- `tests/test_agent_harness_contract.py`: guards no-argument issue triage reporting, remote-action authority boundaries, and daily steward delegation to `hops-issue-triage`. Source: `IMP0032`
 - `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged`: guard no-idle daily automation, risk-tier budgets, and ranked candidate queue wording. Source: `FB0037`
 - `tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project` and `tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block`: guard HarnessOps `.gitignore` cache hygiene. Source: `FB0038`
 - Full `hops doctor --check-overlay --check-records` and `hops migrate --check` remain release-level checks for layout and managed-artifact consistency. Sources: `IMP0001`, `IMP0002`, `IMP0004`, `IMP0005`, `IMP0006`

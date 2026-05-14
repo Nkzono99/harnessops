@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-14T09:24:55+09:00'
+updated_at: '2026-05-15T03:03:51+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,20 +9,20 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 302
-    byte_count: 835229
-    record_count: 146
-    feedback_count: 38
-    eval_case_count: 34
-    hypothesis_count: 34
-    decision_count: 35
+    file_count: 311
+    byte_count: 848391
+    record_count: 151
+    feedback_count: 40
+    eval_case_count: 35
+    hypothesis_count: 35
+    decision_count: 36
     research_scan_count: 5
-    improvement_count: 30
-    manual_eval_count: 34
+    improvement_count: 31
+    manual_eval_count: 35
   triggers:
   - file_count>256
 sources:
-  source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+  source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
   improvements:
   - IMP0001
   - IMP0002
@@ -54,11 +54,12 @@ sources:
   - IMP0029
   - IMP0030
   - IMP0031
+  - IMP0032
 knowledge:
   summary:
-    improvement_count: 30
+    improvement_count: 31
     status_counts:
-      adopted: 30
+      adopted: 31
     capability_count: 14
   capabilities:
   - capability: daily_steward_orchestration
@@ -516,18 +517,19 @@ knowledge:
       - IMP0021
       - IMP0024
       - IMP0025
+      - IMP0032
       status_counts:
-        adopted: 7
+        adopted: 8
       average_scores:
-        anti_theater: 4.57
-        evaluability: 5.0
+        anti_theater: 4.62
+        evaluability: 4.88
         impact: 4.0
-        maintainability: 4.14
-        mechanism_clarity: 4.57
-        minimality: 4.14
-        operator_burden: 2.43
-        privacy_sanitization_risk: 1.14
-        regression_risk: 2.14
+        maintainability: 4.25
+        mechanism_clarity: 4.62
+        minimality: 4.25
+        operator_burden: 2.38
+        privacy_sanitization_risk: 1.25
+        regression_risk: 2.12
       guards:
       - source: IMP0018
         status: implemented
@@ -541,6 +543,9 @@ knowledge:
       - source: IMP0025
         status: planned
         path: tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
+      - source: IMP0032
+        status: implemented
+        path: tests/test_agent_harness_contract.py
       lessons:
       - source: IMP0002
         status: adopted
@@ -563,6 +568,9 @@ knowledge:
       - source: IMP0025
         status: adopted
         lesson: 'Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.'
+      - source: IMP0032
+        status: adopted
+        lesson: Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
   - capability: uvx_update_guidance
     failure_classes:
     - failure_class: stale_hops_update_path
@@ -813,6 +821,11 @@ knowledge:
     failure_class: missing_lab_capture
     status: implemented
     path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
+  - source: IMP0032
+    capability: unclassified
+    failure_class: unclassified
+    status: implemented
+    path: tests/test_agent_harness_contract.py
   external_evidence:
   - source: IMP0006
     summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
