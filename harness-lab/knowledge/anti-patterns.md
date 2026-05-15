@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-15T03:04:08+09:00
-Source digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
+Updated: 2026-05-16T03:11:28+09:00
+Source digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -22,9 +22,16 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Ending Validated Automation At A Pushed Branch
 
 - Avoid when: a scheduled run validates changes, pushes an automation branch, and then stops even though the prompt authorized PR creation and merge through the normal protected-branch path.
-- Sources: `IMP0031`, `FB0037`
+- Sources: `IMP0031`, `FB0037`, `FB0041`
 - Why it fails: the work is neither merged nor clearly blocked, so the next run may repeat or stop on its own dirty/branch state instead of advancing a reviewed change.
-- Guard: after validation, fetch, confirm the merge target freshness, finalize onto the automation branch, push only that branch, open or update the PR, wait for required checks, merge only when allowed, and report the exact blocker otherwise.
+- Guard: after validation, fetch, confirm the merge target freshness, finalize onto the automation branch, push only that branch, open or update the PR, wait for required checks, merge only when allowed, and report whether the blocker is missing checks, failing checks, pending checks, conflicts, or branch protection.
+
+## Leaving Agent Handoff Paths Implicit
+
+- Avoid when: AGENTS.md, CLAUDE.md, bridge skills, or update-harness output assume agents already know the valid `hops` invocation, repo role, and write path.
+- Sources: `FB0042`, `IMP0030`, `FB0038`
+- Why it fails: each target or project repo grows local conventions, agents may create lab state in project repos, and stale runtime/update guidance can mask the intended HarnessOps conduit.
+- Guard: keep a compact role-scoped conduit in generated agent guidance, name the `hops` or `uvx --from harnessops hops` path, point stale-version work to explicit update/doctor/migrate commands, and preserve canonical HarnessOps state while ignoring only transient cache files.
 
 ## Treating No-Op As Daily Success
 

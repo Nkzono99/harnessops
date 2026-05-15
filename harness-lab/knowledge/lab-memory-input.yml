@@ -1,17 +1,17 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-15T03:04:08+09:00'
+updated_at: '2026-05-16T03:11:28+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-15T03:04:08+09:00'
+  updated_at: '2026-05-16T03:11:27+09:00'
   metrics: &id002
-    file_count: 311
-    byte_count: 857935
-    record_count: 151
-    feedback_count: 40
+    file_count: 313
+    byte_count: 869745
+    record_count: 153
+    feedback_count: 42
     eval_case_count: 35
     hypothesis_count: 35
     decision_count: 36
@@ -22,7 +22,7 @@ lint:
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+  source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
   pressure:
   - file_count>256
   triggers: &id003
@@ -31,12 +31,12 @@ lint:
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+    source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
     stale: false
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: a91fea57f9b946f783d19f8beaaee5df918e5bb36a4b791bfcad8b150fc7aa91
+    source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
@@ -68,7 +68,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-15T03:04:08+09:00'
+  updated_at: '2026-05-16T03:11:27+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +76,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+    source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
     improvements:
     - IMP0001
     - IMP0002
@@ -1347,7 +1347,7 @@ abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+  source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
   sources:
   - IMP0001
   - IMP0002

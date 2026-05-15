@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-15T03:04:08+09:00
-Source digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
+Updated: 2026-05-16T03:11:28+09:00
+Source digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -80,10 +80,18 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Automation Should Finish Through Reviewable Branch Paths
 
 - Principle: unattended steward work should use explicit lane budgets and complete validated changes through an automation branch and PR/merge path, not direct protected-branch pushes or unbounded backlog processing.
-- Sources: `IMP0023`, `IMP0031`, `FB0037`
+- Sources: `IMP0023`, `IMP0031`, `FB0037`, `FB0041`
 - Applies when: daily steward prompts, repo-local skills, packaged skills, or automation docs describe remote writes, branch targets, PR updates, merges, or lane scope.
-- Counterexamples: treating `max-systemic-candidates` as the only cap ignores lightweight metadata/read-only work; stopping after push leaves completed work pending forever; direct main pushes bypass branch protection.
-- Guard: separate systemic candidates, metadata/guard backfills, and read-only decisions; push only the automation branch; confirm validation, target freshness, required checks, and branch protection before merge; report blockers without force-pushing.
+- Counterexamples: treating `max-systemic-candidates` as the only cap ignores lightweight metadata/read-only work; stopping after push leaves completed work pending forever; direct main pushes bypass branch protection; merging logic that cannot distinguish missing required checks from failing checks gives operators no actionable branch-protection path.
+- Guard: separate systemic candidates, metadata/guard backfills, and read-only decisions; push only the automation branch; confirm validation, target freshness, required checks, and branch protection before merge; keep a real PR CI workflow available for branch protection; report missing-check and failing-check blockers separately without force-pushing.
+
+## Agent Guidance Should Encode The Minimal Role-Specific HarnessOps Path
+
+- Principle: generated agent instructions should give agents the shortest valid `hops` invocation and route writes by repository role, so a target/meta repo uses lab/GitHub Flow while a project repo uses feedback export/import paths.
+- Sources: `FB0042`, `IMP0030`, `FB0038`
+- Applies when: updating AGENTS.md, CLAUDE.md, packaged skills, bridge instructions, or update-harness diagnostics that tell agents how to operate in linked repositories.
+- Counterexamples: a bridge skill mentions HarnessOps but omits the actual `hops` or `uvx --from harnessops hops` path; project-repo guidance implies creating `harness-lab/`; broad ignore/update guidance hides canonical `.harnessops` state.
+- Guard: keep the conduit compact, role-aware, and contract-tested; preserve canonical `.harnessops` files while ignoring only transient cache state; pair update notices with explicit doctor/migrate follow-up rather than implicit migration.
 
 ## Steward Automation Needs Discovery Pressure
 

@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-15T03:03:51+09:00
+- updated_at: 2026-05-16T03:11:25+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 311 / threshold 256
-- byte_count: 848391 / threshold 2000000
+- file_count: 313 / threshold 256
+- byte_count: 869745 / threshold 2000000
 - improvement_count: 31 / threshold 50
-- source_digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
+- source_digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
 
 ## How To Use
 

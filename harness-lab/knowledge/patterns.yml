@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-15T03:04:08+09:00'
-source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+updated_at: '2026-05-16T03:11:28+09:00'
+source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -192,6 +192,44 @@ patterns:
   counterexamples:
   - source: FB0037
     note: Record-level research and queue creation should not require implementation-level validation/guard; merge and release still do.
+- id: required_check_aware_github_flow
+  name: Required-check-aware GitHub Flow
+  capability: github_flow_automation
+  failure_class: missing_required_check_gate
+  applies_when:
+  - A repository expects automation PRs to merge through branch protection and required checks.
+  - The merge command must explain whether checks are absent, pending, failing, or satisfied.
+  avoid_when:
+  - The repository has no remote-write authority or no documented protected-branch policy for the run.
+  evidence:
+  - source: FB0041
+    note: HarnessOps needed a real PR CI workflow and merge diagnostics that distinguish missing required checks from failing checks before branch protection can be made reliable.
+  guard:
+  - path: .github/workflows/pr-ci.yml; tests/test_cli/test_mvp_flow.py; tests/test_agent_harness_contract.py
+    sources: [FB0041]
+  counterexamples:
+  - source: FB0041
+    note: A local validation pass without a corresponding PR check leaves automation unable to satisfy or diagnose protected-branch policy.
+- id: role_scoped_harnessops_conduit
+  name: Role-scoped HarnessOps conduit guidance
+  capability: agent_bridge_distribution
+  failure_class: missing_agents_hops_conduit
+  applies_when:
+  - Agents in linked repositories need AGENTS.md or CLAUDE.md to show how to invoke HarnessOps and which state path owns the work.
+  - update-harness or packaged bridge assets refresh agent-facing instructions.
+  avoid_when:
+  - The guidance would duplicate a long skill body or blur project-repo feedback routing with target/meta lab routing.
+  evidence:
+  - source: FB0042
+    note: The update-harness skill should notice missing minimal HarnessOps usage guidance and keep AGENTS.md/CLAUDE.md role-aware.
+  - source: IMP0030
+    note: Linked repositories need the `uvx --refresh-package harnessops --from harnessops hops update-harness` path when runtime and recorded versions drift.
+  guard:
+  - path: tests/test_agent_harness_contract.py
+    sources: [FB0042]
+  counterexamples:
+  - source: FB0042
+    note: Agent guidance that names HarnessOps without the invocation path or role routing leaves target/project repos to invent local conventions again.
 - id: harnessops_gitignore_hygiene
   name: HarnessOps transient gitignore hygiene
   capability: managed_artifact_update

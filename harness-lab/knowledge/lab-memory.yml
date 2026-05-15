@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-15T03:03:51+09:00'
+updated_at: '2026-05-16T03:11:25+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,10 +9,10 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 311
-    byte_count: 848391
-    record_count: 151
-    feedback_count: 40
+    file_count: 313
+    byte_count: 869745
+    record_count: 153
+    feedback_count: 42
     eval_case_count: 35
     hypothesis_count: 35
     decision_count: 36
@@ -22,7 +22,7 @@ compaction:
   triggers:
   - file_count>256
 sources:
-  source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+  source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
   improvements:
   - IMP0001
   - IMP0002
