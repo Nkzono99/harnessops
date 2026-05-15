@@ -18,7 +18,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。lock の `harnessops_version` が古い場合は PyPI checkpoint を順に適用します。編集済みmanaged fileは `<path>.new` に書きます。 |
 | `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の定型 preflight を実行します。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を返し、dirty/diverged/conflict では停止します。 |
 | `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | daily steward run 後の変更処理を行います。`patch-only` は worktree に残して報告し、`commit-local` は `--validation-passed` がある時だけ local automation branch に commit します。push は行いません。 |
-| `hops github-flow preflight/publish/pr/merge` | publish/pr/merge ははい | target/meta repo の GitHub Flow を実行します。project repo では既定で無効です。`publish` は validation 済み branch commit/push、`pr` は PR 作成、`merge` は required checks と conflict guard 後の merge を担当します。 |
+| `hops github-flow preflight/publish/pr/merge` | publish/pr/merge ははい | target/meta repo の GitHub Flow を実行します。project repo では既定で無効です。`publish` は validation 済み branch commit/push、`pr` は PR 作成、`merge` は required checks と conflict guard 後の merge を担当します。required check が未報告の場合は、失敗 check とは別に `no required checks reported` として停止します。 |
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
 | `hops add-feedback --from <Fid>` | はい | 非公開の上流/メタフィードバック下書きを作成します。 |
 | `hops route --record <id>` | はい | レコードのdispositionを分類して保存します。 |

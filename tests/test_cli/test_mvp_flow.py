@@ -12,6 +12,7 @@ from harnessops import __version__
 from typer.testing import CliRunner
 
 from harnessops.cli import feedback as feedback_cli
+from harnessops.cli import github_flow as github_flow_cli
 from harnessops.cli import update_notice
 from harnessops.core import upgrade_chain
 from harnessops.cli.main import app
@@ -414,6 +415,60 @@ def test_github_flow_publish_requires_validation(copy_fixture, monkeypatch):
     payload = json.loads(result.output)
     assert payload["ok"] is False
     assert payload["reason"] == "--validation-passed is required"
+
+
+def test_github_flow_merge_reports_missing_required_checks(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+
+    def fake_run(args, *, cwd):
+        if args[:3] == ["gh", "pr", "view"]:
+            return {
+                "args": args,
+                "returncode": 0,
+                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stderr": "",
+            }
+        if args[:3] == ["gh", "pr", "checks"]:
+            return {"args": args, "returncode": 1, "stdout": "", "stderr": "no checks reported on this branch\n"}
+        raise AssertionError(args)
+
+    monkeypatch.setattr(github_flow_cli, "_run", fake_run)
+
+    result = runner.invoke(app, ["github-flow", "merge", "12", "--json"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert payload["reason"] == "no required checks reported"
+
+
+def test_github_flow_merge_reports_failing_required_checks(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+
+    def fake_run(args, *, cwd):
+        if args[:3] == ["gh", "pr", "view"]:
+            return {
+                "args": args,
+                "returncode": 0,
+                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stderr": "",
+            }
+        if args[:3] == ["gh", "pr", "checks"]:
+            return {"args": args, "returncode": 1, "stdout": "pr-ci\tfail\n", "stderr": ""}
+        raise AssertionError(args)
+
+    monkeypatch.setattr(github_flow_cli, "_run", fake_run)
+
+    result = runner.invoke(app, ["github-flow", "merge", "12", "--json"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert payload["reason"] == "required checks are not passing"
 
 
 def test_update_harness_refreshes_unmodified_stale_agent_bridge(copy_fixture, monkeypatch):

@@ -101,6 +101,13 @@ def _branch_exists(root: Path, branch: str) -> bool:
     return command["returncode"] == 0
 
 
+def _checks_failure_reason(checks: dict[str, Any]) -> str:
+    output = f"{checks.get('stdout', '')}\n{checks.get('stderr', '')}".lower()
+    if "no checks reported" in output:
+        return "no required checks reported"
+    return "required checks are not passing"
+
+
 @github_flow_app.command("preflight")
 def preflight(
     pull: bool = typer.Option(
@@ -313,7 +320,7 @@ def merge_pr(
         checks = _run(checks_args, cwd=root)
         _append_command(result, checks)
         if checks["returncode"] != 0:
-            result.update({"ok": False, "reason": "required checks are not passing"})
+            result.update({"ok": False, "reason": _checks_failure_reason(checks)})
             _exit(result, json_output=json_output)
 
     merge_args = ["gh", "pr", "merge"]
