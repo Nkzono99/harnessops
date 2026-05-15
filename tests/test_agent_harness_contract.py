@@ -182,6 +182,20 @@ def test_pypi_publish_workflow_uses_node24_ready_actions() -> None:
     assert "id-token: write" in workflow
 
 
+def test_pr_ci_workflow_provides_required_check_context() -> None:
+    workflow = (ROOT / ".github/workflows/pr-ci.yml").read_text(encoding="utf-8")
+    assert "name: PR CI" in workflow
+    assert "pull_request:" in workflow
+    assert "branches: [main]" in workflow
+    assert "uses: actions/checkout@v5" in workflow
+    assert "uses: actions/setup-python@v6" in workflow
+    assert "name: pr-ci" in workflow
+    assert "uv run ruff check src tests" in workflow
+    assert "uv run pytest" in workflow
+    assert "uv run --with-editable . hops doctor --check-overlay --check-records" in workflow
+    assert "uv run --with-editable . hops migrate --check" in workflow
+
+
 def test_root_plugin_surface_is_removed() -> None:
     assert not (ROOT / "plugins").exists()
     assert not (ROOT / ".agents/plugins/marketplace.json").exists()

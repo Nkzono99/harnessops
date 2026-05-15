@@ -41,3 +41,4 @@
 - `FB0038` triaged harness_lab_traceability missing_lab_capture
 - `FB0039` triaged unclassified unclassified
 - `FB0040` triaged github_flow_automation hand_rolled_remote_flow
+- `FB0041` triaged github_flow_automation missing_required_check_gate
