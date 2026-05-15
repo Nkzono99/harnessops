@@ -42,3 +42,4 @@
 - `FB0039` triaged unclassified unclassified
 - `FB0040` triaged github_flow_automation hand_rolled_remote_flow
 - `FB0041` triaged github_flow_automation missing_required_check_gate
+- `FB0042` triaged agent_bridge_distribution missing_agents_hops_conduit

@@ -123,10 +123,14 @@ def test_lifecycle_delegation_contract_is_documented() -> None:
     assert "repo-local skill" in target_brief
     assert "global plugin" not in target_brief
     assert "hops agent bridge --codex" in target_brief
+    assert "AGENTS.md / CLAUDE.md への短い導線" in target_brief
+    assert "project repo に配る案内では、feedback / lifecycle に閉じ" in target_brief
 
     project_brief = (ROOT / "docs/project-repository-integration-agent-brief.md").read_text(encoding="utf-8")
     assert "repo-local skill" in project_brief
     assert "global plugin" not in project_brief
+    assert "HarnessOps は `harness-feedback/` でハーネス摩擦" in project_brief
+    assert "`harness-lab/`、採用判断、GitHub Flow は target/meta repo 側" in project_brief
 
 
 def test_feedback_triage_ownership_contract_is_documented() -> None:
@@ -224,9 +228,17 @@ def test_issue_triage_skill_is_packaged() -> None:
 
 
 def test_update_harness_skill_is_packaged() -> None:
+    repo_skill = (ROOT / ".agents/skills/hops-update-harness/SKILL.md").read_text(encoding="utf-8")
+    assert "AGENTS.md" in repo_skill
+    assert "CLAUDE.md" in repo_skill
+    assert "HarnessOps 導線だけを短く確認" in repo_skill
+    assert "uv run --with-editable . hops ..." in repo_skill
+    assert "project repo は feedback / lifecycle に閉じ" in repo_skill
+    assert "GitHub Flow は target/meta repo 側" in repo_skill
     for host in ("codex", "claude"):
         skill = packaged_skill(host, "hops-update-harness")
         text = skill.read_text(encoding="utf-8")
+        assert text == repo_skill
         assert "hops update-harness" in text
         assert "uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge" in text
         assert "uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade" in text
