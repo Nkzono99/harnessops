@@ -181,6 +181,18 @@ uvx --refresh-package harnessops --from harnessops hops update-harness --agent-b
 
 HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin install は標準運用から外しているため、target/project lifecycle から実行しません。複数repoで使う場合も、各repoで `hops agent bridge` または `update-harness --agent-bridge` を実行します。
 
+## AGENTS.md / CLAUDE.md への短い導線
+
+target repository 側の `AGENTS.md` / `CLAUDE.md` には、HarnessOps の入口だけを短く置きます。長い手順は `.agents/skills/` と docs に逃がします。
+
+含める最小要素:
+
+- `hops` は PATH 前提にせず `uvx --from harnessops hops ...` で実行する。
+- `.harnessops/`、`harness-feedback/`、`harness-lab/` は手で組み替えず、状態変更は `hops` CLI に委譲する。
+- target repo の改善観測、lab 評価、採用判断は `hops-run-lab` / `harness-lab/` を使う。
+- 更新は `hops-update-harness` または `uvx --refresh-package harnessops --from harnessops hops update-harness ...` を使う。
+- project repo に配る案内では、feedback / lifecycle に閉じ、`harness-lab`、採用判断、GitHub Flow は target/meta 側に置く。
+
 ## feedback/triageを移行する場合
 
 target repository に既存の `feedback` や `triage` skill がある場合、共通処理は HarnessOps へ寄せます。

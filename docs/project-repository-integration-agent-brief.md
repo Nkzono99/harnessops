@@ -113,6 +113,17 @@ uvx --refresh-package harnessops --from harnessops hops update-harness --plan-up
 
 未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex` または `uvx --from harnessops hops agent bridge --codex` を使います。project repo では GitHub Flow skill は通常配布されません。ユーザー領域の plugin install は標準運用から外しているため、複数repoで使う場合も各repoで repo-local skill を展開します。
 
+## AGENTS.md / CLAUDE.md への短い導線
+
+project repository 側の `AGENTS.md` / `CLAUDE.md` には、HarnessOps の入口だけを短く置きます。project 固有の開発ルールや target CLI の作法を優先し、HarnessOps は feedback / lifecycle に閉じます。
+
+含める最小要素:
+
+- HarnessOps は `harness-feedback/` でハーネス摩擦と上流候補を記録する。
+- `harness-lab/`、採用判断、GitHub Flow は target/meta repo 側に置く。
+- `hops` は PATH 前提にせず `uvx --from harnessops hops ...` で実行する。
+- 更新は target CLI の update 導線を優先し、必要なら `uvx --refresh-package harnessops --from harnessops hops update-harness` を使う。
+
 ## target固有triageとの分担
 
 project repository で観測した feedback は HarnessOps に記録します。runops や paper-harness の domain skill は、原因分類や再現観点の補助に使いますが、`harness-feedback/` の records、routing、sanitize、export は `hops` が行います。

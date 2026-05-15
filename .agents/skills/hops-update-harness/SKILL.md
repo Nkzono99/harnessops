@@ -47,6 +47,15 @@ uvx --refresh-package harnessops --from harnessops hops update-harness --apply-m
 uvx --refresh-package harnessops --from harnessops hops update-harness --apply-upgrade-chain
 ```
 
+7. `AGENTS.md` / `CLAUDE.md` がある場合は、HarnessOps 導線だけを短く確認する。同等の記述があれば触らない。なければ追記を提案し、古い target/project 向けの `uv run --with-editable . hops ...` 導線は `uvx --from harnessops hops <command>` へ最小修正する。
+
+最小要素:
+
+- 状態変更は `hops` CLI に委譲する。
+- target/project repo では `uvx --from harnessops hops <command>` を使う。
+- `.harnessops/`、`harness-feedback/`、`harness-lab/` を直接組み替えない。
+- project repo は feedback / lifecycle に閉じ、`harness-lab`、採用判断、GitHub Flow は target/meta repo 側に置く。
+
 target CLI の `update-harness` から呼ぶ場合も、target CLI は HarnessOps 管理ファイルを直接書かず、この uvx 導線を subprocess として呼ぶ。
 
 編集済みの HarnessOps managed file は上書きされず、runops と同様に `<path>.new` が作られます。差分を確認して手動で取り込むか、明示的に `--force` を使います。
