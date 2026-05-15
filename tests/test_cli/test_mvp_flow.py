@@ -431,7 +431,7 @@ def test_github_flow_merge_reports_missing_required_checks(copy_fixture, monkeyp
                 "stderr": "",
             }
         if args[:3] == ["gh", "pr", "checks"]:
-            return {"args": args, "returncode": 1, "stdout": "", "stderr": "no checks reported on this branch\n"}
+            return {"args": args, "returncode": 1, "stdout": "", "stderr": "no required checks reported on this branch\n"}
         raise AssertionError(args)
 
     monkeypatch.setattr(github_flow_cli, "_run", fake_run)

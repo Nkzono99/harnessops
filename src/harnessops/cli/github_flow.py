@@ -103,7 +103,7 @@ def _branch_exists(root: Path, branch: str) -> bool:
 
 def _checks_failure_reason(checks: dict[str, Any]) -> str:
     output = f"{checks.get('stdout', '')}\n{checks.get('stderr', '')}".lower()
-    if "no checks reported" in output:
+    if "no checks reported" in output or "no required checks reported" in output:
         return "no required checks reported"
     return "required checks are not passing"
 
