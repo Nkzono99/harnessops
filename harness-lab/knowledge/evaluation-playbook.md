@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-15T03:04:08+09:00
-Source digest: `409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b`
+Updated: 2026-05-16T03:11:28+09:00
+Source digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -33,6 +33,8 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - No-argument issue triage should inspect open issues, report priority buckets, evidence, missing information, recommended HOPS action, and remote-action authorization before importing, closing, or implementing. Source: `IMP0032`
 - Daily steward should not return status-only no-op on clean runs until it has processed reactive work, advanced queue work, run proactive discovery, or exhausted explicit budget. Source: `FB0037`
 - HarnessOps latest/update-harness work should be signal-driven, and init/link/update-harness should maintain `.gitignore` hygiene for `.harnessops/cache/*` without hiding canonical `.harnessops` state. Source: `FB0038`
+- GitHub Flow merge diagnostics should distinguish missing required checks from failing or pending checks, and PR CI should provide a concrete required-check target before branch protection is tightened. Source: `FB0041`
+- Generated AGENTS.md/CLAUDE.md and update-harness guidance should expose the minimal HarnessOps invocation plus role-specific routing for target/meta versus project repositories. Source: `FB0042`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
 - `hops lab refresh-views` should clear doctor-managed lab generated-view warnings for README, backlog, dynamic lab views, research scans, and score trajectory without losing dynamic view content. Sources: `RS0002`, `IMP0016`
 
@@ -57,6 +59,8 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject issue-triage guidance that closes, comments on, labels, or imports issues without explicit remote-action authority and a HOPS-owned record path. Source: `IMP0032`
 - Reject steward guidance that applies implementation-level validation/guard gates to record-only discovery, or that restores a single global systemic-candidate cap as the main throughput control. Source: `FB0037`
 - Reject update-lane guidance that updates HarnessOps to latest at the start of every daily run, or `.gitignore` hygiene that ignores canonical `.harnessops/project.toml`, lock, migrations, feedback, or lab records. Source: `FB0038`
+- Reject GitHub Flow automation that treats missing required checks as ordinary failures or has no PR workflow that branch protection can require. Source: `FB0041`
+- Reject agent conduit guidance that omits the invocation path or lets project repositories create lab state instead of feedback/export records. Source: `FB0042`
 
 ## Guard Catalogue
 
@@ -68,6 +72,8 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - `tests/test_agent_harness_contract.py`: guards no-argument issue triage reporting, remote-action authority boundaries, and daily steward delegation to `hops-issue-triage`. Source: `IMP0032`
 - `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged`: guard no-idle daily automation, risk-tier budgets, and ranked candidate queue wording. Source: `FB0037`
 - `tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project` and `tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block`: guard HarnessOps `.gitignore` cache hygiene. Source: `FB0038`
+- `.github/workflows/pr-ci.yml`, `src/harnessops/cli/github_flow.py`, and related CLI tests: guard required-check-aware GitHub Flow diagnostics. Source: `FB0041`
+- `tests/test_agent_harness_contract.py` and packaged update-harness skill assets: guard compact role-aware agent conduit guidance. Source: `FB0042`
 - Full `hops doctor --check-overlay --check-records` and `hops migrate --check` remain release-level checks for layout and managed-artifact consistency. Sources: `IMP0001`, `IMP0002`, `IMP0004`, `IMP0005`, `IMP0006`
 
 ## Reading Rules
