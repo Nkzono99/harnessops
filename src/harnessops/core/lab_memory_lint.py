@@ -150,7 +150,7 @@ def lint_lab_memory(
         "snapshot": snapshot,
         "abstraction": abstraction,
         "recommended_commands": [
-            "hops lab compact --force",
+            "hops lab memory compact --force",
             "hops lab memory prepare --force",
             "Use the hops-compact-lab-memory skill to update abstract knowledge.",
         ],

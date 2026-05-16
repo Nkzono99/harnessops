@@ -7,6 +7,10 @@ from typing import Any
 import typer
 
 from harnessops.cli.feedback import import_feedback
+from harnessops.cli.deprecation import warn_if_deprecated
+from harnessops.cli.decide import decide_command
+from harnessops.cli.eval import eval_command
+from harnessops.cli.propose import propose_command
 from harnessops.core.issue_bridge import (
     create_github_issue,
     remaining_private_markers,
@@ -43,6 +47,8 @@ issue_app = typer.Typer(help="harness-lab レコードをGitHub Issueへ橋渡�
 memory_app = typer.Typer(help="harness-lab knowledge memory の発火判定と抽象化入力を扱います。")
 archive_app = typer.Typer(help="release asset 用の harness-lab archive pack を扱います。")
 lifecycle_app = typer.Typer(help="harness-lab の活用・停滞・guard 状態を検査します。")
+review_app = typer.Typer(help="harness-lab の queue/context/lint を読むための review 入口です。")
+eval_case_app = typer.Typer(help="harness-lab 評価ケースを扱います。")
 
 
 def _jsonable(value: Any, root: Path) -> Any:
@@ -67,21 +73,25 @@ def _archive_error(exc: RuntimeError) -> None:
     raise typer.Exit(1) from exc
 
 
-@lab_app.command("import-feedback")
+@lab_app.command("import-feedback", hidden=True)
 def import_feedback_alias(path: str) -> None:
     """`hops feedback import` のエイリアスです。"""
+    warn_if_deprecated("lab import-feedback", "hops feedback import")
     import_feedback(path=Path(path))
 
 
-@lab_app.command("import")
+@lab_app.command("import", hidden=True)
 def import_alias(path: str) -> None:
     """サニタイズ済みフィードバックバンドルをインポートする短いエイリアスです。"""
+    warn_if_deprecated("lab import", "hops feedback import")
     import_feedback(path=Path(path))
 
 
-@lab_app.command("new-eval-case")
+@eval_case_app.command("create")
+@lab_app.command("new-eval-case", hidden=True)
 def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | None = typer.Option(None, "--template")) -> None:
     """インポート済みフィードバックを評価ケースに変換します。"""
+    warn_if_deprecated("lab new-eval-case", "hops lab eval-case create")
     del template
     root = find_root()
     project = load_project(root)
@@ -230,7 +240,8 @@ def research_scan(
     typer.echo(path.relative_to(root).as_posix())
 
 
-@lab_app.command("queue")
+@review_app.command("queue")
+@lab_app.command("queue", hidden=True)
 def queue(
     include_closed: bool = typer.Option(False, "--include-closed"),
     limit: int | None = typer.Option(None, "--limit"),
@@ -239,6 +250,7 @@ def queue(
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """harness-lab の記録から priority lane 用の候補 queue を返します。"""
+    warn_if_deprecated("lab queue", "hops lab review queue")
     root = find_root()
     project = load_project(root)
     result = lab_queue(
@@ -260,7 +272,8 @@ def queue(
         typer.echo(f"  next: {item['next_command']}")
 
 
-@lab_app.command("context")
+@review_app.command("context")
+@lab_app.command("context", hidden=True)
 def context(
     query: str | None = typer.Option(None, "--query"),
     capability: str | None = typer.Option(None, "--capability"),
@@ -270,6 +283,7 @@ def context(
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """実装前に思い出すべき関連 dossier、判断、guard、knowledge を返します。"""
+    warn_if_deprecated("lab context", "hops lab review context")
     root = find_root()
     project = load_project(root)
     result = lab_context(
@@ -292,7 +306,8 @@ def context(
             typer.echo(f"- {item['id']} {','.join(item['reasons'])}: {item['next_command']}")
 
 
-@lab_app.command("compact")
+@memory_app.command("compact")
+@lab_app.command("compact", hidden=True)
 def compact(
     force: bool = typer.Option(False, "--force"),
     dry_run: bool = typer.Option(False, "--dry-run"),
@@ -301,6 +316,7 @@ def compact(
     max_improvements: int = typer.Option(DEFAULT_MAX_IMPROVEMENTS, "--max-improvements"),
 ) -> None:
     """harness-lab を source-linked な deterministic snapshot へ圧縮します。"""
+    warn_if_deprecated("lab compact", "hops lab memory compact")
     root = find_root()
     project = load_project(root)
     if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
@@ -416,12 +432,14 @@ def memory_prepare(
         typer.echo("--force を指定すると手動で abstraction input を作れます")
 
 
+@review_app.command("lint")
 @lifecycle_app.command("lint")
 def lifecycle_lint(
     json_output: bool = typer.Option(False, "--json"),
     warn_only: bool = typer.Option(False, "--warn-only"),
 ) -> None:
     """harness-lab の未評価、未判断、guard不足、memory圧力を検出します。"""
+    warn_if_deprecated("lab lifecycle lint", "hops lab review lint")
     root = find_root()
     project = load_project(root)
     result = lab_lifecycle_lint(project)
@@ -704,8 +722,13 @@ def refresh_lab_views() -> None:
 
 
 def register(app: typer.Typer) -> None:
+    lab_app.command("propose")(propose_command)
+    lab_app.command("eval")(eval_command)
+    lab_app.command("decide")(decide_command)
+    lab_app.add_typer(eval_case_app, name="eval-case")
+    lab_app.add_typer(review_app, name="review")
     lab_app.add_typer(issue_app, name="issue")
     lab_app.add_typer(memory_app, name="memory")
     lab_app.add_typer(archive_app, name="archive")
-    lab_app.add_typer(lifecycle_app, name="lifecycle")
+    lab_app.add_typer(lifecycle_app, name="lifecycle", hidden=True)
     app.add_typer(lab_app, name="lab")

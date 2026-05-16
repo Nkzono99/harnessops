@@ -173,21 +173,24 @@ def lab_queue(
         if missing_manual:
             reasons.append("manual-eval-needed")
             priority += 45
-            next_command = f"hops eval --case {missing_manual[0]} --manual --score impact=<n> --notes \"<evidence>\""
+            next_command = (
+                f"hops lab eval --case {missing_manual[0]} "
+                "--manual --score impact=<n> --notes \"<evidence>\""
+            )
         if hypotheses and not decisions:
             reasons.append("decision-needed")
             priority += 40
             if not missing_manual:
-                next_command = f"hops decide --from {hypotheses[-1]} --status parked --reason \"<reason>\""
+                next_command = f"hops lab decide --from {hypotheses[-1]} --status parked --reason \"<reason>\""
         if eval_cases and not hypotheses:
             reasons.append("hypothesis-needed")
             priority += 35
-            next_command = f"hops propose --from {eval_cases[-1]}"
+            next_command = f"hops lab propose --from {eval_cases[-1]}"
         if not eval_cases and maturity in {"raw", "investigated"} and status not in CLOSED_DECISION_STATUSES:
             reasons.append("eval-design-needed")
             priority += 30
             source_feedback = str(frontmatter.get("source_feedback", ""))
-            next_command = f"hops lab new-eval-case --from {source_feedback or record['id']}"
+            next_command = f"hops lab eval-case create --from {source_feedback or record['id']}"
         if not reasons and not include_closed and status in CLOSED_DECISION_STATUSES:
             continue
         if not reasons:
@@ -485,7 +488,10 @@ def lab_lifecycle_lint(project: Project) -> dict[str, Any]:
                     "id": record["id"],
                     "path": record["path"],
                     "message": "eval case has no manual scorecard",
-                    "next_command": f"hops eval --case {record['id']} --manual --score impact=<n> --notes \"<evidence>\"",
+                    "next_command": (
+                        f"hops lab eval --case {record['id']} "
+                        "--manual --score impact=<n> --notes \"<evidence>\""
+                    ),
                 }
             )
 
@@ -502,7 +508,7 @@ def lab_lifecycle_lint(project: Project) -> dict[str, Any]:
                     "id": record["id"],
                     "path": record["path"],
                     "message": "hypothesis has no decision",
-                    "next_command": f"hops decide --from {record['id']} --status parked --reason \"<reason>\"",
+                    "next_command": f"hops lab decide --from {record['id']} --status parked --reason \"<reason>\"",
                 }
             )
 
@@ -573,7 +579,7 @@ def lab_lifecycle_lint(project: Project) -> dict[str, Any]:
                     "id": record["id"],
                     "path": record["path"],
                     "message": "research scan has candidate next commands",
-                    "next_command": "hops lab queue",
+                    "next_command": "hops lab review queue",
                 }
             )
 

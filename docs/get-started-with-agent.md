@@ -92,10 +92,10 @@ Agent は通常、次の流れで進めます。
 
 ```bash
 hops feedback import <bundle>
-hops lab new-eval-case --from FB0001
-hops propose --from E0001
-hops eval --case E0001 --manual
-hops decide --from H0001 --status parked
+hops lab eval-case create --from FB0001
+hops lab propose --from E0001
+hops lab eval --case E0001 --manual
+hops lab decide --from H0001 --status parked
 ```
 
 ## 採用判断をしたいとき

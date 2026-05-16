@@ -106,10 +106,10 @@ harness-lab/
     lab-issue-drafts/
 ```
 
-`knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。records と dossier は正本として残し、knowledge layer は source ID と source digest から必ず正本へ戻れる必要があります。
+`knowledge/` はレコード正本ではありません。`hops lab memory compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。records と dossier は正本として残し、knowledge layer は source ID と source digest から必ず正本へ戻れる必要があります。
 
 物理忘却は release gate で扱います。日常運用では source records を直接削除して軽量化せず、semantic memory へ抽象化してから release 前に `hops lab archive plan --since-ref <previous-tag>` で削除履歴を確認し、削除済み `records/` と `improvements/` だけを `hops lab archive pack` で release asset 用 zip に保存します。生成 view や cache は archive 対象外です。
-`records/experiments/` は現在の標準レイアウトから外しています。`hops eval --experiment` は既存の `X` record を読む互換入口として残しますが、experiment 作成 workflow が入るまでは既定生成しません。
+`records/experiments/` は現在の標準レイアウトから外しています。`hops lab eval --experiment` は既存の `X` record を読む互換入口として残しますが、experiment 作成 workflow が入るまでは既定生成しません。
 
 ### `.harnessops/`
 
@@ -315,9 +315,9 @@ triage は次の3層に分けます。
 | domain diagnosis triage | target repository | runops の campaign/Slurm/manifest/adapter 判断や paper-harness の claim/citation/venue/terminology 判断。 |
 | lab triage | HarnessOps + target profile | imported feedback を eval case、backlog、reject、issue draft へ振り分ける。 |
 
-target 側の `feedback` / `triage` skill は、独自に `records/` を作ったり sanitizer を持ったりしません。移行期は `hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize` を呼ぶ wrapper として残します。
+target 側の `feedback` / `triage` skill は、独自に `records/` を作ったり sanitizer を持ったりしません。移行期は `hops feedback add-failure`、`hops feedback route`、`hops feedback add`、`hops feedback export --sanitize` を呼ぶ wrapper として残します。
 
-`hops feedback add --target <target>` は将来の ergonomic alias として予約できますが、現行の正本コマンドは `hops add-failure` と `hops add-feedback --from <Fid>` です。
+フィードバック系の正本入口は `hops feedback add-failure`、`hops feedback route`、`hops feedback add --from <Fid>` です。旧 top-level 入口の `hops add-failure`、`hops route`、`hops add-feedback` は互換 alias として残しますが、実行時に deprecated warning を出します。
 
 ## CLI
 
@@ -338,30 +338,30 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の preflight。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、supervisor plan を返し、dirty/diverged/conflict では停止する。 |
 | `hops steward run start/validate-lane-result/record-lane-result/end` | `start --pull` の fast-forward のみ | daily steward run ledger を `.harnessops/cache/steward-runs/` に作り、lane result contract を検証し、lane結果とrun終了状態を記録する。 |
 | `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | steward run 後の変更処理。`commit-local` は `--validation-passed` がある時だけ local automation branch に commit し、push は行わない。 |
-| `hops add-failure` | はい | project側失敗レコード作成。 |
-| `hops add-feedback --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
-| `hops route --record <id>` | はい | record dispositionの分類保存。 |
+| `hops feedback add-failure` | はい | project側失敗レコード作成。 |
+| `hops feedback add --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
+| `hops feedback route --record <id>` | はい | record dispositionの分類保存。 |
 | `hops feedback export --sanitize` | はい | サニタイズ済みフィードバックバンドル生成。`--format github-issue` はローカルの公開Issue下書きのみ生成し、リモートIssueは作らない。 |
 | `hops feedback issue create <bundle> --repo <owner/repo>` | `--confirm-create` のみ | サニタイズ済み `--format github-issue` バンドルを表示し、重複候補を検索する。`--confirm-create` 付きでのみ GitHub Issue を作成し、成功時に元レコードへIssue URLを書き戻す。 |
 | `hops feedback import <bundle>` | はい | `harness-lab` へフィードバックをインポート。 |
 | `hops lab capture` | はい | 外部bundleやissue化前のローカル改善観測を `harness-lab` の `FB` レコードにする。 |
-| `hops lab new-eval-case --from <FBid>` | はい | imported feedback を評価ケース化。 |
+| `hops lab eval-case create --from <FBid>` | はい | imported feedback を評価ケース化。 |
 | `hops lab dossier --from <FB/E/H/D id>` | はい | 正規化レコードから1改善1ファイルの `harness-lab/improvements/IMPxxxx-*.md` を作成または更新する。 |
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新する。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記する。 |
 | `hops lab research-scan` | はい | メタ改善調査の scope、evidence、candidate、relation、recommendation、next command を `RS` レコードとして構造化して保存する。 |
-| `hops lab queue [--json]` | いいえ | recorded `IMP/RS/FB` から ranked queue と next command を返し、priority lane が記録を作業選定に使えるようにする。 |
-| `hops lab context [--capability/--failure-class/--scope/--query]` | いいえ | 実装前に関連 dossier、research scan、queue、semantic memory、guard、反例を取り出す。 |
-| `hops lab lifecycle lint` | いいえ | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure などを検出する。 |
-| `hops lab compact [--force]` | はい | 閾値超過または明示実行時に `harness-lab/knowledge/lab-memory.yml` と `.md` を deterministic snapshot として更新する。 |
+| `hops lab review queue [--json]` | いいえ | recorded `IMP/RS/FB` から ranked queue と next command を返し、priority lane が記録を作業選定に使えるようにする。 |
+| `hops lab review context [--capability/--failure-class/--scope/--query]` | いいえ | 実装前に関連 dossier、research scan、queue、semantic memory、guard、反例を取り出す。 |
+| `hops lab review lint` | いいえ | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure などを検出する。 |
+| `hops lab memory compact [--force]` | はい | 閾値超過または明示実行時に `harness-lab/knowledge/lab-memory.yml` と `.md` を deterministic snapshot として更新する。 |
 | `hops lab memory lint` | いいえ | lab size、source digest、snapshot、semantic memory manifest を見て、抽象化 skill を走らせるべきか判定する。 |
 | `hops lab memory prepare [--force]` | はい | `hops-compact-lab-memory` skill が読む `harness-lab/knowledge/lab-memory-input.yml` と `.md` を作る。 |
 | `hops lab archive plan/pack/verify --since-ref <tag>` | packのみ | release 時に `<tag>..HEAD` の削除履歴から `harness-lab/records/` と `harness-lab/improvements/` を release asset 用 archive pack に保存し、manifest/SHA256SUMS を検証する。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済み GitHub Issue 下書きを作り、重複確認後に明示確認付きで作成する。成功時は lab record へ Issue URL を書き戻す。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新する。 |
-| `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |
-| `hops eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
-| `hops decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
+| `hops lab propose --from <Eid>` | はい | 仮説テンプレート作成。 |
+| `hops lab eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
+| `hops lab decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
 | `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と検証。`install --scope repo` は `bridge` の互換入口で、user plugin install は標準運用から外す。 |
 | `hops report` | いいえ | 簡潔なrepository report表示。 |
 
@@ -435,7 +435,7 @@ private_terms:
 
 標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。root `plugins/` とユーザー領域 plugin install は標準導線から外し、状態変更は常に `hops` に委譲します。
 
-repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops propose`、`hops eval`、`hops decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
+repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops lab propose`、`hops lab eval`、`hops lab decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
 
 必須契約:
 
@@ -466,22 +466,22 @@ repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせ�
 - `hops init --profile runops-upstream` が `.harnessops/` と `harness-lab/` を作成する。
 - `hops detect` が最小fixtureのprofileを識別する。
 - `hops doctor --check-overlay --check-records` が初期化直後に通る。
-- `hops add-failure` が有効なfailureレコードを作る。
-- `hops route` が分類値を保存する。
+- `hops feedback add-failure` が有効なfailureレコードを作る。
+- `hops feedback route` が分類値を保存する。
 - `hops feedback export --sanitize` がサニタイズ済みバンドルを書く。公開GitHub Issue下書きが必要な場合は `--format github-issue` を使い、`--allow-private` は併用できない。
 - `hops feedback issue create` が `--confirm-create` なしではリモートIssueを作らず、重複候補とtitle/bodyを表示する。作成成功時は元レコードへIssue URLを書き戻す。
 - `hops feedback import` が `harness-lab` にfeedbackレコードを作る。
 - `hops lab capture` が issue や bundle のないローカル改善観測を `harness-lab` に記録する。
-- `hops lab new-eval-case` が評価ケースとfixture directoryを作る。
+- `hops lab eval-case create` が評価ケースとfixture directoryを作る。
 - `hops lab research-scan` がメタ改善調査の候補、証拠、推奨アクション、next command を `RS` レコードと生成ビューに保存する。
-- `hops lab queue/context/lifecycle lint` が記録を priority 選定、実装前の想起、停滞検出へ接続する。
-- `hops lab compact --force` が `harness-lab/knowledge/` に source-linked な deterministic snapshot を作り、通常実行では閾値未満の時に書き込みをスキップする。
+- `hops lab review queue/context/lint` が記録を priority 選定、実装前の想起、停滞検出へ接続する。
+- `hops lab memory compact --force` が `harness-lab/knowledge/` に source-linked な deterministic snapshot を作り、通常実行では閾値未満の時に書き込みをスキップする。
 - `hops lab memory lint --warn-only` が抽象化の発火基準を表示し、`hops lab memory prepare --force` が skill 入力 bundle を作る。
 - `hops lab archive plan/pack/verify --since-ref <tag>` が release 前の削除済み source records/dossier を archive pack に保存し、生成 view を除外する。
 - `hops lab refresh-views` が生成ビュー更新後の doctor warning を残さない。
-- `hops propose` が中止基準を含むhypothesisレコードを作る。
-- `hops eval --manual` がscorecardを保存する。
-- `hops decide --status adopted` は証拠、回帰リスク、ガードパスなしでは失敗する。
+- `hops lab propose` が中止基準を含むhypothesisレコードを作る。
+- `hops lab eval --manual` がscorecardを保存する。
+- `hops lab decide --status adopted` は証拠、回帰リスク、ガードパスなしでは失敗する。
 - 生成ファイルのユーザー編集を安全でなく上書きしない。
 - repo-local skill はCLI委譲の薄い契約を守る。
 

@@ -109,7 +109,7 @@ dossier は `records/feedback`、`records/eval-cases`、`records/hypotheses`、`
 
 `harness-lab/` は証拠を蓄積する場所ですが、蓄積だけでは長期記憶になりません。一定サイズを超えたかどうかは `hops lab memory lint` で検出します。lint は発火基準を見るだけで、抽象化はしません。
 
-`hops lab compact` は残しますが、役割は deterministic knowledge snapshot です。個別エピソードを消さず、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を source ID 付きで索引化します。これは機械的な集計であり、人間の夢のような抽象化そのものではありません。
+`hops lab memory compact` は残しますが、役割は deterministic knowledge snapshot です。個別エピソードを消さず、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を source ID 付きで索引化します。これは機械的な集計であり、人間の夢のような抽象化そのものではありません。
 
 抽象化は `hops lab memory prepare` が作る入力 bundle と、`hops-compact-lab-memory` skill に分けます。skill は source records と snapshot を読み、`principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md` へ、より抽象的な意味、適用条件、反例、中止基準を更新します。Anthropic Managed Agents の dreaming、Claude memory tool、Generative Agents、Reflexion、MemGPT などの外部事例も、episodic trace と semantic reflection を分ける方が設計しやすいことを示しています。
 
@@ -131,15 +131,15 @@ HarnessOps では次の境界にします。
 
 | 導線 | コマンド | 使いどころ |
 |---|---|---|
-| 作業選定 | `hops lab queue --json` | priority lane が、manual eval、decision、guard、research candidate などの次アクションを選ぶ。 |
-| 実装前想起 | `hops lab context --capability <capability> --json` | 変更前に関連 dossier、過去判断、反例、guard、semantic memory を思い出す。 |
-| 停滞検出 | `hops lab lifecycle lint --warn-only` | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure を見る。 |
+| 作業選定 | `hops lab review queue --json` | priority lane が、manual eval、decision、guard、research candidate などの次アクションを選ぶ。 |
+| 実装前想起 | `hops lab review context --capability <capability> --json` | 変更前に関連 dossier、過去判断、反例、guard、semantic memory を思い出す。 |
+| 停滞検出 | `hops lab review lint --warn-only` | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure を見る。 |
 
 agent は新しい record を作る前に `context` を見て、既存 dossier への `investigate` / `classify` で足りないか確認します。daily steward の priority lane は `queue` から始め、maintenance lane は必要に応じて `lifecycle lint` を使います。
 
 ## ラボ忘却とリリースアーカイブ
 
-HarnessOps の忘却は二段階にします。日常運用では、正本レコードを消すより先に `hops lab compact` と `hops-compact-lab-memory` で recurring lesson を semantic memory に移します。人間の記憶も、個別エピソードを全部保持するのではなく、よく使う抽象、索引、判断基準を強め、細部は取り出しにくくなる方向で忘れます。HarnessOps でも同じく、まず読む対象を records から knowledge へ移し、証拠が必要な時だけ source ID に戻ります。
+HarnessOps の忘却は二段階にします。日常運用では、正本レコードを消すより先に `hops lab memory compact` と `hops-compact-lab-memory` で recurring lesson を semantic memory に移します。人間の記憶も、個別エピソードを全部保持するのではなく、よく使う抽象、索引、判断基準を強め、細部は取り出しにくくなる方向で忘れます。HarnessOps でも同じく、まず読む対象を records から knowledge へ移し、証拠が必要な時だけ source ID に戻ります。
 
 物理的な削除は release gate で扱います。前回 release tag から今回 release ref までの commit 履歴を `hops lab archive plan --since-ref <previous-tag>` で調べ、削除された `harness-lab/records/` と `harness-lab/improvements/` があれば `hops lab archive pack --since-ref <previous-tag> --asset-name harness-lab-archive-v<version>.zip` で zip に保存します。pack には `manifest.json` と `SHA256SUMS` を含め、`hops lab archive verify <zip>` で確認してから GitHub release asset に添付します。生成 view や cache は再生成可能なので archive 対象外です。
 
@@ -205,7 +205,7 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 | note | `hops lab investigate --from <IMP>` | 既存テーマへの調査、反例、外部比較、追加観測。 |
 | classify | `hops lab classify --from <IMP>` | maturity、relation、promotion、guard を更新すべき時。 |
 | capture | `hops lab capture` | 既存テーマに入らない新しい失敗クラスや二階観測。 |
-| propose | `hops lab new-eval-case` + `hops propose` | 実装または評価可能な改善仮説にする価値がある時。 |
+| propose | `hops lab eval-case create` + `hops lab propose` | 実装または評価可能な改善仮説にする価値がある時。 |
 
 新規 capture の目安は、次のいずれかです。
 
@@ -249,7 +249,7 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 | `hops lab investigate` | 既存 dossier へコード調査、外部比較、反例、追加観測を足す。 |
 | `hops lab classify` | maturity、relation、promotion、guard を更新する。 |
 | `hops lab capture` | 既存 dossier に入らない新しい failure class や cross-project pattern を記録する。 |
-| `hops lab new-eval-case` + `hops propose` | 評価可能な改善仮説へ進める。 |
+| `hops lab eval-case create` + `hops lab propose` | 評価可能な改善仮説へ進める。 |
 | `park` / `reject` | 証拠不足、過剰一般化、評価不能、既存構造で足りるものを増殖させない。 |
 
 手動調査は非定期に行います。定期実行だけにすると棚卸し儀式になりやすいため、強い発火条件、release前、または人間の依頼で起動します。将来的に自動化する場合も、即実装や即Issue化ではなく、まず `research-scan` として候補一覧と lab への追記案を出すだけに留めます。

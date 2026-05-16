@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typer
 
+from harnessops.cli.deprecation import warn_if_deprecated
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.lab_records import create_decision
@@ -20,6 +21,7 @@ def decide_command(
     guard_path: str | None = typer.Option(None, "--guard-path"),
 ) -> None:
     """判断レコードを作成します。"""
+    warn_if_deprecated("decide", "hops lab decide")
     if status not in STATUSES:
         typer.echo(f"status が不正です: {status}")
         raise typer.Exit(1)
@@ -47,4 +49,4 @@ def decide_command(
 
 
 def register(app: typer.Typer) -> None:
-    app.command("decide")(decide_command)
+    app.command("decide", hidden=True)(decide_command)

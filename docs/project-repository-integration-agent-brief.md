@@ -129,9 +129,9 @@ project repository 側の `AGENTS.md` / `CLAUDE.md` には、HarnessOps の入�
 project repository で観測した feedback は HarnessOps に記録します。runops や paper-harness の domain skill は、原因分類や再現観点の補助に使いますが、`harness-feedback/` の records、routing、sanitize、export は `hops` が行います。
 
 ```bash
-hops add-failure --target <target> ...
-hops route --record F0001
-hops add-feedback --from F0001 --target <target>
+hops feedback add-failure --target <target> ...
+hops feedback route --record F0001
+hops feedback add --from F0001 --target <target>
 hops feedback export --target <target> --sanitize
 ```
 
@@ -158,19 +158,19 @@ harness-feedback/views/
 HarnessOps導入後、観測済みのハーネス問題がある場合だけ作成します。
 
 ```bash
-hops add-failure --title "<短い題名>" --target <target> \
+hops feedback add-failure --title "<短い題名>" --target <target> \
   --context "<文脈>" \
   --what-happened "<起きたこと>" \
   --why-matters "<重要性>" \
   --desired-behavior "<望ましい挙動>" \
   --local-workaround "<回避策>"
-hops route --record F0001
+hops feedback route --record F0001
 ```
 
 上流へ渡す候補なら、必ずサニタイズしてからエクスポートします。
 
 ```bash
-hops add-feedback --from F0001 --target <target> --summary "<要約>"
+hops feedback add --from F0001 --target <target> --summary "<要約>"
 hops feedback export --target <target> --sanitize
 ```
 

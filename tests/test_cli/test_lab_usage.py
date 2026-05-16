@@ -33,9 +33,10 @@ def _seed_lab_queue() -> None:
             "records_without_reuse_path",
         ]
     )
-    run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    run_cli(["lab", "eval-case", "create", "--from", "FB0001"])
     run_cli(
         [
+            "lab",
             "propose",
             "--from",
             "E0001",
@@ -79,7 +80,7 @@ def _seed_lab_queue() -> None:
             "--existing-dossier",
             "IMP0001",
             "--candidate",
-            "Add lab context command|extends|propose|hops lab context --capability lab_reuse",
+            "Add lab context command|extends|propose|hops lab review context --capability lab_reuse",
             "--recommendation",
             "Use context before implementation.",
         ]
@@ -92,7 +93,7 @@ def test_lab_queue_ranks_recorded_work(copy_fixture, monkeypatch):
     run_cli(["init", "--profile", "harnessops-core"])
     _seed_lab_queue()
 
-    result = run_cli(["lab", "queue", "--json"])
+    result = run_cli(["lab", "review", "queue", "--json"])
     payload = json.loads(result.output)
 
     assert payload["kind"] == "harness_lab_queue"
@@ -101,7 +102,7 @@ def test_lab_queue_ranks_recorded_work(copy_fixture, monkeypatch):
     assert first["id"] == "IMP0001"
     assert "manual-eval-needed" in first["reasons"]
     assert "decision-needed" in first["reasons"]
-    assert "hops eval --case E0001 --manual" in first["next_command"]
+    assert "hops lab eval --case E0001 --manual" in first["next_command"]
     assert any(item["id"] == "RS0001" for item in payload["items"])
 
 
@@ -110,9 +111,9 @@ def test_lab_context_returns_related_records_and_reads(copy_fixture, monkeypatch
     monkeypatch.chdir(root)
     run_cli(["init", "--profile", "harnessops-core"])
     _seed_lab_queue()
-    run_cli(["lab", "compact", "--force"])
+    run_cli(["lab", "memory", "compact", "--force"])
 
-    result = run_cli(["lab", "context", "--capability", "lab_reuse", "--json"])
+    result = run_cli(["lab", "review", "context", "--capability", "lab_reuse", "--json"])
     payload = json.loads(result.output)
 
     assert payload["kind"] == "harness_lab_context"
@@ -128,7 +129,7 @@ def test_lab_lifecycle_lint_reports_actionable_gaps(copy_fixture, monkeypatch):
     run_cli(["init", "--profile", "harnessops-core"])
     _seed_lab_queue()
 
-    result = run_cli(["lab", "lifecycle", "lint", "--json"])
+    result = run_cli(["lab", "review", "lint", "--json"])
     payload = json.loads(result.output)
 
     assert payload["kind"] == "harness_lab_lifecycle_lint"

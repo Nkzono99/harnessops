@@ -36,7 +36,7 @@ FEEDBACK_README = """# harness-feedback
 - 生の非公開データ
 - ターゲットハーネスへの実装パッチ
 
-レコード管理には `hops add-failure`、`hops route`、`hops feedback export --sanitize` を使います。
+レコード管理には `hops feedback add-failure`、`hops feedback route`、`hops feedback export --sanitize` を使います。
 """
 
 
@@ -58,7 +58,7 @@ GitHub Issues は引き続きタスクトラッカーです。`harness-lab/` は
 
 採用済み判断には、証拠、回帰リスク、回帰ガードを明記する必要があります。
 `hops lab memory lint` は抽象化の発火基準を確認します。
-`hops lab compact` は正本レコードを残したまま deterministic snapshot として `knowledge/lab-memory.yml` と `.md` を更新します。
+`hops lab memory compact` は正本レコードを残したまま deterministic snapshot として `knowledge/lab-memory.yml` と `.md` を更新します。
 抽象化が必要な時は `hops lab memory prepare` で入力 bundle を作り、`hops-compact-lab-memory` skill で semantic memory を更新します。
 """
 

@@ -88,6 +88,7 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
     run_cli(["init", "--profile", "paper-harness-project"])
     add = run_cli(
         [
+            "feedback",
             "add-failure",
             "--title",
             "Local term leaked into manuscript",
@@ -106,10 +107,10 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
     assert frontmatter["record_type"] == "failure"
     assert frontmatter["id"] == "F0001"
 
-    route = run_cli(["route", "--record", "F0001", "--json"])
+    route = run_cli(["feedback", "route", "--record", "F0001", "--json"])
     assert "target-upstream-candidate" in route.output
 
-    feedback_draft = run_cli(["add-feedback", "--from", "F0001", "--summary", "Terminology feedback draft"])
+    feedback_draft = run_cli(["feedback", "add", "--from", "F0001", "--summary", "Terminology feedback draft"])
     feedback_path = project_root / feedback_draft.output.strip()
     feedback_frontmatter, feedback_body = read_record(feedback_path)
     assert feedback_frontmatter["record_type"] == "upstream_feedback"
@@ -132,9 +133,9 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
     assert imported_frontmatter["record_type"] == "imported_feedback"
     assert imported_frontmatter["id"] == "FB0001"
 
-    eval_case = run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    eval_case = run_cli(["lab", "eval-case", "create", "--from", "FB0001"])
     assert (lab_root / eval_case.output.strip()).exists()
-    hypothesis = run_cli(["propose", "--from", "E0001"])
+    hypothesis = run_cli(["lab", "propose", "--from", "E0001"])
     assert "records/hypotheses/H0001" in hypothesis.output
     hypothesis_frontmatter, hypothesis_body = read_record(lab_root / hypothesis.output.strip())
     assert hypothesis_frontmatter["record_type"] == "hypothesis"
@@ -142,6 +143,7 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
     assert "TODO" not in hypothesis_body
     eval_result = run_cli(
         [
+            "lab",
             "eval",
             "--case",
             "E0001",
@@ -155,11 +157,12 @@ def test_failure_route_export_import_eval_hypothesis_decision(copy_fixture, tmp_
         ]
     )
     assert "eval-results/E0001-manual-score.yml" in eval_result.output
-    decision = run_cli(["decide", "--from", "H0001", "--status", "parked"])
+    decision = run_cli(["lab", "decide", "--from", "H0001", "--status", "parked"])
     assert "records/decisions/D0001" in decision.output
 
     adopted = run_cli(
         [
+            "lab",
             "decide",
             "--from",
             "H0001",
@@ -189,7 +192,7 @@ def test_agent_bridge_generation(copy_fixture, monkeypatch):
     assert "feedback-source interface" in text
     assert "hops feedback export --sanitize" in text
     assert "uvx --from harnessops hops lab capture" not in text
-    assert "uvx --from harnessops hops propose" not in text
+    assert "uvx --from harnessops hops lab propose" not in text
     assert "直接組み替えない" in text
     assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
     assert not (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
@@ -206,7 +209,7 @@ def test_agent_bridge_generation_for_lab_repo_includes_lab_interface(copy_fixtur
     text = skill.read_text(encoding="utf-8")
     assert "hops feedback import <bundle-path>" in text
     assert "hops lab capture" in text
-    assert "hops propose" in text
+    assert "hops lab propose" in text
     assert "hops github-flow preflight" in text
     assert (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
     assert (root / ".agents/skills/hops-issue-triage/SKILL.md").exists()
@@ -827,7 +830,7 @@ def test_lab_refresh_views_repairs_all_managed_lab_artifact_warnings(copy_fixtur
             "--failure-class",
             "stale_generated_view_repair_gap",
             "--candidate",
-            "Refresh all managed lab artifacts|extends|propose|hops lab new-eval-case --from FB0001",
+            "Refresh all managed lab artifacts|extends|propose|hops lab eval-case create --from FB0001",
             "--recommendation",
             "repair stale generated view warnings.",
         ]
@@ -933,7 +936,7 @@ def test_lab_capture_records_local_improvement(copy_fixture, monkeypatch):
     assert frontmatter["classification"]["capability"] == "harness_lab_traceability"
     assert "期待する上流変更" in body
 
-    eval_case = run_cli(["lab", "new-eval-case", "--from", "FB0001"])
+    eval_case = run_cli(["lab", "eval-case", "create", "--from", "FB0001"])
     eval_text = (root / eval_case.output.strip()).read_text(encoding="utf-8")
     assert "Provide a first-class command to capture local improvement work before evaluation." in eval_text
     assert "harness_lab_traceability" in eval_text
@@ -967,9 +970,9 @@ def test_lab_dossier_creates_single_improvement_file(copy_fixture, monkeypatch):
             "https://github.com/example/harness/issues/7",
         ]
     )
-    run_cli(["lab", "new-eval-case", "--from", "FB0001"])
-    run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=4", "--notes", "Manual score is the review evidence."])
-    run_cli(["propose", "--from", "E0001", "--hypothesis", "A generated dossier makes the improvement reviewable."])
+    run_cli(["lab", "eval-case", "create", "--from", "FB0001"])
+    run_cli(["lab", "eval", "--case", "E0001", "--manual", "--score", "impact=4", "--notes", "Manual score is the review evidence."])
+    run_cli(["lab", "propose", "--from", "E0001", "--hypothesis", "A generated dossier makes the improvement reviewable."])
 
     result = run_cli(["lab", "dossier", "--from", "H0001"])
 
@@ -1072,7 +1075,7 @@ def test_lab_research_scan_records_structured_candidates(copy_fixture, monkeypat
             "--risk",
             "Too many speculative records would create meta-noise|docs/design-principles.md",
             "--candidate",
-            "Add research scan record|extends|propose|hops lab new-eval-case --from FB0001",
+            "Add research scan record|extends|propose|hops lab eval-case create --from FB0001",
             "--recommendation",
             "propose structured research scan support before converting candidates to lab actions.",
         ]
@@ -1085,9 +1088,9 @@ def test_lab_research_scan_records_structured_candidates(copy_fixture, monkeypat
     assert frontmatter["classification"]["capability"] == "meta_improvement_research"
     assert frontmatter["evidence"]["codebase"][0]["ref"] == ".agents/skills/hops-research-improvements/SKILL.md"
     assert frontmatter["candidates"][0]["relation"] == "extends"
-    assert frontmatter["candidates"][0]["next_command"] == "hops lab new-eval-case --from FB0001"
+    assert frontmatter["candidates"][0]["next_command"] == "hops lab eval-case create --from FB0001"
     assert "## Candidates" in body
-    assert "| Add research scan record | extends | propose | hops lab new-eval-case --from FB0001 |" in body
+    assert "| Add research scan record | extends | propose | hops lab eval-case create --from FB0001 |" in body
     assert "## Next Commands" in body
 
     view = (root / "harness-lab/views/research-scans.md").read_text(encoding="utf-8")
@@ -1117,10 +1120,11 @@ def test_lab_compact_force_writes_mutable_knowledge(copy_fixture, monkeypatch):
             "record_sprawl_without_knowledge_consolidation",
         ]
     )
-    run_cli(["lab", "new-eval-case", "--from", "FB0001"])
-    run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=4", "--notes", "Compaction keeps recurring lessons visible."])
+    run_cli(["lab", "eval-case", "create", "--from", "FB0001"])
+    run_cli(["lab", "eval", "--case", "E0001", "--manual", "--score", "impact=4", "--notes", "Compaction keeps recurring lessons visible."])
     run_cli(
         [
+            "lab",
             "propose",
             "--from",
             "E0001",
@@ -1142,7 +1146,7 @@ def test_lab_compact_force_writes_mutable_knowledge(copy_fixture, monkeypatch):
         ]
     )
 
-    result = run_cli(["lab", "compact", "--force"])
+    result = run_cli(["lab", "memory", "compact", "--force"])
 
     assert "status: written" in result.output
     assert "harness-lab/knowledge/lab-memory.yml" in result.output
@@ -1162,12 +1166,12 @@ def test_lab_compact_force_writes_mutable_knowledge(copy_fixture, monkeypatch):
     assert "## Curator Notes" in markdown
     markdown_path.write_text(
         markdown.replace(
-            "ここは `hops lab compact` が保持する手編集領域です。",
+            "ここは `hops lab memory compact` が保持する手編集領域です。",
             "Keep this manually curated note.",
         ),
         encoding="utf-8",
     )
-    run_cli(["lab", "compact", "--force"])
+    run_cli(["lab", "memory", "compact", "--force"])
     assert "Keep this manually curated note." in markdown_path.read_text(encoding="utf-8")
     doctor = run_cli(["doctor", "--check-overlay", "--check-records"])
     assert "警告" not in doctor.output
@@ -1194,7 +1198,7 @@ def test_lab_compact_skips_until_threshold(copy_fixture, monkeypatch):
     assert "status: skipped" in skipped.output
     assert not (root / "harness-lab/knowledge/lab-memory.yml").exists()
 
-    written = run_cli(["lab", "compact", "--max-files", "0"])
+    written = run_cli(["lab", "memory", "compact", "--max-files", "0"])
 
     assert "status: written" in written.output
     assert "file_count>0" in written.output
@@ -1376,7 +1380,7 @@ expected
         encoding="utf-8",
     )
 
-    result = run_cli(["eval", "--experiment", "X0001", "--manual", "--score", "impact=3"])
+    result = run_cli(["lab", "eval", "--experiment", "X0001", "--manual", "--score", "impact=3"])
 
     assert "eval-results/E0001-manual-score.yml" in result.output
     eval_markdown = (root / "harness-lab/views/eval-results/E0001-manual-score.md").read_text(encoding="utf-8")
@@ -1425,7 +1429,7 @@ expected
         encoding="utf-8",
     )
 
-    run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=3"])
-    second = run_cli(["eval", "--case", "E0001", "--manual", "--score", "impact=4"])
+    run_cli(["lab", "eval", "--case", "E0001", "--manual", "--score", "impact=3"])
+    second = run_cli(["lab", "eval", "--case", "E0001", "--manual", "--score", "impact=4"])
 
     assert "eval-results/E0001-manual-score.yml" in second.output

@@ -193,7 +193,7 @@ def test_steward_preflight_routes_stale_lab_health_to_librarian(copy_fixture, mo
             "snapshot": {"path": "harness-lab/knowledge/lab-memory.yml", "stale": False},
             "abstraction": {"path": "harness-lab/knowledge/lab-memory-abstraction.yml", "stale": True},
             "recommended_commands": [
-                "hops lab compact --force",
+                "hops lab memory compact --force",
                 "hops lab memory prepare --force",
                 "Use the hops-compact-lab-memory skill to update abstract knowledge.",
             ],

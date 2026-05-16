@@ -40,10 +40,10 @@ def test_generated_bridge_scopes_feedback_source_interface() -> None:
     assert_harness_contract(text)
     assert "feedback-source interface" in text
     assert "hops feedback export --sanitize" in text
-    assert "hops add-failure" in text
+    assert "hops feedback add-failure" in text
     assert "uvx --from harnessops hops lab capture" not in text
-    assert "uvx --from harnessops hops propose" not in text
-    assert "uvx --from harnessops hops decide" not in text
+    assert "uvx --from harnessops hops lab propose" not in text
+    assert "uvx --from harnessops hops lab decide" not in text
 
 
 def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
@@ -153,9 +153,9 @@ def test_feedback_triage_ownership_contract_is_documented() -> None:
         assert "sanitize" in text
 
     cli_spec = (ROOT / "specs/cli-spec.md").read_text(encoding="utf-8")
-    assert "hops feedback add --target <target>" in cli_spec
-    assert "hops add-failure" in cli_spec
-    assert "hops add-feedback --from <Fid>" in cli_spec
+    assert "hops feedback add-failure" in cli_spec
+    assert "hops feedback route" in cli_spec
+    assert "hops feedback add --from <Fid>" in cli_spec
 
 
 def test_builtin_profiles_expose_domain_triage_hooks() -> None:
@@ -228,7 +228,7 @@ def test_issue_triage_skill_is_packaged() -> None:
         text = skill.read_text(encoding="utf-8")
         assert text == repo_skill
         assert "hops feedback import --issue" in text
-        assert "hops lab new-eval-case" in text
+        assert "hops lab eval-case create" in text
         assert_harness_contract(text)
 
 
@@ -277,7 +277,7 @@ def test_lab_capture_contract_is_documented() -> None:
     ]
     for path in docs:
         assert "hops lab capture" in path.read_text(encoding="utf-8")
-        assert "hops lab compact" in path.read_text(encoding="utf-8")
+        assert "hops lab memory compact" in path.read_text(encoding="utf-8")
         assert "hops lab memory lint" in path.read_text(encoding="utf-8")
         assert "hops lab research-scan" in path.read_text(encoding="utf-8")
     for host in ("codex", "claude"):
@@ -285,7 +285,7 @@ def test_lab_capture_contract_is_documented() -> None:
         assert "hops lab capture" in text
         assert "hops lab investigate" in text
         assert "hops lab classify" in text
-        assert "hops lab compact" in text
+        assert "hops lab memory compact" in text
         assert "hops lab memory lint" in text
         assert "メタ仮説スキャン" in text
         assert_harness_contract(text)
@@ -318,8 +318,8 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
     assert "hops lab classify" in repo_skill
     assert "hops lab research-scan" in repo_skill
     assert "hops lab capture" in repo_skill
-    assert "hops propose" in repo_skill
-    assert "hops add-failure" in repo_skill
+    assert "hops lab propose" in repo_skill
+    assert "hops feedback add-failure" in repo_skill
     assert "hops feedback export --target <target> --sanitize" in repo_skill
     assert "project repo で `harness-lab/` を作らない" in repo_skill
     assert "メタ仮説スキャン" in repo_skill

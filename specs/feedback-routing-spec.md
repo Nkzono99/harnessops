@@ -44,11 +44,11 @@ triage は分割します。
 | domain diagnosis triage | target repository | runops の Slurm/campaign/manifest 問題、paper-harness の claim/citation/venue 問題を判定する。 |
 | lab triage | HarnessOps + target profile | imported feedback を eval case、backlog、reject、issue draft に分ける。 |
 
-target 側の `feedback/triage` は独自に `records/` を作らず、`hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize`、`hops feedback import` を呼びます。
+target 側の `feedback/triage` は独自に `records/` を作らず、`hops feedback add-failure`、`hops feedback route`、`hops feedback add`、`hops feedback export --sanitize`、`hops feedback import` を呼びます。
 
 ## ルーティング証拠
 
-`hops route --record <id>` はdispositionを保存します。人間のレビュアーは次を確認します。
+`hops feedback route --record <id>` はdispositionを保存します。人間のレビュアーは次を確認します。
 
 - これは対象プロジェクト自体の発展か。
 - プロジェクト詳細から独立した上流ツールの不足があるか。
@@ -60,4 +60,4 @@ target 側の `feedback/triage` は独自に `records/` を作らず、`hops add
 
 MVP は決定的ヒューリスティックと明示的な `--target` / `--disposition` 上書きを使います。アダプタ固有のルーティングは、同じレコードスキーマを迂回せず、この規則から拡張します。
 
-`hops feedback add --target <target>` は将来の alias 候補です。現行実装では、観測は `hops add-failure`、上流/メタ下書きは `hops add-feedback --from <Fid>` を正本にします。
+現行実装では、観測は `hops feedback add-failure`、分類は `hops feedback route`、上流/メタ下書きは `hops feedback add --from <Fid>` を正本にします。旧 top-level 入口は互換 alias として残しますが、実行時に deprecated warning を出します。

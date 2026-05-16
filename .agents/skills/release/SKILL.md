@@ -10,7 +10,7 @@ description: HarnessOps repository を GitHub release するときに使う repo
 手順:
 
 1. `git status --short --branch`、`git log --oneline --decorate -5`、`git tag --list` を確認する。
-2. 非自明な HarnessOps 改善を含む場合、`hops lab capture`、`hops lab new-eval-case`、`hops propose`、`hops eval`、`hops decide` のいずれかで `harness-lab` に判断根拠があるか確認する。無い場合は release 前に `hops lab capture` で記録する。
+2. 非自明な HarnessOps 改善を含む場合、`hops lab capture`、`hops lab eval-case create`、`hops lab propose`、`hops lab eval`、`hops lab decide` のいずれかで `harness-lab` に判断根拠があるか確認する。無い場合は release 前に `hops lab capture` で記録する。
 3. `pyproject.toml` の version から tag `v<version>` を決める。既存 tag/release がある場合は上書きしない。
 4. 前回 release tag を確認し、`hops lab archive plan --since-ref <previous-tag> --to-ref main --json` で削除済み lab source を確認する。`eligible_count > 0` なら `hops lab archive pack --since-ref <previous-tag> --to-ref main --out dist --asset-name harness-lab-archive-v<version>.zip` と `hops lab archive verify dist/harness-lab-archive-v<version>.zip` を実行し、release asset に添付する。生成 view は archive しない。
 5. release 前に次を実行する。

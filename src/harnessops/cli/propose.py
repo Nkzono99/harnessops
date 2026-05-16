@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typer
 
+from harnessops.cli.deprecation import warn_if_deprecated
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.lab_records import create_hypothesis
@@ -22,6 +23,7 @@ def propose_command(
     kill_criteria: str = typer.Option("", "--kill-criteria"),
 ) -> None:
     """評価ケースから改善仮説を作成します。"""
+    warn_if_deprecated("propose", "hops lab propose")
     if not manual_template:
         typer.echo("エージェント支援生成は利用できません。証拠テンプレートを書き込みます")
     root = find_root()
@@ -46,4 +48,4 @@ def propose_command(
 
 
 def register(app: typer.Typer) -> None:
-    app.command("propose")(propose_command)
+    app.command("propose", hidden=True)(propose_command)

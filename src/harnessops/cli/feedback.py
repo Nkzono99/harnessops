@@ -7,6 +7,8 @@ from typing import Any, Optional
 
 import typer
 
+from harnessops.cli.add_failure import add_failure_command, add_feedback_command
+from harnessops.cli.route import route_command
 from harnessops.core.issue_bridge import (
     create_github_issue,
     remaining_private_markers,
@@ -23,7 +25,7 @@ from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile
 
 feedback_app = typer.Typer(
-    help="フィードバックバンドルをエクスポート/インポートします。"
+    help="フィードバックの記録、分類、エクスポート/インポートを扱います。"
 )
 issue_app = typer.Typer(
     help="サニタイズ済みフィードバックをGitHub Issueへ橋渡しします。"
@@ -503,5 +505,8 @@ def import_feedback(
 
 
 def register(app: typer.Typer) -> None:
+    feedback_app.command("add-failure")(add_failure_command)
+    feedback_app.command("add")(add_feedback_command)
+    feedback_app.command("route")(route_command)
     feedback_app.add_typer(issue_app, name="issue")
     app.add_typer(feedback_app, name="feedback")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typer
 
+from harnessops.cli.deprecation import warn_if_deprecated
 from harnessops.core.evaluation import parse_scores, write_manual_eval
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
@@ -18,6 +19,7 @@ def eval_command(
     notes: str = typer.Option("", "--notes"),
 ) -> None:
     """評価ケースの多軸手動スコアカードを保存します。"""
+    warn_if_deprecated("eval", "hops lab eval")
     root = find_root()
     project = load_project(root)
     cases = []
@@ -56,4 +58,4 @@ def eval_command(
 
 
 def register(app: typer.Typer) -> None:
-    app.command("eval")(eval_command)
+    app.command("eval", hidden=True)(eval_command)
