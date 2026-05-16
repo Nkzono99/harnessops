@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from typing import Any
 
 import typer
 
 from harnessops.cli.feedback import import_feedback
+from harnessops.cli.deprecation import warn_if_deprecated
+from harnessops.cli.decide import decide_command
+from harnessops.cli.eval import eval_command
+from harnessops.cli.propose import propose_command
 from harnessops.core.issue_bridge import (
     create_github_issue,
     remaining_private_markers,
@@ -19,9 +25,11 @@ from harnessops.core.lab_compaction import (
     lint_lab_memory,
     prepare_lab_memory_abstraction,
 )
+from harnessops.core.lab_archive import pack_lab_archive, plan_lab_archive, verify_lab_archive
 from harnessops.core.paths import find_root
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.project import load_project
+from harnessops.core.lab_usage import lab_context, lab_lifecycle_lint, lab_queue
 from harnessops.core.improvement_dossier import (
     add_improvement_investigation,
     create_or_update_improvement_dossier,
@@ -37,23 +45,53 @@ from harnessops.profiles.registry import load_profile
 lab_app = typer.Typer(help="harness-lab レコードを操作します。")
 issue_app = typer.Typer(help="harness-lab レコードをGitHub Issueへ橋渡しします。")
 memory_app = typer.Typer(help="harness-lab knowledge memory の発火判定と抽象化入力を扱います。")
+archive_app = typer.Typer(help="release asset 用の harness-lab archive pack を扱います。")
+lifecycle_app = typer.Typer(help="harness-lab の活用・停滞・guard 状態を検査します。")
+review_app = typer.Typer(help="harness-lab の queue/context/lint を読むための review 入口です。")
+eval_case_app = typer.Typer(help="harness-lab 評価ケースを扱います。")
 
 
-@lab_app.command("import-feedback")
+def _jsonable(value: Any, root: Path) -> Any:
+    if isinstance(value, Path):
+        try:
+            return value.resolve().relative_to(root.resolve()).as_posix()
+        except ValueError:
+            return value.as_posix()
+    if isinstance(value, dict):
+        return {key: _jsonable(item, root) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_jsonable(item, root) for item in value]
+    return value
+
+
+def _echo_json(payload: dict[str, Any], root: Path) -> None:
+    typer.echo(json.dumps(_jsonable(payload, root), ensure_ascii=False, indent=2))
+
+
+def _archive_error(exc: RuntimeError) -> None:
+    typer.echo(f"lab archive error: {exc}")
+    raise typer.Exit(1) from exc
+
+
+@lab_app.command("import-feedback", hidden=True)
 def import_feedback_alias(path: str) -> None:
     """`hops feedback import` のエイリアスです。"""
+    warn_if_deprecated("lab import-feedback", "hops feedback import")
     import_feedback(path=Path(path))
 
 
-@lab_app.command("import")
+@lab_app.command("import", hidden=True)
 def import_alias(path: str) -> None:
     """サニタイズ済みフィードバックバンドルをインポートする短いエイリアスです。"""
+    warn_if_deprecated("lab import", "hops feedback import")
     import_feedback(path=Path(path))
 
 
-@lab_app.command("new-eval-case")
+@eval_case_app.command("create")
+@lab_app.command("new-eval-case", hidden=True)
 def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | None = typer.Option(None, "--template")) -> None:
     """インポート済みフィードバックを評価ケースに変換します。"""
+    warn_if_deprecated("lab new-eval-case", "hops lab eval-case create")
     del template
     root = find_root()
     project = load_project(root)
@@ -202,7 +240,74 @@ def research_scan(
     typer.echo(path.relative_to(root).as_posix())
 
 
-@lab_app.command("compact")
+@review_app.command("queue")
+@lab_app.command("queue", hidden=True)
+def queue(
+    include_closed: bool = typer.Option(False, "--include-closed"),
+    limit: int | None = typer.Option(None, "--limit"),
+    capability: str | None = typer.Option(None, "--capability"),
+    scope: str | None = typer.Option(None, "--scope"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """harness-lab の記録から priority lane 用の候補 queue を返します。"""
+    warn_if_deprecated("lab queue", "hops lab review queue")
+    root = find_root()
+    project = load_project(root)
+    result = lab_queue(
+        project,
+        include_closed=include_closed,
+        limit=limit,
+        capability=capability,
+        scope=scope,
+    )
+    if json_output:
+        _echo_json(result, root)
+        return
+    typer.echo(f"items: {result['count']}")
+    for item in result["items"]:
+        typer.echo(
+            f"- {item['id']} p={item['priority']} "
+            f"{','.join(item['reasons'])} {item['title']}"
+        )
+        typer.echo(f"  next: {item['next_command']}")
+
+
+@review_app.command("context")
+@lab_app.command("context", hidden=True)
+def context(
+    query: str | None = typer.Option(None, "--query"),
+    capability: str | None = typer.Option(None, "--capability"),
+    failure_class: str | None = typer.Option(None, "--failure-class"),
+    scope: str | None = typer.Option(None, "--scope"),
+    limit: int = typer.Option(5, "--limit"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """実装前に思い出すべき関連 dossier、判断、guard、knowledge を返します。"""
+    warn_if_deprecated("lab context", "hops lab review context")
+    root = find_root()
+    project = load_project(root)
+    result = lab_context(
+        project,
+        query=query,
+        capability=capability,
+        failure_class=failure_class,
+        scope=scope,
+        limit=limit,
+    )
+    if json_output:
+        _echo_json(result, root)
+        return
+    typer.echo("recommended reads:")
+    for path in result["recommended_reads"]:
+        typer.echo(f"- {path}")
+    if result["queue"]:
+        typer.echo("queue:")
+        for item in result["queue"]:
+            typer.echo(f"- {item['id']} {','.join(item['reasons'])}: {item['next_command']}")
+
+
+@memory_app.command("compact")
+@lab_app.command("compact", hidden=True)
 def compact(
     force: bool = typer.Option(False, "--force"),
     dry_run: bool = typer.Option(False, "--dry-run"),
@@ -211,6 +316,7 @@ def compact(
     max_improvements: int = typer.Option(DEFAULT_MAX_IMPROVEMENTS, "--max-improvements"),
 ) -> None:
     """harness-lab を source-linked な deterministic snapshot へ圧縮します。"""
+    warn_if_deprecated("lab compact", "hops lab memory compact")
     root = find_root()
     project = load_project(root)
     if project.overlay_mode not in {"upstream-lab", "meta-lab"}:
@@ -324,6 +430,112 @@ def memory_prepare(
             typer.echo(path.relative_to(root).as_posix())
     elif result["status"] == "skipped":
         typer.echo("--force を指定すると手動で abstraction input を作れます")
+
+
+@review_app.command("lint")
+@lifecycle_app.command("lint")
+def lifecycle_lint(
+    json_output: bool = typer.Option(False, "--json"),
+    warn_only: bool = typer.Option(False, "--warn-only"),
+) -> None:
+    """harness-lab の未評価、未判断、guard不足、memory圧力を検出します。"""
+    warn_if_deprecated("lab lifecycle lint", "hops lab review lint")
+    root = find_root()
+    project = load_project(root)
+    result = lab_lifecycle_lint(project)
+    if json_output:
+        _echo_json(result, root)
+    else:
+        typer.echo(f"status: {result['status']}")
+        typer.echo(f"issues: {result['issue_count']}")
+        for item in result["issues"]:
+            typer.echo(
+                f"- {item['severity']} {item['code']} {item['id']}: "
+                f"{item['message']}"
+            )
+            typer.echo(f"  next: {item['next_command']}")
+    if result["status"] == "error" and not warn_only:
+        raise typer.Exit(1)
+
+
+@archive_app.command("plan")
+def archive_plan(
+    since_ref: str = typer.Option(..., "--since-ref", "--since-tag"),
+    to_ref: str = typer.Option("HEAD", "--to-ref"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """指定ref範囲で削除された harness-lab source records の archive 計画を作ります。"""
+    root = find_root()
+    project = load_project(root)
+    try:
+        result = plan_lab_archive(project, since_ref=since_ref, to_ref=to_ref)
+    except RuntimeError as exc:
+        _archive_error(exc)
+    if json_output:
+        _echo_json(result, root)
+        return
+    typer.echo("status: planned")
+    typer.echo(f"range: {result['since_ref']}..{result['to_ref']}")
+    typer.echo(f"eligible: {result['eligible_count']}")
+    typer.echo(f"excluded: {len(result['excluded'])}")
+    for entry in result["entries"]:
+        typer.echo(f"- {entry['path']} -> {entry['archive_path']}")
+
+
+@archive_app.command("pack")
+def archive_pack(
+    since_ref: str = typer.Option(..., "--since-ref", "--since-tag"),
+    to_ref: str = typer.Option("HEAD", "--to-ref"),
+    out_dir: Path = typer.Option(Path("dist"), "--out"),
+    asset_name: str | None = typer.Option(None, "--asset-name"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """削除済み harness-lab source records を release asset 用 zip に詰めます。"""
+    root = find_root()
+    project = load_project(root)
+    try:
+        result = pack_lab_archive(
+            project,
+            since_ref=since_ref,
+            to_ref=to_ref,
+            out_dir=root / out_dir if not out_dir.is_absolute() else out_dir,
+            asset_name=asset_name,
+        )
+    except RuntimeError as exc:
+        _archive_error(exc)
+    if json_output:
+        _echo_json(result, root)
+        return
+    typer.echo(f"status: {result['status']}")
+    typer.echo(f"eligible: {result['plan']['eligible_count']}")
+    if result["path"]:
+        path = _jsonable(result["path"], root)
+        typer.echo(f"archive: {path}")
+        typer.echo(f"sha256: {result['archive_sha256']}")
+    else:
+        typer.echo("archive: none")
+
+
+@archive_app.command("verify")
+def archive_verify(
+    path: Path,
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """harness-lab archive pack の manifest と SHA256SUMS を検証します。"""
+    root = find_root()
+    archive_path = root / path if not path.is_absolute() else path
+    result = verify_lab_archive(archive_path)
+    if json_output:
+        _echo_json(result, root)
+    else:
+        typer.echo(f"status: {result['status']}")
+        typer.echo(f"entries: {result.get('entry_count', 0)}")
+        if result.get("archive_sha256"):
+            typer.echo(f"sha256: {result['archive_sha256']}")
+        for error in result["errors"]:
+            typer.echo(f"- {error}")
+    if not result["ok"]:
+        raise typer.Exit(1)
 
 
 def _record_title(body: str, fallback: str) -> str:
@@ -510,6 +722,13 @@ def refresh_lab_views() -> None:
 
 
 def register(app: typer.Typer) -> None:
+    lab_app.command("propose")(propose_command)
+    lab_app.command("eval")(eval_command)
+    lab_app.command("decide")(decide_command)
+    lab_app.add_typer(eval_case_app, name="eval-case")
+    lab_app.add_typer(review_app, name="review")
     lab_app.add_typer(issue_app, name="issue")
     lab_app.add_typer(memory_app, name="memory")
+    lab_app.add_typer(archive_app, name="archive")
+    lab_app.add_typer(lifecycle_app, name="lifecycle", hidden=True)
     app.add_typer(lab_app, name="lab")

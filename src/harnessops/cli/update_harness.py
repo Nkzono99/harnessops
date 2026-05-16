@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import typer
 
@@ -233,7 +234,7 @@ def update_harness_command(
     refresh_codex = codex or existing_codex or (agent_bridge and not claude)
     refresh_claude = claude or existing_claude
 
-    agent_result = {
+    agent_result: dict[str, Any] = {
         "checked": [],
         "updated": [],
         "unchanged": [],

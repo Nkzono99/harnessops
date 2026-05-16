@@ -4,6 +4,7 @@ from typing import Optional
 
 import typer
 
+from harnessops.cli.deprecation import warn_if_deprecated
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.lab_records import create_failure, create_feedback_from_failure
@@ -27,6 +28,7 @@ def add_failure_command(
     interactive: bool = typer.Option(False, "--interactive"),
 ) -> None:
     """プロジェクト側の失敗レコードを作成します。"""
+    warn_if_deprecated("add-failure", "hops feedback add-failure")
     del interactive
     root = find_root()
     project = load_project(root)
@@ -66,6 +68,7 @@ def add_feedback_command(
 
     下書きは `hops feedback export --sanitize` でエクスポートされるまで非公開です。
     """
+    warn_if_deprecated("add-feedback", "hops feedback add")
     root = find_root()
     project = load_project(root)
     failure_frontmatter, _ = read_record(find_record(project, from_id))
@@ -83,5 +86,5 @@ def add_feedback_command(
 
 
 def register(app: typer.Typer) -> None:
-    app.command("add-failure")(add_failure_command)
-    app.command("add-feedback")(add_feedback_command)
+    app.command("add-failure", hidden=True)(add_failure_command)
+    app.command("add-feedback", hidden=True)(add_feedback_command)

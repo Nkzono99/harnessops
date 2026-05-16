@@ -170,7 +170,7 @@ repo-local skill 展開は対象repoの状態なので、明示オプション�
 uvx --from harnessops hops agent bridge --codex
 ```
 
-target/meta lab repo では `.agents/skills/hops-issue-triage/`、`hops-run-lab/`、`hops-github-flow/` など lab/eval/propose/decide/GitHub Flow 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
+target/meta lab repo では `.agents/skills/hops-daily-steward/` と daily lane skills、`hops-issue-triage/`、`hops-run-lab/`、`hops-github-flow/` など lab/eval/propose/decide/GitHub Flow 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
 
 GitHub Flow skill を再展開時に外す場合は、`.harnessops/project.toml` で `[github_flow] enabled = false` にするか、次を使います。
 
@@ -212,9 +212,9 @@ feedback-paper-harness が独自 sanitizer を持つ。
 良い例:
 
 ```bash
-hops add-failure --target runops ...
-hops route --record F0001
-hops add-feedback --from F0001 --target runops
+hops feedback add-failure --target runops ...
+hops feedback route --record F0001
+hops feedback add --from F0001 --target runops
 hops feedback export --target runops --sanitize
 ```
 
@@ -236,7 +236,7 @@ harness-lab/knowledge/
 harness-lab/views/
 ```
 
-`harness-lab/` は上流改善の評価と判断の記憶です。通常のタスク管理はGitHub Issuesなど既存の仕組みに残します。メタ改善調査で複数候補が出た場合は `hops lab research-scan` で evidence、candidate、recommendation、next command を構造化します。lab が大きくなったら `hops lab memory lint --warn-only` で発火基準を確認します。`hops lab compact --force` は deterministic snapshot を更新する索引コマンドで、抽象化が必要な場合は `hops lab memory prepare --force` で入力 bundle を作り、`hops-compact-lab-memory` skill で `harness-lab/knowledge/` の semantic memory を更新します。
+`harness-lab/` は上流改善の評価と判断の記憶です。通常のタスク管理はGitHub Issuesなど既存の仕組みに残します。メタ改善調査で複数候補が出た場合は `hops lab research-scan` で evidence、candidate、recommendation、next command を構造化します。lab が大きくなったら `hops lab memory lint --warn-only` で発火基準を確認します。`hops lab memory compact --force` は deterministic snapshot を更新する索引コマンドで、抽象化が必要な場合は `hops lab memory prepare --force` で入力 bundle を作り、`hops-compact-lab-memory` skill で `harness-lab/knowledge/` の semantic memory を更新します。
 外部バンドルや issue がまだないローカル改善観測は、`hops lab capture --title <title> --summary <summary> --expected-change <expected>` で `FB` レコードにしてから、評価ケース、仮説、判断へ進めます。
 
 ## プライバシー設定

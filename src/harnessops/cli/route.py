@@ -5,6 +5,7 @@ from typing import Any, Optional
 
 import typer
 
+from harnessops.cli.deprecation import warn_if_deprecated
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.record_index import find_record
@@ -20,6 +21,7 @@ def route_command(
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """レコードを HarnessOps の分類値（disposition）に分類します。"""
+    warn_if_deprecated("route", "hops feedback route")
     root = find_root()
     project = load_project(root)
     body = text
@@ -40,4 +42,4 @@ def route_command(
 
 
 def register(app: typer.Typer) -> None:
-    app.command("route")(route_command)
+    app.command("route", hidden=True)(route_command)

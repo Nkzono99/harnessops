@@ -8,7 +8,7 @@ from harnessops.core import yamlio
 CURATOR_START = "<!-- harnessops:curator-notes:start -->"
 CURATOR_END = "<!-- harnessops:curator-notes:end -->"
 DEFAULT_CURATOR_NOTES = (
-    "ここは `hops lab compact` が保持する手編集領域です。"
+    "ここは `hops lab memory compact` が保持する手編集領域です。"
     "deterministic snapshot への補足、反例、今後の見直し観点を短く追記できます。"
 )
 
@@ -97,7 +97,7 @@ def render_markdown(data: dict[str, Any], curator_notes: str) -> str:
     thresholds = compaction["thresholds"]
     parts = [
         "# Harness Lab Knowledge\n",
-        "このファイルは `hops lab compact` が更新する deterministic working index です。",
+        "このファイルは `hops lab memory compact` が更新する deterministic working index です。",
         "`records/` と `improvements/` は引き続き監査可能な正本で、この snapshot は再利用しやすい索引です。\n",
         "## Compaction State\n",
         f"- updated_at: {data['updated_at']}",

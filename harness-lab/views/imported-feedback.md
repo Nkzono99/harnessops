@@ -43,3 +43,8 @@
 - `FB0040` triaged github_flow_automation hand_rolled_remote_flow
 - `FB0041` triaged github_flow_automation missing_required_check_gate
 - `FB0042` triaged agent_bridge_distribution missing_agents_hops_conduit
+- `FB0043` triaged harness_lab_traceability missing_lab_capture
+- `FB0044` triaged harness_lab_traceability missing_lab_capture
+- `FB0045` triaged harness_lab_traceability missing_lab_capture
+- `FB0046` triaged harness_lab_traceability records_without_reuse_path
+- `FB0047` triaged cli_ergonomics command_surface_sprawl

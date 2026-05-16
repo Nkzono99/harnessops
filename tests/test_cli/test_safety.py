@@ -33,7 +33,7 @@ def test_feedback_export_refuses_unsanitized_by_default(copy_fixture, monkeypatc
     assert (
         runner.invoke(
             app,
-            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+            ["feedback", "add-failure", "--title", "Harness update missed", "--target", "runops"],
         ).exit_code
         == 0
     )
@@ -52,6 +52,7 @@ def test_github_issue_draft_requires_strict_sanitize(copy_fixture, monkeypatch):
         runner.invoke(
             app,
             [
+                "feedback",
                 "add-failure",
                 "--title",
                 "Harness update missed",
@@ -124,7 +125,7 @@ def test_feedback_issue_create_previews_and_searches_without_confirm(
     assert (
         runner.invoke(
             app,
-            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+            ["feedback", "add-failure", "--title", "Harness update missed", "--target", "runops"],
         ).exit_code
         == 0
     )
@@ -132,7 +133,8 @@ def test_feedback_issue_create_previews_and_searches_without_confirm(
         runner.invoke(
             app,
             [
-                "add-feedback",
+                "feedback",
+                "add",
                 "--from",
                 "F0001",
                 "--target",
@@ -209,7 +211,7 @@ def test_feedback_issue_create_requires_sanitized_issue_bundle(
     assert (
         runner.invoke(
             app,
-            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+            ["feedback", "add-failure", "--title", "Harness update missed", "--target", "runops"],
         ).exit_code
         == 0
     )
@@ -244,7 +246,7 @@ def test_feedback_issue_create_rejects_remaining_private_markers(
     assert (
         runner.invoke(
             app,
-            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+            ["feedback", "add-failure", "--title", "Harness update missed", "--target", "runops"],
         ).exit_code
         == 0
     )
@@ -292,7 +294,7 @@ def test_feedback_issue_create_writes_fallback_draft_when_gh_unavailable(
     assert (
         runner.invoke(
             app,
-            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+            ["feedback", "add-failure", "--title", "Harness update missed", "--target", "runops"],
         ).exit_code
         == 0
     )
@@ -347,14 +349,15 @@ def test_feedback_issue_create_writes_back_created_issue_url(copy_fixture, monke
     assert (
         runner.invoke(
             app,
-            ["add-failure", "--title", "Harness update missed", "--target", "runops"],
+            ["feedback", "add-failure", "--title", "Harness update missed", "--target", "runops"],
         ).exit_code
         == 0
     )
     feedback = runner.invoke(
         app,
         [
-            "add-feedback",
+            "feedback",
+            "add",
             "--from",
             "F0001",
             "--target",
@@ -530,7 +533,7 @@ def test_add_failure_rejects_invalid_disposition(copy_fixture, monkeypatch):
     assert runner.invoke(app, ["init", "--profile", "runops-project"]).exit_code == 0
 
     result = runner.invoke(
-        app, ["add-failure", "--title", "bad", "--disposition", "not-a-disposition"]
+        app, ["feedback", "add-failure", "--title", "bad", "--disposition", "not-a-disposition"]
     )
 
     assert result.exit_code == 1
@@ -546,6 +549,7 @@ def test_feedback_export_skips_project_evolution(copy_fixture, monkeypatch):
         runner.invoke(
             app,
             [
+                "feedback",
                 "add-failure",
                 "--title",
                 "research pivot only",
@@ -623,7 +627,7 @@ def test_adopted_decision_requires_evidence_and_guard(copy_fixture, monkeypatch)
     monkeypatch.chdir(root)
     assert runner.invoke(app, ["init", "--profile", "runops-upstream"]).exit_code == 0
 
-    result = runner.invoke(app, ["decide", "--from", "H0001", "--status", "adopted"])
+    result = runner.invoke(app, ["lab", "decide", "--from", "H0001", "--status", "adopted"])
 
     assert result.exit_code == 1
     assert "adopted の判断には" in result.output
@@ -639,6 +643,7 @@ def test_sanitize_config_redacts_private_terms(copy_fixture, monkeypatch):
         runner.invoke(
             app,
             [
+                "feedback",
                 "add-failure",
                 "--title",
                 "Secret method leaked",

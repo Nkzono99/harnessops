@@ -109,7 +109,7 @@ dossier は `records/feedback`、`records/eval-cases`、`records/hypotheses`、`
 
 `harness-lab/` は証拠を蓄積する場所ですが、蓄積だけでは長期記憶になりません。一定サイズを超えたかどうかは `hops lab memory lint` で検出します。lint は発火基準を見るだけで、抽象化はしません。
 
-`hops lab compact` は残しますが、役割は deterministic knowledge snapshot です。個別エピソードを消さず、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を source ID 付きで索引化します。これは機械的な集計であり、人間の夢のような抽象化そのものではありません。
+`hops lab memory compact` は残しますが、役割は deterministic knowledge snapshot です。個別エピソードを消さず、繰り返し出た failure class、採用済み guard、外部比較、反例、open question を source ID 付きで索引化します。これは機械的な集計であり、人間の夢のような抽象化そのものではありません。
 
 抽象化は `hops lab memory prepare` が作る入力 bundle と、`hops-compact-lab-memory` skill に分けます。skill は source records と snapshot を読み、`principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md` へ、より抽象的な意味、適用条件、反例、中止基準を更新します。Anthropic Managed Agents の dreaming、Claude memory tool、Generative Agents、Reflexion、MemGPT などの外部事例も、episodic trace と semantic reflection を分ける方が設計しやすいことを示しています。
 
@@ -124,6 +124,24 @@ HarnessOps では次の境界にします。
 | `knowledge/principles.md` など | 更新可能 | skill と人間が保守する semantic memory。source ID と digest を持つ。 |
 
 `knowledge/` は採用判断の証拠そのものにはしません。判断や反例処理では、source ID から必ず `records/` または `improvements/` に戻ります。`lab-memory.md` には手編集可能な `Curator Notes` を残し、agent や人間が「圧縮結果の読み方」「今後の見直し観点」を追記できます。
+
+## ラボ活用導線
+
+記録は保存するだけでは価値になりません。HarnessOps では、次の3つを lab の読み取り入口にします。
+
+| 導線 | コマンド | 使いどころ |
+|---|---|---|
+| 作業選定 | `hops lab review queue --json` | priority lane が、manual eval、decision、guard、research candidate などの次アクションを選ぶ。 |
+| 実装前想起 | `hops lab review context --capability <capability> --json` | 変更前に関連 dossier、過去判断、反例、guard、semantic memory を思い出す。 |
+| 停滞検出 | `hops lab review lint --warn-only` | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure を見る。 |
+
+agent は新しい record を作る前に `context` を見て、既存 dossier への `investigate` / `classify` で足りないか確認します。daily steward の priority lane は `queue` から始め、maintenance lane は必要に応じて `lifecycle lint` を使います。
+
+## ラボ忘却とリリースアーカイブ
+
+HarnessOps の忘却は二段階にします。日常運用では、正本レコードを消すより先に `hops lab memory compact` と `hops-compact-lab-memory` で recurring lesson を semantic memory に移します。人間の記憶も、個別エピソードを全部保持するのではなく、よく使う抽象、索引、判断基準を強め、細部は取り出しにくくなる方向で忘れます。HarnessOps でも同じく、まず読む対象を records から knowledge へ移し、証拠が必要な時だけ source ID に戻ります。
+
+物理的な削除は release gate で扱います。前回 release tag から今回 release ref までの commit 履歴を `hops lab archive plan --since-ref <previous-tag>` で調べ、削除された `harness-lab/records/` と `harness-lab/improvements/` があれば `hops lab archive pack --since-ref <previous-tag> --asset-name harness-lab-archive-v<version>.zip` で zip に保存します。pack には `manifest.json` と `SHA256SUMS` を含め、`hops lab archive verify <zip>` で確認してから GitHub release asset に添付します。生成 view や cache は再生成可能なので archive 対象外です。
 
 ## 改善分類
 
@@ -187,7 +205,7 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 | note | `hops lab investigate --from <IMP>` | 既存テーマへの調査、反例、外部比較、追加観測。 |
 | classify | `hops lab classify --from <IMP>` | maturity、relation、promotion、guard を更新すべき時。 |
 | capture | `hops lab capture` | 既存テーマに入らない新しい失敗クラスや二階観測。 |
-| propose | `hops lab new-eval-case` + `hops propose` | 実装または評価可能な改善仮説にする価値がある時。 |
+| propose | `hops lab eval-case create` + `hops lab propose` | 実装または評価可能な改善仮説にする価値がある時。 |
 
 新規 capture の目安は、次のいずれかです。
 
@@ -231,18 +249,18 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 | `hops lab investigate` | 既存 dossier へコード調査、外部比較、反例、追加観測を足す。 |
 | `hops lab classify` | maturity、relation、promotion、guard を更新する。 |
 | `hops lab capture` | 既存 dossier に入らない新しい failure class や cross-project pattern を記録する。 |
-| `hops lab new-eval-case` + `hops propose` | 評価可能な改善仮説へ進める。 |
+| `hops lab eval-case create` + `hops lab propose` | 評価可能な改善仮説へ進める。 |
 | `park` / `reject` | 証拠不足、過剰一般化、評価不能、既存構造で足りるものを増殖させない。 |
 
 手動調査は非定期に行います。定期実行だけにすると棚卸し儀式になりやすいため、強い発火条件、release前、または人間の依頼で起動します。将来的に自動化する場合も、即実装や即Issue化ではなく、まず `research-scan` として候補一覧と lab への追記案を出すだけに留めます。
 
 ## Daily Steward
 
-定期実行で改善ループを回す時は、単一の賢い agent ではなく `hops-daily-steward` を薄い conductor として扱います。daily steward は新しい workflow engine ではなく、sync、intake、停止条件、委譲先、最大作業量、end-of-run policy だけを決め、issue triage、open invention、selection、E/H/D、update は既存 skill に委譲します。
+定期実行で改善ループを回す時は、単一の賢い agent ではなく `hops-daily-steward` を薄い supervisor として扱います。daily steward は新しい workflow engine ではなく、sync、停止条件、subagent 同期、end-of-run synthesis だけを決めます。lane 順序、handoff text、lane result contract は `hops steward run start --json` の `supervisor_plan` が機械的に返し、lane 結果は `hops steward run record-lane-result` で `.harnessops/cache/steward-runs/` の ledger に残します。実作業は `hops-maintenance-steward`、`hops-issue-execution-steward`、`hops-invention-steward`、`hops-priority-improvement-steward`、`hops-finalize-steward` へ分け、各 skill は小さな契約に留めます。
 
-常時起動PCの Codex App automation を標準的な実行環境として想定します。他のPCから push された更新を取り込んでから夜間実行するため、最初に `hops steward preflight --pull --json` を実行します。この command は fetch、clean worktree 上の fast-forward pull、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を機械化します。dirty worktree、diverged branch、pull conflict は自動 stash や merge で解決せず、改善ループを止めて人間判断に戻します。夜間発火では run 中の remote 更新は原則ない前提でよく、開始SHA、pull結果、実行SHAを run ledger に残します。
+常時起動PCの Codex App automation を標準的な実行環境として想定します。他のPCから push された更新を取り込んでから夜間実行するため、最初に `hops steward run start --pull --json` を実行します。この command は fetch、clean worktree 上の fast-forward pull、doctor、migrate check、overlay counts、lane trigger scaffold、supervisor plan、run ledger を機械化します。dirty worktree、diverged branch、pull conflict は自動 stash や merge で解決せず、改善ループを止めて人間判断に戻します。夜間発火では run 中の remote 更新は原則ない前提でよく、開始SHA、pull結果、実行SHAを run ledger に残します。
 
-Advance は完全自動化に必要な lane として残します。ただし、Human review is not a precondition for local advance; automated gates are mandatory. Gate は global / record / implementation / merge に分けます。research-scan、investigate、classify、issue draft は concrete observation や evidence ref があれば record gate で進められます。code、docs、skill、workflow、update-harness、採用判断、guard 更新は validation と guard plan を要求します。HarnessOps 最新化は毎回の開始 step ではなく、preflight、doctor、update notice、lock drift、managed-file drift が示した時の update lane です。完全自動化では、protected branch への direct push ではなく、GitHub Flow を標準として automation branch から `main` へ PR/merge します。Git Flow 風の repo だけ `develop` を merge target にできます。作業量は systemic candidate 数ではなく risk tier と work-packet budget で制御します。clean repo で global gate が通る場合、status-only no-op は正常系ではありません。reactive work がなければ candidate queue を見に行き、queue も薄ければ `hops-open-meta-scan` で discovery cards を作り、`hops-research-improvements` で ranked queue へ接続します。No-op は blocker、validation failure、budget exhaustion、または explicit discovery failure の結果です。
+Advance は完全自動化に必要な lane として残します。ただし、Human review is not a precondition for local advance; automated gates are mandatory. Gate は global / record / implementation / merge に分けます。maintenance lane は `update-policy: apply` や stale signal に従って HOPS/update-harness と safe lab maintenance を扱います。issue lane は open issue を HOPS record に載せてから実行します。invention lane は reactive work の有無に関係なく open scan と evidence/routing を行い、priority lane は記録済み候補から重要な T2/T3 work packet や eval/guard を進めます。finalize lane は validation、automation branch、PR、required checks、merge、release criteria だけを担当します。小さい lane が変更を作っても後続 lane を省略しないことが、status-only no-op と maintenance-only success を避ける guard です。
 
 ## 3種類の改善を混ぜない
 

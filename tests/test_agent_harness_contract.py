@@ -40,10 +40,10 @@ def test_generated_bridge_scopes_feedback_source_interface() -> None:
     assert_harness_contract(text)
     assert "feedback-source interface" in text
     assert "hops feedback export --sanitize" in text
-    assert "hops add-failure" in text
+    assert "hops feedback add-failure" in text
     assert "uvx --from harnessops hops lab capture" not in text
-    assert "uvx --from harnessops hops propose" not in text
-    assert "uvx --from harnessops hops decide" not in text
+    assert "uvx --from harnessops hops lab propose" not in text
+    assert "uvx --from harnessops hops lab decide" not in text
 
 
 def test_repo_local_bridge_expands_hops_skills(tmp_path) -> None:
@@ -62,9 +62,14 @@ def test_harnessops_repo_has_repo_local_hops_skills() -> None:
         "hops-add-failure",
         "hops-compact-lab-memory",
         "hops-daily-steward",
+        "hops-finalize-steward",
         "hops-github-flow",
+        "hops-invention-steward",
         "hops-issue-triage",
+        "hops-issue-execution-steward",
+        "hops-maintenance-steward",
         "hops-open-meta-scan",
+        "hops-priority-improvement-steward",
         "hops-research-improvements",
         "hops-run-lab",
         "hops-update-harness",
@@ -148,9 +153,9 @@ def test_feedback_triage_ownership_contract_is_documented() -> None:
         assert "sanitize" in text
 
     cli_spec = (ROOT / "specs/cli-spec.md").read_text(encoding="utf-8")
-    assert "hops feedback add --target <target>" in cli_spec
-    assert "hops add-failure" in cli_spec
-    assert "hops add-feedback --from <Fid>" in cli_spec
+    assert "hops feedback add-failure" in cli_spec
+    assert "hops feedback route" in cli_spec
+    assert "hops feedback add --from <Fid>" in cli_spec
 
 
 def test_builtin_profiles_expose_domain_triage_hooks() -> None:
@@ -223,7 +228,7 @@ def test_issue_triage_skill_is_packaged() -> None:
         text = skill.read_text(encoding="utf-8")
         assert text == repo_skill
         assert "hops feedback import --issue" in text
-        assert "hops lab new-eval-case" in text
+        assert "hops lab eval-case create" in text
         assert_harness_contract(text)
 
 
@@ -272,7 +277,7 @@ def test_lab_capture_contract_is_documented() -> None:
     ]
     for path in docs:
         assert "hops lab capture" in path.read_text(encoding="utf-8")
-        assert "hops lab compact" in path.read_text(encoding="utf-8")
+        assert "hops lab memory compact" in path.read_text(encoding="utf-8")
         assert "hops lab memory lint" in path.read_text(encoding="utf-8")
         assert "hops lab research-scan" in path.read_text(encoding="utf-8")
     for host in ("codex", "claude"):
@@ -280,7 +285,7 @@ def test_lab_capture_contract_is_documented() -> None:
         assert "hops lab capture" in text
         assert "hops lab investigate" in text
         assert "hops lab classify" in text
-        assert "hops lab compact" in text
+        assert "hops lab memory compact" in text
         assert "hops lab memory lint" in text
         assert "メタ仮説スキャン" in text
         assert_harness_contract(text)
@@ -313,8 +318,8 @@ def test_meta_improvement_research_skill_is_packaged() -> None:
     assert "hops lab classify" in repo_skill
     assert "hops lab research-scan" in repo_skill
     assert "hops lab capture" in repo_skill
-    assert "hops propose" in repo_skill
-    assert "hops add-failure" in repo_skill
+    assert "hops lab propose" in repo_skill
+    assert "hops feedback add-failure" in repo_skill
     assert "hops feedback export --target <target> --sanitize" in repo_skill
     assert "project repo で `harness-lab/` を作らない" in repo_skill
     assert "メタ仮説スキャン" in repo_skill
@@ -348,33 +353,17 @@ def test_open_meta_scan_skill_is_packaged() -> None:
 
 def test_daily_steward_skill_is_packaged() -> None:
     repo_skill = (ROOT / ".agents/skills/hops-daily-steward/SKILL.md").read_text(encoding="utf-8")
-    assert "steward / conductor" in repo_skill
-    assert "must not stop at status reporting" in repo_skill
-    assert "proactive discovery" in repo_skill
-    assert "Role Routing" in repo_skill
-    assert "Project repo: use `harness-feedback/`" in repo_skill
-    assert "Global Gates" in repo_skill
-    assert "Gate Levels" in repo_skill
-    assert "hops steward preflight --pull --json" in repo_skill
-    assert "Update Lane" in repo_skill
-    assert "Do not start every daily run by updating HarnessOps to the latest release" in repo_skill
-    assert "uvx --refresh-package harnessops --from harnessops hops update-harness" in repo_skill
-    assert "Record gate" in repo_skill
-    assert "Implementation gate" in repo_skill
-    assert "Merge gate" in repo_skill
+    assert "thin supervisor" in repo_skill
+    assert "must not perform maintenance" in repo_skill
+    assert "supervisor_plan" in repo_skill
+    assert "Do not read each lane skill body up front" in repo_skill
+    assert "hops steward run start --pull --json" in repo_skill
+    assert "--update-policy apply" in repo_skill
+    assert "hops steward run record-lane-result" in repo_skill
+    assert "hops steward run end" in repo_skill
+    assert "inline_fallback=true" in repo_skill
     assert "stash, reset, rebase, force-push" in repo_skill
     assert "automation prompt" in repo_skill
-    assert "Work Budgets" in repo_skill
-    assert "discovery cards: 8" in repo_skill
-    assert "Candidate count is not the primary limit" in repo_skill
-    assert "No-Idle Policy" in repo_skill
-    assert "No-op is valid only" in repo_skill
-    assert "status-only no-op" in repo_skill
-    assert "no-argument open issue discovery" in repo_skill
-    assert "hops-open-meta-scan" in repo_skill
-    assert "hops-research-improvements" in repo_skill
-    assert "hops-run-lab" in repo_skill
-    assert "Remote actions follow explicit automation prompt authorization" in repo_skill
     assert "max-systemic-candidates" not in repo_skill
     assert "systemic candidate: max 1" not in repo_skill
     assert_harness_contract(repo_skill)
@@ -386,6 +375,45 @@ def test_daily_steward_skill_is_packaged() -> None:
         assert_harness_contract(text)
 
 
+def test_daily_lane_steward_skills_are_packaged() -> None:
+    required = {
+        "hops-maintenance-steward": [
+            "hops-update-harness",
+            "update-policy: apply",
+            "hops-compact-lab-memory",
+        ],
+        "hops-issue-execution-steward": [
+            "hops-issue-triage",
+            "remote_action_allowed",
+            "hops feedback export",
+        ],
+        "hops-invention-steward": [
+            "hops-open-meta-scan",
+            "hops-research-improvements",
+            "parked/rejected ideas",
+        ],
+        "hops-priority-improvement-steward": [
+            "T2/T3",
+            "hops-run-lab",
+            "guard",
+        ],
+        "hops-finalize-steward": [
+            "hops github-flow publish",
+            "hops github-flow merge --require-checks",
+            "Release only when",
+        ],
+    }
+    for skill_name, snippets in required.items():
+        repo_skill = (ROOT / f".agents/skills/{skill_name}/SKILL.md").read_text(encoding="utf-8")
+        assert_harness_contract(repo_skill)
+        for snippet in snippets:
+            assert snippet in repo_skill
+        for host in ("codex", "claude"):
+            text = packaged_skill(host, skill_name).read_text(encoding="utf-8")
+            assert text == repo_skill
+            assert_harness_contract(text)
+
+
 def test_daily_steward_automation_prompt_is_documented() -> None:
     prompt_doc = (ROOT / "docs/daily-steward-automation.md").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -394,26 +422,22 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "このリポジトリで repo-local skill `.agents/skills/hops-daily-steward/SKILL.md` を実行してください。" in prompt_doc
     assert "HarnessOps を導入した target repository / project repository にも配布して使えます" in prompt_doc
     assert "強い自動化" in prompt_doc
-    assert "status-only no-op を通常結果にせず" in prompt_doc
+    assert "prompt を太らせず" in prompt_doc
     assert "base-branch: main" in prompt_doc
     assert "project repo に `harness-lab/` を作らないでください" in prompt_doc
     assert "subagents: explicitly allowed" in prompt_doc
     assert "merge-target-branch: main" in prompt_doc
-    assert "Budgets:" in prompt_doc
-    assert "discovery-cards: 8" in prompt_doc
-    assert "recordable-candidates: 5" in prompt_doc
-    assert "low-risk-work-packets: 5" in prompt_doc
-    assert "medium-risk-work-packets: 3" in prompt_doc
-    assert "high-risk-work-packets: 1" in prompt_doc
     assert "remote-write: automation-branch-merge" in prompt_doc
+    assert "update-policy: apply" in prompt_doc
     assert "protected-branch-direct-push: false" in prompt_doc
     assert "create/update/merge automation PRs: true" in prompt_doc
     assert "create/comment/close GitHub issues: true" in prompt_doc
     assert "release: true, only when repo-native release criteria are met" in prompt_doc
-    assert "Update lane:" in prompt_doc
-    assert "do not update HarnessOps to latest as a mandatory start step" in prompt_doc
-    assert "uvx --refresh-package harnessops --from harnessops hops update-harness" in prompt_doc
-    assert "hops steward preflight --pull --json" in prompt_doc
+    assert "do not perform lane work directly" in prompt_doc
+    assert "hops steward run start --pull --json --update-policy apply" in prompt_doc
+    assert "hops steward run record-lane-result" in prompt_doc
+    assert "hops steward run end" in prompt_doc
+    assert "supervisor_plan" in prompt_doc
     assert "hops github-flow publish" in prompt_doc
     assert "hops github-flow pr" in prompt_doc
     assert "hops github-flow merge --require-checks" in prompt_doc
@@ -422,16 +446,14 @@ def test_daily_steward_automation_prompt_is_documented() -> None:
     assert "uv run --with-editable . hops migrate" not in prompt_doc
     assert "uv run pytest" not in prompt_doc
     assert "uv run ruff" not in prompt_doc
-    assert "repo-native test/lint/build/domain checks" in prompt_doc
+    assert "repo-native validation" in prompt_doc
     assert "git push -u origin HEAD" not in prompt_doc
     assert "max-systemic-candidates" not in prompt_doc
     assert "release: false" not in prompt_doc
     assert "推奨プロンプト" not in prompt_doc
     assert "## Prompt" in prompt_doc
-    assert "hops-open-meta-scan" in prompt_doc
-    assert "hops-research-improvements" in prompt_doc
     assert 'hops github-flow publish --branch "codex/steward/<YYYYMMDD>-daily"' in prompt_doc
-    assert "documented release command or repo-local release skill" in prompt_doc
+    assert "release skill or documented command" in prompt_doc
     assert "daily-steward-automation.md" in readme
     assert "daily-steward-automation.md" in agent_guide
 

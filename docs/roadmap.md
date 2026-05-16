@@ -45,7 +45,7 @@
 
 - `hops profiles discover`
 - `hops profiles validate <profile-id-or-path>`
-- `hops feedback add --target <target>` as alias for the add-failure/add-feedback flow
+- `hops feedback inbox` or another higher-level capture flow over `add-failure` / `add`
 - `hops lab inbox`
 - `hops lab triage <feedback-id>`
 - `hops lab new-hypothesis --from <eval-case-id>`

@@ -36,16 +36,16 @@ PROJECT_BRIDGE_BODY = """
 この repo は project-side の feedback-source interface です。`harness-feedback/` で観測、ローカル回避策、上流候補を扱い、`harness-lab/` や採用判断は target/meta repo 側に置きます。
 
 - `uvx --from harnessops hops doctor --check-overlay`
-- `uvx --from harnessops hops add-failure`
-- `uvx --from harnessops hops route`
-- `uvx --from harnessops hops add-feedback`
+- `uvx --from harnessops hops feedback add-failure`
+- `uvx --from harnessops hops feedback route`
+- `uvx --from harnessops hops feedback add`
 - `uvx --from harnessops hops feedback export --sanitize`
 - `uvx --from harnessops hops feedback export --sanitize --format github-issue`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
 - `uvx --from harnessops hops migrate --check`
 
-`hops feedback import`、`hops lab ...`、`hops propose`、`hops eval`、`hops decide` は upstream-lab または meta-lab repo で実行してください。project repo では未サニタイズ情報、ローカルパス、private term を外部向け bundle や issue コメントへ戻さないでください。
+`hops feedback import`、`hops lab ...`、`hops lab propose`、`hops lab eval`、`hops lab decide` は upstream-lab または meta-lab repo で実行してください。project repo では未サニタイズ情報、ローカルパス、private term を外部向け bundle や issue コメントへ戻さないでください。
 """
 
 LAB_BRIDGE_BODY = """
@@ -55,10 +55,10 @@ LAB_BRIDGE_BODY = """
 - `uvx --from harnessops hops lab dossier --from <FBid>`
 - `uvx --from harnessops hops lab investigate --from <IMPid> --summary <summary>`
 - `uvx --from harnessops hops lab classify --from <IMPid>`
-- `uvx --from harnessops hops lab new-eval-case --from <FBid>`
-- `uvx --from harnessops hops propose --from <Eid>`
-- `uvx --from harnessops hops eval --case <Eid> --manual`
-- `uvx --from harnessops hops decide --from <id> --status <status>`
+- `uvx --from harnessops hops lab eval-case create --from <FBid>`
+- `uvx --from harnessops hops lab propose --from <Eid>`
+- `uvx --from harnessops hops lab eval --case <Eid> --manual`
+- `uvx --from harnessops hops lab decide --from <id> --status <status>`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness`
 - `uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade`
 - `uvx --from harnessops hops migrate --check`

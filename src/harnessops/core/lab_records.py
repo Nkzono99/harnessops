@@ -437,7 +437,7 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
 
 - `{failure_class}` の再現条件が検出または防止される。
 - 提案または実装される変更が source feedback の期待変更に対応している。
-- `hops eval --case {record_id} --manual` の score と notes で採用判断に必要な証拠を説明できる。
+- `hops lab eval --case {record_id} --manual` の score と notes で採用判断に必要な証拠を説明できる。
 - 非公開プロジェクト詳細を追加で要求しない。
 
 ## 不合格基準
@@ -505,7 +505,7 @@ def create_hypothesis(
 
 ## 評価計画
 
-{evaluation_plan or f"`hops eval --case {eval_case_id} --manual` を実行し、採用判断を作る前に多軸スコアを記録する。"}
+{evaluation_plan or f"`hops lab eval --case {eval_case_id} --manual` を実行し、採用判断を作る前に多軸スコアを記録する。"}
 
 ## 中止基準
 
