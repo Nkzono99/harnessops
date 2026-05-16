@@ -327,10 +327,24 @@ def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatc
     run_cli(["update-harness", "--agent-bridge", "--codex"])
 
     assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
+    assert not (root / ".claude/skills/harnessops-bridge/SKILL.md").exists()
     assert (root / ".agents/skills/hops-add-failure/SKILL.md").exists()
     assert not (root / ".agents/skills/hops-github-flow/SKILL.md").exists()
     assert not (root / ".agents/skills/hops-run-lab/SKILL.md").exists()
     assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
+
+
+def test_update_harness_agent_bridge_honors_project_agents_config(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+
+    run_cli(["update-harness", "--agent-bridge"])
+
+    assert (root / ".agents/skills/harnessops-bridge/SKILL.md").exists()
+    assert (root / ".claude/skills/harnessops-bridge/SKILL.md").exists()
+    assert (root / ".agents/skills/hops-update-harness/SKILL.md").exists()
+    assert (root / ".claude/skills/hops-update-harness/SKILL.md").exists()
 
 
 def test_update_harness_retires_project_side_lab_agent_skills(copy_fixture, monkeypatch):

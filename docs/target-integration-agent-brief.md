@@ -164,7 +164,7 @@ uvx --refresh-package harnessops --from harnessops hops update-harness --plan-up
 
 未適用migrationを適用する場合は、target CLI 側の明示フラグまたは人間確認を通してから `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。`hops init --force` や migration 適用を暗黙に実行しないでください。
 
-repo-local skill 展開は対象repoの状態なので、明示オプションで入れてかまいません。
+repo-local skill 展開は対象repoの状態なので、明示オプションで入れてかまいません。`update-harness --agent-bridge` は `.harnessops/project.toml` の `[agents]` 設定に従い、特定 host だけに絞る場合は `hops agent bridge --codex` / `--claude` または `update-harness --agent-bridge --codex` / `--claude` を使います。
 
 ```bash
 uvx --from harnessops hops agent bridge --codex
@@ -176,7 +176,7 @@ GitHub Flow skill を再展開時に外す場合は、`.harnessops/project.toml`
 
 ```bash
 uvx --from harnessops hops agent bridge --codex --no-github-flow
-uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --codex --no-github-flow
+uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --no-github-flow
 ```
 
 HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin install は標準運用から外しているため、target/project lifecycle から実行しません。複数repoで使う場合も、各repoで `hops agent bridge` または `update-harness --agent-bridge` を実行します。
