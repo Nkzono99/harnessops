@@ -170,7 +170,7 @@ repo-local skill 展開は対象repoの状態なので、明示オプション�
 uvx --from harnessops hops agent bridge --codex
 ```
 
-target/meta lab repo では `.agents/skills/hops-issue-triage/`、`hops-run-lab/`、`hops-github-flow/` など lab/eval/propose/decide/GitHub Flow 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
+target/meta lab repo では `.agents/skills/hops-daily-steward/` と daily lane skills、`hops-issue-triage/`、`hops-run-lab/`、`hops-github-flow/` など lab/eval/propose/decide/GitHub Flow 側の skill が対象repoに入ります。project-side の `feedback-source` repo では feedback capture/export と lifecycle 系だけに絞られます。Codex は既存セッションへskillを後から注入しないため、新しい Codex セッションを開いて確認してください。
 
 GitHub Flow skill を再展開時に外す場合は、`.harnessops/project.toml` で `[github_flow] enabled = false` にするか、次を使います。
 

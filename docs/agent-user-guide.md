@@ -102,11 +102,19 @@ hops lab memory prepare --force
 
 `harness-lab/knowledge/lab-memory.yml` と `.md` は source-linked な索引です。`harness-lab/knowledge/lab-memory-input.yml` と `.md` は skill の入力です。skill は `principles.md`、`patterns.yml`、`anti-patterns.md`、`evaluation-playbook.md`、`lab-memory-abstraction.yml` を更新し、すべての抽象知に source ID と source digest を持たせます。records と dossier は引き続き正本です。`lab-memory.md` の `Curator Notes` は手編集してよく、次回 snapshot でも保持されます。
 
+release で古い lab source を物理的に外す場合は、削除済み record/dossier を release asset に逃がしてから release します。生成 view は対象外です。
+
+```bash
+hops lab archive plan --since-ref v0.1.10 --to-ref HEAD
+hops lab archive pack --since-ref v0.1.10 --to-ref HEAD --out dist --asset-name harness-lab-archive-v0.1.11.zip
+hops lab archive verify dist/harness-lab-archive-v0.1.11.zip
+```
+
 発散的な改善案を出したい時は `hops-open-meta-scan` skill を使います。これは lab record や issue を作る前の invention lane で、Raw Ideas、Counterframes、Routing Hints を出し、まだ `hops lab capture` や `research-scan` を実行しません。
 
 メタ改善案を意図的に調査・選別する時は `hops-research-improvements` skill を使います。これは HarnessOps core だけでなく、HarnessOps を導入した target/project repository でも使う selection/routing lane です。作業中の短いメタ仮説スキャンや `hops-open-meta-scan` とは別に、コードベース、既存 dossier/feedback、過去判断、tests、skills、docs を見たうえで、必要なら web/外部実務/公式 docs を比較します。target/meta lab repo では、まず `hops lab research-scan` で scope、evidence、candidate、relation、recommendation、next command を構造化できます。その後、新規レコード乱立を避けながら `hops lab investigate`、`hops lab classify`、必要な場合だけ `hops lab capture` や `hops propose` に落とします。project repo では `harness-lab/` を作らず、観測を `hops add-failure`、`hops route`、`hops add-feedback`、`hops feedback export --sanitize` に流します。
 
-定期的に issue、feedback、lab、doctor/update 状態、発想的改善、既存評価の前進をまとめて見る時は `hops-daily-steward` skill を使います。これは単一の万能 agent ではなく、既存 skill へ委譲する薄い conductor です。常時起動PCの Codex App automation で夜間に走らせる場合は、[daily steward automation prompt](daily-steward-automation.md) を使い、最初に `hops steward preflight --pull --json` を実行します。この command は `git fetch --prune`、clean worktree 上の `git pull --ff-only`、doctor、migrate check、overlay counts、lab health、lane trigger scaffold、run ledger を機械的に返します。dirty、diverged、conflict の場合は HOPS state change へ進みません。HarnessOps 最新化は毎回の開始 step ではなく、preflight、doctor、update notice、lock drift、managed-file drift が示した時の update lane / work packet として扱います。Human review は local advance の前提ではありませんが、implementation 以降は validation と guard plan が必須です。record / research / metadata work は concrete observation や evidence ref があれば queue を厚くするために進められます。作業量は `max 1` ではなく risk tier と work-packet budget で制御します。clean repo で global gate が通るなら status-only no-op を通常結果にせず、reactive work、candidate queue、`hops-open-meta-scan`、safe cleanup のいずれかへ進みます。remote merge / issue / PR / release は automation prompt で明示した場合だけ実行し、target/meta repo の標準は `hops-github-flow` / `hops github-flow ...` による automation branch から protected `main` への PR/merge です。project repo では通常 GitHub Flow skill を配布しません。Git Flow 風の repo だけ `develop` を merge target にできます。
+定期的に issue、feedback、lab、doctor/update 状態、発想的改善、既存評価の前進をまとめて見る時は `hops-daily-steward` skill を使います。これは単一の万能 agent ではなく、薄い supervisor です。常時起動PCの Codex App automation で夜間に走らせる場合は、[daily steward automation prompt](daily-steward-automation.md) を使い、最初に `hops steward run start --pull --json --update-policy apply` を実行します。返された `run_id` と `supervisor_plan` が lane 順序、handoff text、lane result contract を機械的に返すので、supervisor は自分で実作業をせず各 lane を順番に subagent へ渡し、各結果を `hops steward run record-lane-result` で ledger に残します。maintenance が変更を作っても invention / priority lane は原則走るため、小さな更新だけで一日分の処理が終わることを避けます。remote merge / issue / PR / release は automation prompt で明示した場合だけ実行し、target/meta repo の標準は `hops-github-flow` / `hops github-flow ...` による automation branch から protected `main` への PR/merge です。project repo では通常 GitHub Flow skill を配布しません。Git Flow 風の repo だけ `develop` を merge target にできます。
 
 lab 起点の改善を GitHub Issue に昇格する時は、まず下書きで title/body を確認します。
 

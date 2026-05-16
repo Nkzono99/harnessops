@@ -35,7 +35,146 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
     assert payload["git"]["pull_status"] in {"no-git", "not-requested"}
     assert "issue-triager" in payload["lane_triggers"]
     assert payload["subagent_plan"]["authorization"] == "external-prompt-required"
-    assert "Run hops-daily-steward lanes" in payload["next_agent_step"]
+    plan = payload["supervisor_plan"]
+    assert plan["mode"] == "sequential-subagents"
+    assert plan["update_policy"] == "signal-only"
+    assert plan["lane_result_contract"] == [
+        "status",
+        "changed_files",
+        "records_created_or_updated",
+        "issues_touched",
+        "validation",
+        "recommended_next",
+        "stop_reason",
+    ]
+    assert [lane["skill"] for lane in plan["lanes"]] == [
+        "hops-maintenance-steward",
+        "hops-issue-execution-steward",
+        "hops-invention-steward",
+        "hops-priority-improvement-steward",
+        "hops-finalize-steward",
+    ]
+    assert "Return the lane result contract" in plan["lanes"][0]["handoff"]
+    assert "Run the hops-daily-steward supervisor" in payload["next_agent_step"]
+
+
+def test_steward_preflight_accepts_update_policy_apply(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    result = run_cli(["steward", "preflight", "--json", "--update-policy", "apply"])
+    payload = json.loads(result.output)
+
+    assert payload["supervisor_plan"]["update_policy"] == "apply"
+
+
+def test_steward_preflight_rejects_unknown_update_policy(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    result = runner.invoke(app, ["steward", "preflight", "--json", "--update-policy", "always"])
+
+    assert result.exit_code == 1
+    assert "update_policy must be signal-only or apply" in result.output
+
+
+def _valid_lane_result(status: str = "completed") -> dict:
+    return {
+        "status": status,
+        "changed_files": [],
+        "records_created_or_updated": [],
+        "issues_touched": [],
+        "validation": "ok",
+        "recommended_next": [],
+        "stop_reason": None,
+    }
+
+
+def test_steward_run_start_writes_ledger(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    result = run_cli(["steward", "run", "start", "--json", "--update-policy", "apply"])
+    payload = json.loads(result.output)
+    ledger_path = root / payload["path"]
+
+    assert payload["ok"] is True
+    assert payload["supervisor_plan"]["update_policy"] == "apply"
+    assert ledger_path.exists()
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    assert ledger["run_id"] == payload["run_id"]
+    assert [lane["status"] for lane in ledger["lanes"]] == ["pending"] * 5
+
+
+def test_steward_run_validates_lane_result_json(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    valid = json.dumps(_valid_lane_result())
+    result = run_cli(
+        ["steward", "run", "validate-lane-result", "--result-json", valid, "--json"]
+    )
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+
+    invalid = json.dumps({"status": "done"})
+    result = runner.invoke(
+        app,
+        ["steward", "run", "validate-lane-result", "--result-json", invalid, "--json"],
+    )
+    payload = json.loads(result.output)
+    assert result.exit_code == 1
+    assert payload["ok"] is False
+    assert "missing required field: changed_files" in payload["errors"]
+
+
+def test_steward_run_records_lane_result_and_end_status(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+
+    started = json.loads(run_cli(["steward", "run", "start", "--json"]).output)
+    run_id = started["run_id"]
+    result_json = json.dumps(_valid_lane_result("completed"))
+    recorded = run_cli(
+        [
+            "steward",
+            "run",
+            "record-lane-result",
+            "--run-id",
+            run_id,
+            "--lane",
+            "maintenance",
+            "--result-json",
+            result_json,
+            "--json",
+        ]
+    )
+    payload = json.loads(recorded.output)
+    assert payload["ok"] is True
+    assert payload["status"] == "completed"
+
+    ledger = json.loads((root / started["path"]).read_text(encoding="utf-8"))
+    assert ledger["lanes"][0]["status"] == "completed"
+    assert ledger["events"][-1]["type"] == "lane-result"
+
+    completed = runner.invoke(
+        app,
+        ["steward", "run", "end", "--run-id", run_id, "--status", "completed", "--json"],
+    )
+    assert completed.exit_code == 1
+    assert "cannot complete run with pending lanes" in completed.output
+
+    ended = run_cli(
+        ["steward", "run", "end", "--run-id", run_id, "--status", "blocked", "--json"]
+    )
+    payload = json.loads(ended.output)
+    assert payload["ok"] is True
+    assert payload["status"] == "blocked"
 
 
 def test_steward_preflight_routes_stale_lab_health_to_librarian(copy_fixture, monkeypatch):

@@ -16,7 +16,8 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops doctor` | いいえ | プロジェクトリンク、オーバーレイ、ロック、レコードを検証します。 |
 | `hops migrate --check/--apply` | `--apply` のみ | スキーマ/レイアウトマイグレーションを確認または適用します。 |
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。lock の `harnessops_version` が古い場合は PyPI checkpoint を順に適用します。編集済みmanaged fileは `<path>.new` に書きます。 |
-| `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の定型 preflight を実行します。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を返し、dirty/diverged/conflict では停止します。 |
+| `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の定型 preflight を実行します。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、supervisor plan を返し、dirty/diverged/conflict では停止します。 |
+| `hops steward run start/validate-lane-result/record-lane-result/end` | `start --pull` の fast-forward のみ | `.harnessops/cache/steward-runs/` に daily run ledger を作り、lane result contract を検証し、lane結果とrun終了状態を記録します。 |
 | `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | daily steward run 後の変更処理を行います。`patch-only` は worktree に残して報告し、`commit-local` は `--validation-passed` がある時だけ local automation branch に commit します。push は行いません。 |
 | `hops github-flow preflight/publish/pr/merge` | publish/pr/merge ははい | target/meta repo の GitHub Flow を実行します。project repo では既定で無効です。`publish` は validation 済み branch commit/push、`pr` は PR 作成、`merge` は required checks と conflict guard 後の merge を担当します。required check が未報告の場合は、失敗 check とは別に `no required checks reported` として停止します。 |
 | `hops add-failure` | はい | プロジェクト側の失敗レコードを作成します。 |
@@ -34,6 +35,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops lab compact [--force]` | はい | `harness-lab` が閾値を超えた時、または `--force` 時に、正本レコードを残したまま deterministic knowledge snapshot として `harness-lab/knowledge/lab-memory.yml` と `.md` を更新します。 |
 | `hops lab memory lint` | いいえ | lab size、source digest、deterministic snapshot、semantic memory manifest を見て、抽象化 skill を走らせるべきか判定します。 |
 | `hops lab memory prepare [--force]` | はい | `hops-compact-lab-memory` skill が読む `harness-lab/knowledge/lab-memory-input.yml` と `.md` を作ります。抽象化そのものは行いません。 |
+| `hops lab archive plan/pack/verify --since-ref <tag>` | packのみ | release 時に `<tag>..HEAD` の commit 履歴から削除済み `harness-lab/records/` と `harness-lab/improvements/` を抽出し、release asset 用 zip と manifest/SHA256SUMS を作ります。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済みGitHub Issue下書きを作り、重複確認後に明示確認付きでIssueを作成します。成功時はlab recordへIssue URLを書き戻します。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新します。 |
 | `hops propose --from <Eid>` | はい | メカニズムと中止基準を含む仮説を作成します。 |
@@ -52,11 +54,12 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 5. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
 6. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。
 7. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
-8. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
-9. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
-10. `hops steward preflight --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
-11. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
-12. `hops github-flow ...` は `[github_flow] enabled = true` かつ target/meta overlay の repo だけで有効です。`hops init --no-github-flow`、`hops agent bridge --no-github-flow`、`hops update-harness --agent-bridge --no-github-flow`、または `.harnessops/project.toml` の `[github_flow] enabled = false` で配布と実行を抑止できます。
+8. `hops lab archive` は物理忘却の release gate です。日常運用では削除せず、release 時に前回 tag からの削除履歴を archive pack に保存してから GitHub release asset として添付します。対象は source records と dossier で、生成 view は除外します。
+9. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
+10. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
+11. `hops steward preflight --pull` と `hops steward run start --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
+12. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
+13. `hops github-flow ...` は `[github_flow] enabled = true` かつ target/meta overlay の repo だけで有効です。`hops init --no-github-flow`、`hops agent bridge --no-github-flow`、`hops update-harness --agent-bridge --no-github-flow`、または `.harnessops/project.toml` の `[github_flow] enabled = false` で配布と実行を抑止できます。
 
 ## Update notice
 
@@ -86,8 +89,11 @@ hops init --profile runops-project
 hops doctor --check-overlay --check-records
 hops migrate --check
 hops steward preflight --json
+hops steward run start --json --update-policy apply
+hops steward run validate-lane-result --result-json '{"status":"completed","changed_files":[],"records_created_or_updated":[],"issues_touched":[],"validation":"ok","recommended_next":[],"stop_reason":null}'
 hops steward finalize --policy patch-only --json
 hops github-flow preflight --json
+hops lab archive plan --since-ref v0.1.0 --to-ref HEAD
 hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001 --json
 hops feedback export --sanitize

@@ -125,6 +125,12 @@ HarnessOps では次の境界にします。
 
 `knowledge/` は採用判断の証拠そのものにはしません。判断や反例処理では、source ID から必ず `records/` または `improvements/` に戻ります。`lab-memory.md` には手編集可能な `Curator Notes` を残し、agent や人間が「圧縮結果の読み方」「今後の見直し観点」を追記できます。
 
+## ラボ忘却とリリースアーカイブ
+
+HarnessOps の忘却は二段階にします。日常運用では、正本レコードを消すより先に `hops lab compact` と `hops-compact-lab-memory` で recurring lesson を semantic memory に移します。人間の記憶も、個別エピソードを全部保持するのではなく、よく使う抽象、索引、判断基準を強め、細部は取り出しにくくなる方向で忘れます。HarnessOps でも同じく、まず読む対象を records から knowledge へ移し、証拠が必要な時だけ source ID に戻ります。
+
+物理的な削除は release gate で扱います。前回 release tag から今回 release ref までの commit 履歴を `hops lab archive plan --since-ref <previous-tag>` で調べ、削除された `harness-lab/records/` と `harness-lab/improvements/` があれば `hops lab archive pack --since-ref <previous-tag> --asset-name harness-lab-archive-v<version>.zip` で zip に保存します。pack には `manifest.json` と `SHA256SUMS` を含め、`hops lab archive verify <zip>` で確認してから GitHub release asset に添付します。生成 view や cache は再生成可能なので archive 対象外です。
+
 ## 改善分類
 
 改善テーマには少なくとも次の分類を持たせます。
@@ -238,11 +244,11 @@ HarnessOps の狙いは、ユーザーが明示した改善だけでなく、作
 
 ## Daily Steward
 
-定期実行で改善ループを回す時は、単一の賢い agent ではなく `hops-daily-steward` を薄い conductor として扱います。daily steward は新しい workflow engine ではなく、sync、intake、停止条件、委譲先、最大作業量、end-of-run policy だけを決め、issue triage、open invention、selection、E/H/D、update は既存 skill に委譲します。
+定期実行で改善ループを回す時は、単一の賢い agent ではなく `hops-daily-steward` を薄い supervisor として扱います。daily steward は新しい workflow engine ではなく、sync、停止条件、subagent 同期、end-of-run synthesis だけを決めます。lane 順序、handoff text、lane result contract は `hops steward run start --json` の `supervisor_plan` が機械的に返し、lane 結果は `hops steward run record-lane-result` で `.harnessops/cache/steward-runs/` の ledger に残します。実作業は `hops-maintenance-steward`、`hops-issue-execution-steward`、`hops-invention-steward`、`hops-priority-improvement-steward`、`hops-finalize-steward` へ分け、各 skill は小さな契約に留めます。
 
-常時起動PCの Codex App automation を標準的な実行環境として想定します。他のPCから push された更新を取り込んでから夜間実行するため、最初に `hops steward preflight --pull --json` を実行します。この command は fetch、clean worktree 上の fast-forward pull、doctor、migrate check、overlay counts、lane trigger scaffold、run ledger を機械化します。dirty worktree、diverged branch、pull conflict は自動 stash や merge で解決せず、改善ループを止めて人間判断に戻します。夜間発火では run 中の remote 更新は原則ない前提でよく、開始SHA、pull結果、実行SHAを run ledger に残します。
+常時起動PCの Codex App automation を標準的な実行環境として想定します。他のPCから push された更新を取り込んでから夜間実行するため、最初に `hops steward run start --pull --json` を実行します。この command は fetch、clean worktree 上の fast-forward pull、doctor、migrate check、overlay counts、lane trigger scaffold、supervisor plan、run ledger を機械化します。dirty worktree、diverged branch、pull conflict は自動 stash や merge で解決せず、改善ループを止めて人間判断に戻します。夜間発火では run 中の remote 更新は原則ない前提でよく、開始SHA、pull結果、実行SHAを run ledger に残します。
 
-Advance は完全自動化に必要な lane として残します。ただし、Human review is not a precondition for local advance; automated gates are mandatory. Gate は global / record / implementation / merge に分けます。research-scan、investigate、classify、issue draft は concrete observation や evidence ref があれば record gate で進められます。code、docs、skill、workflow、update-harness、採用判断、guard 更新は validation と guard plan を要求します。HarnessOps 最新化は毎回の開始 step ではなく、preflight、doctor、update notice、lock drift、managed-file drift が示した時の update lane です。完全自動化では、protected branch への direct push ではなく、GitHub Flow を標準として automation branch から `main` へ PR/merge します。Git Flow 風の repo だけ `develop` を merge target にできます。作業量は systemic candidate 数ではなく risk tier と work-packet budget で制御します。clean repo で global gate が通る場合、status-only no-op は正常系ではありません。reactive work がなければ candidate queue を見に行き、queue も薄ければ `hops-open-meta-scan` で discovery cards を作り、`hops-research-improvements` で ranked queue へ接続します。No-op は blocker、validation failure、budget exhaustion、または explicit discovery failure の結果です。
+Advance は完全自動化に必要な lane として残します。ただし、Human review is not a precondition for local advance; automated gates are mandatory. Gate は global / record / implementation / merge に分けます。maintenance lane は `update-policy: apply` や stale signal に従って HOPS/update-harness と safe lab maintenance を扱います。issue lane は open issue を HOPS record に載せてから実行します。invention lane は reactive work の有無に関係なく open scan と evidence/routing を行い、priority lane は記録済み候補から重要な T2/T3 work packet や eval/guard を進めます。finalize lane は validation、automation branch、PR、required checks、merge、release criteria だけを担当します。小さい lane が変更を作っても後続 lane を省略しないことが、status-only no-op と maintenance-only success を避ける guard です。
 
 ## 3種類の改善を混ぜない
 

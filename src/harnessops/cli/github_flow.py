@@ -65,7 +65,7 @@ def _exit(result: dict[str, Any], *, json_output: bool) -> None:
 def _policy_or_stop(root: Path) -> tuple[dict[str, Any], bool]:
     project = load_project(root)
     policy = github_flow_policy(project)
-    result = {
+    result: dict[str, Any] = {
         "ok": policy.enabled,
         "overlay_mode": policy.overlay_mode,
         "base_branch": policy.base_branch,

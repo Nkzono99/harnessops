@@ -107,6 +107,8 @@ harness-lab/
 ```
 
 `knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。records と dossier は正本として残し、knowledge layer は source ID と source digest から必ず正本へ戻れる必要があります。
+
+物理忘却は release gate で扱います。日常運用では source records を直接削除して軽量化せず、semantic memory へ抽象化してから release 前に `hops lab archive plan --since-ref <previous-tag>` で削除履歴を確認し、削除済み `records/` と `improvements/` だけを `hops lab archive pack` で release asset 用 zip に保存します。生成 view や cache は archive 対象外です。
 `records/experiments/` は現在の標準レイアウトから外しています。`hops eval --experiment` は既存の `X` record を読む互換入口として残しますが、experiment 作成 workflow が入るまでは既定生成しません。
 
 ### `.harnessops/`
@@ -333,7 +335,8 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops doctor` | いいえ | link、overlay、lock、recordの検証。 |
 | `hops migrate --check/--apply` | `--apply` のみ | layout migrationの確認または適用。 |
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせる。編集済みmanaged fileは `<path>.new` に退避。 |
-| `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の preflight。git pull-first、doctor、migrate check、overlay counts、run ledger を返し、dirty/diverged/conflict では停止する。 |
+| `hops steward preflight [--pull] [--json]` | `--pull` の fast-forward のみ | daily steward automation の preflight。git pull-first、doctor、migrate check、overlay counts、lane trigger scaffold、supervisor plan を返し、dirty/diverged/conflict では停止する。 |
+| `hops steward run start/validate-lane-result/record-lane-result/end` | `start --pull` の fast-forward のみ | daily steward run ledger を `.harnessops/cache/steward-runs/` に作り、lane result contract を検証し、lane結果とrun終了状態を記録する。 |
 | `hops steward finalize --policy patch-only\|commit-local` | `commit-local` のみ | steward run 後の変更処理。`commit-local` は `--validation-passed` がある時だけ local automation branch に commit し、push は行わない。 |
 | `hops add-failure` | はい | project側失敗レコード作成。 |
 | `hops add-feedback --from <Fid>` | はい | 上流/メタフィードバック下書き作成。 |
@@ -350,6 +353,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab compact [--force]` | はい | 閾値超過または明示実行時に `harness-lab/knowledge/lab-memory.yml` と `.md` を deterministic snapshot として更新する。 |
 | `hops lab memory lint` | いいえ | lab size、source digest、snapshot、semantic memory manifest を見て、抽象化 skill を走らせるべきか判定する。 |
 | `hops lab memory prepare [--force]` | はい | `hops-compact-lab-memory` skill が読む `harness-lab/knowledge/lab-memory-input.yml` と `.md` を作る。 |
+| `hops lab archive plan/pack/verify --since-ref <tag>` | packのみ | release 時に `<tag>..HEAD` の削除履歴から `harness-lab/records/` と `harness-lab/improvements/` を release asset 用 archive pack に保存し、manifest/SHA256SUMS を検証する。 |
 | `hops lab issue draft/create --from <FB/E/H/D/IMP id>` | draftははい、createは`--confirm-create`のみ | lab-first record からサニタイズ済み GitHub Issue 下書きを作り、重複確認後に明示確認付きで作成する。成功時は lab record へ Issue URL を書き戻す。 |
 | `hops lab refresh-views` | はい | `harness-lab` の生成ビューを再生成し、managed file hash を更新する。 |
 | `hops propose --from <Eid>` | はい | 仮説テンプレート作成。 |
@@ -469,6 +473,7 @@ repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせ�
 - `hops lab research-scan` がメタ改善調査の候補、証拠、推奨アクション、next command を `RS` レコードと生成ビューに保存する。
 - `hops lab compact --force` が `harness-lab/knowledge/` に source-linked な deterministic snapshot を作り、通常実行では閾値未満の時に書き込みをスキップする。
 - `hops lab memory lint --warn-only` が抽象化の発火基準を表示し、`hops lab memory prepare --force` が skill 入力 bundle を作る。
+- `hops lab archive plan/pack/verify --since-ref <tag>` が release 前の削除済み source records/dossier を archive pack に保存し、生成 view を除外する。
 - `hops lab refresh-views` が生成ビュー更新後の doctor warning を残さない。
 - `hops propose` が中止基準を含むhypothesisレコードを作る。
 - `hops eval --manual` がscorecardを保存する。
