@@ -49,6 +49,57 @@ def _chain_passthrough_args(
     return args
 
 
+def _project_agent_enabled(project: Any, host: str, *, default: bool) -> bool:
+    agents = project.data.get("agents", {})
+    if not isinstance(agents, dict):
+        return default
+    value = agents.get(host, default)
+    if isinstance(value, bool):
+        return value
+    return default
+
+
+def _agent_bridge_selection(
+    root: Any,
+    project: Any,
+    *,
+    agent_bridge: bool,
+    codex: bool,
+    claude: bool,
+) -> tuple[bool, bool, bool]:
+    existing_codex = (
+        root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md"
+    ).exists()
+    existing_claude = (
+        root / ".claude" / "skills" / "harnessops-bridge" / "SKILL.md"
+    ).exists()
+    explicit_host = codex or claude
+    if agent_bridge and not explicit_host:
+        return (
+            _project_agent_enabled(project, "codex", default=True),
+            _project_agent_enabled(project, "claude", default=False),
+            True,
+        )
+    refresh_codex = codex or existing_codex or (agent_bridge and not claude)
+    refresh_claude = claude or existing_claude
+    return refresh_codex, refresh_claude, bool(refresh_codex or refresh_claude)
+
+
+def _agent_result_active(agent_result: dict[str, Any]) -> bool:
+    return any(
+        agent_result[key]
+        for key in (
+            "checked",
+            "updated",
+            "unchanged",
+            "conflicted",
+            "retired",
+            "retained",
+            "written_new",
+        )
+    )
+
+
 def _echo_upgrade_plan(plan: UpgradePlan, *, prefix: str = "") -> None:
     latest = plan.latest_pypi_version or "unknown"
     recorded = plan.recorded_version or "unknown"
@@ -225,14 +276,13 @@ def update_harness_command(
     if not dry_run:
         refresh_views(root, project.overlay_path)
 
-    existing_codex = (
-        root / ".agents" / "skills" / "harnessops-bridge" / "SKILL.md"
-    ).exists()
-    existing_claude = (
-        root / ".claude" / "skills" / "harnessops-bridge" / "SKILL.md"
-    ).exists()
-    refresh_codex = codex or existing_codex or (agent_bridge and not claude)
-    refresh_claude = claude or existing_claude
+    refresh_codex, refresh_claude, refresh_agent_bridge = _agent_bridge_selection(
+        root,
+        project,
+        agent_bridge=agent_bridge,
+        codex=codex,
+        claude=claude,
+    )
 
     agent_result: dict[str, Any] = {
         "checked": [],
@@ -244,7 +294,7 @@ def update_harness_command(
         "written_new": [],
         "managed_files": {},
     }
-    if refresh_codex or refresh_claude:
+    if refresh_agent_bridge:
         if dry_run:
             agent_result = refresh_bridge_files(
                 root,
@@ -268,6 +318,7 @@ def update_harness_command(
         report["ok"] = False
         report["errors"].extend(f"未適用マイグレーション: {item}" for item in migration["pending"])
 
+    agent_activity = _agent_result_active(agent_result)
     result = {
         "ok": report["ok"],
         "migration": {
@@ -277,7 +328,7 @@ def update_harness_command(
         "managed_files": managed,
         "gitignore": gitignore_result,
         "agent_bridge": {
-            "refreshed": bool(agent_result["checked"]),
+            "refreshed": agent_activity,
             "github_flow": "disabled" if no_github_flow else "project-config",
             "paths": agent_result["checked"],
             "updated": agent_result["updated"],
@@ -327,7 +378,7 @@ def update_harness_command(
                 typer.echo(f"  {item['new']}")
         if gitignore_result["updated"]:
             typer.echo(f"{prefix}gitignore: updated .gitignore")
-        if agent_result["checked"]:
+        if agent_activity:
             typer.echo(f"{prefix}agent bridge: checked {len(agent_result['checked'])} paths")
             typer.echo(f"{prefix}agent bridge: updated {len(agent_result['updated'])}")
             for item in agent_result["updated"]:

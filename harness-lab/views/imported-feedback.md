@@ -48,3 +48,4 @@
 - `FB0045` triaged harness_lab_traceability missing_lab_capture
 - `FB0046` triaged harness_lab_traceability records_without_reuse_path
 - `FB0047` triaged cli_ergonomics command_surface_sprawl
+- `FB0048` triaged unclassified unclassified

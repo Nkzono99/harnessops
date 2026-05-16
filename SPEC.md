@@ -435,7 +435,7 @@ private_terms:
 
 標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。root `plugins/` とユーザー領域 plugin install は標準導線から外し、状態変更は常に `hops` に委譲します。
 
-repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops lab propose`、`hops lab eval`、`hops lab decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
+repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops lab propose`、`hops lab eval`、`hops lab decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。`update-harness --agent-bridge` は `--codex` / `--claude` が明示されていない場合、`[agents]` の `codex` / `claude` 設定から配布先 host を選ぶ。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
 
 必須契約:
 
