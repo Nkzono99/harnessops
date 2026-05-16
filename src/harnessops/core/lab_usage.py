@@ -119,6 +119,22 @@ def _queue_item(
     }
 
 
+CANONICAL_COMMAND_REPLACEMENTS = (
+    ("hops lab new-eval-case", "hops lab eval-case create"),
+    ("hops lab queue", "hops lab review queue"),
+    ("hops lab context", "hops lab review context"),
+    ("hops lab lifecycle lint", "hops lab review lint"),
+    ("hops lab compact", "hops lab memory compact"),
+)
+
+
+def _canonical_next_command(command: str) -> str:
+    for old, new in CANONICAL_COMMAND_REPLACEMENTS:
+        if command == old or command.startswith(f"{old} "):
+            return f"{new}{command[len(old):]}"
+    return command
+
+
 def lab_queue(
     project: Project,
     *,
@@ -226,7 +242,7 @@ def lab_queue(
         if not isinstance(candidates, list):
             candidates = []
         next_commands = [
-            str(item.get("next_command"))
+            _canonical_next_command(str(item.get("next_command")))
             for item in candidates
             if isinstance(item, dict) and item.get("next_command")
         ]

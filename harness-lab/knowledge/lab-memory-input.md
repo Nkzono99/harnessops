@@ -7,7 +7,7 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
+- source_digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
 - pressure: file_count>256
 - triggers: file_count>256, semantic_memory_stale
 
@@ -2013,7 +2013,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
 sources:
 - IMP0001
 - IMP0002

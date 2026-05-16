@@ -1,17 +1,17 @@
 # Harness Lab Knowledge
 
-このファイルは `hops lab compact` が更新する deterministic working index です。
+このファイルは `hops lab memory compact` が更新する deterministic working index です。
 `records/` と `improvements/` は引き続き監査可能な正本で、この snapshot は再利用しやすい索引です。
 
 ## Compaction State
 
-- updated_at: 2026-05-16T03:11:25+09:00
+- updated_at: 2026-05-17T04:08:21+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 313 / threshold 256
-- byte_count: 869745 / threshold 2000000
+- file_count: 325 / threshold 256
+- byte_count: 888787 / threshold 2000000
 - improvement_count: 31 / threshold 50
-- source_digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
+- source_digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
 
 ## How To Use
 

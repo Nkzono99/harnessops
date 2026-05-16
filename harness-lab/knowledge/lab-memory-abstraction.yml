@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-16T03:11:28+09:00'
-source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+updated_at: '2026-05-17T04:09:04+09:00'
+source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
 sources:
 - FB0037
 - FB0038
@@ -51,7 +51,7 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-16T03:11:28+09:00'
+  prepared_at: '2026-05-17T04:08:31+09:00'
 lint_reason: triggers-present
 manual_run: true
 notes:
