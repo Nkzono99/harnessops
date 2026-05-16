@@ -1,28 +1,28 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-16T03:11:28+09:00'
+updated_at: '2026-05-17T04:08:31+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-16T03:11:27+09:00'
+  updated_at: '2026-05-17T04:08:30+09:00'
   metrics: &id002
-    file_count: 313
-    byte_count: 869745
-    record_count: 153
-    feedback_count: 42
-    eval_case_count: 35
-    hypothesis_count: 35
-    decision_count: 36
+    file_count: 325
+    byte_count: 888794
+    record_count: 162
+    feedback_count: 48
+    eval_case_count: 36
+    hypothesis_count: 36
+    decision_count: 37
     research_scan_count: 5
     improvement_count: 31
-    manual_eval_count: 35
+    manual_eval_count: 36
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+  source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
   pressure:
   - file_count>256
   triggers: &id003
@@ -31,12 +31,12 @@ lint:
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+    source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
     stale: false
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: 409c97140f54f8888249f06b0e1b1fc656d7cb8869b92025574c5ef6a224610b
+    source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
@@ -53,7 +53,7 @@ lint:
       purpose: 評価軸、holdout、判断基準、kill criteria の経験をまとめる。
     missing_targets: []
   recommended_commands:
-  - hops lab compact --force
+  - hops lab memory compact --force
   - hops lab memory prepare --force
   - Use the hops-compact-lab-memory skill to update abstract knowledge.
 abstraction_targets:
@@ -68,7 +68,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-16T03:11:27+09:00'
+  updated_at: '2026-05-17T04:08:30+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +76,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+    source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
     improvements:
     - IMP0001
     - IMP0002
@@ -1347,7 +1347,7 @@ abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+  source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
   sources:
   - IMP0001
   - IMP0002

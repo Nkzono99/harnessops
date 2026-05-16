@@ -80,7 +80,7 @@ def _seed_lab_queue() -> None:
             "--existing-dossier",
             "IMP0001",
             "--candidate",
-            "Add lab context command|extends|propose|hops lab review context --capability lab_reuse",
+            "Add lab context command|extends|propose|hops lab new-eval-case --from FB0001",
             "--recommendation",
             "Use context before implementation.",
         ]
@@ -103,7 +103,8 @@ def test_lab_queue_ranks_recorded_work(copy_fixture, monkeypatch):
     assert "manual-eval-needed" in first["reasons"]
     assert "decision-needed" in first["reasons"]
     assert "hops lab eval --case E0001 --manual" in first["next_command"]
-    assert any(item["id"] == "RS0001" for item in payload["items"])
+    research_item = next(item for item in payload["items"] if item["id"] == "RS0001")
+    assert research_item["next_command"] == "hops lab eval-case create --from FB0001"
 
 
 def test_lab_context_returns_related_records_and_reads(copy_fixture, monkeypatch):

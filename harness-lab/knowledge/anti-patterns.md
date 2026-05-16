@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-16T03:11:28+09:00
-Source digest: `c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d`
+Updated: 2026-05-17T04:09:04+09:00
+Source digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
