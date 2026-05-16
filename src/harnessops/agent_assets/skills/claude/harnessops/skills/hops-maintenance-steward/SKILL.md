@@ -22,6 +22,7 @@ Expect the supervisor to provide preflight JSON and runtime policy. Default dail
    - In HarnessOps core, do not PyPI self-update; treat lifecycle drift as repo-local implementation work for a later lane.
 3. For target/meta lab repos, handle safe lab maintenance:
    - run `hops lab memory lint --warn-only` when lab health is missing or stale
+   - run `hops lab lifecycle lint --warn-only` when queue health or guard completeness is unknown
    - use `hops-compact-lab-memory` only when lint reports `needs-abstraction`
    - refresh generated lab views with HOPS commands when doctor reports managed view warnings
 4. Rerun doctor/migrate and any cheap repo-native validation made relevant by the changes.

@@ -18,7 +18,7 @@ repo 役割ごとの扱い:
 
 0. raw idea がまだない場合は、まず `hops-open-meta-scan` 相当の open scan を短く行い、Raw Ideas と Counterframes を出してからこの selection/routing lane に戻る。発散前に record 化しない。
 1. 調査スコープを1文で置く。repo 役割、対象 capability、疑っている failure class、既存 dossier/feedback に足す調査か新規候補探索かを決める。
-2. `rg` でコード、docs、tests、skills、`harness-lab/views/*.md`、`harness-feedback/records/*.md` を調べる。存在しない overlay は無理に作らない。既存 dossier、feedback、判断、ガード、未解決 open question があれば優先する。
+2. target/meta lab repo では、まず `hops lab context --capability <capability> --json` または `hops lab queue --json` を使って、既存 dossier、判断、ガード、未解決 open question を取り出す。その後 `rg` でコード、docs、tests、skills、`harness-lab/views/*.md`、`harness-feedback/records/*.md` を調べる。存在しない overlay は無理に作らない。
 3. 外部比較が判断を変えそうな場合だけ web 調査する。検索語にローカルパス、非公開語、未公開研究の文脈を入れない。一次情報、公式 docs、論文、標準実務を優先し、URL を evidence として残す。
 4. 観測を「local evidence」「codebase evidence」「external benchmark」「risk / counterexample」に分ける。
 5. 記録や issue 化の前に anti-myopia strategy pass を必ず行う。候補観測を horizon（immediate bugfix / workflow design / evaluation methodology / cross-project harness principle）と generalization（`local-only` / `repeated-pattern` / `cross-project` / `strategic`）で分類し、`selected_for_execution`、`queued_for_later`、`record_only`、`park`、`reject` の ranked queue に分ける。最新の小さな摩擦を、そのまま新規 record にしない。
@@ -35,6 +35,9 @@ hops lab classify --from IMP0001 --source-type external-benchmark --scope harnes
 hops lab research-scan --title "<title>" --scope "<scope>" --capability "<capability>" --failure-class "<failure>" --candidate "<candidate>|<relation>|<recommendation>|<next command>" --recommendation "<recommendation>"
 hops lab capture --title "<title>" --summary "<observation>" --expected-change "<expected>"
 hops lab new-eval-case --from FB0001
+hops lab queue --json
+hops lab context --capability "<capability>" --json
+hops lab lifecycle lint --warn-only
 hops lab memory lint --warn-only
 hops lab compact --force
 hops propose --from E0001 --hypothesis "<hypothesis>" --mechanism "<mechanism>" --minimal-implementation "<minimal>"

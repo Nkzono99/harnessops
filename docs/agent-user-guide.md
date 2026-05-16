@@ -82,6 +82,16 @@ hops lab classify --from IMP0001 --source-type friction --scope harnessops-core 
 
 単純な改善や作業中の状況把握では `harness-lab/improvements/IMP*.md` を開きます。dossier の `Evaluation` は評価ケース本文を丸ごと展開せず、source record、capability、failure class、manual eval yml/md、score、notes を要約します。評価ケース、仮説、採用判断を確定する時は、引き続き元の `records/feedback`、`records/eval-cases`、`records/hypotheses`、`records/decisions` を正本として更新し、その後 dossier を再生成します。
 
+記録を活用する入口は3つです。daily priority lane や手動選定では `queue`、実装前の想起では `context`、停滞や guard 不足の検出では `lifecycle lint` を使います。
+
+```bash
+hops lab queue --json
+hops lab context --capability "<capability>" --json
+hops lab lifecycle lint --warn-only
+```
+
+`queue` は manual eval、decision、guard、research candidate などの next command を返します。`context` は関連 dossier、research scan、semantic memory、guard、反例を返します。新しい記録を作る前に、既存の context に追記できないか確認してください。
+
 `harness-lab/` が大きくなり、dossier を全部読むのが重くなったら、まず memory lint で発火基準を確認します。lint は書き込みを行わず、lab のサイズ、source digest、deterministic snapshot、抽象知識 manifest の状態だけを見ます。
 
 ```bash

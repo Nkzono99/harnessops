@@ -25,6 +25,7 @@ from harnessops.core.lab_archive import pack_lab_archive, plan_lab_archive, veri
 from harnessops.core.paths import find_root
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.project import load_project
+from harnessops.core.lab_usage import lab_context, lab_lifecycle_lint, lab_queue
 from harnessops.core.improvement_dossier import (
     add_improvement_investigation,
     create_or_update_improvement_dossier,
@@ -41,6 +42,7 @@ lab_app = typer.Typer(help="harness-lab レコードを操作します。")
 issue_app = typer.Typer(help="harness-lab レコードをGitHub Issueへ橋渡しします。")
 memory_app = typer.Typer(help="harness-lab knowledge memory の発火判定と抽象化入力を扱います。")
 archive_app = typer.Typer(help="release asset 用の harness-lab archive pack を扱います。")
+lifecycle_app = typer.Typer(help="harness-lab の活用・停滞・guard 状態を検査します。")
 
 
 def _jsonable(value: Any, root: Path) -> Any:
@@ -228,6 +230,68 @@ def research_scan(
     typer.echo(path.relative_to(root).as_posix())
 
 
+@lab_app.command("queue")
+def queue(
+    include_closed: bool = typer.Option(False, "--include-closed"),
+    limit: int | None = typer.Option(None, "--limit"),
+    capability: str | None = typer.Option(None, "--capability"),
+    scope: str | None = typer.Option(None, "--scope"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """harness-lab の記録から priority lane 用の候補 queue を返します。"""
+    root = find_root()
+    project = load_project(root)
+    result = lab_queue(
+        project,
+        include_closed=include_closed,
+        limit=limit,
+        capability=capability,
+        scope=scope,
+    )
+    if json_output:
+        _echo_json(result, root)
+        return
+    typer.echo(f"items: {result['count']}")
+    for item in result["items"]:
+        typer.echo(
+            f"- {item['id']} p={item['priority']} "
+            f"{','.join(item['reasons'])} {item['title']}"
+        )
+        typer.echo(f"  next: {item['next_command']}")
+
+
+@lab_app.command("context")
+def context(
+    query: str | None = typer.Option(None, "--query"),
+    capability: str | None = typer.Option(None, "--capability"),
+    failure_class: str | None = typer.Option(None, "--failure-class"),
+    scope: str | None = typer.Option(None, "--scope"),
+    limit: int = typer.Option(5, "--limit"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """実装前に思い出すべき関連 dossier、判断、guard、knowledge を返します。"""
+    root = find_root()
+    project = load_project(root)
+    result = lab_context(
+        project,
+        query=query,
+        capability=capability,
+        failure_class=failure_class,
+        scope=scope,
+        limit=limit,
+    )
+    if json_output:
+        _echo_json(result, root)
+        return
+    typer.echo("recommended reads:")
+    for path in result["recommended_reads"]:
+        typer.echo(f"- {path}")
+    if result["queue"]:
+        typer.echo("queue:")
+        for item in result["queue"]:
+            typer.echo(f"- {item['id']} {','.join(item['reasons'])}: {item['next_command']}")
+
+
 @lab_app.command("compact")
 def compact(
     force: bool = typer.Option(False, "--force"),
@@ -350,6 +414,30 @@ def memory_prepare(
             typer.echo(path.relative_to(root).as_posix())
     elif result["status"] == "skipped":
         typer.echo("--force を指定すると手動で abstraction input を作れます")
+
+
+@lifecycle_app.command("lint")
+def lifecycle_lint(
+    json_output: bool = typer.Option(False, "--json"),
+    warn_only: bool = typer.Option(False, "--warn-only"),
+) -> None:
+    """harness-lab の未評価、未判断、guard不足、memory圧力を検出します。"""
+    root = find_root()
+    project = load_project(root)
+    result = lab_lifecycle_lint(project)
+    if json_output:
+        _echo_json(result, root)
+    else:
+        typer.echo(f"status: {result['status']}")
+        typer.echo(f"issues: {result['issue_count']}")
+        for item in result["issues"]:
+            typer.echo(
+                f"- {item['severity']} {item['code']} {item['id']}: "
+                f"{item['message']}"
+            )
+            typer.echo(f"  next: {item['next_command']}")
+    if result["status"] == "error" and not warn_only:
+        raise typer.Exit(1)
 
 
 @archive_app.command("plan")
@@ -619,4 +707,5 @@ def register(app: typer.Typer) -> None:
     lab_app.add_typer(issue_app, name="issue")
     lab_app.add_typer(memory_app, name="memory")
     lab_app.add_typer(archive_app, name="archive")
+    lab_app.add_typer(lifecycle_app, name="lifecycle")
     app.add_typer(lab_app, name="lab")

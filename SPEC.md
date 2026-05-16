@@ -350,6 +350,9 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新する。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記する。 |
 | `hops lab research-scan` | はい | メタ改善調査の scope、evidence、candidate、relation、recommendation、next command を `RS` レコードとして構造化して保存する。 |
+| `hops lab queue [--json]` | いいえ | recorded `IMP/RS/FB` から ranked queue と next command を返し、priority lane が記録を作業選定に使えるようにする。 |
+| `hops lab context [--capability/--failure-class/--scope/--query]` | いいえ | 実装前に関連 dossier、research scan、queue、semantic memory、guard、反例を取り出す。 |
+| `hops lab lifecycle lint` | いいえ | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure などを検出する。 |
 | `hops lab compact [--force]` | はい | 閾値超過または明示実行時に `harness-lab/knowledge/lab-memory.yml` と `.md` を deterministic snapshot として更新する。 |
 | `hops lab memory lint` | いいえ | lab size、source digest、snapshot、semantic memory manifest を見て、抽象化 skill を走らせるべきか判定する。 |
 | `hops lab memory prepare [--force]` | はい | `hops-compact-lab-memory` skill が読む `harness-lab/knowledge/lab-memory-input.yml` と `.md` を作る。 |
@@ -471,6 +474,7 @@ repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせ�
 - `hops lab capture` が issue や bundle のないローカル改善観測を `harness-lab` に記録する。
 - `hops lab new-eval-case` が評価ケースとfixture directoryを作る。
 - `hops lab research-scan` がメタ改善調査の候補、証拠、推奨アクション、next command を `RS` レコードと生成ビューに保存する。
+- `hops lab queue/context/lifecycle lint` が記録を priority 選定、実装前の想起、停滞検出へ接続する。
 - `hops lab compact --force` が `harness-lab/knowledge/` に source-linked な deterministic snapshot を作り、通常実行では閾値未満の時に書き込みをスキップする。
 - `hops lab memory lint --warn-only` が抽象化の発火基準を表示し、`hops lab memory prepare --force` が skill 入力 bundle を作る。
 - `hops lab archive plan/pack/verify --since-ref <tag>` が release 前の削除済み source records/dossier を archive pack に保存し、生成 view を除外する。

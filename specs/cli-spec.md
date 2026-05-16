@@ -32,6 +32,9 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新します。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記します。 |
 | `hops lab research-scan` | はい | メタ改善調査の scope、evidence、candidate、relation、recommendation、next command を `RS` レコードとして保存し、`views/research-scans.md` を更新します。 |
+| `hops lab queue [--json]` | いいえ | recorded `IMP/RS/FB` から priority lane が読む ranked queue を返し、manual eval、decision、guard、research candidate などの next command を示します。 |
+| `hops lab context [--capability/--failure-class/--scope/--query]` | いいえ | 実装前に関連 dossier、research scan、queue、semantic memory、guard、反例を取り出します。 |
+| `hops lab lifecycle lint` | いいえ | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure などを検出します。 |
 | `hops lab compact [--force]` | はい | `harness-lab` が閾値を超えた時、または `--force` 時に、正本レコードを残したまま deterministic knowledge snapshot として `harness-lab/knowledge/lab-memory.yml` と `.md` を更新します。 |
 | `hops lab memory lint` | いいえ | lab size、source digest、deterministic snapshot、semantic memory manifest を見て、抽象化 skill を走らせるべきか判定します。 |
 | `hops lab memory prepare [--force]` | はい | `hops-compact-lab-memory` skill が読む `harness-lab/knowledge/lab-memory-input.yml` と `.md` を作ります。抽象化そのものは行いません。 |
@@ -53,13 +56,14 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 4. `update-harness --plan-upgrade` は lock の `harnessops_version` から現在 runtime までの checkpoint 計画を表示します。`--apply-upgrade-chain` は exact version の `uvx --from harnessops==<version> hops update-harness` を順に実行します。
 5. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
 6. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。
-7. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
-8. `hops lab archive` は物理忘却の release gate です。日常運用では削除せず、release 時に前回 tag からの削除履歴を archive pack に保存してから GitHub release asset として添付します。対象は source records と dossier で、生成 view は除外します。
-9. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
-10. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
-11. `hops steward preflight --pull` と `hops steward run start --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
-12. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
-13. `hops github-flow ...` は `[github_flow] enabled = true` かつ target/meta overlay の repo だけで有効です。`hops init --no-github-flow`、`hops agent bridge --no-github-flow`、`hops update-harness --agent-bridge --no-github-flow`、または `.harnessops/project.toml` の `[github_flow] enabled = false` で配布と実行を抑止できます。
+7. 記録は保存だけで終えません。作業選定は `hops lab queue`、実装前の想起は `hops lab context`、停滞検出は `hops lab lifecycle lint` を使い、記録を次の行動、評価、guard、忘却候補へ接続します。
+8. `harness-lab/knowledge/` はレコード正本ではありません。`hops lab compact` が更新する deterministic snapshot、`hops lab memory prepare` が作る skill 入力、`hops-compact-lab-memory` skill が保守する semantic memory に分かれます。source ID から必ず records/dossier へ戻れる必要があります。
+9. `hops lab archive` は物理忘却の release gate です。日常運用では削除せず、release 時に前回 tag からの削除履歴を archive pack に保存してから GitHub release asset として添付します。対象は source records と dossier で、生成 view は除外します。
+10. 後方互換性は絶対条件ではありません。`hops migrate` または `hops update-harness` で移行できるなら、古い構造を温存せず整理できます。
+11. 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
+12. `hops steward preflight --pull` と `hops steward run start --pull` は clean worktree 上の fast-forward pull だけを許可します。dirty worktree、diverged branch、pull conflict では自動 stash/reset/merge/rebase を行わず、non-zero exit で停止します。
+13. `hops steward finalize --policy commit-local` は `--validation-passed` なしでは commit しません。local branch と local commit だけを作り、push、PR、issue comment、release は作りません。
+14. `hops github-flow ...` は `[github_flow] enabled = true` かつ target/meta overlay の repo だけで有効です。`hops init --no-github-flow`、`hops agent bridge --no-github-flow`、`hops update-harness --agent-bridge --no-github-flow`、または `.harnessops/project.toml` の `[github_flow] enabled = false` で配布と実行を抑止できます。
 
 ## Update notice
 
@@ -93,6 +97,9 @@ hops steward run start --json --update-policy apply
 hops steward run validate-lane-result --result-json '{"status":"completed","changed_files":[],"records_created_or_updated":[],"issues_touched":[],"validation":"ok","recommended_next":[],"stop_reason":null}'
 hops steward finalize --policy patch-only --json
 hops github-flow preflight --json
+hops lab queue --json
+hops lab context --capability lab_reuse --json
+hops lab lifecycle lint --warn-only
 hops lab archive plan --since-ref v0.1.0 --to-ref HEAD
 hops add-failure --title "ハーネス摩擦" --target runops
 hops route --record F0001 --json

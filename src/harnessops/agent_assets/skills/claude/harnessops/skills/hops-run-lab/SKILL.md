@@ -13,6 +13,9 @@ hops lab capture --title "<title>" --summary "<summary>" --expected-change "<exp
 hops lab dossier --from FB0001
 hops lab investigate --from IMP0001 --kind codebase --summary "<調査結果>"
 hops lab classify --from IMP0001 --source-type friction --scope harnessops-core --maturity investigated
+hops lab queue --json
+hops lab context --capability "<capability>" --json
+hops lab lifecycle lint --warn-only
 hops lab memory lint --warn-only
 hops lab memory prepare --force
 hops lab compact --force
@@ -21,6 +24,8 @@ hops lab compact --force
 その後、`hops lab new-eval-case`、`hops propose --manual-template`、`hops eval --manual`、`hops decide` を使う。採用後は `hops lab classify --guard-status implemented --guard-path <path>` でガードをdossierに反映する。
 
 `harness-lab/` が大きくなり、dossier 全体を読むのが重くなった場合は `hops lab memory lint --warn-only` で発火基準を確認する。`hops lab compact --force` は deterministic snapshot として `harness-lab/knowledge/lab-memory.yml` と `.md` を更新するだけで、抽象化そのものではない。抽象的な知識整理が必要なら `hops lab memory prepare --force` で入力 bundle を作り、`hops-compact-lab-memory` skill を使う。knowledge layer は正本ではなく、source ID から records/dossier へ戻るための作業記憶として扱う。
+
+実装や判断の前には `hops lab context` で関連 dossier、過去判断、guard、knowledge を取り出す。作業選定では `hops lab queue` を使い、停滞検出では `hops lab lifecycle lint --warn-only` を使う。記録を増やすだけで終えず、次の行動、評価、guard、忘却候補へ接続する。
 
 メタ仮説スキャン:
 

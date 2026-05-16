@@ -125,6 +125,18 @@ HarnessOps では次の境界にします。
 
 `knowledge/` は採用判断の証拠そのものにはしません。判断や反例処理では、source ID から必ず `records/` または `improvements/` に戻ります。`lab-memory.md` には手編集可能な `Curator Notes` を残し、agent や人間が「圧縮結果の読み方」「今後の見直し観点」を追記できます。
 
+## ラボ活用導線
+
+記録は保存するだけでは価値になりません。HarnessOps では、次の3つを lab の読み取り入口にします。
+
+| 導線 | コマンド | 使いどころ |
+|---|---|---|
+| 作業選定 | `hops lab queue --json` | priority lane が、manual eval、decision、guard、research candidate などの次アクションを選ぶ。 |
+| 実装前想起 | `hops lab context --capability <capability> --json` | 変更前に関連 dossier、過去判断、反例、guard、semantic memory を思い出す。 |
+| 停滞検出 | `hops lab lifecycle lint --warn-only` | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure を見る。 |
+
+agent は新しい record を作る前に `context` を見て、既存 dossier への `investigate` / `classify` で足りないか確認します。daily steward の priority lane は `queue` から始め、maintenance lane は必要に応じて `lifecycle lint` を使います。
+
 ## ラボ忘却とリリースアーカイブ
 
 HarnessOps の忘却は二段階にします。日常運用では、正本レコードを消すより先に `hops lab compact` と `hops-compact-lab-memory` で recurring lesson を semantic memory に移します。人間の記憶も、個別エピソードを全部保持するのではなく、よく使う抽象、索引、判断基準を強め、細部は取り出しにくくなる方向で忘れます。HarnessOps でも同じく、まず読む対象を records から knowledge へ移し、証拠が必要な時だけ source ID に戻ります。

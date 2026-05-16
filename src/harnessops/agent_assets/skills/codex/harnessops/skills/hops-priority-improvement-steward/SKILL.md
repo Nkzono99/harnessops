@@ -12,7 +12,7 @@ Read `.harnessops/project.toml`. Use `hops` for state changes; do not directly r
 
 # Selection
 
-Inspect existing queue views, recent lane results, and recorded `IMP`, `RS`, `FB`, `E`, `H`, and `D` items. Rank by:
+Start with `hops lab queue --json` in target/meta lab repos. Then inspect recent lane results and the highest-ranked recorded `IMP`, `RS`, `FB`, `E`, `H`, and `D` items. Rank by:
 
 - user-blocking or automation-blocking impact
 - cross-project applicability
@@ -25,9 +25,10 @@ Do not pick a trivial cleanup merely because it is easiest unless all higher-val
 # Work
 
 1. For target/meta lab repos, use `hops-run-lab` to create or advance eval cases, hypotheses, manual evals, decisions, and classifications.
-2. Implement selected docs, tests, skill, workflow, CLI, or bridge changes when the implementation gate is met.
-3. For project repos, record and export upstream feedback rather than creating adoption decisions.
-4. If no implementation is safe, advance the record state: investigation, classification, eval design, park/reject, or explicit blocker.
+2. Before implementation, run `hops lab context --capability <capability> --json` or another narrow context query to retrieve prior decisions, counterexamples, and guards.
+3. Implement selected docs, tests, skill, workflow, CLI, or bridge changes when the implementation gate is met.
+4. For project repos, record and export upstream feedback rather than creating adoption decisions.
+5. If no implementation is safe, advance the record state: investigation, classification, eval design, park/reject, or explicit blocker.
 
 # Validation
 
