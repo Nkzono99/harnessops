@@ -398,10 +398,12 @@ def test_daily_lane_steward_skills_are_packaged() -> None:
             "hops-open-meta-scan",
             "hops-research-improvements",
             "open-meta-scan",
+            "consolidation-first",
             "parked/rejected ideas",
         ],
         "hops-priority-improvement-steward": [
             "T2/T3",
+            "consolidation-first",
             "hops-run-lab",
             "guard",
         ],

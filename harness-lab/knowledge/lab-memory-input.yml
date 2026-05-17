@@ -1,42 +1,43 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-17T12:15:58+09:00'
+updated_at: '2026-05-18T03:22:35+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-17T12:15:57+09:00'
+  updated_at: '2026-05-18T03:22:35+09:00'
   metrics: &id002
-    file_count: 342
-    byte_count: 936664
-    record_count: 171
-    feedback_count: 51
-    eval_case_count: 38
-    hypothesis_count: 38
-    decision_count: 39
-    research_scan_count: 5
-    improvement_count: 33
-    manual_eval_count: 38
+    file_count: 358
+    byte_count: 974583
+    record_count: 179
+    feedback_count: 52
+    eval_case_count: 40
+    hypothesis_count: 40
+    decision_count: 41
+    research_scan_count: 6
+    improvement_count: 35
+    manual_eval_count: 40
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
+  source_digest: 23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a
   pressure:
   - file_count>256
   triggers: &id003
   - file_count>256
+  - deterministic_snapshot_stale
   - semantic_memory_stale
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
     source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
-    stale: false
+    stale: true
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: 251ded73b7568ba5c37c9b6b726ee037ff9d76a79955c738ba8ae02dd8a550f6
+    source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
@@ -68,7 +69,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-17T12:15:57+09:00'
+  updated_at: '2026-05-18T03:22:35+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +77,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
+    source_digest: 23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a
     improvements:
     - IMP0001
     - IMP0002
@@ -111,13 +112,15 @@ deterministic_snapshot:
     - IMP0032
     - IMP0033
     - IMP0034
+    - IMP0035
+    - IMP0036
   knowledge:
     summary:
-      improvement_count: 33
+      improvement_count: 35
       status_counts:
-        adopted: 32
+        adopted: 34
         parked: 1
-      capability_count: 15
+      capability_count: 16
     capabilities:
     - capability: cli_ergonomics
       failure_classes:
@@ -212,6 +215,31 @@ deterministic_snapshot:
         - source: IMP0034
           status: adopted
           lesson: Preflight JSON now shows hops-open-meta-scan as supervisor lane order 3 and subagent_plan recommends open-meta-scan. Invention skill now reviews prior raw ideas and records selected candidates for priority-improvement. Focused tests and ruff passed.
+    - capability: daily_steward_supervision
+      failure_classes:
+      - failure_class: implicit_lane_contract
+        improvements:
+        - IMP0036
+        status_counts:
+          adopted: 1
+        average_scores:
+          anti_theater: 5.0
+          evaluability: 5.0
+          impact: 4.0
+          maintainability: 4.0
+          mechanism_clarity: 5.0
+          minimality: 4.0
+          operator_burden: 4.0
+          privacy_sanitization_risk: 5.0
+          regression_risk: 4.0
+        guards:
+        - source: IMP0036
+          status: implemented
+          path: tests/test_cli/test_steward.py
+        lessons:
+        - source: IMP0036
+          status: adopted
+          lesson: 'H0040 is supported by existing steward contract tests: tests/test_cli/test_steward.py asserts lane_artifact_contracts.open-meta-scan.path, handoff references artifacts.meta_scan and Raw Ideas, spawn recommendation lanes equal supervisor plan lanes, and open-m...'
     - capability: generated_view_management
       failure_classes:
       - failure_class: stale_generated_view_repair_gap
@@ -620,18 +648,19 @@ deterministic_snapshot:
         - IMP0024
         - IMP0025
         - IMP0032
+        - IMP0035
         status_counts:
-          adopted: 8
+          adopted: 9
         average_scores:
-          anti_theater: 4.62
-          evaluability: 4.88
+          anti_theater: 4.56
+          evaluability: 4.33
           impact: 4.0
-          maintainability: 4.25
-          mechanism_clarity: 4.62
-          minimality: 4.25
-          operator_burden: 2.38
-          privacy_sanitization_risk: 1.25
-          regression_risk: 2.12
+          maintainability: 3.78
+          mechanism_clarity: 4.11
+          minimality: 3.78
+          operator_burden: 2.11
+          privacy_sanitization_risk: 1.11
+          regression_risk: 1.89
         guards:
         - source: IMP0018
           status: implemented
@@ -648,6 +677,9 @@ deterministic_snapshot:
         - source: IMP0032
           status: implemented
           path: tests/test_agent_harness_contract.py
+        - source: IMP0035
+          status: implemented
+          path: tests/test_cli/test_mvp_flow.py
         lessons:
         - source: IMP0002
           status: adopted
@@ -673,6 +705,9 @@ deterministic_snapshot:
         - source: IMP0032
           status: adopted
           lesson: Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
+        - source: IMP0035
+          status: adopted
+          lesson: Implemented github-flow merge --method auto|merge|squash|rebase, preserved required-check gating, and added focused CLI tests covering squash auto-selection, explicit rebase, and clear merge-method failure reporting.
     - capability: uvx_update_guidance
       failure_classes:
       - failure_class: stale_hops_update_path
@@ -797,6 +832,24 @@ deterministic_snapshot:
         relation: extends
         recommendation: propose
         next_command: hops lab new-eval-case --from FB0035
+    - id: RS0006
+      title: 'RS0006: Consolidation-first routing for daily steward candidates'
+      path: harness-lab/records/research-scans/RS0006-consolidation-first-routing-for-daily-steward-candidates.md
+      status: captured
+      scope: harnessops-core daily steward invention and priority lanes
+      capability: daily_steward_supervision
+      failure_class: autonomous_record_growth_without_selection_pressure
+      recommendation: Queue a bounded consolidation-first policy through existing FB0050/FB0045 records; priority lane should prefer FB0050 dossier/eval before any new capture.
+      candidate_count: 2
+      candidates:
+      - title: Add consolidation-first queue policy to invention/priority lanes
+        relation: extends
+        recommendation: propose after FB0050 dossier exists
+        next_command: hops lab dossier --from FB0050
+      - title: Design source-preserving archive/exclude policy for stale local-only lab material
+        relation: extends
+        recommendation: queue behind lane contract work
+        next_command: hops lab dossier --from FB0045
     guard_index:
     - source: IMP0006
       capability: improvement_loop_design
@@ -933,6 +986,16 @@ deterministic_snapshot:
       failure_class: nested_open_scan_not_delegated
       status: implemented
       path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+    - source: IMP0035
+      capability: unclassified
+      failure_class: unclassified
+      status: implemented
+      path: tests/test_cli/test_mvp_flow.py
+    - source: IMP0036
+      capability: daily_steward_supervision
+      failure_class: implicit_lane_contract
+      status: implemented
+      path: tests/test_cli/test_steward.py
     external_evidence:
     - source: IMP0006
       summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -1365,6 +1428,30 @@ sources:
   failure_class: nested_open_scan_not_delegated
   digest: sha256:5d7c852833e908cf7df814af60fbcef6247c9d959bd1ee328dc4b04d84b296d3
   excerpt: "# IMP0034: FB0049: Daily steward should delegate open meta scan\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0049`\n- linked_records: `FB0049`, `E0038`, `H0038`, `D0039`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0049-daily-steward-should-delegate-open-meta-scan.md`\n\n# FB0049: Daily steward should delegate open meta scan\n\n## 概要\n\nDaily steward supervisor currently lists invention as one lane; hops-open-meta-scan is only nested inside invention guidance, so the supervisor does not spawn a dedicated open-meta-scan subagent or make its raw ideas an explicit handoff into routing and priority work.\n\n## 再現\n\nRun hops steward preflight --json and inspect supervisor_plan.lanes: hops-open-meta-scan is not a lane even though hops-invention-steward mentions it.\n\n## 期待する上流変更\n\nAdd an explicit open-meta-scan supervisor lane using hops-open-meta-scan, then make invention review the raw ideas and record selected candidates so priority-improvement-steward can pick them up.\n\n## Target Capability\n\n- capability: daily_steward_orchestration\n- failure_class: nested_open_scan_not_delegated\n\n## Investigation\n\n調査メモはまだありません。\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0038: E0038: FB0049-daily-steward-should-delegate-open-meta-scan を評価\n\n\n- source: `harness-lab/records/eval-cases/E0038-fb0049-daily-steward-should-delegate-open-meta-scan.md`\n\n- capability: daily_steward_orchestration\n\n- failure_class: nested_open_scan_not_delegated\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0038-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0038-manual-score.md`\n- scores: impact=4, mechanism_clarity=5, evaluabilit..."
+- id: IMP0035
+  record_type: improvement_dossier
+  title: 'IMP0035: FB0052: Support squash/rebase merge methods in github-flow merge'
+  path: harness-lab/improvements/IMP0035-fb0052-support-squash-rebase-merge-methods-in-github-flow-merge.md
+  status: adopted
+  maturity: implemented
+  relation: extends
+  promotion_level: target-lab-case
+  capability: unclassified
+  failure_class: unclassified
+  digest: sha256:a9a38630ef663cacf19ffe7fbf9f503d1676b93c6a0834ae86a617d359449538
+  excerpt: "# IMP0035: FB0052: Support squash/rebase merge methods in github-flow merge\n\n## Status\n\n- status: adopted\n- maturity: implemented\n- source_type: github-issue\n- scope: harnessops-core\n- relation: extends\n- promotion_level: target-lab-case\n- source_feedback: `FB0052`\n- linked_records: `FB0052`, `E0039`, `H0039`, `D0040`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0052-support-squash-rebase-merge-methods-in-github-flow-merge.md`\n\n# FB0052: Support squash/rebase merge methods in github-flow merge\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/29\nauthor: Nkzono99\nlabels: bug, enhancement\ncreated_at: 2026-05-17T00:29:32Z\nupdated_at: 2026-05-17T00:29:32Z\n\n## Issue本文\n## Summary\n\n`hops github-flow merge --require-checks` currently invokes `gh pr merge --merge`. This blocks automation in repositories that intentionally disable merge commits but allow squash or rebase merges.\n\n## Observed\n\nDuring the paperops daily steward run on 2026-05-17, validation passed and PR #38 was clean:\n\n- Target repo: https://github.com/Nkzono99/paperops\n- PR: https://github.com/Nkzono99/paperops/pull/38\n- Branch: `codex/steward/20260517-daily`\n- Required check: `Smoke / smoke` passed\n- `hops github-flow merge --require-checks` failed because the repository disallows merge commits\n- Manual workaround: `gh pr merge 38 --repo Nkzono99/paperops --squash --delete-branch`\n\n## Expected\n\n`hops github-flow merge` should support repositories whose allowed merge method is squash or rebase.\n\nPossible shape:\n\n- Add `--method merge|squash|rebase|auto` to `hops github-flow merge`\n- Default to `auto` or read the repository's allowed merge methods before choosing\n- Preserve `--require-checks` behavior before merging\n- Keep protected-branch direct pushes forbidden\n\n## Acceptanc..."
+- id: IMP0036
+  record_type: improvement_dossier
+  title: 'IMP0036: FB0050: Daily steward lane results need structured artifacts and lane-aligned recommendations'
+  path: harness-lab/improvements/IMP0036-fb0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md
+  status: adopted
+  maturity: adopted
+  relation: extends
+  promotion_level: target-lab-case
+  capability: daily_steward_supervision
+  failure_class: implicit_lane_contract
+  digest: sha256:f1ed498491756a7e42c9397ef33e20bdeace15410b91cd5d26320a4b16bfd3ac
+  excerpt: "# IMP0036: FB0050: Daily steward lane results need structured artifacts and lane-aligned recommendations\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: extends\n- promotion_level: target-lab-case\n- source_feedback: `FB0050`\n- linked_records: `FB0050`, `RS0006`, `E0040`, `H0040`, `D0041`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md`\n\n# FB0050: Daily steward lane results need structured artifacts and lane-aligned recommendations\n\n## 概要\n\nCode review found that open-meta-scan results were only described by handoff prose, while subagent spawn recommendations used signal names that did not always match supervisor lane names. This can make downstream invention/priority agents depend on implicit formatting or nonexistent lane identifiers.\n\n## 再現\n\nReview merged PR #30 and inspect src/harnessops/core/steward.py plus daily steward preflight JSON.\n\n## 期待する上流変更\n\nSteward run preflight should expose optional structured lane artifacts for open-meta-scan raw ideas/counterframes/routing hints, and subagent spawn recommendations should align with actual supervisor lanes while keeping signal detail available separately.\n\n## Target Capability\n\n- capability: daily_steward_supervision\n- failure_class: implicit_lane_contract\n\n## Investigation\n\n- 2026-05-18T03:19:08+09:00 [codebase] Steward preflight already exposes supervisor_plan.lane_result_optional_fields.artifacts and lane_artifact_contracts.open-meta-scan with artifacts.meta_scan keys; open-meta handoff names the structured fields; subagent_plan.spawn_recommendations now emits actual supervisor lane names while retaining signal details separately under signals...."
 - id: RS0001
   record_type: research_scan
   title: 'RS0001: Structure meta improvement research scan outputs'
@@ -1425,11 +1512,23 @@ sources:
   failure_class: count_based_preflight_misses_stale_lab_health
   digest: sha256:a713d23fbf29f8dc95ccb2ffbd5f90390aa74e224d8b3d22c579095fa5e9e522
   excerpt: "# RS0005: Route lab health through steward preflight\n\n## Scope\n\n- scope: harnessops-core daily steward preflight\n- existing_dossier: FB0035\n- capability: daily_steward_orchestration\n- failure_class: count_based_preflight_misses_stale_lab_health\n\n## Evidence\n\n### Local\n\n- Open scan found lab memory lint needs-abstraction while preflight showed only counts and generic lane triggers (ref: harness-lab/records/feedback/FB0035-expose-lab-health-in-steward-preflight.md)\n\n### Codebase\n\n- steward_preflight builds overlay counts and lane triggers but does not call lab memory lint (ref: src/harnessops/core/steward.py)\n- lab memory lint already returns status, triggers, recommended commands, stale snapshot, and stale abstraction (ref: src/harnessops/core/lab_memory_lint.py)\n\n### External\n\n- なし\n\n### Risk And Counterexample\n\n- Putting too much analysis into preflight could turn the steward into a workflow engine instead of a deterministic intake command (ref: docs/design-principles.md)\n\n## Candidates\n\n| candidate | relation | recommendation | next_command |\n|---|---|---|---|\n| Add lab_health to steward preflight and librarian lane trigger reasons | extends | propose | hops lab new-eval-case --from FB0035 |\n\n## Recommendation\n\npropose a narrow deterministic preflight extension: include lab_health only for lab repos, reuse existing lint output, and keep downstream judgment in the librarian lane.\n\n## Next Commands\n\n- `hops lab new-eval-case --from FB0035`"
+- id: RS0006
+  record_type: research_scan
+  title: 'RS0006: Consolidation-first routing for daily steward candidates'
+  path: harness-lab/records/research-scans/RS0006-consolidation-first-routing-for-daily-steward-candidates.md
+  status: captured
+  maturity: ''
+  relation: ''
+  promotion_level: ''
+  capability: daily_steward_supervision
+  failure_class: autonomous_record_growth_without_selection_pressure
+  digest: sha256:fcbaa580a43e3b6f5090ed54cc7661b5e49b0c992a0c20d530fbd1ba9570f819
+  excerpt: "# RS0006: Consolidation-first routing for daily steward candidates\n\n## Scope\n\n- scope: harnessops-core daily steward invention and priority lanes\n- existing_dossier: FB0050\n- capability: daily_steward_supervision\n- failure_class: autonomous_record_growth_without_selection_pressure\n\n## Evidence\n\n### Local\n\n- Open-meta scan for run 20260518-030245-7e9269e warned that the daily steward can reward producing records faster than retiring, merging, rejecting, or testing them (ref: automation lane handoff)\n- Current queue has 25 items and lab health still reports needs-abstraction from file_count>256 after maintenance compaction (ref: hops lab review queue --json; supervisor preflight)\n\n### Codebase\n\n- hops-research-improvements already requires horizon/generalization and park/reject routing before new captures (ref: .agents/skills/hops-research-improvements/SKILL.md)\n- FB0050 captures implicit lane contract risk; FB0045 captures missing source-preserving forgetting policy (ref: harness-lab/records/feedback/FB0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md; harness-lab/records/feedback/FB0045-harness-lab-needs-forgetting-policy.md)\n\n### External\n\n- なし\n\n### Risk And Counterexample\n\n- Over-correcting could make invention suppress useful raw discoveries; keep open-meta noisy and enforce consolidation only in downstream routing (ref: open-meta counterframe)\n\n## Candidates\n\n| candidate | relation | recommendation | next_command |\n|---|---|---|---|\n| Add consolidation-first queue policy to invention/priority lanes | extends | propose after FB0050 dossier exists | hops lab dossier --from FB0050 |\n| Design source-preserving archive/exclude policy for stale local-only lab material | extends | queue behind lane contract work | hops lab dossi..."
 abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
+  source_digest: 23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a
   sources:
   - IMP0001
   - IMP0002
@@ -1464,11 +1563,14 @@ abstraction_manifest_template:
   - IMP0032
   - IMP0033
   - IMP0034
+  - IMP0035
+  - IMP0036
   - RS0001
   - RS0002
   - RS0003
   - RS0004
   - RS0005
+  - RS0006
   outputs:
   - harness-lab/knowledge/principles.md
   - harness-lab/knowledge/patterns.yml

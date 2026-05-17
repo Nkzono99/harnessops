@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-17T12:15:46+09:00'
+updated_at: '2026-05-18T03:22:35+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,20 +9,20 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 342
-    byte_count: 936602
-    record_count: 171
-    feedback_count: 51
-    eval_case_count: 38
-    hypothesis_count: 38
-    decision_count: 39
-    research_scan_count: 5
-    improvement_count: 33
-    manual_eval_count: 38
+    file_count: 358
+    byte_count: 974583
+    record_count: 179
+    feedback_count: 52
+    eval_case_count: 40
+    hypothesis_count: 40
+    decision_count: 41
+    research_scan_count: 6
+    improvement_count: 35
+    manual_eval_count: 40
   triggers:
   - file_count>256
 sources:
-  source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
+  source_digest: 23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a
   improvements:
   - IMP0001
   - IMP0002
@@ -57,13 +57,15 @@ sources:
   - IMP0032
   - IMP0033
   - IMP0034
+  - IMP0035
+  - IMP0036
 knowledge:
   summary:
-    improvement_count: 33
+    improvement_count: 35
     status_counts:
-      adopted: 32
+      adopted: 34
       parked: 1
-    capability_count: 15
+    capability_count: 16
   capabilities:
   - capability: cli_ergonomics
     failure_classes:
@@ -158,6 +160,31 @@ knowledge:
       - source: IMP0034
         status: adopted
         lesson: Preflight JSON now shows hops-open-meta-scan as supervisor lane order 3 and subagent_plan recommends open-meta-scan. Invention skill now reviews prior raw ideas and records selected candidates for priority-improvement. Focused tests and ruff passed.
+  - capability: daily_steward_supervision
+    failure_classes:
+    - failure_class: implicit_lane_contract
+      improvements:
+      - IMP0036
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 4.0
+      guards:
+      - source: IMP0036
+        status: implemented
+        path: tests/test_cli/test_steward.py
+      lessons:
+      - source: IMP0036
+        status: adopted
+        lesson: 'H0040 is supported by existing steward contract tests: tests/test_cli/test_steward.py asserts lane_artifact_contracts.open-meta-scan.path, handoff references artifacts.meta_scan and Raw Ideas, spawn recommendation lanes equal supervisor plan lanes, and open-m...'
   - capability: generated_view_management
     failure_classes:
     - failure_class: stale_generated_view_repair_gap
@@ -566,18 +593,19 @@ knowledge:
       - IMP0024
       - IMP0025
       - IMP0032
+      - IMP0035
       status_counts:
-        adopted: 8
+        adopted: 9
       average_scores:
-        anti_theater: 4.62
-        evaluability: 4.88
+        anti_theater: 4.56
+        evaluability: 4.33
         impact: 4.0
-        maintainability: 4.25
-        mechanism_clarity: 4.62
-        minimality: 4.25
-        operator_burden: 2.38
-        privacy_sanitization_risk: 1.25
-        regression_risk: 2.12
+        maintainability: 3.78
+        mechanism_clarity: 4.11
+        minimality: 3.78
+        operator_burden: 2.11
+        privacy_sanitization_risk: 1.11
+        regression_risk: 1.89
       guards:
       - source: IMP0018
         status: implemented
@@ -594,6 +622,9 @@ knowledge:
       - source: IMP0032
         status: implemented
         path: tests/test_agent_harness_contract.py
+      - source: IMP0035
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py
       lessons:
       - source: IMP0002
         status: adopted
@@ -619,6 +650,9 @@ knowledge:
       - source: IMP0032
         status: adopted
         lesson: Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
+      - source: IMP0035
+        status: adopted
+        lesson: Implemented github-flow merge --method auto|merge|squash|rebase, preserved required-check gating, and added focused CLI tests covering squash auto-selection, explicit rebase, and clear merge-method failure reporting.
   - capability: uvx_update_guidance
     failure_classes:
     - failure_class: stale_hops_update_path
@@ -743,6 +777,24 @@ knowledge:
       relation: extends
       recommendation: propose
       next_command: hops lab new-eval-case --from FB0035
+  - id: RS0006
+    title: 'RS0006: Consolidation-first routing for daily steward candidates'
+    path: harness-lab/records/research-scans/RS0006-consolidation-first-routing-for-daily-steward-candidates.md
+    status: captured
+    scope: harnessops-core daily steward invention and priority lanes
+    capability: daily_steward_supervision
+    failure_class: autonomous_record_growth_without_selection_pressure
+    recommendation: Queue a bounded consolidation-first policy through existing FB0050/FB0045 records; priority lane should prefer FB0050 dossier/eval before any new capture.
+    candidate_count: 2
+    candidates:
+    - title: Add consolidation-first queue policy to invention/priority lanes
+      relation: extends
+      recommendation: propose after FB0050 dossier exists
+      next_command: hops lab dossier --from FB0050
+    - title: Design source-preserving archive/exclude policy for stale local-only lab material
+      relation: extends
+      recommendation: queue behind lane contract work
+      next_command: hops lab dossier --from FB0045
   guard_index:
   - source: IMP0006
     capability: improvement_loop_design
@@ -879,6 +931,16 @@ knowledge:
     failure_class: nested_open_scan_not_delegated
     status: implemented
     path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+  - source: IMP0035
+    capability: unclassified
+    failure_class: unclassified
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py
+  - source: IMP0036
+    capability: daily_steward_supervision
+    failure_class: implicit_lane_contract
+    status: implemented
+    path: tests/test_cli/test_steward.py
   external_evidence:
   - source: IMP0006
     summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
