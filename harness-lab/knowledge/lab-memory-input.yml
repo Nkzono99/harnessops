@@ -1,28 +1,28 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-17T04:08:31+09:00'
+updated_at: '2026-05-17T09:45:55+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-17T04:08:30+09:00'
+  updated_at: '2026-05-17T09:45:54+09:00'
   metrics: &id002
-    file_count: 325
-    byte_count: 888794
-    record_count: 162
-    feedback_count: 48
-    eval_case_count: 36
-    hypothesis_count: 36
-    decision_count: 37
+    file_count: 340
+    byte_count: 919679
+    record_count: 169
+    feedback_count: 49
+    eval_case_count: 38
+    hypothesis_count: 38
+    decision_count: 39
     research_scan_count: 5
-    improvement_count: 31
-    manual_eval_count: 36
+    improvement_count: 33
+    manual_eval_count: 38
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+  source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
   pressure:
   - file_count>256
   triggers: &id003
@@ -31,12 +31,12 @@ lint:
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+    source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
     stale: false
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: c32879ff67e15871ff60297ed65310ce07a3a037068063e801f01e0b02fa445d
+    source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
     stale: true
     targets:
     - path: harness-lab/knowledge/principles.md
@@ -68,7 +68,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-17T04:08:30+09:00'
+  updated_at: '2026-05-17T09:45:54+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +76,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+    source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
     improvements:
     - IMP0001
     - IMP0002
@@ -109,13 +109,38 @@ deterministic_snapshot:
     - IMP0030
     - IMP0031
     - IMP0032
+    - IMP0033
+    - IMP0034
   knowledge:
     summary:
-      improvement_count: 31
+      improvement_count: 33
       status_counts:
-        adopted: 31
-      capability_count: 14
+        adopted: 32
+        parked: 1
+      capability_count: 15
     capabilities:
+    - capability: cli_ergonomics
+      failure_classes:
+      - failure_class: command_surface_sprawl
+        improvements:
+        - IMP0033
+        status_counts:
+          parked: 1
+        average_scores:
+          anti_theater: 4.0
+          evaluability: 4.0
+          impact: 3.0
+          maintainability: 3.0
+          mechanism_clarity: 4.0
+          minimality: 4.0
+          operator_burden: 4.0
+          privacy_sanitization_risk: 5.0
+          regression_risk: 3.0
+        guards: []
+        lessons:
+        - source: IMP0033
+          status: parked
+          lesson: Implemented read-time canonicalization for research-scan queue next_command values and added regression coverage in tests/test_cli/test_lab_usage.py; focused pytest passed. This validates the stale queue-command part of FB0047, but not the full command-surfac...
     - capability: daily_steward_orchestration
       failure_classes:
       - failure_class: count_based_preflight_misses_stale_lab_health
@@ -164,6 +189,29 @@ deterministic_snapshot:
         - source: IMP0023
           status: adopted
           lesson: Implemented hops-daily-steward as a conductor skill rather than a monolithic improver. It includes run modes, write policy, lane trigger matrix, context-separated subagent lanes, structured lane output schema, run ledger reporting, no-op policy, remote confir...
+      - failure_class: nested_open_scan_not_delegated
+        improvements:
+        - IMP0034
+        status_counts:
+          adopted: 1
+        average_scores:
+          anti_theater: 5.0
+          evaluability: 5.0
+          impact: 4.0
+          maintainability: 4.0
+          mechanism_clarity: 5.0
+          minimality: 5.0
+          operator_burden: 2.0
+          privacy_sanitization_risk: 0.0
+          regression_risk: 1.0
+        guards:
+        - source: IMP0034
+          status: implemented
+          path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+        lessons:
+        - source: IMP0034
+          status: adopted
+          lesson: Preflight JSON now shows hops-open-meta-scan as supervisor lane order 3 and subagent_plan recommends open-meta-scan. Invention skill now reviews prior raw ideas and records selected candidates for priority-improvement. Focused tests and ruff passed.
     - capability: generated_view_management
       failure_classes:
       - failure_class: stale_generated_view_repair_gap
@@ -880,6 +928,11 @@ deterministic_snapshot:
       failure_class: unclassified
       status: implemented
       path: tests/test_agent_harness_contract.py
+    - source: IMP0034
+      capability: daily_steward_orchestration
+      failure_class: nested_open_scan_not_delegated
+      status: implemented
+      path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
     external_evidence:
     - source: IMP0006
       summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -909,7 +962,12 @@ deterministic_snapshot:
       summary: GitHub's Node20 deprecation notice says runners begin using Node24 by default on 2026-06-02 and users should update workflows to latest actions that run on Node24; v0.1.4 release run already emitted this annotation.
       evidence_ref: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
     contradiction_watch: []
-    open_questions: []
+    open_questions:
+    - source: IMP0033
+      maturity: investigated
+      status: parked
+      next: evaluation-or-decision-needed
+      path: harness-lab/improvements/IMP0033-fb0047-cli-surface-needs-canonical-grouped-commands.md
 sources:
 - id: IMP0001
   record_type: improvement_dossier
@@ -1283,6 +1341,30 @@ sources:
   failure_class: unclassified
   digest: sha256:e2e84843e2bcb8410485a3276881b21d5edf13695e81d78a689482a9692ac32d
   excerpt: "# IMP0032: FB0039: Consolidate repo-local issue triage into HOPS daily steward\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: github-issue\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0039`\n- linked_records: `FB0039`, `E0035`, `H0035`, `D0036`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0039-consolidate-repo-local-issue-triage-into-hops-daily-steward.md`\n\n# FB0039: Consolidate repo-local issue triage into HOPS daily steward\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/18\nauthor: Nkzono99\nlabels: なし\ncreated_at: 2026-05-14T02:03:28Z\nupdated_at: 2026-05-14T02:03:28Z\n\n## Issue本文\n## 背景\n\nrunops 側にあった repo-local `triage` skill と `runops-issue-triage-and-run` automation prompt を削除し、issue triage / unattended daily loop は HarnessOps 側の `hops-daily-steward` と `hops-issue-triage` に統一する方針にした。\n\nrunops 側の `triage` skill が持っていた汎用機能のうち、HarnessOps 側に寄せるべきものをこの issue で追跡したい。\n\n## 移譲したい機能\n\n- open issue を優先度つきで分類する報告形式を持つ\n  - 対応推奨 (高)\n  - 対応推奨 (中)\n  - 保留 / 要議論\n  - close 推奨\n- spam / malicious / unrelated issue の close 候補判定を明文化する\n- issue close は人間または automation prompt の明示権限がある場合だけ行う、という安全ルールを HOPS daily / issue triage 側へ寄せる\n- 対応完了時の issue close 作法を HOPS 側に持つ\n  - commit message の `Closes #N`\n  - 手動 close コメント\n  - won't fix コメント\n- `gh issue view` / GitHub connector で本文・コメント・ラベル・再現情報を確認し、不足情報を triage 報告に含める\n\n## 完了条件\n\n- `hops-issue-triage` または `hops-daily-steward` の skill / docs が上記の汎用 issue triage 作法をカバーしている\n- repo-local な `triage` skill がなくても、target repository の daily run で issue triage の判断と報告が迷子にならない\n- remote actions は automation prompt の権限に従う、という境界が明記されている\n\n## 関連\n\n- runops 側では `.agents/skills/triage`, `.claude/skills/triage`, `.codex/automation-prompts/runops-issue-triage-..."
+- id: IMP0033
+  record_type: improvement_dossier
+  title: 'IMP0033: FB0047: CLI surface needs canonical grouped commands'
+  path: harness-lab/improvements/IMP0033-fb0047-cli-surface-needs-canonical-grouped-commands.md
+  status: parked
+  maturity: investigated
+  relation: extends
+  promotion_level: target-lab-case
+  capability: cli_ergonomics
+  failure_class: command_surface_sprawl
+  digest: sha256:112797d11b0469224850c6d4d4aa25d7eaabb7695f386554638bcb888bf04c03
+  excerpt: "# IMP0033: FB0047: CLI surface needs canonical grouped commands\n\n## Status\n\n- status: parked\n- maturity: investigated\n- source_type: observation\n- scope: harnessops-core\n- relation: extends\n- promotion_level: target-lab-case\n- source_feedback: `FB0047`\n- linked_records: `FB0047`, `E0037`, `H0037`, `D0038`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0047-cli-surface-needs-canonical-grouped-commands.md`\n\n# FB0047: CLI surface needs canonical grouped commands\n\n## 概要\n\nHarnessOps CLI now exposes several lifecycle actions as top-level or parallel lab commands, making the recommended path harder to learn and increasing automation ambiguity.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nGroup feedback actions under feedback, lab evaluation actions under lab, review actions under lab review, memory compaction under lab memory, and emit deprecation warnings from old entrypoints.\n\n## Target Capability\n\n- capability: cli_ergonomics\n- failure_class: command_surface_sprawl\n\n## Investigation\n\n- 2026-05-17T04:15:25+09:00 [codebase] Open invention scan found command-surface drift beyond the original feedback: current docs/SPEC/tests prefer grouped commands such as hops lab eval-case create and hops lab review queue, while existing research-scan candidates still surface deprecated or stale next commands such as hops lab new-eval-case through review queue output. Treat this as evidence for canonical command aliases plus record/queue migration guidance, not a new isolated feature. (evidence: SPEC.md; docs/agent-user-guide.md; tests/test_cli/test_deprecations.py; harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md)\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0037: E0037: FB0047-cli-surface-needs-canonical-grouped-com..."
+- id: IMP0034
+  record_type: improvement_dossier
+  title: 'IMP0034: FB0049: Daily steward should delegate open meta scan'
+  path: harness-lab/improvements/IMP0034-fb0049-daily-steward-should-delegate-open-meta-scan.md
+  status: adopted
+  maturity: adopted
+  relation: new
+  promotion_level: target-lab-case
+  capability: daily_steward_orchestration
+  failure_class: nested_open_scan_not_delegated
+  digest: sha256:5d7c852833e908cf7df814af60fbcef6247c9d959bd1ee328dc4b04d84b296d3
+  excerpt: "# IMP0034: FB0049: Daily steward should delegate open meta scan\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: observation\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0049`\n- linked_records: `FB0049`, `E0038`, `H0038`, `D0039`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0049-daily-steward-should-delegate-open-meta-scan.md`\n\n# FB0049: Daily steward should delegate open meta scan\n\n## 概要\n\nDaily steward supervisor currently lists invention as one lane; hops-open-meta-scan is only nested inside invention guidance, so the supervisor does not spawn a dedicated open-meta-scan subagent or make its raw ideas an explicit handoff into routing and priority work.\n\n## 再現\n\nRun hops steward preflight --json and inspect supervisor_plan.lanes: hops-open-meta-scan is not a lane even though hops-invention-steward mentions it.\n\n## 期待する上流変更\n\nAdd an explicit open-meta-scan supervisor lane using hops-open-meta-scan, then make invention review the raw ideas and record selected candidates so priority-improvement-steward can pick them up.\n\n## Target Capability\n\n- capability: daily_steward_orchestration\n- failure_class: nested_open_scan_not_delegated\n\n## Investigation\n\n調査メモはまだありません。\n\n## Research Scans\n\nresearch scan はまだありません。\n\n\n## Evaluation\n\n### E0038: E0038: FB0049-daily-steward-should-delegate-open-meta-scan を評価\n\n\n- source: `harness-lab/records/eval-cases/E0038-fb0049-daily-steward-should-delegate-open-meta-scan.md`\n\n- capability: daily_steward_orchestration\n\n- failure_class: nested_open_scan_not_delegated\n\n- manual_eval_yml: `harness-lab/views/eval-results/E0038-manual-score.yml`\n- manual_eval_md: `harness-lab/views/eval-results/E0038-manual-score.md`\n- scores: impact=4, mechanism_clarity=5, evaluabilit..."
 - id: RS0001
   record_type: research_scan
   title: 'RS0001: Structure meta improvement research scan outputs'
@@ -1347,7 +1429,7 @@ abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+  source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
   sources:
   - IMP0001
   - IMP0002
@@ -1380,6 +1462,8 @@ abstraction_manifest_template:
   - IMP0030
   - IMP0031
   - IMP0032
+  - IMP0033
+  - IMP0034
   - RS0001
   - RS0002
   - RS0003

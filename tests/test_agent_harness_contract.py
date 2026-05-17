@@ -362,6 +362,7 @@ def test_daily_steward_skill_is_packaged() -> None:
     assert "hops steward run record-lane-result" in repo_skill
     assert "hops steward run end" in repo_skill
     assert "inline_fallback=true" in repo_skill
+    assert "open meta scan" in repo_skill
     assert "stash, reset, rebase, force-push" in repo_skill
     assert "automation prompt" in repo_skill
     assert "max-systemic-candidates" not in repo_skill
@@ -387,9 +388,15 @@ def test_daily_lane_steward_skills_are_packaged() -> None:
             "remote_action_allowed",
             "hops feedback export",
         ],
+        "hops-open-meta-scan": [
+            "Raw Ideas",
+            "Counterframes",
+            "Do Not Record Yet",
+        ],
         "hops-invention-steward": [
             "hops-open-meta-scan",
             "hops-research-improvements",
+            "open-meta-scan",
             "parked/rejected ideas",
         ],
         "hops-priority-improvement-steward": [

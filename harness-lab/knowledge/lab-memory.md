@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-17T04:08:21+09:00
+- updated_at: 2026-05-17T09:45:42+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 325 / threshold 256
-- byte_count: 888787 / threshold 2000000
-- improvement_count: 31 / threshold 50
-- source_digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
+- file_count: 340 / threshold 256
+- byte_count: 916070 / threshold 2000000
+- improvement_count: 33 / threshold 50
+- source_digest: `3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106`
 
 ## How To Use
 
@@ -20,6 +20,13 @@
 - このファイルの Curator Notes は手で更新してよい。次回 compaction でも保持される。
 
 ## Capability Knowledge
+
+### cli_ergonomics
+#### command_surface_sprawl
+- sources: `IMP0033`
+- status_counts: parked=1
+- average_scores: anti_theater=4.0, evaluability=4.0, impact=3.0, maintainability=3.0, mechanism_clarity=4.0, minimality=4.0, operator_burden=4.0, privacy_sanitization_risk=5.0, regression_risk=3.0
+- lesson IMP0033 (parked): Implemented read-time canonicalization for research-scan queue next_command values and added regression coverage in tests/test_cli/test_lab_usage.py; focused pytest passed. This validates the stale queue-command part of FB0047, but not the full command-surfac...
 
 ### daily_steward_orchestration
 #### count_based_preflight_misses_stale_lab_health
@@ -35,6 +42,13 @@
 - average_scores: anti_theater=4.0, evaluability=5.0, impact=5.0, maintainability=4.0, mechanism_clarity=5.0, minimality=4.0, operator_burden=3.0, privacy_sanitization_risk=2.0, regression_risk=3.0
 - guards: IMP0023:implemented:tests/test_agent_harness_contract.py; tests/test_cli/test_steward.py
 - lesson IMP0023 (adopted): Implemented hops-daily-steward as a conductor skill rather than a monolithic improver. It includes run modes, write policy, lane trigger matrix, context-separated subagent lanes, structured lane output schema, run ledger reporting, no-op policy, remote confir...
+
+#### nested_open_scan_not_delegated
+- sources: `IMP0034`
+- status_counts: adopted=1
+- average_scores: anti_theater=5.0, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=5.0, operator_burden=2.0, privacy_sanitization_risk=0.0, regression_risk=1.0
+- guards: IMP0034:implemented:tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+- lesson IMP0034 (adopted): Preflight JSON now shows hops-open-meta-scan as supervisor lane order 3 and subagent_plan recommends open-meta-scan. Invention skill now reviews prior raw ideas and records selected candidates for priority-improvement. Focused tests and ruff passed.
 
 ### generated_view_management
 #### stale_generated_view_repair_gap
@@ -207,6 +221,7 @@
 - `IMP0030` uvx_update_guidance/stale_hops_update_path: implemented tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once; tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_when_current_runtime_is_behind_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_handles_unreleased_runtime_ahead_of_pypi; tests/test_cli/test_mvp_flow.py::test_update_notice_warns_when_repo_lock_is_newer_than_runtime
 - `IMP0031` harness_lab_traceability/missing_lab_capture: implemented tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
 - `IMP0032` unclassified/unclassified: implemented tests/test_agent_harness_contract.py
+- `IMP0034` daily_steward_orchestration/nested_open_scan_not_delegated: implemented tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
 
 ## Research Scans
 
@@ -234,7 +249,7 @@
 
 ## Open Questions
 
-未判断の改善テーマはありません。
+- `IMP0033` status=parked maturity=investigated: evaluation-or-decision-needed
 
 ## Curator Notes
 <!-- harnessops:curator-notes:start -->

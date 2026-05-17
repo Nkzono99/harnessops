@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-17T04:09:04+09:00
-Source digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
+Updated: 2026-05-17T09:48:00+09:00
+Source digest: `3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -96,7 +96,7 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Steward Automation Needs Discovery Pressure
 
 - Principle: a clean autonomous steward run should create or advance a queue instead of treating status-only no-op as success.
-- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`
+- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`, `IMP0034`
 - Applies when: configuring daily automation, deciding whether to run `hops-open-meta-scan`, splitting record/implementation/merge gates, setting work-packet budgets, or handling update-harness/latest-version work.
-- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; requiring implementation-level guards before research-scan or classify prevents queue creation.
-- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap.
+- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; hiding open meta scan inside invention makes raw ideas invisible to the supervisor ledger; requiring implementation-level guards before research-scan or classify prevents queue creation.
+- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; make `open-meta-scan` an explicit lane whose raw ideas are reviewed by invention before priority work; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap.

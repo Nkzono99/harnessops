@@ -35,9 +35,14 @@ SUPERVISOR_LANES = [
         "summary": "Open issue triage, durable HOPS records, and safe issue execution.",
     },
     {
+        "lane": "open-meta-scan",
+        "skill": "hops-open-meta-scan",
+        "summary": "Broad non-recording meta scan that returns raw ideas, counterframes, and routing hints.",
+    },
+    {
         "lane": "invention",
         "skill": "hops-invention-steward",
-        "summary": "Open meta scan, evidence/routing, research records, and lab queue organization.",
+        "summary": "Review open-meta raw ideas, route evidence, create research records, and organize the lab queue.",
     },
     {
         "lane": "priority-improvement",
@@ -327,9 +332,9 @@ def _lane_triggers(
             "triggered": maintainer,
             "reason": "doctor/migration signal present" if maintainer else "doctor/migration clean",
         },
-        "open-inventor": {
-            "triggered": False,
-            "reason": "requires weekly/release/user/cluster trigger outside deterministic preflight",
+        "open-meta-scan": {
+            "triggered": True,
+            "reason": "explicit supervisor lane runs a broad non-recording raw idea scan",
         },
         "librarian": {
             "triggered": lab_health_triggered or has_lab_memory,
@@ -362,6 +367,23 @@ def _subagent_plan(lanes: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _lane_handoff(lane: dict[str, str]) -> str:
+    base = (
+        f"Use repo-local skill `.agents/skills/{lane['skill']}/SKILL.md`. "
+        "Use the supervisor preflight JSON, prior lane summaries, runtime authority, "
+        "and project role summary as inputs. Return the lane result contract."
+    )
+    if lane["lane"] == "open-meta-scan":
+        return (
+            base
+            + " Wrap the skill's Open Scan, Raw Ideas, Counterframes, Routing Hints, "
+            "and Do Not Record Yet sections into the lane result; keep "
+            "changed_files, records_created_or_updated, and issues_touched empty "
+            "unless a blocker forced a real state change."
+        )
+    return base
+
+
 def _supervisor_plan(project: Project, *, update_policy: str) -> dict[str, Any]:
     role_summary = {
         "kind": project.data.get("project", {}).get("kind"),
@@ -376,11 +398,7 @@ def _supervisor_plan(project: Project, *, update_policy: str) -> dict[str, Any]:
                 "order": index,
                 **lane,
                 "run_policy": "run-unless-fatal-gate-blocks",
-                "handoff": (
-                    f"Use repo-local skill `.agents/skills/{lane['skill']}/SKILL.md`. "
-                    "Use the supervisor preflight JSON, prior lane summaries, runtime authority, "
-                    "and project role summary as inputs. Return the lane result contract."
-                ),
+                "handoff": _lane_handoff(lane),
             }
         )
     return {

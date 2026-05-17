@@ -2,7 +2,7 @@
 
 この文書は、常時起動している PC の Codex App automation で `hops-daily-steward` を単一 automation として走らせるための prompt です。HarnessOps を導入した target repository / project repository にも配布して使えます。強い自動化の入口は1つに保ち、実作業は supervisor が順番に lane skill へ委譲します。
 
-方針は、prompt を太らせず、lane を飛ばさないことです。supervisor は pull/preflight、停止判断、subagent 同期、最終要約だけを担当し、maintenance、issue、invention、priority improvement、finalize の中身は各 skill に任せます。
+方針は、prompt を太らせず、lane を飛ばさないことです。supervisor は pull/preflight、停止判断、subagent 同期、最終要約だけを担当し、maintenance、issue、open-meta-scan、invention、priority improvement、finalize の中身は各 skill に任せます。
 
 ## Prompt
 
@@ -74,7 +74,7 @@ Final report:
 
 - The supervisor skill should stay small. Add procedural detail to lane skills, not to the automation prompt.
 - The run ledger lives under `.harnessops/cache/steward-runs/` and is local operational state, not a PR artifact.
-- A maintenance PR does not end the run by itself; invention and priority lanes still run unless a fatal gate blocks them.
+- A maintenance PR does not end the run by itself; open-meta-scan, invention, and priority lanes still run unless a fatal gate blocks them.
 - `update-policy: apply` lets target/project repos apply current published HarnessOps assets during the maintenance lane. HarnessOps core treats update work as repo-local implementation/release work.
 - GitHub Flow is the default remote path for target/meta repos: automation branch, PR, required checks / branch protection, then merge. Project repos usually do not receive `hops-github-flow`.
 - Lab physical forgetting belongs to release, not daily cleanup. Finalize/release should use `hops lab archive plan --since-ref <previous-tag>` and only create a pack when deleted source records or dossier exist.

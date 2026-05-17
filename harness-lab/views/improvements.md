@@ -33,3 +33,4 @@
 - `IMP0031` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0036 harness_lab_traceability missing_lab_capture
 - `IMP0032` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0039 unclassified unclassified
 - `IMP0033` parked maturity=investigated scope=harnessops-core promotion=target-lab-case source=FB0047 cli_ergonomics command_surface_sprawl
+- `IMP0034` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0049 daily_steward_orchestration nested_open_scan_not_delegated
