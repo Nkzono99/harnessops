@@ -1,6 +1,6 @@
 ---
 name: hops-priority-improvement-steward
-description: Run the priority improvement lane inside a HOPS daily supervisor. Use for selecting and advancing important recorded HOPS improvements, eval cases, hypotheses, decisions, guards, docs, tests, or repo-native implementation after maintenance, issue, and invention lanes.
+description: Run the priority improvement lane inside a HOPS daily supervisor. Use for selecting and advancing important recorded HOPS improvements, eval cases, hypotheses, decisions, guards, docs, tests, or repo-native implementation after maintenance, issue, open meta scan, and invention lanes.
 ---
 Use `uvx --from harnessops hops <command>` in target/project repos unless repo-local docs prove `hops` is available.
 

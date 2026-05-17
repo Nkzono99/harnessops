@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-17T04:09:04+09:00
-Source digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
+Updated: 2026-05-17T09:48:00+09:00
+Source digest: `3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -36,9 +36,9 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Treating No-Op As Daily Success
 
 - Avoid when: a clean autonomous run with remote authority reports only preflight/doctor state because no obvious reactive work was waiting.
-- Sources: `FB0037`, `FB0038`
-- Why it fails: healthy repositories slowly train the automation into status polling, so queue discovery, record-only work, small guards, and safe cleanup never start.
-- Guard: make proactive discovery mandatory when reactive work and queue are thin, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
+- Sources: `FB0037`, `FB0038`, `IMP0034`
+- Why it fails: healthy repositories slowly train the automation into status polling, and hidden open scans make raw ideas disappear before invention can review or record them.
+- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
 
 ## Tracking Runtime Cache As Project State
 

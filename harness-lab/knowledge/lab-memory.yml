@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-17T04:08:21+09:00'
+updated_at: '2026-05-17T09:45:42+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,20 +9,20 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 325
-    byte_count: 888787
-    record_count: 162
-    feedback_count: 48
-    eval_case_count: 36
-    hypothesis_count: 36
-    decision_count: 37
+    file_count: 340
+    byte_count: 916070
+    record_count: 169
+    feedback_count: 49
+    eval_case_count: 38
+    hypothesis_count: 38
+    decision_count: 39
     research_scan_count: 5
-    improvement_count: 31
-    manual_eval_count: 36
+    improvement_count: 33
+    manual_eval_count: 38
   triggers:
   - file_count>256
 sources:
-  source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+  source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
   improvements:
   - IMP0001
   - IMP0002
@@ -55,13 +55,38 @@ sources:
   - IMP0030
   - IMP0031
   - IMP0032
+  - IMP0033
+  - IMP0034
 knowledge:
   summary:
-    improvement_count: 31
+    improvement_count: 33
     status_counts:
-      adopted: 31
-    capability_count: 14
+      adopted: 32
+      parked: 1
+    capability_count: 15
   capabilities:
+  - capability: cli_ergonomics
+    failure_classes:
+    - failure_class: command_surface_sprawl
+      improvements:
+      - IMP0033
+      status_counts:
+        parked: 1
+      average_scores:
+        anti_theater: 4.0
+        evaluability: 4.0
+        impact: 3.0
+        maintainability: 3.0
+        mechanism_clarity: 4.0
+        minimality: 4.0
+        operator_burden: 4.0
+        privacy_sanitization_risk: 5.0
+        regression_risk: 3.0
+      guards: []
+      lessons:
+      - source: IMP0033
+        status: parked
+        lesson: Implemented read-time canonicalization for research-scan queue next_command values and added regression coverage in tests/test_cli/test_lab_usage.py; focused pytest passed. This validates the stale queue-command part of FB0047, but not the full command-surfac...
   - capability: daily_steward_orchestration
     failure_classes:
     - failure_class: count_based_preflight_misses_stale_lab_health
@@ -110,6 +135,29 @@ knowledge:
       - source: IMP0023
         status: adopted
         lesson: Implemented hops-daily-steward as a conductor skill rather than a monolithic improver. It includes run modes, write policy, lane trigger matrix, context-separated subagent lanes, structured lane output schema, run ledger reporting, no-op policy, remote confir...
+    - failure_class: nested_open_scan_not_delegated
+      improvements:
+      - IMP0034
+      status_counts:
+        adopted: 1
+      average_scores:
+        anti_theater: 5.0
+        evaluability: 5.0
+        impact: 4.0
+        maintainability: 4.0
+        mechanism_clarity: 5.0
+        minimality: 5.0
+        operator_burden: 2.0
+        privacy_sanitization_risk: 0.0
+        regression_risk: 1.0
+      guards:
+      - source: IMP0034
+        status: implemented
+        path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+      lessons:
+      - source: IMP0034
+        status: adopted
+        lesson: Preflight JSON now shows hops-open-meta-scan as supervisor lane order 3 and subagent_plan recommends open-meta-scan. Invention skill now reviews prior raw ideas and records selected candidates for priority-improvement. Focused tests and ruff passed.
   - capability: generated_view_management
     failure_classes:
     - failure_class: stale_generated_view_repair_gap
@@ -826,6 +874,11 @@ knowledge:
     failure_class: unclassified
     status: implemented
     path: tests/test_agent_harness_contract.py
+  - source: IMP0034
+    capability: daily_steward_orchestration
+    failure_class: nested_open_scan_not_delegated
+    status: implemented
+    path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
   external_evidence:
   - source: IMP0006
     summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -855,4 +908,9 @@ knowledge:
     summary: GitHub's Node20 deprecation notice says runners begin using Node24 by default on 2026-06-02 and users should update workflows to latest actions that run on Node24; v0.1.4 release run already emitted this annotation.
     evidence_ref: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
   contradiction_watch: []
-  open_questions: []
+  open_questions:
+  - source: IMP0033
+    maturity: investigated
+    status: parked
+    next: evaluation-or-decision-needed
+    path: harness-lab/improvements/IMP0033-fb0047-cli-surface-needs-canonical-grouped-commands.md

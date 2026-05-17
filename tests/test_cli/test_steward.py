@@ -34,7 +34,11 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
     assert payload["lab_health"]["available"] is True
     assert payload["git"]["pull_status"] in {"no-git", "not-requested"}
     assert "issue-triager" in payload["lane_triggers"]
+    assert payload["lane_triggers"]["open-meta-scan"]["triggered"] is True
     assert payload["subagent_plan"]["authorization"] == "external-prompt-required"
+    assert "open-meta-scan" in {
+        item["lane"] for item in payload["subagent_plan"]["spawn_recommendations"]
+    }
     plan = payload["supervisor_plan"]
     assert plan["mode"] == "sequential-subagents"
     assert plan["update_policy"] == "signal-only"
@@ -50,10 +54,15 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
     assert [lane["skill"] for lane in plan["lanes"]] == [
         "hops-maintenance-steward",
         "hops-issue-execution-steward",
+        "hops-open-meta-scan",
         "hops-invention-steward",
         "hops-priority-improvement-steward",
         "hops-finalize-steward",
     ]
+    open_meta_lane = plan["lanes"][2]
+    assert open_meta_lane["lane"] == "open-meta-scan"
+    assert "Raw Ideas" in open_meta_lane["handoff"]
+    assert "changed_files" in open_meta_lane["handoff"]
     assert "Return the lane result contract" in plan["lanes"][0]["handoff"]
     assert "Run the hops-daily-steward supervisor" in payload["next_agent_step"]
 
@@ -106,7 +115,7 @@ def test_steward_run_start_writes_ledger(copy_fixture, monkeypatch):
     assert ledger_path.exists()
     ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     assert ledger["run_id"] == payload["run_id"]
-    assert [lane["status"] for lane in ledger["lanes"]] == ["pending"] * 5
+    assert [lane["status"] for lane in ledger["lanes"]] == ["pending"] * 6
 
 
 def test_steward_run_validates_lane_result_json(copy_fixture, monkeypatch):

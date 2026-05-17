@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-17T04:09:04+09:00'
-source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+updated_at: '2026-05-17T09:48:00+09:00'
+source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
 sources:
 - FB0037
 - FB0038
@@ -38,6 +38,8 @@ sources:
 - IMP0030
 - IMP0031
 - IMP0032
+- IMP0033
+- IMP0034
 - RS0001
 - RS0002
 - RS0003
@@ -51,7 +53,7 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-17T04:08:31+09:00'
+  prepared_at: '2026-05-17T09:45:55+09:00'
 lint_reason: triggers-present
 manual_run: true
 notes:
@@ -65,5 +67,7 @@ notes:
 - FB0038 added signal-driven update lane guidance and marker-managed HarnessOps gitignore hygiene.
 - FB0041 added required-check-aware GitHub Flow and PR CI guard expectations for automation merges.
 - FB0042 added compact role-scoped AGENTS/CLAUDE HarnessOps conduit guidance expectations.
+- IMP0033 added canonical CLI queue command cleanup and parked the broader grouped-command audit.
+- IMP0034 added an explicit open-meta-scan steward lane and raw-idea handoff into invention/priority work.
 contradiction_watch: []
 open_questions: []

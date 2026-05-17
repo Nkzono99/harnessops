@@ -49,3 +49,4 @@
 - `FB0046` triaged harness_lab_traceability records_without_reuse_path
 - `FB0047` triaged cli_ergonomics command_surface_sprawl
 - `FB0048` triaged unclassified unclassified
+- `FB0049` triaged daily_steward_orchestration nested_open_scan_not_delegated

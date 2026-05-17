@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-17T04:09:04+09:00'
-source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+updated_at: '2026-05-17T09:48:00+09:00'
+source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -192,6 +192,27 @@ patterns:
   counterexamples:
   - source: FB0037
     note: Record-level research and queue creation should not require implementation-level validation/guard; merge and release still do.
+- id: explicit_open_meta_scan_handoff
+  name: Explicit open meta scan handoff
+  capability: daily_steward_orchestration
+  failure_class: nested_open_scan_not_delegated
+  applies_when:
+  - A daily steward supervisor needs divergent structural critique before evidence/routing and priority execution.
+  - Raw ideas should be visible as their own lane result rather than hidden inside invention work.
+  avoid_when:
+  - The run lacks subagent authorization and must report inline fallback instead.
+  - The repository role is a project feedback source where lab records cannot be created.
+  evidence:
+  - source: IMP0034
+    note: The steward supervisor now includes `hops-open-meta-scan` as an explicit lane before invention; invention reviews raw ideas and records selected candidates for priority-improvement.
+  guard:
+  - path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+    sources: [IMP0034]
+  - path: tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged
+    sources: [IMP0034]
+  counterexamples:
+  - source: IMP0034
+    note: Nesting `hops-open-meta-scan` inside `hops-invention-steward` left the supervisor without a dedicated subagent result or durable raw-idea handoff.
 - id: required_check_aware_github_flow
   name: Required-check-aware GitHub Flow
   capability: github_flow_automation

@@ -7,7 +7,7 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38`
+- source_digest: `3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106`
 - pressure: file_count>256
 - triggers: file_count>256, semantic_memory_stale
 
@@ -1805,6 +1805,127 @@ runops 側の `triage` skill が持っていた汎用機能のうち、HarnessOp
 
 - runops 側では `.agents/skills/triage`, `.claude/skills/triage`, `.codex/automation-prompts/runops-issue-triage-...
 
+### `IMP0033` cli_ergonomics/command_surface_sprawl
+- path: `harness-lab/improvements/IMP0033-fb0047-cli-surface-needs-canonical-grouped-commands.md`
+- status: parked
+- maturity: investigated
+- relation: extends
+
+# IMP0033: FB0047: CLI surface needs canonical grouped commands
+
+## Status
+
+- status: parked
+- maturity: investigated
+- source_type: observation
+- scope: harnessops-core
+- relation: extends
+- promotion_level: target-lab-case
+- source_feedback: `FB0047`
+- linked_records: `FB0047`, `E0037`, `H0037`, `D0038`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0047-cli-surface-needs-canonical-grouped-commands.md`
+
+# FB0047: CLI surface needs canonical grouped commands
+
+## 概要
+
+HarnessOps CLI now exposes several lifecycle actions as top-level or parallel lab commands, making the recommended path harder to learn and increasing automation ambiguity.
+
+## 再現
+
+ローカル改善作業中に観測。
+
+## 期待する上流変更
+
+Group feedback actions under feedback, lab evaluation actions under lab, review actions under lab review, memory compaction under lab memory, and emit deprecation warnings from old entrypoints.
+
+## Target Capability
+
+- capability: cli_ergonomics
+- failure_class: command_surface_sprawl
+
+## Investigation
+
+- 2026-05-17T04:15:25+09:00 [codebase] Open invention scan found command-surface drift beyond the original feedback: current docs/SPEC/tests prefer grouped commands such as hops lab eval-case create and hops lab review queue, while existing research-scan candidates still surface deprecated or stale next commands such as hops lab new-eval-case through review queue output. Treat this as evidence for canonical command aliases plus record/queue migration guidance, not a new isolated feature. (evidence: SPEC.md; docs/agent-user-guide.md; tests/test_cli/test_deprecations.py; harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md)
+
+## Research Scans
+
+research scan はまだありません。
+
+
+## Evaluation
+
+### E0037: E0037: FB0047-cli-surface-needs-canonical-grouped-com...
+
+### `IMP0034` daily_steward_orchestration/nested_open_scan_not_delegated
+- path: `harness-lab/improvements/IMP0034-fb0049-daily-steward-should-delegate-open-meta-scan.md`
+- status: adopted
+- maturity: adopted
+- relation: new
+
+# IMP0034: FB0049: Daily steward should delegate open meta scan
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: observation
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
+- source_feedback: `FB0049`
+- linked_records: `FB0049`, `E0038`, `H0038`, `D0039`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0049-daily-steward-should-delegate-open-meta-scan.md`
+
+# FB0049: Daily steward should delegate open meta scan
+
+## 概要
+
+Daily steward supervisor currently lists invention as one lane; hops-open-meta-scan is only nested inside invention guidance, so the supervisor does not spawn a dedicated open-meta-scan subagent or make its raw ideas an explicit handoff into routing and priority work.
+
+## 再現
+
+Run hops steward preflight --json and inspect supervisor_plan.lanes: hops-open-meta-scan is not a lane even though hops-invention-steward mentions it.
+
+## 期待する上流変更
+
+Add an explicit open-meta-scan supervisor lane using hops-open-meta-scan, then make invention review the raw ideas and record selected candidates so priority-improvement-steward can pick them up.
+
+## Target Capability
+
+- capability: daily_steward_orchestration
+- failure_class: nested_open_scan_not_delegated
+
+## Investigation
+
+調査メモはまだありません。
+
+## Research Scans
+
+research scan はまだありません。
+
+
+## Evaluation
+
+### E0038: E0038: FB0049-daily-steward-should-delegate-open-meta-scan を評価
+
+
+- source: `harness-lab/records/eval-cases/E0038-fb0049-daily-steward-should-delegate-open-meta-scan.md`
+
+- capability: daily_steward_orchestration
+
+- failure_class: nested_open_scan_not_delegated
+
+- manual_eval_yml: `harness-lab/views/eval-results/E0038-manual-score.yml`
+- manual_eval_md: `harness-lab/views/eval-results/E0038-manual-score.md`
+- scores: impact=4, mechanism_clarity=5, evaluabilit...
+
 ### `RS0001` meta_improvement_research/unstructured_research_scan_results
 - path: `harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md`
 - status: captured
@@ -2013,7 +2134,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: af9f230bf6b55e4f02ef4ba21d14c3914e0d519cfa33809ca0a9f8599de63f38
+source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
 sources:
 - IMP0001
 - IMP0002
@@ -2046,6 +2167,8 @@ sources:
 - IMP0030
 - IMP0031
 - IMP0032
+- IMP0033
+- IMP0034
 - RS0001
 - RS0002
 - RS0003
