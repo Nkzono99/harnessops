@@ -36,7 +36,7 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
     assert "issue-triager" in payload["lane_triggers"]
     assert payload["lane_triggers"]["open-meta-scan"]["triggered"] is True
     assert payload["subagent_plan"]["authorization"] == "external-prompt-required"
-    assert "open-meta-scan" in {
+    recommendation_lanes = {
         item["lane"] for item in payload["subagent_plan"]["spawn_recommendations"]
     }
     plan = payload["supervisor_plan"]
@@ -51,6 +51,9 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
         "recommended_next",
         "stop_reason",
     ]
+    assert plan["lane_result_optional_fields"]["artifacts"]
+    assert plan["lane_artifact_contracts"]["open-meta-scan"]["path"] == "artifacts.meta_scan"
+    assert recommendation_lanes == {lane["lane"] for lane in plan["lanes"]}
     assert [lane["skill"] for lane in plan["lanes"]] == [
         "hops-maintenance-steward",
         "hops-issue-execution-steward",
@@ -62,6 +65,7 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
     open_meta_lane = plan["lanes"][2]
     assert open_meta_lane["lane"] == "open-meta-scan"
     assert "Raw Ideas" in open_meta_lane["handoff"]
+    assert "artifacts.meta_scan" in open_meta_lane["handoff"]
     assert "changed_files" in open_meta_lane["handoff"]
     assert "Return the lane result contract" in plan["lanes"][0]["handoff"]
     assert "Run the hops-daily-steward supervisor" in payload["next_agent_step"]
@@ -101,6 +105,20 @@ def _valid_lane_result(status: str = "completed") -> dict:
     }
 
 
+def _valid_open_meta_lane_result(status: str = "completed") -> dict:
+    result = _valid_lane_result(status)
+    result["artifacts"] = {
+        "meta_scan": {
+            "open_scan": "steward scan",
+            "raw_ideas": ["make lane handoffs structured"],
+            "counterframes": ["avoid turning open scan into a workflow engine"],
+            "routing_hints": ["route structured contract work to steward core"],
+            "do_not_record_yet": "raw scan output is only promoted after invention review",
+        }
+    }
+    return result
+
+
 def test_steward_run_start_writes_ledger(copy_fixture, monkeypatch):
     root = copy_fixture("harnessops-core-minimal")
     monkeypatch.chdir(root)
@@ -129,6 +147,41 @@ def test_steward_run_validates_lane_result_json(copy_fixture, monkeypatch):
     )
     payload = json.loads(result.output)
     assert payload["ok"] is True
+
+    valid_open_meta = json.dumps(_valid_open_meta_lane_result())
+    result = run_cli(
+        [
+            "steward",
+            "run",
+            "validate-lane-result",
+            "--lane",
+            "open-meta-scan",
+            "--result-json",
+            valid_open_meta,
+            "--json",
+        ]
+    )
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+
+    missing_artifacts = json.dumps(_valid_lane_result())
+    result = runner.invoke(
+        app,
+        [
+            "steward",
+            "run",
+            "validate-lane-result",
+            "--lane",
+            "open-meta-scan",
+            "--result-json",
+            missing_artifacts,
+            "--json",
+        ],
+    )
+    payload = json.loads(result.output)
+    assert result.exit_code == 1
+    assert payload["ok"] is False
+    assert "open-meta-scan result must include artifacts.meta_scan" in payload["errors"]
 
     invalid = json.dumps({"status": "done"})
     result = runner.invoke(

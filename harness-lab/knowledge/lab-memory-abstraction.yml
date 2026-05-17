@@ -1,8 +1,10 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-17T09:48:00+09:00'
-source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
+updated_at: '2026-05-17T12:16:07+09:00'
+source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
 sources:
+- FB0050
+- FB0051
 - FB0037
 - FB0038
 - FB0041
@@ -53,7 +55,7 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-17T09:45:55+09:00'
+  prepared_at: '2026-05-17T12:16:07+09:00'
 lint_reason: triggers-present
 manual_run: true
 notes:
@@ -69,5 +71,7 @@ notes:
 - FB0042 added compact role-scoped AGENTS/CLAUDE HarnessOps conduit guidance expectations.
 - IMP0033 added canonical CLI queue command cleanup and parked the broader grouped-command audit.
 - IMP0034 added an explicit open-meta-scan steward lane and raw-idea handoff into invention/priority work.
+- FB0050 added structured open-meta lane artifacts and aligned subagent recommendations to real supervisor lane names.
+- FB0051 added CLI-owned packaged skill asset sync with check mode to replace manual copy work.
 contradiction_watch: []
 open_questions: []

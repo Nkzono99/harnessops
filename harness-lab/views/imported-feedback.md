@@ -50,3 +50,5 @@
 - `FB0047` triaged cli_ergonomics command_surface_sprawl
 - `FB0048` triaged unclassified unclassified
 - `FB0049` triaged daily_steward_orchestration nested_open_scan_not_delegated
+- `FB0050` triaged daily_steward_supervision implicit_lane_contract
+- `FB0051` triaged agent_asset_packaging manual_packaged_skill_sync_drift

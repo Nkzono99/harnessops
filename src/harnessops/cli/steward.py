@@ -139,13 +139,14 @@ def run_start_command(
 
 @run_app.command("validate-lane-result")
 def run_validate_lane_result_command(
+    lane: str | None = typer.Option(None, "--lane", help="lane 名または skill 名。"),
     result_json: str | None = typer.Option(None, "--result-json", help="lane result JSON 文字列。"),
     result_file: Path | None = typer.Option(None, "--result-file", help="lane result JSON file。"),
     json_output: bool = typer.Option(False, "--json", help="機械可読JSONで出力します。"),
 ) -> None:
     """lane result が supervisor contract を満たすか検証します。"""
     try:
-        result = validate_lane_result(_load_json_input(result_json, result_file))
+        result = validate_lane_result(_load_json_input(result_json, result_file), lane=lane)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         typer.echo(str(exc))
         raise typer.Exit(1) from exc

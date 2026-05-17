@@ -12,7 +12,7 @@ Read `.harnessops/project.toml`. Use `hops` for state changes; do not directly r
 
 # Selection
 
-Start with `hops lab review queue --json` in target/meta lab repos. Then inspect recent lane results and the highest-ranked recorded `IMP`, `RS`, `FB`, `E`, `H`, and `D` items. Rank by:
+Start with `hops lab review queue --json` in target/meta lab repos. Then inspect recent lane results, including any structured `artifacts.meta_scan` handoff from the open-meta and invention lanes, and the highest-ranked recorded `IMP`, `RS`, `FB`, `E`, `H`, and `D` items. Rank by:
 
 - user-blocking or automation-blocking impact
 - cross-project applicability
