@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-17T09:48:00+09:00
-Source digest: `3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106`
+Updated: 2026-05-17T12:16:07+09:00
+Source digest: `cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -36,9 +36,9 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Treating No-Op As Daily Success
 
 - Avoid when: a clean autonomous run with remote authority reports only preflight/doctor state because no obvious reactive work was waiting.
-- Sources: `FB0037`, `FB0038`, `IMP0034`
-- Why it fails: healthy repositories slowly train the automation into status polling, and hidden open scans make raw ideas disappear before invention can review or record them.
-- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
+- Sources: `FB0037`, `FB0038`, `IMP0034`, `FB0050`
+- Why it fails: healthy repositories slowly train the automation into status polling, and hidden or prose-only open scans make raw ideas disappear before invention can review or record them.
+- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, preserve raw ideas as structured lane artifacts, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
 
 ## Tracking Runtime Cache As Project State
 
@@ -46,6 +46,13 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 - Sources: `FB0038`
 - Why it fails: cache churn can stop dirty-worktree automation and hides the difference between canonical HarnessOps state and local runtime state.
 - Guard: init/link/update-harness should maintain a marker-managed `.gitignore` block that ignores cache contents while preserving `.harnessops/cache/.gitkeep`.
+
+## Manual Packaged Skill Sync
+
+- Avoid when: repo-local HOPS skills are edited and then copied by hand into packaged Codex/Claude asset directories.
+- Sources: `FB0051`
+- Why it fails: one host or a retired skill can drift silently, and tests that touch only one packaged host may still pass.
+- Guard: use `hops agent sync-packaged-skills --check` before validation and normal `hops agent sync-packaged-skills` to update both packaged hosts.
 
 ## Treating Boilerplate As Evidence
 

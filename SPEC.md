@@ -363,6 +363,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
 | `hops lab decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
 | `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と検証。`install --scope repo` は `bridge` の互換入口で、user plugin install は標準運用から外す。 |
+| `hops agent sync-packaged-skills [--check]` | 通常実行のみ | HarnessOps 実装repoで `.agents/skills/hops-*` を packaged Codex/Claude asset に同期する。`--check` は drift/missing/retired を検出して書き込まない。 |
 | `hops report` | いいえ | 簡潔なrepository report表示。 |
 
 ## Target harness lifecycle連携

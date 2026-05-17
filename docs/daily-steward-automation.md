@@ -74,6 +74,7 @@ Final report:
 
 - The supervisor skill should stay small. Add procedural detail to lane skills, not to the automation prompt.
 - The run ledger lives under `.harnessops/cache/steward-runs/` and is local operational state, not a PR artifact.
+- `open-meta-scan` returns its broad scan as optional structured `artifacts.meta_scan`; the open scan skill itself stays a non-recording idea generator.
 - A maintenance PR does not end the run by itself; open-meta-scan, invention, and priority lanes still run unless a fatal gate blocks them.
 - `update-policy: apply` lets target/project repos apply current published HarnessOps assets during the maintenance lane. HarnessOps core treats update work as repo-local implementation/release work.
 - GitHub Flow is the default remote path for target/meta repos: automation branch, PR, required checks / branch protection, then merge. Project repos usually do not receive `hops-github-flow`.

@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-17T09:48:00+09:00
-Source digest: `3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106`
+Updated: 2026-05-17T12:16:07+09:00
+Source digest: `cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -32,10 +32,11 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Daily steward remote completion should push only an automation branch, open or update a PR, and merge only after validation, target freshness, required checks, and branch protection allow it. Source: `IMP0031`
 - No-argument issue triage should inspect open issues, report priority buckets, evidence, missing information, recommended HOPS action, and remote-action authorization before importing, closing, or implementing. Source: `IMP0032`
 - Daily steward should not return status-only no-op on clean runs until it has processed reactive work, advanced queue work, run proactive discovery, or exhausted explicit budget. Source: `FB0037`
-- Daily steward preflight should include `hops-open-meta-scan` as an explicit supervisor lane before invention, and invention should review raw ideas before recording candidates for priority work. Source: `IMP0034`
+- Daily steward preflight should include `hops-open-meta-scan` as an explicit supervisor lane before invention, expose its raw ideas as `artifacts.meta_scan`, and keep spawn recommendations aligned to real supervisor lane names. Sources: `IMP0034`, `FB0050`
 - HarnessOps latest/update-harness work should be signal-driven, and init/link/update-harness should maintain `.gitignore` hygiene for `.harnessops/cache/*` without hiding canonical `.harnessops` state. Source: `FB0038`
 - GitHub Flow merge diagnostics should distinguish missing required checks from failing or pending checks, and PR CI should provide a concrete required-check target before branch protection is tightened. Source: `FB0041`
 - Generated AGENTS.md/CLAUDE.md and update-harness guidance should expose the minimal HarnessOps invocation plus role-specific routing for target/meta versus project repositories. Source: `FB0042`
+- Packaged agent skill assets should be synchronized by `hops agent sync-packaged-skills --check` rather than manual file copy. Source: `FB0051`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
 - `hops lab refresh-views` should clear doctor-managed lab generated-view warnings for README, backlog, dynamic lab views, research scans, and score trajectory without losing dynamic view content. Sources: `RS0002`, `IMP0016`
 
@@ -72,7 +73,8 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents`: guard lane budgets plus branch/PR/merge automation guidance. Source: `IMP0031`
 - `tests/test_agent_harness_contract.py`: guards no-argument issue triage reporting, remote-action authority boundaries, and daily steward delegation to `hops-issue-triage`. Source: `IMP0032`
 - `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged`: guard no-idle daily automation, risk-tier budgets, and ranked candidate queue wording. Source: `FB0037`
-- `tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger` and `tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged`: guard explicit open-meta-scan lane ordering, subagent recommendation, and packaged skill handoff wording. Source: `IMP0034`
+- `tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger`, `tests/test_cli/test_steward.py::test_steward_run_validates_lane_result_json`, and `tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged`: guard explicit open-meta-scan lane ordering, structured lane artifacts, subagent recommendation lane names, and packaged skill handoff wording. Sources: `IMP0034`, `FB0050`
+- `tests/test_cli/test_agent.py`: guards packaged skill asset sync, drift detection, host coverage, and retired skill cleanup for `hops agent sync-packaged-skills`. Source: `FB0051`
 - `tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project` and `tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block`: guard HarnessOps `.gitignore` cache hygiene. Source: `FB0038`
 - `.github/workflows/pr-ci.yml`, `src/harnessops/cli/github_flow.py`, and related CLI tests: guard required-check-aware GitHub Flow diagnostics. Source: `FB0041`
 - `tests/test_agent_harness_contract.py` and packaged update-harness skill assets: guard compact role-aware agent conduit guidance. Source: `FB0042`

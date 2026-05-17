@@ -20,8 +20,30 @@ LANE_RESULT_CONTRACT = [
     "recommended_next",
     "stop_reason",
 ]
+LANE_RESULT_OPTIONAL_FIELDS = {
+    "artifacts": "Structured lane-specific handoff data for later lanes.",
+}
 LANE_RESULT_STATUSES = {"completed", "no-op", "blocked", "failed-validation"}
 RUN_END_STATUSES = {"completed", "blocked", "failed-validation", "no-op"}
+OPEN_META_SCAN_ARTIFACT_CONTRACT = {
+    "path": "artifacts.meta_scan",
+    "required_fields": [
+        "open_scan",
+        "raw_ideas",
+        "counterframes",
+        "routing_hints",
+        "do_not_record_yet",
+    ],
+    "list_fields": ["raw_ideas", "counterframes", "routing_hints"],
+}
+LANE_SIGNAL_MAP = {
+    "maintenance": ["maintainer", "librarian"],
+    "issue-execution": ["issue-triager"],
+    "open-meta-scan": ["open-meta-scan"],
+    "invention": ["open-meta-scan"],
+    "priority-improvement": ["issue-triager", "librarian", "evaluator", "open-meta-scan"],
+    "finalize": ["maintainer", "issue-triager", "librarian", "evaluator", "open-meta-scan"],
+}
 
 SUPERVISOR_LANES = [
     {
@@ -355,14 +377,32 @@ def _lane_triggers(
     }
 
 
-def _subagent_plan(lanes: dict[str, Any]) -> dict[str, Any]:
+def _subagent_plan(lane_triggers: dict[str, Any]) -> dict[str, Any]:
+    recommendations = []
+    for lane in SUPERVISOR_LANES:
+        signal_names = LANE_SIGNAL_MAP.get(lane["lane"], [])
+        active_signals = [
+            {"signal": name, "reason": lane_triggers[name]["reason"]}
+            for name in signal_names
+            if lane_triggers.get(name, {}).get("triggered")
+        ]
+        recommendations.append(
+            {
+                "lane": lane["lane"],
+                "skill": lane["skill"],
+                "status": "recommended" if active_signals else "planned",
+                "reason": (
+                    "; ".join(signal["reason"] for signal in active_signals)
+                    if active_signals
+                    else "supervisor lane runs unless a fatal gate blocks it"
+                ),
+                "signals": active_signals,
+            }
+        )
     return {
         "authorization": "external-prompt-required",
-        "spawn_recommendations": [
-            {"lane": lane, "status": "recommended", "reason": data["reason"]}
-            for lane, data in lanes.items()
-            if data["triggered"]
-        ],
+        "spawn_recommendations": recommendations,
+        "signals": lane_triggers,
         "inline_fallback": "Report inline-fallback when subagent tools are unavailable or not authorized.",
     }
 
@@ -376,9 +416,10 @@ def _lane_handoff(lane: dict[str, str]) -> str:
     if lane["lane"] == "open-meta-scan":
         return (
             base
-            + " Wrap the skill's Open Scan, Raw Ideas, Counterframes, Routing Hints, "
-            "and Do Not Record Yet sections into the lane result; keep "
-            "changed_files, records_created_or_updated, and issues_touched empty "
+            + " Put the skill's Open Scan, Raw Ideas, Counterframes, Routing Hints, "
+            "and Do Not Record Yet sections under artifacts.meta_scan with keys "
+            "open_scan, raw_ideas, counterframes, routing_hints, and do_not_record_yet. "
+            "Keep changed_files, records_created_or_updated, and issues_touched empty "
             "unless a blocker forced a real state change."
         )
     return base
@@ -406,6 +447,10 @@ def _supervisor_plan(project: Project, *, update_policy: str) -> dict[str, Any]:
         "role_summary": role_summary,
         "update_policy": update_policy,
         "lane_result_contract": LANE_RESULT_CONTRACT,
+        "lane_result_optional_fields": LANE_RESULT_OPTIONAL_FIELDS,
+        "lane_artifact_contracts": {
+            "open-meta-scan": OPEN_META_SCAN_ARTIFACT_CONTRACT,
+        },
         "lanes": lanes,
         "rules": [
             "Supervisor does not perform lane work directly.",
@@ -523,13 +568,14 @@ def steward_run_start(
     }
 
 
-def validate_lane_result(result: Any) -> dict[str, Any]:
+def validate_lane_result(result: Any, *, lane: str | None = None) -> dict[str, Any]:
     errors: list[str] = []
     if not isinstance(result, dict):
         return {
             "ok": False,
             "errors": ["lane result must be a JSON object"],
             "required_fields": LANE_RESULT_CONTRACT,
+            "optional_fields": LANE_RESULT_OPTIONAL_FIELDS,
         }
 
     for field in LANE_RESULT_CONTRACT:
@@ -549,11 +595,31 @@ def validate_lane_result(result: Any) -> dict[str, Any]:
     if "stop_reason" in result and result["stop_reason"] is not None and not isinstance(result["stop_reason"], str):
         errors.append("stop_reason must be a string or null")
 
+    if "artifacts" in result and not isinstance(result["artifacts"], dict):
+        errors.append("artifacts must be an object")
+
+    if lane in {"open-meta-scan", "hops-open-meta-scan"}:
+        artifacts = result.get("artifacts")
+        meta_scan = artifacts.get("meta_scan") if isinstance(artifacts, dict) else None
+        if not isinstance(meta_scan, dict):
+            errors.append("open-meta-scan result must include artifacts.meta_scan")
+        else:
+            for field in OPEN_META_SCAN_ARTIFACT_CONTRACT["required_fields"]:
+                if field not in meta_scan:
+                    errors.append(f"artifacts.meta_scan missing required field: {field}")
+            for field in OPEN_META_SCAN_ARTIFACT_CONTRACT["list_fields"]:
+                if field in meta_scan and not isinstance(meta_scan[field], list):
+                    errors.append(f"artifacts.meta_scan.{field} must be a list")
+
     return {
         "ok": not errors,
         "errors": errors,
         "required_fields": LANE_RESULT_CONTRACT,
+        "optional_fields": LANE_RESULT_OPTIONAL_FIELDS,
         "allowed_statuses": sorted(LANE_RESULT_STATUSES),
+        "artifact_contracts": {
+            "open-meta-scan": OPEN_META_SCAN_ARTIFACT_CONTRACT,
+        },
         "result": result,
     }
 
@@ -565,7 +631,7 @@ def steward_record_lane_result(
     lane: str,
     result: dict[str, Any],
 ) -> dict[str, Any]:
-    validation = validate_lane_result(result)
+    validation = validate_lane_result(result, lane=lane)
     if not validation["ok"]:
         return {"ok": False, "run_id": run_id, "lane": lane, "validation": validation}
 

@@ -14,7 +14,7 @@ Read `.harnessops/project.toml`. Use `hops` for state changes; do not directly r
 
 Run `hops doctor --check-overlay --check-records` when supervisor preflight is missing, stale, or contradicted by the current worktree.
 
-1. Start from the previous `open-meta-scan` lane result when present. Review its Raw Ideas, Counterframes, and Routing Hints; choose the best 1-3 ideas for downstream handling.
+1. Start from the previous `open-meta-scan` lane result when present. Prefer `artifacts.meta_scan.raw_ideas`, `artifacts.meta_scan.counterframes`, and `artifacts.meta_scan.routing_hints`; fall back to the lane summary text only when structured artifacts are absent. Choose the best 1-3 ideas for downstream handling.
 2. If no prior open-meta-scan result exists because the supervisor plan predates the lane or the lane was blocked, run a short fallback `hops-open-meta-scan` unless a fatal blocker prevents repo inspection.
 3. Pass selected raw ideas to `hops-research-improvements` for evidence, anti-myopia routing, park/reject decisions, and candidate queue creation.
 4. In target/meta lab repos, prefer `hops lab research-scan`, `hops lab investigate`, or `hops lab classify` before new captures. Create `hops lab capture` only for a reusable failure class, cross-project pattern, or important evaluation gap.

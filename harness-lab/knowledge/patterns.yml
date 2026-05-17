@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-17T09:48:00+09:00'
-source_digest: 3d8e7be86aef2d0c4c569b9ead234a623d28bf89434871629240788294dfb106
+updated_at: '2026-05-17T12:16:07+09:00'
+source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -195,7 +195,7 @@ patterns:
 - id: explicit_open_meta_scan_handoff
   name: Explicit open meta scan handoff
   capability: daily_steward_orchestration
-  failure_class: nested_open_scan_not_delegated
+  failure_class: implicit_lane_contract
   applies_when:
   - A daily steward supervisor needs divergent structural critique before evidence/routing and priority execution.
   - Raw ideas should be visible as their own lane result rather than hidden inside invention work.
@@ -205,14 +205,20 @@ patterns:
   evidence:
   - source: IMP0034
     note: The steward supervisor now includes `hops-open-meta-scan` as an explicit lane before invention; invention reviews raw ideas and records selected candidates for priority-improvement.
+  - source: FB0050
+    note: Code review found that raw ideas needed a structured lane artifact and that subagent recommendations should use actual supervisor lane names instead of signal aliases.
   guard:
   - path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
-    sources: [IMP0034]
+    sources: [IMP0034, FB0050]
   - path: tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged
     sources: [IMP0034]
+  - path: tests/test_cli/test_steward.py::test_steward_run_validates_lane_result_json
+    sources: [FB0050]
   counterexamples:
   - source: IMP0034
     note: Nesting `hops-open-meta-scan` inside `hops-invention-steward` left the supervisor without a dedicated subagent result or durable raw-idea handoff.
+  - source: FB0050
+    note: A supervisor recommendation using `issue-triager` or a prose-only raw-idea handoff can make a downstream agent record the wrong lane or miss the handoff entirely.
 - id: required_check_aware_github_flow
   name: Required-check-aware GitHub Flow
   capability: github_flow_automation
@@ -309,6 +315,24 @@ patterns:
   counterexamples:
   - source: IMP0002
     note: A blunt force mode can refresh stale files but cannot protect local edits.
+- id: packaged_skill_asset_sync
+  name: Packaged skill asset sync
+  capability: agent_asset_packaging
+  failure_class: manual_packaged_skill_sync_drift
+  applies_when:
+  - Repo-local HOPS skills under `.agents/skills/hops-*` are edited in the HarnessOps implementation repo.
+  - Packaged Codex and Claude skill assets need to stay byte-for-byte aligned with repo-local skills.
+  avoid_when:
+  - A target or project repository is only installing repo-local skills; use `hops agent bridge` or `hops update-harness --agent-bridge` there.
+  evidence:
+  - source: FB0051
+    note: Manual copy work left Claude packaged assets drifted; `hops agent sync-packaged-skills --check` detects drift and normal execution synchronizes both hosts.
+  guard:
+  - path: tests/test_cli/test_agent.py
+    sources: [FB0051]
+  counterexamples:
+  - source: FB0051
+    note: Updating only Codex assets or only touched skills lets packaged hosts drift despite repo-local skill tests passing.
 - id: doctor_aligned_generated_view_refresh
   name: Doctor-aligned generated view refresh
   capability: generated_view_management

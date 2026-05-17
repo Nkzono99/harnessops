@@ -95,19 +95,18 @@ def test_packaged_skill_assets_explain_hops_contract() -> None:
 
 
 def test_packaged_agent_assets_match_repo_local_skills() -> None:
+    repo_skills = {
+        path.parent.name: path
+        for path in sorted((ROOT / ".agents/skills").glob("hops-*/SKILL.md"))
+    }
     for host in ("codex", "claude"):
         asset_manifest = ROOT / f"src/harnessops/agent_assets/skills/{host}/harnessops"
         asset_skills = sorted((asset_manifest / "skills").glob("*/SKILL.md"))
-        assert [path.parent.name for path in asset_skills] == [
-            path.parent.name for path in sorted((ROOT / ".agents/skills").glob("hops-*/SKILL.md"))
-        ]
+        assert [path.parent.name for path in asset_skills] == sorted(repo_skills)
         for asset_skill in asset_skills:
             assert_harness_contract(asset_skill.read_text(encoding="utf-8"))
-
-    repo_skills = sorted((ROOT / ".agents/skills").glob("hops-*/SKILL.md"))
-    codex_skills = sorted((ROOT / "src/harnessops/agent_assets/skills/codex/harnessops/skills").glob("*/SKILL.md"))
-    for repo_skill, asset_skill in zip(repo_skills, codex_skills, strict=True):
-        assert asset_skill.read_text(encoding="utf-8") == repo_skill.read_text(encoding="utf-8")
+            repo_skill = repo_skills[asset_skill.parent.name]
+            assert asset_skill.read_text(encoding="utf-8") == repo_skill.read_text(encoding="utf-8")
 
 
 def test_lifecycle_delegation_contract_is_documented() -> None:
@@ -136,6 +135,8 @@ def test_lifecycle_delegation_contract_is_documented() -> None:
     assert "global plugin" not in project_brief
     assert "HarnessOps は `harness-feedback/` でハーネス摩擦" in project_brief
     assert "`harness-lab/`、採用判断、GitHub Flow は target/meta repo 側" in project_brief
+    spec = (ROOT / "SPEC.md").read_text(encoding="utf-8")
+    assert "hops agent sync-packaged-skills [--check]" in spec
 
 
 def test_feedback_triage_ownership_contract_is_documented() -> None:
