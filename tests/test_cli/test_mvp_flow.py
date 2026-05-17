@@ -488,6 +488,119 @@ def test_github_flow_merge_reports_failing_required_checks(copy_fixture, monkeyp
     assert payload["reason"] == "required checks are not passing"
 
 
+def test_github_flow_merge_auto_uses_squash_when_merge_commits_disabled(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+    seen: list[list[str]] = []
+
+    def fake_run(args, *, cwd):
+        seen.append(args)
+        if args[:3] == ["gh", "pr", "view"]:
+            return {
+                "args": args,
+                "returncode": 0,
+                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stderr": "",
+            }
+        if args[:3] == ["gh", "pr", "checks"]:
+            return {"args": args, "returncode": 0, "stdout": "pr-ci\tpass\n", "stderr": ""}
+        if args[:3] == ["gh", "repo", "view"]:
+            return {
+                "args": args,
+                "returncode": 0,
+                "stdout": json.dumps(
+                    {
+                        "mergeCommitAllowed": False,
+                        "squashMergeAllowed": True,
+                        "rebaseMergeAllowed": False,
+                    }
+                )
+                + "\n",
+                "stderr": "",
+            }
+        if args[:3] == ["gh", "pr", "merge"]:
+            return {"args": args, "returncode": 0, "stdout": "", "stderr": ""}
+        raise AssertionError(args)
+
+    monkeypatch.setattr(github_flow_cli, "_run", fake_run)
+
+    result = runner.invoke(app, ["github-flow", "merge", "12", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["merge_method"] == "squash"
+    assert ["gh", "pr", "merge", "12", "--squash", "--delete-branch"] in seen
+
+
+def test_github_flow_merge_explicit_rebase_method(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+    seen: list[list[str]] = []
+
+    def fake_run(args, *, cwd):
+        seen.append(args)
+        if args[:3] == ["gh", "pr", "view"]:
+            return {
+                "args": args,
+                "returncode": 0,
+                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stderr": "",
+            }
+        if args[:3] == ["gh", "pr", "checks"]:
+            return {"args": args, "returncode": 0, "stdout": "pr-ci\tpass\n", "stderr": ""}
+        if args[:3] == ["gh", "pr", "merge"]:
+            return {"args": args, "returncode": 0, "stdout": "", "stderr": ""}
+        raise AssertionError(args)
+
+    monkeypatch.setattr(github_flow_cli, "_run", fake_run)
+
+    result = runner.invoke(app, ["github-flow", "merge", "12", "--method", "rebase", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["merge_method"] == "rebase"
+    assert ["gh", "pr", "merge", "12", "--rebase", "--delete-branch"] in seen
+
+
+def test_github_flow_merge_reports_policy_mismatch_with_method(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-upstream-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-upstream"])
+
+    def fake_run(args, *, cwd):
+        if args[:3] == ["gh", "pr", "view"]:
+            return {
+                "args": args,
+                "returncode": 0,
+                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stderr": "",
+            }
+        if args[:3] == ["gh", "pr", "checks"]:
+            return {"args": args, "returncode": 0, "stdout": "pr-ci\tpass\n", "stderr": ""}
+        if args[:3] == ["gh", "pr", "merge"]:
+            return {
+                "args": args,
+                "returncode": 1,
+                "stdout": "",
+                "stderr": "Pull request is not mergeable: repository does not allow merge commits\n",
+            }
+        raise AssertionError(args)
+
+    monkeypatch.setattr(github_flow_cli, "_run", fake_run)
+
+    result = runner.invoke(app, ["github-flow", "merge", "12", "--method", "merge", "--json"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert payload["merge_method"] == "merge"
+    assert payload["reason"] == "gh pr merge failed using merge; repository policy may disallow this method"
+
+
 def test_update_harness_refreshes_unmodified_stale_agent_bridge(copy_fixture, monkeypatch):
     root = copy_fixture("runops-project-minimal")
     monkeypatch.chdir(root)

@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-17T12:15:46+09:00
+- updated_at: 2026-05-18T03:22:35+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 342 / threshold 256
-- byte_count: 936602 / threshold 2000000
-- improvement_count: 33 / threshold 50
-- source_digest: `cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd`
+- file_count: 358 / threshold 256
+- byte_count: 974583 / threshold 2000000
+- improvement_count: 35 / threshold 50
+- source_digest: `23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a`
 
 ## How To Use
 
@@ -49,6 +49,14 @@
 - average_scores: anti_theater=5.0, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=5.0, operator_burden=2.0, privacy_sanitization_risk=0.0, regression_risk=1.0
 - guards: IMP0034:implemented:tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
 - lesson IMP0034 (adopted): Preflight JSON now shows hops-open-meta-scan as supervisor lane order 3 and subagent_plan recommends open-meta-scan. Invention skill now reviews prior raw ideas and records selected candidates for priority-improvement. Focused tests and ruff passed.
+
+### daily_steward_supervision
+#### implicit_lane_contract
+- sources: `IMP0036`
+- status_counts: adopted=1
+- average_scores: anti_theater=5.0, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=4.0, operator_burden=4.0, privacy_sanitization_risk=5.0, regression_risk=4.0
+- guards: IMP0036:implemented:tests/test_cli/test_steward.py
+- lesson IMP0036 (adopted): H0040 is supported by existing steward contract tests: tests/test_cli/test_steward.py asserts lane_artifact_contracts.open-meta-scan.path, handoff references artifacts.meta_scan and Raw Ideas, spawn recommendation lanes equal supervisor plan lanes, and open-m...
 
 ### generated_view_management
 #### stale_generated_view_repair_gap
@@ -172,10 +180,10 @@
 
 ### unclassified
 #### unclassified
-- sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`, `IMP0032`
-- status_counts: adopted=8
-- average_scores: anti_theater=4.62, evaluability=4.88, impact=4.0, maintainability=4.25, mechanism_clarity=4.62, minimality=4.25, operator_burden=2.38, privacy_sanitization_risk=1.25, regression_risk=2.12
-- guards: IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:planned:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py
+- sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`, `IMP0032`, `IMP0035`
+- status_counts: adopted=9
+- average_scores: anti_theater=4.56, evaluability=4.33, impact=4.0, maintainability=3.78, mechanism_clarity=4.11, minimality=3.78, operator_burden=2.11, privacy_sanitization_risk=1.11, regression_risk=1.89
+- guards: IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:planned:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py, IMP0035:implemented:tests/test_cli/test_mvp_flow.py
 - lesson IMP0002 (adopted): Implemented conflict-aware agent bridge refresh: managed bridge hashes are stored in lock metadata; unmodified stale files update automatically, local edits produce .new files, --force-agent-bridge overwrites explicitly, and JSON/text output reports checked,...
 - lesson IMP0003 (adopted): Implemented lab dossiers as a generated compatibility layer: hops lab dossier --from <FB/E/H/D> creates or updates harness-lab/improvements/IMP*.md from normalized records, refreshes views/improvements.md, preserves FB/E/H/D as the source of truth, and docume...
 - lesson IMP0004 (adopted): Implemented lab-first GitHub issue promotion: hops lab issue draft/create --from <FB/E/H/D/IMP> builds a sanitized issue body from the generated dossier, writes local markdown drafts, searches duplicates, requires --confirm-create for remote creation, and wri...
@@ -184,6 +192,7 @@
 - lesson IMP0024 (adopted): Doctor now warns when a target repo bridge contains the stale editable fallback and the repo does not declare a local hops console script. Focused positive/negative tests, full pytest, ruff, doctor, and migrate passed.
 - lesson IMP0025 (adopted): Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.
 - lesson IMP0032 (adopted): Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
+- lesson IMP0035 (adopted): Implemented github-flow merge --method auto|merge|squash|rebase, preserved required-check gating, and added focused CLI tests covering squash auto-selection, explicit rebase, and clear merge-method failure reporting.
 
 ### uvx_update_guidance
 #### stale_hops_update_path
@@ -222,6 +231,8 @@
 - `IMP0031` harness_lab_traceability/missing_lab_capture: implemented tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
 - `IMP0032` unclassified/unclassified: implemented tests/test_agent_harness_contract.py
 - `IMP0034` daily_steward_orchestration/nested_open_scan_not_delegated: implemented tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
+- `IMP0035` unclassified/unclassified: implemented tests/test_cli/test_mvp_flow.py
+- `IMP0036` daily_steward_supervision/implicit_lane_contract: implemented tests/test_cli/test_steward.py
 
 ## Research Scans
 
@@ -230,6 +241,7 @@
 - `RS0003` release-and-agent-bridge/post-release-residual-risk: Prioritize the release workflow Node24 migration first because it has an external deadline before June 2 2026; then treat issue #9 as a residual extension of IMP0018 rather than a new broad bridge rewrite. (3 candidates)
 - `RS0004` issue_lab_reconciliation/stale_external_issue_tracker: prioritize #9 residual implementation next; separately ask before closing #6/#7/#8 because remote tracker writes should be explicit (4 candidates)
 - `RS0005` daily_steward_orchestration/count_based_preflight_misses_stale_lab_health: propose a narrow deterministic preflight extension: include lab_health only for lab repos, reuse existing lint output, and keep downstream judgment in the librarian lane. (1 candidates)
+- `RS0006` daily_steward_supervision/autonomous_record_growth_without_selection_pressure: Queue a bounded consolidation-first policy through existing FB0050/FB0045 records; priority lane should prefer FB0050 dossier/eval before any new capture. (2 candidates)
 
 ## External Evidence
 

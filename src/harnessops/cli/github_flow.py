@@ -13,6 +13,12 @@ from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 
 github_flow_app = typer.Typer(help="target/meta repo 向けの GitHub Flow を実行します。")
+MERGE_METHODS = {"auto", "merge", "squash", "rebase"}
+METHOD_FLAGS = {
+    "merge": "--merge",
+    "squash": "--squash",
+    "rebase": "--rebase",
+}
 
 
 def _run(args: list[str], *, cwd: Path) -> dict[str, Any]:
@@ -106,6 +112,83 @@ def _checks_failure_reason(checks: dict[str, Any]) -> str:
     if "no checks reported" in output or "no required checks reported" in output:
         return "no required checks reported"
     return "required checks are not passing"
+
+
+def _allowed_merge_methods(repo_policy: dict[str, Any]) -> list[str]:
+    allowed: list[str] = []
+    if repo_policy.get("mergeCommitAllowed"):
+        allowed.append("merge")
+    if repo_policy.get("squashMergeAllowed"):
+        allowed.append("squash")
+    if repo_policy.get("rebaseMergeAllowed"):
+        allowed.append("rebase")
+    return allowed
+
+
+def _resolve_merge_method(
+    method: str,
+    *,
+    result: dict[str, Any],
+    root: Path,
+) -> str | None:
+    if method not in MERGE_METHODS:
+        result.update(
+            {
+                "ok": False,
+                "reason": f"unsupported merge method: {method}",
+                "supported_merge_methods": sorted(MERGE_METHODS),
+            }
+        )
+        return None
+
+    if method != "auto":
+        result["merge_method"] = method
+        return method
+
+    policy = _run(
+        [
+            "gh",
+            "repo",
+            "view",
+            "--json",
+            "mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed",
+        ],
+        cwd=root,
+    )
+    _append_command(result, policy)
+    if policy["returncode"] != 0:
+        result.update(
+            {
+                "ok": False,
+                "reason": "could not determine repository merge policy for auto method",
+            }
+        )
+        return None
+    try:
+        repo_policy = json.loads(policy["stdout"])
+    except json.JSONDecodeError:
+        result.update(
+            {
+                "ok": False,
+                "reason": "gh repo view returned invalid merge policy JSON",
+            }
+        )
+        return None
+
+    allowed_methods = _allowed_merge_methods(repo_policy)
+    result["repository_merge_policy"] = repo_policy
+    result["allowed_merge_methods"] = allowed_methods
+    for candidate in ("merge", "squash", "rebase"):
+        if candidate in allowed_methods:
+            result["merge_method"] = candidate
+            return candidate
+    result.update(
+        {
+            "ok": False,
+            "reason": "repository does not allow merge, squash, or rebase PR merges",
+        }
+    )
+    return None
 
 
 @github_flow_app.command("preflight")
@@ -272,6 +355,11 @@ def create_pr(
 @github_flow_app.command("merge")
 def merge_pr(
     pr: str | None = typer.Argument(None),
+    method: str = typer.Option(
+        "auto",
+        "--method",
+        help="PR merge method: auto, merge, squash, or rebase.",
+    ),
     require_checks: bool = typer.Option(True, "--require-checks/--no-require-checks"),
     delete_branch: bool = typer.Option(True, "--delete-branch/--no-delete-branch"),
     json_output: bool = typer.Option(False, "--json"),
@@ -323,17 +411,27 @@ def merge_pr(
             result.update({"ok": False, "reason": _checks_failure_reason(checks)})
             _exit(result, json_output=json_output)
 
+    selected_method = _resolve_merge_method(method, result=result, root=root)
+    if selected_method is None:
+        _exit(result, json_output=json_output)
+
     merge_args = ["gh", "pr", "merge"]
     if target:
         merge_args.append(target)
-    merge_args.append("--merge")
+    merge_args.append(METHOD_FLAGS[selected_method])
     if delete_branch:
         merge_args.append("--delete-branch")
     merge = _run(merge_args, cwd=root)
     _append_command(result, merge)
     result["ok"] = merge["returncode"] == 0
     if merge["returncode"] != 0:
-        result["reason"] = "gh pr merge failed"
+        allowed_methods = result.get("allowed_merge_methods")
+        policy = (
+            f"; repository allows: {', '.join(allowed_methods)}"
+            if allowed_methods
+            else "; repository policy may disallow this method"
+        )
+        result["reason"] = f"gh pr merge failed using {selected_method}{policy}"
     _exit(result, json_output=json_output)
 
 
