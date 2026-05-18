@@ -9,7 +9,7 @@ from harnessops.core.project import Project
 
 
 def check_migrations(project: Project) -> dict[str, Any]:
-    lock = load_lock(project.root)
+    lock = load_lock(project.metadata_root)
     pending = []
     if lock.get("layout_version") not in {None, "0.1"}:
         pending.append(f"未対応の layout_version {lock.get('layout_version')}")
@@ -19,9 +19,9 @@ def check_migrations(project: Project) -> dict[str, Any]:
 def apply_migrations(project: Project) -> Path | None:
     result = check_migrations(project)
     if result["pending"]:
-        lock = load_lock(project.root)
+        lock = load_lock(project.metadata_root)
         from_version = str(lock.get("layout_version", "unknown"))
-        entry = project.root / ".harnessops" / "migrations" / f"{from_version}-to-0.1.md"
+        entry = project.metadata_root / ".harnessops" / "migrations" / f"{from_version}-to-0.1.md"
         entry.parent.mkdir(parents=True, exist_ok=True)
         entry.write_text(
             "# HarnessOps レイアウトマイグレーション\n\n"
@@ -35,6 +35,6 @@ def apply_migrations(project: Project) -> Path | None:
         lock["harnessops_version"] = __version__
         migrations = lock.setdefault("migrations", [])
         migrations.append(entry.name)
-        write_lock(project.root, lock)
+        write_lock(project.metadata_root, lock)
         return entry
     return None

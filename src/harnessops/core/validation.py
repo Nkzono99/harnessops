@@ -188,14 +188,14 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
     for rel in required_dirs:
         if not (project.overlay_dir / rel).exists():
             errors.append(f"オーバーレイディレクトリがありません: {project.overlay_path}/{rel}")
-    lock = load_lock(project.root)
+    lock = load_lock(project.metadata_root)
     if not lock:
         errors.append(".harnessops/lock.json がありません")
     if lock and lock.get("overlay", {}).get("path") != project.overlay_path:
         errors.append("lock の overlay path が project.toml と一致しません")
     managed = lock.get("managed_files", {}) if isinstance(lock.get("managed_files"), dict) else {}
     for rel, expected_hash in managed.items():
-        path = project.root / rel
+        path = project.metadata_root / rel
         if not path.exists():
             errors.append(f"管理対象ファイルがありません: {rel}")
         elif sha256_file(path) != expected_hash:

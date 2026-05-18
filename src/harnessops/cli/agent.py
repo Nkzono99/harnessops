@@ -6,6 +6,7 @@ import typer
 
 from harnessops.core.agent_asset_sync import sync_packaged_skill_assets
 from harnessops.core.agent_bridge import refresh_bridge_files
+from harnessops.cli.codex_plugin import install_codex_plugin_command
 from harnessops.core.paths import find_root
 
 agent_app = typer.Typer(help="repo-local エージェントブリッジ/skill を生成または検証します。")
@@ -35,14 +36,29 @@ def install(
     no_github_flow: bool = typer.Option(False, "--no-github-flow"),
     scope: str = typer.Option("repo", "--scope"),
     force: bool = typer.Option(False, "--force"),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+    destination: str | None = typer.Option(None, "--destination"),
 ) -> None:
-    """repo-local skillを生成します。"""
+    """repo-local skill または user global plugin を生成します。"""
     if not codex and not claude:
         codex = True
     if scope == "repo":
         bridge(codex=codex, claude=claude, no_github_flow=no_github_flow, force=force)
         return
-    typer.echo("user plugin install は廃止されました。repo-local skill は --scope repo または `hops agent bridge` で生成してください。")
+    if scope in {"user", "global"} and codex and not claude:
+        from pathlib import Path
+
+        install_codex_plugin_command(
+            destination=Path(destination) if destination else None,
+            force=force,
+            dry_run=dry_run,
+            json_output=True,
+        )
+        return
+    if scope in {"user", "global"} and claude:
+        typer.echo("global plugin install は現在 Codex のみ対応です")
+        raise typer.Exit(1)
+    typer.echo("scope は repo、user、global のいずれかを指定してください")
     raise typer.Exit(1)
 
 

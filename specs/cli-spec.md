@@ -13,6 +13,10 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops detect` | いいえ | リポジトリ種別と推奨プロファイルを推定します。 |
 | `hops init --profile <id>` | はい | `.harness/`、`.harnessops/`、プロファイルオーバーレイを作成します。 |
 | `hops link --profile <id>` | はい | 既存リポジトリを HarnessOps に関連付けるエイリアスです。 |
+| `hops project link --storage local --profile <id>` | はい | repo を変更せず、global registry と local state にリンクします。 |
+| `hops project resolve/list/unlink` | unlinkのみ | repo-local または global registry の project 解決、一覧、登録削除を行います。 |
+| `hops local pack/import/merge` | はい | `storage=local` state を zip 化、取り込み、現在projectへmergeします。`pack` の既定出力は `~/.harnessops/exports/` 側で、対象repoにはzipを作りません。 |
+| `hops install-codex-plugin` | はい | `harnessops-global` Codex plugin をユーザー領域へインストールし、`/plugin` 有効化手順を表示します。 |
 | `hops doctor` | いいえ | プロジェクトリンク、オーバーレイ、ロック、レコードを検証します。 |
 | `hops migrate --check/--apply` | `--apply` のみ | スキーマ/レイアウトマイグレーションを確認または適用します。 |
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせます。lock の `harnessops_version` が古い場合は PyPI checkpoint を順に適用します。編集済みmanaged fileは `<path>.new` に書きます。 |
@@ -44,7 +48,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 | `hops lab propose --from <Eid>` | はい | メカニズムと中止基準を含む仮説を作成します。 |
 | `hops lab eval --case <Eid> --manual` | はい | 多軸の手動スコアカードを保存します。 |
 | `hops lab decide --from <id> --status <status>` | はい | 採用、却下、保留の判断を記録します。 |
-| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と任意plugin成果物を管理します。 |
+| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と global Codex plugin 成果物を管理します。 |
 
 正本入口は、観測記録の `hops feedback add-failure`、分類の `hops feedback route`、上流/メタ下書きの `hops feedback add --from <Fid>` です。旧 top-level 入口の `hops add-failure`、`hops route`、`hops add-feedback`、`hops propose`、`hops eval`、`hops decide` と、旧 `hops lab new-eval-case/queue/context/compact/lifecycle lint` は互換 alias として残しますが、実行時に deprecated warning を出します。
 
@@ -52,7 +56,7 @@ CLI は状態管理の正本です。プラグイン、スキル、エージェ�
 
 1. GitHub Issue、プルリクエスト、リモート変更は暗黙に作成しません。`hops feedback issue create` は title/body と重複候補を表示し、`--confirm-create` が明示された場合だけ GitHub Issue を作成します。
 2. `feedback export` は、`--allow-private` が明示されない限り未サニタイズ出力を拒否します。`--format github-issue` は公開共有前提のため、`--sanitize` を必須とし、`--allow-private` との併用を拒否します。
-3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。
+3. `init` と `update-harness` が書くのは生成ファイルだけです。生成ファイルが編集され、ロックのハッシュと一致しない場合、`update-harness` は元ファイルを保持して `<path>.new` に新しい生成物を書きます。`storage=local` では生成物と lock は `~/.harnessops/projects/<id>/` 側に書き、対象repoには書きません。
 4. `update-harness --plan-upgrade` は lock の `harnessops_version` から現在 runtime までの checkpoint 計画を表示します。`--apply-upgrade-chain` は exact version の `uvx --from harnessops==<version> hops update-harness` を順に実行します。
 5. `records/` 配下のレコードは人が作成した履歴であり、ビュー更新では再生成されません。
 6. `improvements/IMP*.md` は正規化レコードから再生成できる dossier です。日常レビューでは dossier を読み、採用判断や評価証拠を確定する時は元の `FB/E/H/D` レコードを更新します。

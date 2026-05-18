@@ -56,7 +56,7 @@
 - harness-owned profiles via entry points
 - profile `domain_triage` hooks for target-specific diagnostic skills
 
-0.2の設計では、repo-local skill展開をfirst-classにします。ユーザー領域の plugin 配布は標準導線から外し、各repoで role-scoped skill を展開します。
+0.2の設計では、repo-local skill展開をfirst-classにします。普通のrepoを汚さない開発時利用では global registry と Codex global plugin を使い、repoに状態を含める target/project 運用では各repoで role-scoped skill を展開します。
 
 ## 0.3: experiment runner とスコア推移
 

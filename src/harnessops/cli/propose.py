@@ -44,7 +44,7 @@ def propose_command(
         evaluation_plan=evaluation_plan,
         kill_criteria=kill_criteria,
     )
-    typer.echo(path.relative_to(root).as_posix())
+    typer.echo(project.display_path(path))
 
 
 def register(app: typer.Typer) -> None:

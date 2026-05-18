@@ -10,7 +10,7 @@ from harnessops.core.project import load_project
 from harnessops.core.lab_records import create_failure, create_feedback_from_failure
 from harnessops.core.record_index import find_record
 from harnessops.core.record_io import read_record
-from harnessops.core.render import refresh_views
+from harnessops.core.render import refresh_project_views
 from harnessops.core.routing import classify_text
 from harnessops.core.routing import DISPOSITIONS
 
@@ -53,8 +53,8 @@ def add_failure_command(
         local_workaround=local_workaround,
         disposition_type=disposition or routing["type"],
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 def add_feedback_command(
@@ -81,8 +81,8 @@ def add_feedback_command(
         title=title,
         summary=summary,
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 def register(app: typer.Typer) -> None:

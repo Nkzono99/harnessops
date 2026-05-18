@@ -179,7 +179,7 @@ uvx --from harnessops hops agent bridge --codex --no-github-flow
 uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge --no-github-flow
 ```
 
-HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin install は標準運用から外しているため、target/project lifecycle から実行しません。複数repoで使う場合も、各repoで `hops agent bridge` または `update-harness --agent-bridge` を実行します。
+target/project lifecycle で HarnessOps 状態をrepoに含める場合は、repo-local skill を標準導線にします。普通のrepoを汚さない開発時利用だけ global Codex plugin を使い、target/project lifecycle からは各repoで `hops agent bridge` または `update-harness --agent-bridge` を実行します。
 
 ## AGENTS.md / CLAUDE.md への短い導線
 

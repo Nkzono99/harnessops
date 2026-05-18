@@ -124,6 +124,19 @@ HarnessOps の隠しメタデータです。
   sanitize.yml   # 任意
 ```
 
+repo-local 利用では `.harnessops/` と overlay は対象リポジトリ内に置きます。global 利用では対象リポジトリに `.harnessops/` を置かず、`~/.harnessops/registry.toml` から local state を解決します。
+
+```text
+~/.harnessops/
+  registry.toml
+  projects/
+    <project-id>/
+      .harnessops/
+        project.toml
+        lock.json
+      harness-feedback/ または harness-lab/
+```
+
 ### `.harness/manifest.toml`
 
 プロバイダ中立の共通マニフェストです。HarnessOps 固有ではありませんが、検出とprofile hintに使います。
@@ -169,6 +182,7 @@ adapter = "runops_project"
 [overlay]
 mode = "feedback-source"
 path = "harness-feedback"
+storage = "repo"  # 既定。global registry 利用では "local"
 managed_by = "harnessops"
 
 [privacy]
@@ -195,6 +209,17 @@ profile id ending in -project   -> feedback-source
 profile id ending in -upstream  -> upstream-lab
 profile id harnessops-core      -> meta-lab
 ```
+
+## Storage
+
+HarnessOps は2つの storage を持ちます。
+
+| storage | 正本メタデータ | overlay 実体 | 用途 |
+|---|---|---|---|
+| `repo` | `<repo>/.harnessops/project.toml` | `<repo>/harness-feedback` または `<repo>/harness-lab` | target/project repo に HarnessOps 状態を明示的に含め、チームやPRで共有する。 |
+| `local` | `~/.harnessops/registry.toml` と `~/.harnessops/projects/<id>/.harnessops/project.toml` | `~/.harnessops/projects/<id>/<overlay>` | 普通のリポジトリを汚さず、開発者ローカルで HarnessOps を使う。 |
+
+CLI はまず repo-local の `.harnessops/project.toml` を解決し、存在しなければ global registry を見る。`storage = "local"` でも record schema、routing、sanitize、lab workflow は共通の `Project` abstraction を通して扱う。
 
 ## Profile
 
@@ -332,6 +357,11 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops detect` | いいえ | repository kind と推奨profileの推定。 |
 | `hops init --profile <id>` | はい | `.harness/`, `.harnessops/`, overlay の作成。 |
 | `hops link --profile <id>` | はい | 既存リポジトリを HarnessOps にリンク。 |
+| `hops project link --storage local --profile <id>` | はい | repo を変更せず、global registry と `~/.harnessops/projects/<id>/` に HarnessOps local state を作る。 |
+| `hops project resolve [--json]` | いいえ | repo-local または global registry の project 解決結果を返す。 |
+| `hops project list/unlink` | unlinkのみ | global registry の登録確認と削除。 |
+| `hops local pack/import/merge` | はい | `storage=local` state を zip 化、取り込み、現在projectへrecord単位でmergeする。`pack` の既定出力は `~/.harnessops/exports/`。 |
+| `hops install-codex-plugin` | はい | `harnessops-global` Codex plugin をユーザー領域へ入れ、`/plugin` での有効化手順と Codex CLI 導入案内を表示する。 |
 | `hops doctor` | いいえ | link、overlay、lock、recordの検証。 |
 | `hops migrate --check/--apply` | `--apply` のみ | layout migrationの確認または適用。 |
 | `hops update-harness` | はい | managed file、migration確認、repo-local skill展開を現在の `hops` 実装に合わせる。編集済みmanaged fileは `<path>.new` に退避。 |
@@ -362,7 +392,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab propose --from <Eid>` | はい | 仮説テンプレート作成。 |
 | `hops lab eval --case <Eid> --manual` | はい | 手動多軸スコアカード保存。 |
 | `hops lab decide --from <id> --status <status>` | はい | 採用、却下、保留などの判断を記録。 |
-| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と検証。`install --scope repo` は `bridge` の互換入口で、user plugin install は標準運用から外す。 |
+| `hops agent bridge/install/verify` | bridge/installのみ | repo-local skill展開と検証。`install --scope user --codex` は global Codex plugin をユーザー領域へコピーする。 |
 | `hops agent sync-packaged-skills [--check]` | 通常実行のみ | HarnessOps 実装repoで `.agents/skills/hops-*` を packaged Codex/Claude asset に同期する。`--check` は drift/missing/retired を検出して書き込まない。 |
 | `hops report` | いいえ | 簡潔なrepository report表示。 |
 
@@ -380,14 +410,19 @@ target harness の `init`、`setup`、`update-harness` などのライフサイ�
 - 通常コマンドは、`.harnessops/lock.json` の `harnessops_version`、現在 runtime、PyPI 最新 version を見て update notice を表示できる。抑止は `--disable-update-notice` / `HOPS_DISABLE_UPDATE_NOTICE`、PyPI 確認だけの抑止は `HOPS_DISABLE_PYPI_UPDATE_CHECK` を使う。
 - migration適用は明示オプションまたは人間確認後に `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` で行う。
 - target harness は通常 `hops init --force` を自動実行しない。生成ファイル競合や危険な上書き拒否は上位コマンドで報告して停止する。
-- repo-local skill展開は対象repoの状態なので、`--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
-- user領域のAgent plugin installは標準運用から外す。複数repoで使う場合も、各repoで repo-local skill を展開する。
+- repoに HarnessOps 状態を含める target/project 運用では、repo-local skill展開を `--with-agent-bridge` や target CLI 側の明示オプションで入れてよい。
+- 普通のリポジトリを汚さない開発時利用では、`hops project link --storage local` と global Codex plugin を使う。Agent plugin は薄いUX層であり、状態変更は `uvx --from harnessops hops ...` に委譲する。
 
 例:
 
 ```bash
 # target CLI が project repository を生成した後、生成先で実行する
 uvx --from harnessops hops init --profile runops-project
+uvx --from harnessops hops doctor --check-overlay --check-records
+
+# 普通のリポジトリを汚さずに開発時だけ使う
+uvx --from harnessops hops project link --storage local --profile generic-code
+uvx --from harnessops hops project resolve --json
 uvx --from harnessops hops doctor --check-overlay --check-records
 
 # target repository 自身のsetupで実行する
@@ -432,16 +467,21 @@ private_terms:
   - internal-method-name
 ```
 
-## Agent Skillの契約
+## Agent Skill / Plugin の契約
 
-標準ルートは、`uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による repo-local skill 展開です。root `plugins/` とユーザー領域 plugin install は標準導線から外し、状態変更は常に `hops` に委譲します。
+HarnessOps は2つの Agent 導線を持ちます。
+
+- repo-local 導線: `uvx --from harnessops hops init --with-agent-bridge` または `uvx --from harnessops hops agent bridge --codex` による role-scoped skill 展開。HarnessOps 状態を repo に含める target/project repo 用。
+- global plugin 導線: package asset として同梱された `harnessops-global` Codex plugin。`hops install-codex-plugin` でユーザー領域にコピーし、普通のrepoにファイルを置かず、`hops project resolve` で global registry を解決してから `uvx --from harnessops hops ...` を呼ぶ開発時利用用。
 
 repo-local bridge は `.harnessops/project.toml` の overlay mode に合わせて role-scoped に生成する。`feedback-source` / `local-and-feedback` では project-side interface として lifecycle、failure capture、routing、feedback export だけを案内し、`hops lab ...`、`hops lab propose`、`hops lab eval`、`hops lab decide` の実行導線と lab 系 skill は展開しない。`upstream-lab` / `meta-lab` では feedback import、lab、eval、hypothesis、decision の導線を含める。`update-harness --agent-bridge` は `--codex` / `--claude` が明示されていない場合、`[agents]` の `codex` / `claude` 設定から配布先 host を選ぶ。既存の managed repo-local skill が role から外れた場合、`update-harness --agent-bridge` は未編集の managed file を外し、編集済みファイルは保持して報告する。
 
+global plugin は repo-local skill を生成しない。最初に `uvx --from harnessops hops project resolve --json` を実行し、未登録なら `uvx --from harnessops hops detect --json` と `uvx --from harnessops hops project link --storage local --profile <id>` を使う。既存repo-local `.harnessops/project.toml` がある場合はそちらを優先する。
+
 必須契約:
 
-- 最初に `hops doctor --check-overlay` を実行する。
-- 未リンクなら `uvx --from harnessops hops detect` と `uvx --from harnessops hops init --profile <id>` を使う。
+- 最初に `uvx --from harnessops hops doctor --check-overlay`、または global plugin では `uvx --from harnessops hops project resolve --json` を実行する。
+- repo-local 未リンクなら `uvx --from harnessops hops detect` と `uvx --from harnessops hops init --profile <id>` を使う。global 利用では `uvx --from harnessops hops project link --storage local --profile <id>` を使う。
 - `.harnessops/`, `harness-feedback/`, `harness-lab/` の構造を直接再編しない。
 - レコード作成・更新はCLIに委譲する。
 - リモートIssue/PRは自動作成しない。Issue作成は `hops feedback issue create --confirm-create` のような明示確認付きコマンドに限定する。

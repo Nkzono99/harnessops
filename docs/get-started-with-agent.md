@@ -21,15 +21,41 @@ Agent は通常、次を実行します。
 
 ```bash
 uvx --from harnessops hops detect
+uvx --from harnessops hops project link --storage local --profile <detected-profile>
+uvx --from harnessops hops doctor --check-overlay
+```
+
+普通のリポジトリを汚したくない場合はこの global registry 導線を使います。対象repoには `.harnessops/`、`harness-feedback/`、`harness-lab/` を作らず、状態は `~/.harnessops/projects/<project-id>/` に置きます。
+
+詳しい使い方、共有、merge、解除は [global local state guide](global-local-state.md) にまとめています。
+
+repo に HarnessOps 状態を含めてチームやPRで共有したい target/project repo では、従来どおり repo-local 初期化を使います。
+
+```bash
+uvx --from harnessops hops detect
 uvx --from harnessops hops init --profile <detected-profile>
 uvx --from harnessops hops doctor --check-overlay
 ```
 
-すでに初期化済みなら、doctor だけで状態を確認します。
+すでに link 済みなら、doctor だけで状態を確認します。
 
 ## Agent向けスキルの入れ方
 
-通常は、対象リポジトリに repo-local skill を展開します。runops などの target CLI が project repository を生成する場合も、この方式を本筋にします。
+Agent向けスキルは2系統あります。
+
+普通のリポジトリを汚さず開発時だけ使う場合は、Codex に同梱の global plugin `harnessops-global` を入れます。この plugin は毎回 `uvx --from harnessops hops project resolve --json` で解決し、未登録なら `hops project link --storage local` を案内します。repo-local skill は生成しません。
+
+```bash
+uvx --from harnessops hops install-codex-plugin
+```
+
+インストール後は、基本的に `harnessops-global` skill へ自然文で依頼します。
+
+```text
+このrepoを HarnessOps local state で使えるようにして。repoにはファイルを作らないで。
+```
+
+target/project repo に HarnessOps 状態を含める場合は、対象リポジトリに repo-local skill を展開します。runops などの target CLI が project repository を生成する場合も、この方式を使えます。
 
 ```bash
 uvx --from harnessops hops init --profile <profile-id> --with-agent-bridge
@@ -43,7 +69,7 @@ uvx --from harnessops hops agent bridge --codex
 
 これにより `.agents/skills/harnessops-bridge/` に加えて、リポジトリの role に合う HarnessOps skill が `.agents/skills/` に入ります。project-side の `feedback-source` repo では `hops-add-failure`、`hops-route-feedback`、`hops-export-feedback`、`hops-update-harness` などに絞り、`hops-run-lab`、`hops-github-flow`、propose/eval/decide の導線は target/meta lab repo 側に置きます。Codex の新しいセッションでは repo-local skill として表示されます。
 
-HarnessOps は repo-local skill を標準導線にします。ユーザー領域の plugin は配布・同期・権限の面が重く、標準運用からは外しています。複数リポジトリで使う場合も、各リポジトリで `hops agent bridge` または `update-harness --agent-bridge` を実行してください。
+repo-local skill は、状態をrepoに含める運用のための導線です。global plugin は、普通のrepoを完全に HarnessOps 非依存のまま使うための導線です。
 
 Claude 用の repo-local skill も同じ考え方です。
 

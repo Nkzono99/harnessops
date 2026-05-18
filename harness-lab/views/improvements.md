@@ -36,3 +36,4 @@
 - `IMP0034` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0049 daily_steward_orchestration nested_open_scan_not_delegated
 - `IMP0035` adopted maturity=implemented scope=harnessops-core promotion=target-lab-case source=FB0052 unclassified unclassified
 - `IMP0036` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0050 daily_steward_supervision implicit_lane_contract
+- `IMP0037` active maturity=investigated scope=harnessops-core promotion=strategic source=FB0053 harness_lab_traceability missing_lab_capture

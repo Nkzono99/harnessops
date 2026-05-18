@@ -125,7 +125,7 @@ def _write_json(path: Path, data: dict[str, Any]) -> None:
 
 
 def _steward_runs_dir(project: Project) -> Path:
-    return project.root / ".harnessops" / "cache" / "steward-runs"
+    return project.metadata_root / ".harnessops" / "cache" / "steward-runs"
 
 
 def _ledger_path(project: Project, run_id: str) -> Path:
@@ -185,24 +185,25 @@ def _line_count(root: Path, rel: str, pattern: str) -> int:
 
 def _overlay_counts(project: Project) -> dict[str, int]:
     overlay = project.overlay_path
+    root = project.storage_root
     return {
-        "feedback_records": _line_count(project.root, f"{overlay}/records/feedback", "FB*.md"),
-        "failure_records": _line_count(project.root, f"{overlay}/records/failures", "F*.md"),
+        "feedback_records": _line_count(root, f"{overlay}/records/feedback", "FB*.md"),
+        "failure_records": _line_count(root, f"{overlay}/records/failures", "F*.md"),
         "upstream_feedback_records": _line_count(
-            project.root,
+            root,
             f"{overlay}/records/upstream-feedback",
             "UF*.md",
         ),
         "meta_feedback_records": _line_count(
-            project.root,
+            root,
             f"{overlay}/records/meta-feedback",
             "MF*.md",
         ),
-        "eval_cases": _line_count(project.root, f"{overlay}/records/eval-cases", "E*.md"),
-        "hypotheses": _line_count(project.root, f"{overlay}/records/hypotheses", "H*.md"),
-        "decisions": _line_count(project.root, f"{overlay}/records/decisions", "D*.md"),
-        "research_scans": _line_count(project.root, f"{overlay}/records/research-scans", "RS*.md"),
-        "improvements": _line_count(project.root, f"{overlay}/improvements", "IMP*.md"),
+        "eval_cases": _line_count(root, f"{overlay}/records/eval-cases", "E*.md"),
+        "hypotheses": _line_count(root, f"{overlay}/records/hypotheses", "H*.md"),
+        "decisions": _line_count(root, f"{overlay}/records/decisions", "D*.md"),
+        "research_scans": _line_count(root, f"{overlay}/records/research-scans", "RS*.md"),
+        "improvements": _line_count(root, f"{overlay}/improvements", "IMP*.md"),
     }
 
 

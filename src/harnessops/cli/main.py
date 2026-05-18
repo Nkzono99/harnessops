@@ -6,6 +6,7 @@ from harnessops import __version__
 from harnessops.cli import (
     add_failure,
     agent,
+    codex_plugin,
     decide,
     detect,
     doctor,
@@ -15,7 +16,9 @@ from harnessops.cli import (
     init,
     lab,
     migrate,
+    local,
     profiles,
+    project,
     propose,
     report,
     route,
@@ -55,6 +58,8 @@ detect.register(app)
 init.register(app)
 doctor.register(app)
 migrate.register(app)
+project.register(app)
+local.register(app)
 add_failure.register(app)
 feedback.register(app)
 lab.register(app)
@@ -63,6 +68,7 @@ eval.register(app)
 decide.register(app)
 report.register(app)
 agent.register(app)
+codex_plugin.register(app)
 route.register(app)
 github_flow.register(app)
 steward.register(app)

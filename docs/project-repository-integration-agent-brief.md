@@ -111,7 +111,7 @@ uvx --refresh-package harnessops --from harnessops hops update-harness
 uvx --refresh-package harnessops --from harnessops hops update-harness --plan-upgrade
 ```
 
-未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge` または `uvx --from harnessops hops agent bridge --codex` を使います。`update-harness --agent-bridge` は `.harnessops/project.toml` の `[agents]` 設定に従い、特定 host だけに絞る場合は `--codex` / `--claude` を明示します。project repo では GitHub Flow skill は通常配布されません。ユーザー領域の plugin install は標準運用から外しているため、複数repoで使う場合も各repoで repo-local skill を展開します。
+未適用migrationを適用する場合は、人間確認または明示フラグ付きで `uvx --from harnessops hops update-harness --apply-migrations` または `uvx --from harnessops hops migrate --apply` を呼びます。repo-local skill 展開は明示オプションで `uvx --refresh-package harnessops --from harnessops hops update-harness --agent-bridge` または `uvx --from harnessops hops agent bridge --codex` を使います。`update-harness --agent-bridge` は `.harnessops/project.toml` の `[agents]` 設定に従い、特定 host だけに絞る場合は `--codex` / `--claude` を明示します。project repo では GitHub Flow skill は通常配布されません。普通のrepoを汚さない開発時利用だけ global Codex plugin を使い、repoに状態を含める project lifecycle では各repoで repo-local skill を展開します。
 
 ## AGENTS.md / CLAUDE.md への短い導線
 
