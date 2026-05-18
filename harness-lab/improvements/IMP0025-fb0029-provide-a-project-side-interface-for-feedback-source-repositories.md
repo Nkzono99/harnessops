@@ -2,7 +2,7 @@
 id: IMP0025
 record_type: improvement_dossier
 created_at: '2026-05-13T22:57:22+09:00'
-updated_at: '2026-05-13T23:01:52+09:00'
+updated_at: '2026-05-19T03:36:30+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -21,7 +21,7 @@ classification:
   capability: unclassified
   failure_class: unclassified
 guard:
-  status: planned
+  status: implemented
   path: tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
 investigation:
 - created_at: '2026-05-13T23:00:57+09:00'
@@ -243,7 +243,7 @@ Source: `harness-lab/records/hypotheses/H0028-e0028-fb0029-provide-a-project-sid
 
 ## Guard
 
-- status: planned
+- status: implemented
 - path: tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
 
 ## Links

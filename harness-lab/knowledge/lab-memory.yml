@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-18T03:22:35+09:00'
+updated_at: '2026-05-19T03:36:42+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,20 +9,20 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 358
-    byte_count: 974583
-    record_count: 179
-    feedback_count: 52
-    eval_case_count: 40
-    hypothesis_count: 40
-    decision_count: 41
-    research_scan_count: 6
-    improvement_count: 35
-    manual_eval_count: 40
+    file_count: 369
+    byte_count: 1042930
+    record_count: 184
+    feedback_count: 53
+    eval_case_count: 41
+    hypothesis_count: 41
+    decision_count: 42
+    research_scan_count: 7
+    improvement_count: 38
+    manual_eval_count: 41
   triggers:
   - file_count>256
 sources:
-  source_digest: 23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a
+  source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
   improvements:
   - IMP0001
   - IMP0002
@@ -59,14 +59,31 @@ sources:
   - IMP0034
   - IMP0035
   - IMP0036
+  - IMP0037
+  - IMP0038
+  - IMP0039
 knowledge:
   summary:
-    improvement_count: 35
+    improvement_count: 38
     status_counts:
-      adopted: 34
+      active: 2
+      adopted: 35
       parked: 1
-    capability_count: 16
+    capability_count: 17
   capabilities:
+  - capability: agent_asset_packaging
+    failure_classes:
+    - failure_class: manual_packaged_skill_sync_drift
+      improvements:
+      - IMP0039
+      status_counts:
+        active: 1
+      average_scores: {}
+      guards: []
+      lessons:
+      - source: IMP0039
+        status: active
+        lesson: The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or update...
   - capability: cli_ergonomics
     failure_classes:
     - failure_class: command_surface_sprawl
@@ -242,18 +259,21 @@ knowledge:
       - IMP0020
       - IMP0026
       - IMP0031
+      - IMP0037
+      - IMP0038
       status_counts:
-        adopted: 6
+        active: 1
+        adopted: 7
       average_scores:
-        anti_theater: 4.67
+        anti_theater: 4.71
         evaluability: 5.0
         impact: 4.0
         maintainability: 4.0
-        mechanism_clarity: 4.5
-        minimality: 4.17
-        operator_burden: 1.0
-        privacy_sanitization_risk: 0.5
-        regression_risk: 1.5
+        mechanism_clarity: 4.57
+        minimality: 4.14
+        operator_burden: 1.43
+        privacy_sanitization_risk: 1.14
+        regression_risk: 1.57
       guards:
       - source: IMP0017
         status: implemented
@@ -270,6 +290,12 @@ knowledge:
       - source: IMP0031
         status: implemented
         path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
+      - source: IMP0037
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py::test_project_link_storage_local_keeps_repo_clean;tests/test_cli/test_mvp_flow.py::test_agent_user_install_writes_global_codex_plugin;tests/test_agent_harness_contract.py::test_global_plugin_is_packaged_without_root_plugin_surface
+      - source: IMP0038
+        status: implemented
+        path: tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
       lessons:
       - source: IMP0001
         status: adopted
@@ -289,6 +315,12 @@ knowledge:
       - source: IMP0031
         status: adopted
         lesson: 'Updated daily steward docs and repo-local/packaged skill copies to prefer GitHub Flow: automation feature branch, PR, and merge into protected main after validation/required checks. Added lane budgets for systemic candidates, metadata/guard backfills, and rea...'
+      - source: IMP0037
+        status: active
+        lesson: Added the global share-state Codex skill and moved the default local pack output to HOPS_HOME exports so pack does not dirty ordinary repositories.
+      - source: IMP0038
+        status: adopted
+        lesson: Implemented a narrow source-preserving retire command. The guard creates a research scan with a stale next command, retires it, confirms the source file and reason remain, verifies active queue exclusion with include-closed visibility, and verifies memory abs...
   - capability: improvement_loop_design
     failure_classes:
     - failure_class: ambiguous_improvement_workflow
@@ -617,7 +649,7 @@ knowledge:
         status: implemented
         path: tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback
       - source: IMP0025
-        status: planned
+        status: implemented
         path: tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
       - source: IMP0032
         status: implemented
@@ -737,32 +769,6 @@ knowledge:
       relation: new
       recommendation: park unless repeated confusion
       next_command: hops lab research-scan or capture after another instance
-  - id: RS0004
-    title: 'RS0004: Reconcile post-v0.1.5 open issues with lab decisions'
-    path: harness-lab/records/research-scans/RS0004-reconcile-post-v0-1-5-open-issues-with-lab-decisions.md
-    status: captured
-    scope: harnessops-core issue tracker and lab-state reconciliation
-    capability: issue_lab_reconciliation
-    failure_class: stale_external_issue_tracker
-    recommendation: 'prioritize #9 residual implementation next; separately ask before closing #6/#7/#8 because remote tracker writes should be explicit'
-    candidate_count: 4
-    candidates:
-    - title: 'Prepare closure comments for issues #6, #7, and #8'
-      relation: new
-      recommendation: ask-user-then-close
-      next_command: 'gh issue close 6 --comment <adopted in IMP0002/v0.1.x evidence>; repeat for #7/#8'
-    - title: 'Finish issue #9 residual invocation diagnostics'
-      relation: extends
-      recommendation: capture-or-propose
-      next_command: hops feedback import --issue 9 --repo Nkzono99/harnessops, then connect the residual to IMP0018 or create a new eval case
-    - title: 'Defer #5 until the broader improve-harness workflow is explicitly mapped'
-      relation: parks
-      recommendation: investigate
-      next_command: 'compare #5 body against IMP0006/IMP0008/IMP0009 and decide whether it is superseded or still an umbrella issue'
-    - title: Refresh semantic lab memory after issue reconciliation
-      relation: extends
-      recommendation: defer
-      next_command: hops lab memory prepare --force followed by hops-compact-lab-memory if stale context becomes a real friction
   - id: RS0005
     title: 'RS0005: Route lab health through steward preflight'
     path: harness-lab/records/research-scans/RS0005-route-lab-health-through-steward-preflight.md
@@ -889,7 +895,7 @@ knowledge:
   - source: IMP0025
     capability: unclassified
     failure_class: unclassified
-    status: planned
+    status: implemented
     path: tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation
   - source: IMP0026
     capability: harness_lab_traceability
@@ -941,6 +947,16 @@ knowledge:
     failure_class: implicit_lane_contract
     status: implemented
     path: tests/test_cli/test_steward.py
+  - source: IMP0037
+    capability: harness_lab_traceability
+    failure_class: missing_lab_capture
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py::test_project_link_storage_local_keeps_repo_clean;tests/test_cli/test_mvp_flow.py::test_agent_user_install_writes_global_codex_plugin;tests/test_agent_harness_contract.py::test_global_plugin_is_packaged_without_root_plugin_surface
+  - source: IMP0038
+    capability: harness_lab_traceability
+    failure_class: missing_lab_capture
+    status: implemented
+    path: tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
   external_evidence:
   - source: IMP0006
     summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -976,3 +992,13 @@ knowledge:
     status: parked
     next: evaluation-or-decision-needed
     path: harness-lab/improvements/IMP0033-fb0047-cli-surface-needs-canonical-grouped-commands.md
+  - source: IMP0037
+    maturity: investigated
+    status: active
+    next: evaluation-or-decision-needed
+    path: harness-lab/improvements/IMP0037-fb0053-global-local-harnessops-usage-without-repository-files.md
+  - source: IMP0039
+    maturity: investigated
+    status: active
+    next: evaluation-or-decision-needed
+    path: harness-lab/improvements/IMP0039-fb0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md

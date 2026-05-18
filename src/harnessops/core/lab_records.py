@@ -567,3 +567,40 @@ def create_decision(
     path = record_path(project, "decision", record_id, title)
     path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
     return path
+
+
+RETIRED_LAB_RECORD_STATUSES = {"archived", "superseded"}
+
+
+def retire_lab_record(
+    project: Project,
+    *,
+    source_ref: str,
+    status: str,
+    reason: str,
+    evidence_ref: str | None = None,
+) -> Path:
+    """Mark a lab record out of active memory without deleting the source file."""
+    if status not in RETIRED_LAB_RECORD_STATUSES:
+        raise ValueError(f"unsupported retire status: {status}")
+    path = find_record(project, source_ref)
+    frontmatter, body = read_record(path)
+    frontmatter["status"] = status
+    events = frontmatter.get("retirement")
+    if isinstance(events, list):
+        retirement_events = events
+    elif isinstance(events, dict):
+        retirement_events = [events]
+    else:
+        retirement_events = []
+    retirement_events.append(
+        {
+            "created_at": now_iso(),
+            "status": status,
+            "reason": reason,
+            "evidence_ref": evidence_ref,
+        }
+    )
+    frontmatter["retirement"] = retirement_events
+    path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
+    return path

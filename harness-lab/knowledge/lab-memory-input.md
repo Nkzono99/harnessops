@@ -7,9 +7,9 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a`
+- source_digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
 - pressure: file_count>256
-- triggers: file_count>256, deterministic_snapshot_stale, semantic_memory_stale
+- triggers: file_count>256, semantic_memory_stale
 
 ## Skill Instructions
 
@@ -2034,6 +2034,160 @@ Steward run preflight should expose optional structured lane artifacts for open-
 
 - 2026-05-18T03:19:08+09:00 [codebase] Steward preflight already exposes supervisor_plan.lane_result_optional_fields.artifacts and lane_artifact_contracts.open-meta-scan with artifacts.meta_scan keys; open-meta handoff names the structured fields; subagent_plan.spawn_recommendations now emits actual supervisor lane names while retaining signal details separately under signals....
 
+### `IMP0037` harness_lab_traceability/missing_lab_capture
+- path: `harness-lab/improvements/IMP0037-fb0053-global-local-harnessops-usage-without-repository-files.md`
+- status: active
+- maturity: investigated
+- relation: implements FB0053 global local-state workflow
+
+# IMP0037: FB0053: Global local HarnessOps usage without repository files
+
+## Status
+
+- status: active
+- maturity: investigated
+- source_type: friction
+- scope: harnessops-core
+- relation: implements FB0053 global local-state workflow
+- promotion_level: strategic
+- source_feedback: `FB0053`
+- linked_records: `FB0053`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0053-global-local-harnessops-usage-without-repository-files.md`
+
+# FB0053: Global local HarnessOps usage without repository files
+
+## 概要
+
+Support a global registry and local state storage so ordinary repositories can use HarnessOps during development without committing .harnessops, harness-feedback, or harness-lab. Agents should access the same flow through a global Codex plugin that delegates all state changes to uvx --from harnessops hops.
+
+## 再現
+
+ローカル改善作業中に観測。
+
+## 期待する上流変更
+
+Add a global project registry, storage=local overlay resolution, project resolve/link commands, and a packaged/global plugin surface while keeping existing repo-local target/project usage working.
+
+## Target Capability
+
+- capability: harness_lab_traceability
+- failure_class: missing_lab_capture
+
+## Investigation
+
+- 2026-05-18T14:22:05+09:00 [codebase] Implemented a shared Project abstraction with separate repo root and storage root, a global registry under HOPS_HOME/default ~/.harnessops, storage=local project link/resolve, local pack/import/merge commands, and a packaged HarnessOps Global Codex plugin installed via agent install --scope user --codex. Existing repo-local init/link remains storage=repo and shares the same record/render paths through Project.overlay_dir. (evidence: src/harnessops/core/registry.py;src/harnessops/core/project.py;src/harnessops/cli/project.py;src/harnessops/cli/local.py;src/harnessops/core/ag...
+
+### `IMP0038` harness_lab_traceability/missing_lab_capture
+- path: `harness-lab/improvements/IMP0038-fb0045-harness-lab-needs-forgetting-policy.md`
+- status: adopted
+- maturity: adopted
+- relation: extends
+
+# IMP0038: FB0045: Harness lab needs forgetting policy
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: friction
+- scope: harnessops-core
+- relation: extends
+- promotion_level: shipped-behavior
+- source_feedback: `FB0045`
+- linked_records: `FB0045`, `E0041`, `H0041`, `D0042`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0045-harness-lab-needs-forgetting-policy.md`
+
+# FB0045: Harness lab needs forgetting policy
+
+## 概要
+
+Harness-lab currently supports recording, deterministic compaction, semantic abstraction, and source-linked extraction, but growth pressure will keep increasing because old low-signal records are never retired, archived, summarized away, or marked out of working memory.
+
+## 再現
+
+ローカル改善作業中に観測。
+
+## 期待する上流変更
+
+Design a source-preserving forgetting lane that can mark stale local-only or superseded lab material as archived or excluded from active memory without destroying auditability.
+
+## Target Capability
+
+- capability: harness_lab_traceability
+- failure_class: missing_lab_capture
+
+## Investigation
+
+- 2026-05-19T03:22:41+09:00 [codebase] Today's daily steward has fresh snapshot and semantic memory, but lab memory lint still reports needs-abstraction from file_count>256; issue discovery also found no open GitHub issues while RS0004 still carries old remote-close candidates. Treat this as source-preserving active-memory and queue-retirement pressure, not another snapshot compaction pass. (evidence: harness-lab/knowledge/lab-memory.yml; uv run --with-editable . hops lab memory lint --warn-only; gh issue list --repo Nkzono99/harnessops --state all --limit 20)
+
+## Research Scans
+
+research scan はまだありません。
+
+
+## Evaluation
+
+### E0041: E0041: FB0045-harness-lab-needs-forgetting-policy を評価
+
+
+- source: `harness-lab/records/eval-cases/E004...
+
+### `IMP0039` agent_asset_packaging/manual_packaged_skill_sync_drift
+- path: `harness-lab/improvements/IMP0039-fb0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md`
+- status: active
+- maturity: investigated
+- relation: extends
+
+# IMP0039: FB0051: Packaged skill asset sync should be a CLI, not manual copy work
+
+## Status
+
+- status: active
+- maturity: investigated
+- source_type: codebase
+- scope: harnessops-core
+- relation: extends
+- promotion_level: target-lab-case
+- source_feedback: `FB0051`
+- linked_records: `FB0051`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md`
+
+# FB0051: Packaged skill asset sync should be a CLI, not manual copy work
+
+## 概要
+
+Updating repo-local HOPS skills requires keeping packaged Codex and Claude assets in lockstep. Manual copy work already left Claude assets drifted, so routine sync and CI-style drift detection should be owned by a HOPS CLI command.
+
+## 再現
+
+Edit a repo-local skill, run the old manual copy workflow, and observe that one host can drift. The new hops agent sync-packaged-skills --check detects the drift.
+
+## 期待する上流変更
+
+Provide a command that syncs .agents/skills/hops-* into packaged agent assets for codex and claude, with a --check mode that detects missing, drifted, or retired skills without writing.
+
+## Target Capability
+
+- capability: agent_asset_packaging
+- failure_class: manual_packaged_skill_sync_drift
+
+## Investigation
+
+- 2026-05-19T03:23:27+09:00 [codebase] The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or updated assets. This makes FB0051 a validation-standardization candidate rather than a manual copy task. (evidence: uv run --with-editable . hops agent sync-packaged-skills --help; uv run --with-editable . hops agent sync-packaged-skills --check --json)
+
+## Research Scans
+
+researc...
+
 ### `RS0001` meta_improvement_research/unstructured_research_scan_results
 - path: `harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md`
 - status: captured
@@ -2162,34 +2316,6 @@ adopt: use research-scan for deliberate multi-candidate meta-improvement researc
 | Migrate release workflow actions to Node24-ready majors | new | capture/propose | hops lab capture --title 'Release workflow uses Node20 action majors' |
 | Finish issue #9...
 
-### `RS0004` issue_lab_reconciliation/stale_external_issue_tracker
-- path: `harness-lab/records/research-scans/RS0004-reconcile-post-v0-1-5-open-issues-with-lab-decisions.md`
-- status: captured
-
-# RS0004: Reconcile post-v0.1.5 open issues with lab decisions
-
-## Scope
-
-- scope: harnessops-core issue tracker and lab-state reconciliation
-- existing_dossier: IMP0002/IMP0003/IMP0004/IMP0018
-- capability: issue_lab_reconciliation
-- failure_class: stale_external_issue_tracker
-
-## Evidence
-
-### Local
-
-- Open issues #6, #7, and #8 still appear in GitHub even though their linked lab dossiers are adopted. (ref: gh issue list --state open --limit 20)
-- Issue #9 remains open and overlaps IMP0018, but still includes residual acceptance criteria for doctor fallback validation or an invocation-reporting command. (ref: https://github.com/Nkzono99/harnessops/issues/9)
-- lab memory lint is ok, but snapshot and abstraction are stale after v0.1.5, so post-release readers may need either issue reconciliation or an explicit memory compaction pass later. (ref: uv run --with-editable . hops lab memory lint --warn-only)
-
-### Codebase
-
-- IMP0002 records conflict-aware update-harness behavior as adopted, with tests covering unmodified refresh, local edit conflict, forced overwrite, and count/path output. (ref: harness-lab/improvements/IMP0002-fb0006-make-update-harness-conflict-aware-for-agent-bridge-files.md)
-- IMP0003 records per-improvement dossier support as adopted, with docs and tests for low-friction dossier creation and generated views. (ref: harness-lab/improvements/IMP0003-fb0007-simplify-harness-lab-around-per-improvement-dossiers.md)
-- IMP0004 records lab-first GitHub issue draft/create as adopted, including sanitized body creation, duplicate search, confirm-create, and URL writeback. (ref: harness-lab/improvements/IMP0004-fb0008-add-github-issue-workflow-for-lab-first-improvement-records.md)
-- Current bridge assets use uvx --from harnessops hops fallback and contract tests b...
-
 ### `RS0005` daily_steward_orchestration/count_based_preflight_misses_stale_lab_health
 - path: `harness-lab/records/research-scans/RS0005-route-lab-health-through-steward-preflight.md`
 - status: captured
@@ -2282,7 +2408,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: 23b5152ae49f811a0ffa4f3bfbdda2111bd447d328ae5468e815b24e30c7ad4a
+source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
 sources:
 - IMP0001
 - IMP0002
@@ -2319,10 +2445,12 @@ sources:
 - IMP0034
 - IMP0035
 - IMP0036
+- IMP0037
+- IMP0038
+- IMP0039
 - RS0001
 - RS0002
 - RS0003
-- RS0004
 - RS0005
 - RS0006
 outputs:
