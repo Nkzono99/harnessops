@@ -5,6 +5,8 @@ import json
 from typer.testing import CliRunner
 
 from harnessops.cli.main import app
+from harnessops.core import yamlio
+from harnessops.core.record_io import read_record
 
 
 runner = CliRunner()
@@ -122,6 +124,67 @@ def test_lab_context_returns_related_records_and_reads(copy_fixture, monkeypatch
     assert payload["research_scans"][0]["id"] == "RS0001"
     assert payload["knowledge"]["available"] is True
     assert any(path.startswith("harness-lab/improvements/IMP0001-") for path in payload["recommended_reads"])
+
+
+def test_lab_retire_preserves_record_and_excludes_active_queue_and_memory(copy_fixture, monkeypatch):
+    root = copy_fixture("harnessops-core-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "harnessops-core"])
+    run_cli(
+        [
+            "lab",
+            "research-scan",
+            "--title",
+            "Retire stale candidate",
+            "--scope",
+            "harnessops-core",
+            "--capability",
+            "lab_memory_compaction",
+            "--failure-class",
+            "source_preserving_queue_retirement_gap",
+            "--candidate",
+            "Close obsolete issue|parks|park|gh issue close 123",
+            "--recommendation",
+            "Retire when the source issue is already closed.",
+        ]
+    )
+
+    queued = json.loads(run_cli(["lab", "review", "queue", "--json"]).output)
+    assert any(item["id"] == "RS0001" for item in queued["items"])
+
+    retired = json.loads(
+        run_cli(
+            [
+                "lab",
+                "retire",
+                "--from",
+                "RS0001",
+                "--reason",
+                "source issue already closed",
+                "--evidence-ref",
+                "gh issue list --state all",
+                "--json",
+            ]
+        ).output
+    )
+    record_path = root / retired["path"]
+    frontmatter, _ = read_record(record_path)
+    assert record_path.exists()
+    assert frontmatter["status"] == "archived"
+    assert frontmatter["retirement"][0]["reason"] == "source issue already closed"
+
+    active_queue = json.loads(run_cli(["lab", "review", "queue", "--json"]).output)
+    assert all(item["id"] != "RS0001" for item in active_queue["items"])
+    closed_queue = json.loads(run_cli(["lab", "review", "queue", "--include-closed", "--json"]).output)
+    assert any(item["id"] == "RS0001" and item["status"] == "archived" for item in closed_queue["items"])
+    context = json.loads(
+        run_cli(["lab", "review", "context", "--capability", "lab_memory_compaction", "--json"]).output
+    )
+    assert all(item["id"] != "RS0001" for item in context["research_scans"])
+
+    run_cli(["lab", "memory", "prepare", "--force"])
+    memory_input = yamlio.safe_load((root / "harness-lab/knowledge/lab-memory-input.yml").read_text(encoding="utf-8"))
+    assert "RS0001" not in {source["id"] for source in memory_input["sources"]}
 
 
 def test_lab_lifecycle_lint_reports_actionable_gaps(copy_fixture, monkeypatch):

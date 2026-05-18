@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-17T12:16:07+09:00'
-source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
+updated_at: '2026-05-19T03:10:00+09:00'
+source_digest: d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -145,12 +145,18 @@ patterns:
   evidence:
   - source: IMP0031
     note: 'Daily steward docs and packaged skills now prefer GitHub Flow: automation feature branch, PR, and merge after validation and required checks.'
+  - source: IMP0035
+    note: GitHub Flow merge now supports auto, merge, squash, and rebase methods so repositories with merge commits disabled can still complete after checks pass.
   guard:
   - path: tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents
     sources: [IMP0031]
+  - path: tests/test_cli/test_mvp_flow.py
+    sources: [IMP0035]
   counterexamples:
   - source: IMP0031
     note: Direct protected-branch pushes or unbounded systemic candidates are explicit kill criteria.
+  - source: IMP0035
+    note: Always invoking `gh pr merge --merge` blocks repositories that require squash or rebase even when validation and checks passed.
 - id: no_argument_issue_triage
   name: No-argument open issue triage
   capability: daily_steward_orchestration
@@ -207,18 +213,41 @@ patterns:
     note: The steward supervisor now includes `hops-open-meta-scan` as an explicit lane before invention; invention reviews raw ideas and records selected candidates for priority-improvement.
   - source: FB0050
     note: Code review found that raw ideas needed a structured lane artifact and that subagent recommendations should use actual supervisor lane names instead of signal aliases.
+  - source: IMP0036
+    note: Steward preflight and lane-result validation now expose and enforce the open-meta artifact contract.
   guard:
   - path: tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger
     sources: [IMP0034, FB0050]
   - path: tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged
     sources: [IMP0034]
   - path: tests/test_cli/test_steward.py::test_steward_run_validates_lane_result_json
-    sources: [FB0050]
+    sources: [FB0050, IMP0036]
   counterexamples:
   - source: IMP0034
     note: Nesting `hops-open-meta-scan` inside `hops-invention-steward` left the supervisor without a dedicated subagent result or durable raw-idea handoff.
   - source: FB0050
     note: A supervisor recommendation using `issue-triager` or a prose-only raw-idea handoff can make a downstream agent record the wrong lane or miss the handoff entirely.
+- id: consolidation_first_steward_routing
+  name: Consolidation-first steward routing
+  capability: daily_steward_supervision
+  failure_class: autonomous_record_growth_without_selection_pressure
+  applies_when:
+  - A daily steward run produces raw ideas, research scans, or candidate work while lab file-count pressure is already high.
+  - Existing feedback, improvement dossiers, or research scans can absorb the candidate without creating a new queue root.
+  avoid_when:
+  - The observation is a new failure class with no existing source record and would be lost without capture.
+  - The lane is explicitly read-only and should only return raw ideas for later routing.
+  evidence:
+  - source: RS0006
+    note: Open-meta warned that autonomous runs can reward producing records faster than retiring, merging, rejecting, or testing them.
+  - source: IMP0036
+    note: Structured lane artifacts make it possible for downstream lanes to route raw ideas without parsing prose.
+  guard:
+  - path: tests/test_cli/test_steward.py
+    sources: [IMP0036]
+  counterexamples:
+  - source: RS0006
+    note: Over-correcting can suppress useful raw discoveries; keep open-meta noisy and enforce consolidation in downstream routing.
 - id: required_check_aware_github_flow
   name: Required-check-aware GitHub Flow
   capability: github_flow_automation
@@ -231,12 +260,16 @@ patterns:
   evidence:
   - source: FB0041
     note: HarnessOps needed a real PR CI workflow and merge diagnostics that distinguish missing required checks from failing checks before branch protection can be made reliable.
+  - source: IMP0035
+    note: Merge completion must also select a repository-compatible merge method after required checks pass.
   guard:
   - path: .github/workflows/pr-ci.yml; tests/test_cli/test_mvp_flow.py; tests/test_agent_harness_contract.py
-    sources: [FB0041]
+    sources: [FB0041, IMP0035]
   counterexamples:
   - source: FB0041
     note: A local validation pass without a corresponding PR check leaves automation unable to satisfy or diagnose protected-branch policy.
+  - source: IMP0035
+    note: Required checks can pass while merge still fails if the command assumes a disabled merge method.
 - id: role_scoped_harnessops_conduit
   name: Role-scoped HarnessOps conduit guidance
   capability: agent_bridge_distribution
@@ -251,12 +284,18 @@ patterns:
     note: The update-harness skill should notice missing minimal HarnessOps usage guidance and keep AGENTS.md/CLAUDE.md role-aware.
   - source: IMP0030
     note: Linked repositories need the `uvx --refresh-package harnessops --from harnessops hops update-harness` path when runtime and recorded versions drift.
+  - source: IMP0037
+    note: Global registry and storage=local support let ordinary repositories use HarnessOps without committing `.harnessops`, feedback, or lab files.
   guard:
   - path: tests/test_agent_harness_contract.py
     sources: [FB0042]
+  - path: tests/test_cli/test_mvp_flow.py::test_project_link_storage_local_keeps_repo_clean; tests/test_cli/test_mvp_flow.py::test_agent_user_install_writes_global_codex_plugin; tests/test_agent_harness_contract.py::test_global_plugin_is_packaged_without_root_plugin_surface
+    sources: [IMP0037]
   counterexamples:
   - source: FB0042
     note: Agent guidance that names HarnessOps without the invocation path or role routing leaves target/project repos to invent local conventions again.
+  - source: IMP0037
+    note: Writing local-only HarnessOps working state into ordinary repositories can block dirty-worktree automations and confuse canonical project state.
 - id: harnessops_gitignore_hygiene
   name: HarnessOps transient gitignore hygiene
   capability: managed_artifact_update

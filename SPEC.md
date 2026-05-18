@@ -380,6 +380,7 @@ target 側の `feedback` / `triage` skill は、独自に `records/` を作っ�
 | `hops lab classify --from <FB/E/H/D/IMP id>` | はい | 改善dossierの source_type、scope、maturity、relation、promotion_level、guard を更新する。 |
 | `hops lab investigate --from <FB/E/H/D/IMP id>` | はい | 改善dossierにコード調査、外部比較、反例、追加観測などの調査メモを追記する。 |
 | `hops lab research-scan` | はい | メタ改善調査の scope、evidence、candidate、relation、recommendation、next command を `RS` レコードとして構造化して保存する。 |
+| `hops lab retire --from <id> --reason <text>` | はい | source record を削除せず `archived`/`superseded` と退役理由を記録し、active queue と semantic memory input から外す。 |
 | `hops lab review queue [--json]` | いいえ | recorded `IMP/RS/FB` から ranked queue と next command を返し、priority lane が記録を作業選定に使えるようにする。 |
 | `hops lab review context [--capability/--failure-class/--scope/--query]` | いいえ | 実装前に関連 dossier、research scan、queue、semantic memory、guard、反例を取り出す。 |
 | `hops lab review lint` | いいえ | unlinked feedback、manual eval 欠落、decision 欠落、adopted guard 欠落、memory pressure などを検出する。 |

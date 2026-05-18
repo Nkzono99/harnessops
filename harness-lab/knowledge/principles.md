@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-17T12:16:07+09:00
-Source digest: `cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd`
+Updated: 2026-05-19T03:10:00+09:00
+Source digest: `d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -72,31 +72,31 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Deterministic Intake Should Surface Actionable Health, Not Decide The Work
 
 - Principle: scheduled or recurring intake commands should expose read-only health signals that affect routing, while leaving synthesis, abstraction, and implementation to the appropriate lane or skill.
-- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`, `IMP0036`, `RS0006`
 - Applies when: adding daily steward preflight fields, lane triggers, lab health summaries, stale memory checks, automation run ledgers, or branch/merge completion rules.
-- Counterexamples: overlay counts alone can trigger a vague librarian lane while hiding stale snapshot or semantic-memory state; a preflight that writes memory or ranks every candidate would turn deterministic intake into a workflow engine; a scheduled run that pushes a branch but never attempts the authorized PR/merge path leaves validated work half-finished.
-- Guard: keep preflight read-only, include source-linked `lab_health` status and recommended commands for lab repos, skip lab memory probing in project repos, route `needs-abstraction` to `hops-compact-lab-memory`, and require validation plus protected-branch checks before automation merges.
+- Counterexamples: overlay counts alone can trigger a vague librarian lane while hiding stale snapshot or semantic-memory state; a preflight that writes memory or ranks every candidate would turn deterministic intake into a workflow engine; a scheduled run that pushes a branch but never attempts the authorized PR/merge path leaves validated work half-finished; prose-only lane artifacts make downstream lanes infer result shape from wording.
+- Guard: keep preflight read-only, include source-linked `lab_health` status and recommended commands for lab repos, skip lab memory probing in project repos, route `needs-abstraction` to `hops-compact-lab-memory`, expose machine-checkable lane artifact contracts where downstream lanes consume them, prefer consolidation through existing records before new captures, and require validation plus protected-branch checks before automation merges.
 
 ## Automation Should Finish Through Reviewable Branch Paths
 
 - Principle: unattended steward work should use explicit lane budgets and complete validated changes through an automation branch and PR/merge path, not direct protected-branch pushes or unbounded backlog processing.
-- Sources: `IMP0023`, `IMP0031`, `FB0037`, `FB0041`
+- Sources: `IMP0023`, `IMP0031`, `FB0037`, `FB0041`, `IMP0035`
 - Applies when: daily steward prompts, repo-local skills, packaged skills, or automation docs describe remote writes, branch targets, PR updates, merges, or lane scope.
-- Counterexamples: treating `max-systemic-candidates` as the only cap ignores lightweight metadata/read-only work; stopping after push leaves completed work pending forever; direct main pushes bypass branch protection; merging logic that cannot distinguish missing required checks from failing checks gives operators no actionable branch-protection path.
-- Guard: separate systemic candidates, metadata/guard backfills, and read-only decisions; push only the automation branch; confirm validation, target freshness, required checks, and branch protection before merge; keep a real PR CI workflow available for branch protection; report missing-check and failing-check blockers separately without force-pushing.
+- Counterexamples: treating `max-systemic-candidates` as the only cap ignores lightweight metadata/read-only work; stopping after push leaves completed work pending forever; direct main pushes bypass branch protection; merging logic that cannot distinguish missing required checks from failing checks gives operators no actionable branch-protection path; assuming merge commits are allowed blocks repositories that intentionally require squash or rebase.
+- Guard: separate systemic candidates, metadata/guard backfills, and read-only decisions; push only the automation branch; confirm validation, target freshness, required checks, branch protection, and repository-compatible merge method before merge; keep a real PR CI workflow available for branch protection; report missing-check and failing-check blockers separately without force-pushing.
 
 ## Agent Guidance Should Encode The Minimal Role-Specific HarnessOps Path
 
 - Principle: generated agent instructions should give agents the shortest valid `hops` invocation and route writes by repository role, so a target/meta repo uses lab/GitHub Flow while a project repo uses feedback export/import paths.
-- Sources: `FB0042`, `IMP0030`, `FB0038`
+- Sources: `FB0042`, `IMP0030`, `FB0038`, `IMP0037`
 - Applies when: updating AGENTS.md, CLAUDE.md, packaged skills, bridge instructions, or update-harness diagnostics that tell agents how to operate in linked repositories.
-- Counterexamples: a bridge skill mentions HarnessOps but omits the actual `hops` or `uvx --from harnessops hops` path; project-repo guidance implies creating `harness-lab/`; broad ignore/update guidance hides canonical `.harnessops` state.
-- Guard: keep the conduit compact, role-aware, and contract-tested; preserve canonical `.harnessops` files while ignoring only transient cache state; pair update notices with explicit doctor/migrate follow-up rather than implicit migration.
+- Counterexamples: a bridge skill mentions HarnessOps but omits the actual `hops` or `uvx --from harnessops hops` path; project-repo guidance implies creating `harness-lab/`; broad ignore/update guidance hides canonical `.harnessops` state; ordinary repositories get dirtied by local HarnessOps development state when a global/local storage path would preserve the workflow.
+- Guard: keep the conduit compact, role-aware, and contract-tested; preserve canonical `.harnessops` files while ignoring only transient cache state; route local-only project state through the global registry and HOPS_HOME storage when appropriate; pair update notices with explicit doctor/migrate follow-up rather than implicit migration.
 
 ## Steward Automation Needs Discovery Pressure
 
 - Principle: a clean autonomous steward run should create or advance a queue instead of treating status-only no-op as success.
-- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`, `IMP0034`, `FB0050`
+- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`, `IMP0034`, `FB0050`, `IMP0036`, `RS0006`
 - Applies when: configuring daily automation, deciding whether to run `hops-open-meta-scan`, splitting record/implementation/merge gates, setting work-packet budgets, or handling update-harness/latest-version work.
-- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; hiding open meta scan inside invention makes raw ideas invisible to the supervisor ledger; leaving raw ideas in prose-only lane results makes downstream invention depend on formatting; requiring implementation-level guards before research-scan or classify prevents queue creation.
-- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; make `open-meta-scan` an explicit lane whose raw ideas are reviewed by invention before priority work; preserve raw ideas as structured lane artifacts; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap.
+- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; hiding open meta scan inside invention makes raw ideas invisible to the supervisor ledger; leaving raw ideas in prose-only lane results makes downstream invention depend on formatting; requiring implementation-level guards before research-scan or classify prevents queue creation; rewarding new records faster than retiring, merging, rejecting, or testing them increases lab pressure.
+- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; make `open-meta-scan` an explicit lane whose raw ideas are reviewed by invention before priority work; preserve raw ideas as structured lane artifacts; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap; route invention through consolidation-first review of existing FB/IMP/RS items before capturing new work.

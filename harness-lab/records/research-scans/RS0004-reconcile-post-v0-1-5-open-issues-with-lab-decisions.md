@@ -2,7 +2,7 @@
 id: RS0004
 record_type: research_scan
 created_at: '2026-05-13T18:17:28+09:00'
-status: captured
+status: archived
 scope: harnessops-core issue tracker and lab-state reconciliation
 existing_dossier: IMP0002/IMP0003/IMP0004/IMP0018
 classification:
@@ -49,6 +49,11 @@ candidates:
   recommendation: defer
   next_command: hops lab memory prepare --force followed by hops-compact-lab-memory if stale context becomes a real friction
 recommendation: 'prioritize #9 residual implementation next; separately ask before closing #6/#7/#8 because remote tracker writes should be explicit'
+retirement:
+- created_at: '2026-05-19T03:32:32+09:00'
+  status: archived
+  reason: 'remote issue close candidates are stale because issues #5-#9 are already closed; keep scan as audit evidence only'
+  evidence_ref: issue-execution lane found no open issues; gh issue list --repo Nkzono99/harnessops --state all --limit 20
 ---
 
 # RS0004: Reconcile post-v0.1.5 open issues with lab decisions

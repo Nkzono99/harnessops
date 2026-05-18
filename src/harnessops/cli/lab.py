@@ -35,7 +35,13 @@ from harnessops.core.improvement_dossier import (
     create_or_update_improvement_dossier,
     update_improvement_dossier_metadata,
 )
-from harnessops.core.lab_records import create_eval_case, create_lab_feedback, create_research_scan
+from harnessops.core.lab_records import (
+    RETIRED_LAB_RECORD_STATUSES,
+    create_eval_case,
+    create_lab_feedback,
+    create_research_scan,
+    retire_lab_record,
+)
 from harnessops.core.record_index import find_record
 from harnessops.core.record_io import dump_record, read_record
 from harnessops.core.render import refresh_project_views, refresh_views
@@ -136,6 +142,45 @@ def capture(
         source_ref=source_ref,
     )
     refresh_project_views(project)
+    typer.echo(project.display_path(path))
+
+
+@lab_app.command("retire")
+def retire(
+    from_id: str = typer.Option(..., "--from"),
+    reason: str = typer.Option(..., "--reason"),
+    status: str = typer.Option("archived", "--status"),
+    evidence_ref: str | None = typer.Option(None, "--evidence-ref"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """lab record を削除せず active queue/memory から退役させます。"""
+    root = find_root()
+    project = load_project(root)
+    if status not in RETIRED_LAB_RECORD_STATUSES:
+        typer.echo("status は archived または superseded を指定してください")
+        raise typer.Exit(1)
+    path = retire_lab_record(
+        project,
+        source_ref=from_id,
+        status=status,
+        reason=reason,
+        evidence_ref=evidence_ref,
+    )
+    refresh_project_views(project)
+    if json_output:
+        _echo_json(
+            {
+                "ok": True,
+                "kind": "harness_lab_retirement",
+                "id": from_id,
+                "status": status,
+                "path": path,
+                "reason": reason,
+                "evidence_ref": evidence_ref,
+            },
+            root,
+        )
+        return
     typer.echo(project.display_path(path))
 
 

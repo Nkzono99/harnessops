@@ -1,14 +1,8 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-18T03:04:04+09:00'
-source_digest: cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd
+updated_at: '2026-05-19T03:10:00+09:00'
+source_digest: d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23
 sources:
-- FB0050
-- FB0051
-- FB0037
-- FB0038
-- FB0041
-- FB0042
 - IMP0001
 - IMP0002
 - IMP0003
@@ -42,11 +36,15 @@ sources:
 - IMP0032
 - IMP0033
 - IMP0034
+- IMP0035
+- IMP0036
+- IMP0037
 - RS0001
 - RS0002
 - RS0003
 - RS0004
 - RS0005
+- RS0006
 outputs:
 - harness-lab/knowledge/principles.md
 - harness-lab/knowledge/patterns.yml
@@ -55,7 +53,7 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-18T03:04:04+09:00'
+  prepared_at: '2026-05-19T03:04:46+09:00'
 lint_reason: triggers-present
 manual_run: true
 notes:
@@ -73,5 +71,9 @@ notes:
 - IMP0034 added an explicit open-meta-scan steward lane and raw-idea handoff into invention/priority work.
 - FB0050 added structured open-meta lane artifacts and aligned subagent recommendations to real supervisor lane names.
 - FB0051 added CLI-owned packaged skill asset sync with check mode to replace manual copy work.
+- IMP0035 added repository-compatible github-flow merge methods while preserving required-check gating.
+- IMP0036 converted daily steward lane artifacts and spawn recommendations into a machine-checkable contract.
+- IMP0037 added global/local HarnessOps state so ordinary repositories can participate without committed HarnessOps files.
+- RS0006 added consolidation-first routing pressure for daily steward invention/priority lanes.
 contradiction_watch: []
 open_questions: []

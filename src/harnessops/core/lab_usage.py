@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from harnessops.core import yamlio
+from harnessops.core.lab_records import RETIRED_LAB_RECORD_STATUSES
 from harnessops.core.lab_memory_lint import lint_lab_memory
 from harnessops.core.markdown import record_heading
 from harnessops.core.project import Project
@@ -12,6 +13,7 @@ from harnessops.core.record_io import read_record
 
 ACTIVE_DECISION_STATUSES = {"active", "triaged", "captured", "proposed", "open"}
 CLOSED_DECISION_STATUSES = {"adopted", "rejected", "superseded"}
+CLOSED_RECORD_STATUSES = CLOSED_DECISION_STATUSES | RETIRED_LAB_RECORD_STATUSES
 IMPLEMENTED_GUARD_STATUSES = {"implemented", "holdout", "monitoring"}
 
 
@@ -163,6 +165,8 @@ def lab_queue(
         if scope and item_scope != scope:
             continue
         status = str(frontmatter.get("status", "unknown"))
+        if status in RETIRED_LAB_RECORD_STATUSES and not include_closed:
+            continue
         maturity = str(frontmatter.get("maturity", "raw"))
         relation = str(frontmatter.get("relation", "new"))
         guard = _guard(frontmatter)
@@ -238,6 +242,9 @@ def lab_queue(
         item_scope = str(frontmatter.get("scope", ""))
         if scope and item_scope != scope:
             continue
+        status = str(frontmatter.get("status", "captured"))
+        if status in CLOSED_RECORD_STATUSES and not include_closed:
+            continue
         candidates = frontmatter.get("candidates", [])
         if not isinstance(candidates, list):
             candidates = []
@@ -256,7 +263,7 @@ def lab_queue(
                     priority=55,
                     reasons=["research-candidate-routing"],
                     next_command=next_commands[0],
-                    status=str(frontmatter.get("status", "captured")),
+                    status=status,
                     capability=classification["capability"],
                     failure_class=classification["failure_class"],
                     scope=item_scope,
@@ -268,6 +275,8 @@ def lab_queue(
         if record["id"] in dossier_sources or record["id"] in eval_by_feedback:
             continue
         frontmatter = record["frontmatter"]
+        if str(frontmatter.get("status", "triaged")) in CLOSED_RECORD_STATUSES and not include_closed:
+            continue
         classification = _classification(frontmatter)
         if capability and classification["capability"] != capability:
             continue
@@ -325,6 +334,8 @@ def lab_context(
             continue
         if scope and str(frontmatter.get("scope", "")) != scope:
             continue
+        if str(frontmatter.get("status", "unknown")) in RETIRED_LAB_RECORD_STATUSES:
+            continue
         searchable = " ".join(
             [
                 record["id"],
@@ -368,6 +379,8 @@ def lab_context(
         frontmatter = record["frontmatter"]
         classification = _classification(frontmatter)
         if capability and classification["capability"] != capability:
+            continue
+        if str(frontmatter.get("status", "captured")) in CLOSED_RECORD_STATUSES:
             continue
         existing = str(frontmatter.get("existing_dossier") or "")
         if related_ids and existing and existing not in related_ids:
@@ -483,6 +496,8 @@ def lab_lifecycle_lint(project: Project) -> dict[str, Any]:
     }
 
     for record in data["feedback"]:
+        if str(record["frontmatter"].get("status", "triaged")) in CLOSED_RECORD_STATUSES:
+            continue
         if record["id"] not in dossier_sources:
             issues.append(
                 {
@@ -584,6 +599,8 @@ def lab_lifecycle_lint(project: Project) -> dict[str, Any]:
 
     for record in data["research_scans"]:
         frontmatter = record["frontmatter"]
+        if str(frontmatter.get("status", "captured")) in CLOSED_RECORD_STATUSES:
+            continue
         candidates = frontmatter.get("candidates", [])
         if not isinstance(candidates, list):
             candidates = []

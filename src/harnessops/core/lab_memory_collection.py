@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from harnessops.core import yamlio
+from harnessops.core.lab_records import RETIRED_LAB_RECORD_STATUSES
 from harnessops.core.lock import sha256_file
 from harnessops.core.markdown import record_heading, section
 from harnessops.core.project import Project
@@ -73,14 +74,30 @@ def safe_yaml(path: Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def source_digest(project: Project) -> str:
+def _active_memory_record(frontmatter: dict[str, Any]) -> bool:
+    return str(frontmatter.get("status", "")) not in RETIRED_LAB_RECORD_STATUSES
+
+
+def _active_source_paths(project: Project) -> list[Path]:
     source_paths: list[Path] = []
     for rel in ("records", "improvements", "views/eval-results"):
         root = project.overlay_dir / rel
-        if root.exists():
-            source_paths.extend(path for path in root.rglob("*") if path.is_file())
+        if not root.exists():
+            continue
+        for path in root.rglob("*"):
+            if not path.is_file():
+                continue
+            if path.suffix == ".md" and rel in {"records", "improvements"}:
+                frontmatter, _ = read_record(path)
+                if not _active_memory_record(frontmatter):
+                    continue
+            source_paths.append(path)
+    return source_paths
+
+
+def source_digest(project: Project) -> str:
     digest_items = []
-    for path in sorted(source_paths):
+    for path in sorted(_active_source_paths(project)):
         digest_items.append(f"{path.relative_to(project.root).as_posix()}:{sha256_file(path)}")
     return sha256("\n".join(digest_items).encode("utf-8")).hexdigest()
 
@@ -120,6 +137,8 @@ def _collect_improvements(project: Project) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for path in sorted((project.overlay_dir / "improvements").glob("IMP*.md")):
         frontmatter, body = read_record(path)
+        if not _active_memory_record(frontmatter):
+            continue
         classification = frontmatter.get("classification", {})
         if not isinstance(classification, dict):
             classification = {}
@@ -223,6 +242,8 @@ def _collect_research_scans(project: Project) -> list[dict[str, Any]]:
     scans: list[dict[str, Any]] = []
     for path in sorted((project.overlay_dir / "records/research-scans").glob("RS*.md")):
         frontmatter, body = read_record(path)
+        if not _active_memory_record(frontmatter):
+            continue
         classification = frontmatter.get("classification", {})
         if not isinstance(classification, dict):
             classification = {}
@@ -261,6 +282,8 @@ def collect_abstraction_sources(project: Project) -> list[dict[str, Any]]:
         source_root = project.overlay_dir / root_rel
         for path in sorted(source_root.glob(pattern)):
             frontmatter, body = read_record(path)
+            if not _active_memory_record(frontmatter):
+                continue
             classification = frontmatter.get("classification", {})
             if not isinstance(classification, dict):
                 classification = {}

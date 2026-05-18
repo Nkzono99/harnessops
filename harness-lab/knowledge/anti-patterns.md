@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-17T12:16:07+09:00
-Source digest: `cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd`
+Updated: 2026-05-19T03:10:00+09:00
+Source digest: `d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -15,30 +15,37 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Treating Counts As Health
 
 - Avoid when: a steward, dashboard, or automation preflight reports only record counts and generic lane triggers while hiding stale memory, stale generated views, missing abstraction, guard gaps, or pending migration state.
-- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`, `IMP0036`, `RS0006`
 - Why it fails: counts prove that records exist, not that the lab is usable today; the next agent may skip librarian work even though the source digest has moved.
-- Guard: expose read-only health signals such as `lab_health.status`, pressure triggers, stale snapshot/abstraction flags, and recommended commands, then delegate compaction or abstraction to the librarian lane; keep remote completion gates separate from intake and require validation/checks before merge.
+- Guard: expose read-only health signals such as `lab_health.status`, pressure triggers, stale snapshot/abstraction flags, recommended commands, and structured lane artifact contracts, then delegate compaction, abstraction, or consolidation to the proper lane; keep remote completion gates separate from intake and require validation/checks before merge.
 
 ## Ending Validated Automation At A Pushed Branch
 
 - Avoid when: a scheduled run validates changes, pushes an automation branch, and then stops even though the prompt authorized PR creation and merge through the normal protected-branch path.
-- Sources: `IMP0031`, `FB0037`, `FB0041`
-- Why it fails: the work is neither merged nor clearly blocked, so the next run may repeat or stop on its own dirty/branch state instead of advancing a reviewed change.
-- Guard: after validation, fetch, confirm the merge target freshness, finalize onto the automation branch, push only that branch, open or update the PR, wait for required checks, merge only when allowed, and report whether the blocker is missing checks, failing checks, pending checks, conflicts, or branch protection.
+- Sources: `IMP0031`, `FB0037`, `FB0041`, `IMP0035`
+- Why it fails: the work is neither merged nor clearly blocked, so the next run may repeat or stop on its own dirty/branch state instead of advancing a reviewed change; a merge method mismatch can strand an otherwise clean PR.
+- Guard: after validation, fetch, confirm the merge target freshness, finalize onto the automation branch, push only that branch, open or update the PR, wait for required checks, choose a repository-compatible merge/squash/rebase method, merge only when allowed, and report whether the blocker is missing checks, failing checks, pending checks, conflicts, merge policy, or branch protection.
 
 ## Leaving Agent Handoff Paths Implicit
 
 - Avoid when: AGENTS.md, CLAUDE.md, bridge skills, or update-harness output assume agents already know the valid `hops` invocation, repo role, and write path.
-- Sources: `FB0042`, `IMP0030`, `FB0038`
+- Sources: `FB0042`, `IMP0030`, `FB0038`, `IMP0037`
 - Why it fails: each target or project repo grows local conventions, agents may create lab state in project repos, and stale runtime/update guidance can mask the intended HarnessOps conduit.
-- Guard: keep a compact role-scoped conduit in generated agent guidance, name the `hops` or `uvx --from harnessops hops` path, point stale-version work to explicit update/doctor/migrate commands, and preserve canonical HarnessOps state while ignoring only transient cache files.
+- Guard: keep a compact role-scoped conduit in generated agent guidance, name the `hops` or `uvx --from harnessops hops` path, point stale-version work to explicit update/doctor/migrate commands, preserve canonical HarnessOps state while ignoring only transient cache files, and use global/local storage for ordinary repositories that should not commit HarnessOps working state.
 
 ## Treating No-Op As Daily Success
 
 - Avoid when: a clean autonomous run with remote authority reports only preflight/doctor state because no obvious reactive work was waiting.
-- Sources: `FB0037`, `FB0038`, `IMP0034`, `FB0050`
-- Why it fails: healthy repositories slowly train the automation into status polling, and hidden or prose-only open scans make raw ideas disappear before invention can review or record them.
-- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, preserve raw ideas as structured lane artifacts, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
+- Sources: `FB0037`, `FB0038`, `IMP0034`, `FB0050`, `IMP0036`, `RS0006`
+- Why it fails: healthy repositories slowly train the automation into status polling, and hidden or prose-only open scans make raw ideas disappear before invention can review or record them; unbounded creation of new records raises lab pressure without retiring work.
+- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, preserve raw ideas as structured lane artifacts, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, prefer consolidation through existing records before new captures, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
+
+## Dirtying Ordinary Repositories With Local HarnessOps State
+
+- Avoid when: a repository only needs local development feedback or shared agent state, but HarnessOps writes `.harnessops`, `harness-feedback`, or `harness-lab` files into that project.
+- Sources: `IMP0037`
+- Why it fails: normal repositories inherit dirty-worktree blockers and may accidentally publish local-only feedback or lab context.
+- Guard: use the global registry, `storage=local`, HOPS_HOME-backed exports, and the packaged global Codex plugin for local share-state workflows; keep repo-local overlays for repos that explicitly opt into canonical HarnessOps state.
 
 ## Tracking Runtime Cache As Project State
 

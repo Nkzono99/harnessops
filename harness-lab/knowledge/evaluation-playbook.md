@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-17T12:16:07+09:00
-Source digest: `cebe3db87bcb82d50643dff6874d48e03b0e058944badca26710510fdf64a3fd`
+Updated: 2026-05-19T03:10:00+09:00
+Source digest: `d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -33,9 +33,13 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - No-argument issue triage should inspect open issues, report priority buckets, evidence, missing information, recommended HOPS action, and remote-action authorization before importing, closing, or implementing. Source: `IMP0032`
 - Daily steward should not return status-only no-op on clean runs until it has processed reactive work, advanced queue work, run proactive discovery, or exhausted explicit budget. Source: `FB0037`
 - Daily steward preflight should include `hops-open-meta-scan` as an explicit supervisor lane before invention, expose its raw ideas as `artifacts.meta_scan`, and keep spawn recommendations aligned to real supervisor lane names. Sources: `IMP0034`, `FB0050`
+- Daily steward lane-result consumers should rely on machine-checkable artifact contracts, not prose handoff shape. Source: `IMP0036`
+- Daily steward routing should prefer consolidation through existing FB/IMP/RS records before creating new records when lab pressure is high. Source: `RS0006`
 - HarnessOps latest/update-harness work should be signal-driven, and init/link/update-harness should maintain `.gitignore` hygiene for `.harnessops/cache/*` without hiding canonical `.harnessops` state. Source: `FB0038`
 - GitHub Flow merge diagnostics should distinguish missing required checks from failing or pending checks, and PR CI should provide a concrete required-check target before branch protection is tightened. Source: `FB0041`
+- GitHub Flow merge should select a repository-compatible merge, squash, or rebase method after required checks pass. Source: `IMP0035`
 - Generated AGENTS.md/CLAUDE.md and update-harness guidance should expose the minimal HarnessOps invocation plus role-specific routing for target/meta versus project repositories. Source: `FB0042`
+- Global/local HarnessOps usage should keep ordinary repositories clean by storing local-only state under the global registry/HOPS_HOME path. Source: `IMP0037`
 - Packaged agent skill assets should be synchronized by `hops agent sync-packaged-skills --check` rather than manual file copy. Source: `FB0051`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
 - `hops lab refresh-views` should clear doctor-managed lab generated-view warnings for README, backlog, dynamic lab views, research scans, and score trajectory without losing dynamic view content. Sources: `RS0002`, `IMP0016`
@@ -62,7 +66,10 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject steward guidance that applies implementation-level validation/guard gates to record-only discovery, or that restores a single global systemic-candidate cap as the main throughput control. Source: `FB0037`
 - Reject update-lane guidance that updates HarnessOps to latest at the start of every daily run, or `.gitignore` hygiene that ignores canonical `.harnessops/project.toml`, lock, migrations, feedback, or lab records. Source: `FB0038`
 - Reject GitHub Flow automation that treats missing required checks as ordinary failures or has no PR workflow that branch protection can require. Source: `FB0041`
+- Reject GitHub Flow merge changes that assume merge commits are always allowed or bypass required-check gating while trying alternate merge methods. Source: `IMP0035`
 - Reject agent conduit guidance that omits the invocation path or lets project repositories create lab state instead of feedback/export records. Source: `FB0042`
+- Reject global/local state changes that dirty ordinary repositories with HarnessOps files or hide canonical repo-local state in repos that opted into it. Source: `IMP0037`
+- Reject steward routing changes that turn open-meta into record spam instead of consolidating through existing feedback, dossiers, or research scans. Source: `RS0006`
 
 ## Guard Catalogue
 
@@ -74,6 +81,9 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - `tests/test_agent_harness_contract.py`: guards no-argument issue triage reporting, remote-action authority boundaries, and daily steward delegation to `hops-issue-triage`. Source: `IMP0032`
 - `tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented` and `tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged`: guard no-idle daily automation, risk-tier budgets, and ranked candidate queue wording. Source: `FB0037`
 - `tests/test_cli/test_steward.py::test_steward_preflight_json_reports_run_ledger`, `tests/test_cli/test_steward.py::test_steward_run_validates_lane_result_json`, and `tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged`: guard explicit open-meta-scan lane ordering, structured lane artifacts, subagent recommendation lane names, and packaged skill handoff wording. Sources: `IMP0034`, `FB0050`
+- `tests/test_cli/test_steward.py`: guards structured lane artifacts and lane-aligned recommendations. Source: `IMP0036`
+- `tests/test_cli/test_mvp_flow.py`: guards GitHub Flow merge method selection and failure reporting. Source: `IMP0035`
+- `tests/test_cli/test_mvp_flow.py` and `tests/test_agent_harness_contract.py`: guard global registry/local storage and packaged global Codex plugin behavior. Source: `IMP0037`
 - `tests/test_cli/test_agent.py`: guards packaged skill asset sync, drift detection, host coverage, and retired skill cleanup for `hops agent sync-packaged-skills`. Source: `FB0051`
 - `tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project` and `tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block`: guard HarnessOps `.gitignore` cache hygiene. Source: `FB0038`
 - `.github/workflows/pr-ci.yml`, `src/harnessops/cli/github_flow.py`, and related CLI tests: guard required-check-aware GitHub Flow diagnostics. Source: `FB0041`
