@@ -4,6 +4,7 @@ from pathlib import Path
 
 from harnessops.core.lock import load_lock, sha256_file, write_lock
 from harnessops.core.overlay import GENERATED_MARKER
+from harnessops.core.project import Project
 from harnessops.core.record_io import read_record
 
 
@@ -104,3 +105,7 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
         written.append(research_view)
     _refresh_managed_hashes(root, written)
     return written
+
+
+def refresh_project_views(project: Project) -> list[Path]:
+    return refresh_views(project.storage_root, project.overlay_path)

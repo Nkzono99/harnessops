@@ -45,7 +45,7 @@ def decide_command(
         follow_up=follow_up or "変更を昇格する前にこの判断をレビューしてください。",
         guard_path=guard_path,
     )
-    typer.echo(path.relative_to(root).as_posix())
+    typer.echo(project.display_path(path))
 
 
 def register(app: typer.Typer) -> None:

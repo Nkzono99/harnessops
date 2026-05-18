@@ -1,5 +1,7 @@
+import json
 from pathlib import Path
 
+from harnessops import __version__
 from harnessops.core import yamlio
 from harnessops.core.agent_bridge import BRIDGE_TEXT, bridge_text_for_mode
 
@@ -206,9 +208,29 @@ def test_pr_ci_workflow_provides_required_check_context() -> None:
     assert "uv run --with-editable . hops migrate --check" in workflow
 
 
-def test_root_plugin_surface_is_removed() -> None:
+def test_global_plugin_is_packaged_without_root_plugin_surface() -> None:
     assert not (ROOT / "plugins").exists()
     assert not (ROOT / ".agents/plugins/marketplace.json").exists()
+    plugin = ROOT / "src/harnessops/agent_assets/plugins/codex/harnessops-global"
+    manifest = plugin / ".codex-plugin/plugin.json"
+    assert manifest.exists()
+    assert json.loads(manifest.read_text(encoding="utf-8"))["version"] == __version__
+    skill = (plugin / "skills/harnessops-global/SKILL.md").read_text(encoding="utf-8")
+    assert "Skill-First Workflow" in skill
+    assert "project link --storage local" in skill
+    assert "Do not create `.harnessops/`" in skill
+    assert "hops-global-share-state" in skill
+    feedback_issue = (plugin / "skills/hops-global-feedback-issue/SKILL.md").read_text(encoding="utf-8")
+    assert "feedback issue create" in feedback_issue
+    assert "--format github-issue" in feedback_issue
+    assert "--confirm-create" in feedback_issue
+    share_state = (plugin / "skills/hops-global-share-state/SKILL.md").read_text(encoding="utf-8")
+    assert "hops local pack" in share_state
+    assert "not the target repository" in share_state
+    assert "hops local import" in share_state
+    assert "hops local merge" in share_state
+    assert (plugin / "skills/hops-global-add-failure/SKILL.md").exists()
+    assert (plugin / "skills/hops-global-route-feedback/SKILL.md").exists()
 
 
 def test_issue_triage_skill_is_packaged() -> None:

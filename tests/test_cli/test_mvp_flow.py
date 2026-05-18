@@ -2,6 +2,7 @@ import datetime as dt
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 try:
     import tomllib
@@ -51,6 +52,110 @@ def test_init_doctor_migrate_project(copy_fixture, monkeypatch):
 
     run_cli(["doctor", "--check-overlay", "--check-records"])
     run_cli(["migrate", "--check"])
+
+
+def test_project_link_storage_local_keeps_repo_clean(tmp_path, monkeypatch):
+    root = tmp_path / "plain-repo"
+    root.mkdir()
+    (root / "pyproject.toml").write_text("[project]\nname = 'plain-repo'\n", encoding="utf-8")
+    monkeypatch.chdir(root)
+    monkeypatch.setenv("HOPS_HOME", str(tmp_path / "hops-home"))
+
+    linked = run_cli(["project", "link", "--storage", "local", "--profile", "generic-code", "--json"])
+    payload = json.loads(linked.output)
+    state_root = Path(payload["state_root"])
+    overlay_dir = Path(payload["overlay_dir"])
+
+    assert payload["storage"] == "local"
+    assert state_root.is_dir()
+    assert overlay_dir.is_dir()
+    assert not (root / ".harnessops").exists()
+    assert not (root / "harness-feedback").exists()
+
+    resolved = run_cli(["project", "resolve", "--json"])
+    assert json.loads(resolved.output)["id"] == payload["id"]
+    run_cli(["doctor", "--check-overlay", "--check-records"])
+
+    failure = run_cli(
+        [
+            "feedback",
+            "add-failure",
+            "--title",
+            "Local-only failure",
+            "--context",
+            "Observed in local development.",
+            "--what-happened",
+            "Repo should not gain HarnessOps files.",
+            "--desired-behavior",
+            "Record goes to local state.",
+        ]
+    )
+    failure_path = Path(failure.output.strip())
+    assert failure_path.exists()
+    assert failure_path.is_relative_to(overlay_dir)
+    assert not (root / "harness-feedback").exists()
+
+    default_pack = run_cli(["local", "pack", "--json"])
+    default_payload = json.loads(default_pack.output)
+    default_path = Path(default_payload["path"])
+    assert default_path.exists()
+    assert default_path.is_relative_to(tmp_path / "hops-home" / "exports")
+    assert not (root / "harnessops-local-state.zip").exists()
+
+    pack = tmp_path / "state.zip"
+    packed = run_cli(["local", "pack", "--output", str(pack), "--json"])
+    assert json.loads(packed.output)["path"] == pack.as_posix()
+    assert pack.exists()
+
+
+def test_project_link_storage_local_refuses_repo_local_project(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+
+    result = runner.invoke(app, ["project", "link", "--storage", "local", "--profile", "generic-code"])
+
+    assert result.exit_code == 1
+    assert "repo-local .harnessops/project.toml" in result.output
+
+
+def test_agent_install_user_codex_global_plugin(tmp_path):
+    destination = tmp_path / "codex-plugin" / "harnessops-global"
+
+    installed = run_cli(
+        [
+            "agent",
+            "install",
+            "--scope",
+            "user",
+            "--codex",
+            "--destination",
+            str(destination),
+        ]
+    )
+    payload = json.loads(installed.output)
+
+    assert payload["plugin"]["destination"] == destination.resolve().as_posix()
+    assert any("/plugin" in step for step in payload["activation_steps"])
+    assert (destination / ".codex-plugin" / "plugin.json").exists()
+    assert (destination / "skills" / "harnessops-global" / "SKILL.md").exists()
+
+
+def test_install_codex_plugin_top_level_prints_activation_steps(tmp_path):
+    destination = tmp_path / "codex-plugin" / "harnessops-global"
+
+    installed = run_cli(
+        [
+            "install-codex-plugin",
+            "--destination",
+            str(destination),
+        ]
+    )
+
+    assert "installed HarnessOps Global Codex plugin" in installed.output
+    assert "Run `/plugin`" in installed.output
+    assert "HarnessOps Global" in installed.output
+    assert (destination / ".codex-plugin" / "plugin.json").exists()
 
 
 def test_init_doctor_migrate_upstream(copy_fixture, monkeypatch):
@@ -1437,15 +1542,28 @@ def test_doctor_rejects_duplicate_improvement_dossier_source_feedback(copy_fixtu
     assert "duplicate improvement dossier source_feedback FB0001" in doctor.output
 
 
-def test_agent_user_install_is_removed(copy_fixture, tmp_path, monkeypatch):
+def test_agent_user_install_writes_global_codex_plugin(copy_fixture, tmp_path, monkeypatch):
     root = copy_fixture("harnessops-core-minimal")
     monkeypatch.chdir(root)
-    monkeypatch.setenv("HOME", str(tmp_path))
     run_cli(["init", "--profile", "harnessops-core"])
-    result = runner.invoke(app, ["agent", "install", "--codex", "--scope", "user"])
-    assert result.exit_code == 1
-    assert "user plugin install は廃止されました" in result.output
-    assert not (tmp_path / ".codex/plugins/harnessops").exists()
+    destination = tmp_path / ".codex/plugins/harnessops-global"
+    result = runner.invoke(
+        app,
+        [
+            "agent",
+            "install",
+            "--codex",
+            "--scope",
+            "user",
+            "--destination",
+            str(destination),
+        ],
+    )
+    assert result.exit_code == 0
+    assert (destination / ".codex-plugin/plugin.json").exists()
+    assert (destination / "skills/harnessops-global/SKILL.md").exists()
+    payload = json.loads(result.output)
+    assert any("/plugin" in step for step in payload["activation_steps"])
     assert not (tmp_path / ".agents/plugins/marketplace.json").exists()
 
 

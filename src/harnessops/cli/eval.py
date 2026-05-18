@@ -52,8 +52,8 @@ def eval_command(
     outputs = []
     for case_id in cases:
         yml_path, md_path = write_manual_eval(project, case_id=case_id, scores=scores, notes=notes, experiment=experiment)
-        outputs.append(yml_path.relative_to(root).as_posix())
-        outputs.append(md_path.relative_to(root).as_posix())
+        outputs.append(project.display_path(yml_path))
+        outputs.append(project.display_path(md_path))
     typer.echo("\n".join(outputs))
 
 

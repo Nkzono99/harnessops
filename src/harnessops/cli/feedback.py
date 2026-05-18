@@ -20,7 +20,7 @@ from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.record_index import next_id
 from harnessops.core.record_io import dump_record, read_record
-from harnessops.core.render import refresh_views
+from harnessops.core.render import refresh_project_views
 from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile
 
@@ -292,7 +292,7 @@ def _write_issue_url_to_records(
             continue
         path.write_text(dump_record(frontmatter, body), encoding="utf-8", newline="\n")
         updated += 1
-    refresh_views(root, project.overlay_path)
+    refresh_project_views(project)
     return updated
 
 
@@ -394,8 +394,8 @@ def export_feedback(
     )
     out_path = out_dir / f"{export_id}-{export_target}-feedback.md"
     out_path.write_text(text, encoding="utf-8", newline="\n")
-    refresh_views(root, project.overlay_path)
-    typer.echo(out_path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(out_path))
 
 
 @issue_app.command("create")
@@ -429,7 +429,7 @@ def create_issue(
         draft_path = _write_fallback_issue_draft(bundle_path, issue_title, body)
         typer.echo(f"\n重複検索をスキップしました: {search_error}")
         typer.echo(
-            f"Markdown下書きを書きました: {draft_path.relative_to(root).as_posix()}"
+            f"Markdown下書きを書きました: {project.display_path(draft_path)}"
         )
         if confirm_create:
             raise typer.Exit(1)
@@ -500,8 +500,8 @@ def import_feedback(
     out_path = create_imported_feedback(
         project, source_record=source, body=body, title=title
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(out_path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(out_path))
 
 
 def register(app: typer.Typer) -> None:

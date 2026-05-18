@@ -12,7 +12,7 @@ from harnessops.core.migration import apply_migrations as apply_pending_migratio
 from harnessops.core.overlay import refresh_managed_files
 from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
-from harnessops.core.render import refresh_views
+from harnessops.core.render import refresh_project_views
 from harnessops.core.upgrade_chain import (
     GRANULARITIES,
     UpgradePlan,
@@ -266,23 +266,30 @@ def update_harness_command(
         migration = check_migrations(project)
 
     managed = refresh_managed_files(
-        root,
+        project.storage_root,
         project.overlay_mode,
         project.overlay_path,
         force=force,
         dry_run=dry_run,
     )
-    gitignore_result = ensure_gitignore(root, dry_run=dry_run)
-    if not dry_run:
-        refresh_views(root, project.overlay_path)
-
-    refresh_codex, refresh_claude, refresh_agent_bridge = _agent_bridge_selection(
-        root,
-        project,
-        agent_bridge=agent_bridge,
-        codex=codex,
-        claude=claude,
+    gitignore_result = (
+        {"path": ".gitignore", "updated": False, "patterns": []}
+        if project.overlay_storage == "local"
+        else ensure_gitignore(root, dry_run=dry_run)
     )
+    if not dry_run:
+        refresh_project_views(project)
+
+    if project.overlay_storage == "local":
+        refresh_codex, refresh_claude, refresh_agent_bridge = False, False, False
+    else:
+        refresh_codex, refresh_claude, refresh_agent_bridge = _agent_bridge_selection(
+            root,
+            project,
+            agent_bridge=agent_bridge,
+            codex=codex,
+            claude=claude,
+        )
 
     agent_result: dict[str, Any] = {
         "checked": [],
@@ -322,7 +329,7 @@ def update_harness_command(
     result = {
         "ok": report["ok"],
         "migration": {
-            "applied": str(migration_entry.relative_to(root)) if migration_entry else None,
+            "applied": project.display_path(migration_entry) if migration_entry else None,
             "pending": migration["pending"],
         },
         "managed_files": managed,
@@ -365,7 +372,7 @@ def update_harness_command(
             _echo_upgrade_runs(chain_runs, prefix=prefix)
         typer.echo(f"{prefix}{'ok' if result['ok'] else '失敗'}")
         if migration_entry:
-            typer.echo(f"migration: applied {migration_entry.relative_to(root).as_posix()}")
+            typer.echo(f"migration: applied {project.display_path(migration_entry)}")
         elif migration["pending"]:
             typer.echo("migration: pending")
         else:

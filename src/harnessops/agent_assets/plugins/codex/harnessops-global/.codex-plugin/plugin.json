@@ -1,0 +1,42 @@
+{
+  "name": "harnessops-global",
+  "version": "0.1.14",
+  "description": "Global Codex entry point for HarnessOps local-state workflows.",
+  "author": {
+    "name": "HarnessOps",
+    "url": "https://github.com/Nkzono99/harnessops"
+  },
+  "homepage": "https://github.com/Nkzono99/harnessops",
+  "repository": "https://github.com/Nkzono99/harnessops",
+  "license": "Apache-2.0",
+  "keywords": [
+    "harnessops",
+    "agent-workflow",
+    "local-state"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "HarnessOps Global",
+    "shortDescription": "Use HarnessOps from Codex without adding files to the target repo.",
+    "longDescription": "Provides a skill-first global HarnessOps surface for Codex. It resolves the current repository through the HarnessOps global registry and delegates state changes to uvx --from harnessops hops.",
+    "developerName": "HarnessOps",
+    "category": "Productivity",
+    "capabilities": [
+      "Agent Workflow",
+      "Local State",
+      "Feedback",
+      "Issue Drafting",
+      "CLI Delegation"
+    ],
+    "websiteURL": "https://github.com/Nkzono99/harnessops",
+    "privacyPolicyURL": "https://github.com/Nkzono99/harnessops",
+    "termsOfServiceURL": "https://github.com/Nkzono99/harnessops",
+    "defaultPrompt": [
+      "Use HarnessOps here without modifying this repo.",
+      "Record this failure in local HarnessOps state.",
+      "Turn this feedback into a sanitized GitHub issue draft.",
+      "Pack or merge my local HarnessOps state without modifying this repo."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

@@ -50,13 +50,15 @@ target harness の `init`、`setup`、`update-harness` などは、HarnessOps �
 - repo-local bridge と skill 展開は overlay mode に合わせる。`feedback-source` / `local-and-feedback` は feedback capture/export と lifecycle 系に絞り、lab/eval/propose/decide は `upstream-lab` / `meta-lab` にだけ出す
 - target/meta repo では GitHub Flow skill を既定で配布し、`uvx --from harnessops hops github-flow preflight/publish/pr/merge` で automation branch、PR、required checks 後の merge を標準化する
 - project repo では GitHub Flow skill を通常配布しない。target/meta repo でも `.harnessops/project.toml` の `[github_flow] enabled = false` または `--no-github-flow` で配布を止められる
-- user領域のAgent plugin installは標準運用から外す。複数repoで使う場合も各repoで repo-local skill を展開する
+- 普通のrepoを汚さない開発時利用では `uvx --from harnessops hops project link --storage local` と global Codex plugin を使う。target/project repo に状態を含める運用では repo-local skill を使う
 
-## 検出優先順位
+## 解決と検出の優先順位
 
-`hops detect` は次の順序でリポジトリの同一性を解決します。
+`hops project resolve` は次の順序で HarnessOps project を解決します。
 
 1. `.harnessops/project.toml`
-2. `.harness/manifest.toml`
+2. global registry の `~/.harnessops/registry.toml`
+
+未リンク時の `hops detect` は `.harness/manifest.toml` や repository markers から推奨 profile を推定します。
 3. プロバイダ固有マーカー
 4. 汎用リポジトリマーカー

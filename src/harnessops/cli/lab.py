@@ -38,7 +38,7 @@ from harnessops.core.improvement_dossier import (
 from harnessops.core.lab_records import create_eval_case, create_lab_feedback, create_research_scan
 from harnessops.core.record_index import find_record
 from harnessops.core.record_io import dump_record, read_record
-from harnessops.core.render import refresh_views
+from harnessops.core.render import refresh_project_views, refresh_views
 from harnessops.core.sanitize import sanitize_text
 from harnessops.profiles.registry import load_profile
 
@@ -105,8 +105,8 @@ def new_eval_case(from_id: str = typer.Option(..., "--from"), template: str | No
         capability=str(classification.get("capability", "unclassified")),
         failure_class=str(classification.get("failure_class", "unclassified")),
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 @lab_app.command("capture")
@@ -135,8 +135,8 @@ def capture(
         failure_class=failure_class,
         source_ref=source_ref,
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 @lab_app.command("dossier")
@@ -148,8 +148,8 @@ def dossier(from_id: str = typer.Option(..., "--from")) -> None:
         typer.echo("lab dossier には upstream-lab または meta-lab mode が必要です")
         raise typer.Exit(1)
     path = create_or_update_improvement_dossier(project, source_ref=from_id)
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 @lab_app.command("classify")
@@ -177,8 +177,8 @@ def classify(
         guard_status=guard_status,
         guard_path=guard_path,
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 @lab_app.command("investigate")
@@ -198,8 +198,8 @@ def investigate(
         kind=kind,
         evidence_ref=evidence_ref,
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 @lab_app.command("research-scan")
@@ -236,8 +236,8 @@ def research_scan(
         candidate=candidate or [],
         recommendation=recommendation,
     )
-    refresh_views(root, project.overlay_path)
-    typer.echo(path.relative_to(root).as_posix())
+    refresh_project_views(project)
+    typer.echo(project.display_path(path))
 
 
 @review_app.command("queue")
@@ -345,7 +345,7 @@ def compact(
     if result["paths"]:
         typer.echo("outputs:")
         for path in result["paths"]:
-            typer.echo(path.relative_to(root).as_posix())
+            typer.echo(project.display_path(path))
     elif result["status"] == "skipped":
         typer.echo("--force または小さい閾値を指定すると compaction を手動実行できます")
 
@@ -427,7 +427,7 @@ def memory_prepare(
     if result["paths"]:
         typer.echo("outputs:")
         for path in result["paths"]:
-            typer.echo(path.relative_to(root).as_posix())
+            typer.echo(project.display_path(path))
     elif result["status"] == "skipped":
         typer.echo("--force を指定すると手動で abstraction input を作れます")
 
@@ -563,7 +563,7 @@ def _lab_issue_body(root: Path, project, source_ref: str, title: str | None) -> 
     profile = load_profile(project.profile_id)
     source_path, source_frontmatter, source_body, original_ref = _lab_issue_source(project, source_ref)
     issue_title = title or _record_title(source_body, source_path.stem)
-    rel = source_path.relative_to(root).as_posix()
+    rel = project.display_path(source_path)
     body = f"""## Context
 
 HarnessOps lab record `{original_ref}` was promoted to a GitHub Issue draft.
@@ -624,7 +624,7 @@ def _write_lab_issue_url(root: Path, project, source_path: Path, repo: str, url:
             _write_issue_url(feedback_path, feedback_frontmatter, feedback_body, repo=repo, url=url)
             updated += 1
             create_or_update_improvement_dossier(project, source_ref=str(feedback_id))
-    refresh_views(root, project.overlay_path)
+    refresh_project_views(project)
     return updated
 
 
@@ -643,7 +643,7 @@ def issue_draft(
     typer.echo(issue_title)
     typer.echo("\nIssue body:")
     typer.echo(body)
-    typer.echo(f"\nMarkdown下書きを書きました: {draft_path.relative_to(root).as_posix()}")
+    typer.echo(f"\nMarkdown下書きを書きました: {project.display_path(draft_path)}")
 
 
 @issue_app.command("create")
@@ -673,7 +673,7 @@ def issue_create(
         draft_path = _lab_issue_draft_path(project, source_path)
         draft_path.write_text(f"# {issue_title}\n\n{body}\n", encoding="utf-8", newline="\n")
         typer.echo(f"\n重複検索をスキップしました: {search_error}")
-        typer.echo(f"Markdown下書きを書きました: {draft_path.relative_to(root).as_posix()}")
+        typer.echo(f"Markdown下書きを書きました: {project.display_path(draft_path)}")
         if confirm_create:
             raise typer.Exit(1)
     elif duplicates:
@@ -708,11 +708,11 @@ def refresh_lab_views() -> None:
     """harness-lab の生成ビューを再生成します。"""
     root = find_root()
     project = load_project(root)
-    managed = refresh_managed_files(root, project.overlay_mode, project.overlay_path)
-    written = refresh_views(root, project.overlay_path)
-    paths = [*managed["updated"]]
-    paths.extend(item["new"] for item in managed["written_new"])
-    paths.extend(path.relative_to(root).as_posix() for path in written)
+    managed = refresh_managed_files(project.storage_root, project.overlay_mode, project.overlay_path)
+    written = refresh_views(project.storage_root, project.overlay_path)
+    paths = [project.display_path(project.storage_root / rel) for rel in managed["updated"]]
+    paths.extend(project.display_path(project.storage_root / item["new"]) for item in managed["written_new"])
+    paths.extend(project.display_path(path) for path in written)
     seen: set[str] = set()
     for path in paths:
         if path in seen:

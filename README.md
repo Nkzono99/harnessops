@@ -16,6 +16,17 @@ HarnessOps は3つのリポジトリ役割を分けます。
 
 プロジェクト固有の研究方針、論文内容、実験転換は `harness-feedback/` ではなく、各プロジェクトの `research/` または `notes/` に置きます。上流やメタ改善へ回す内容は、必ずルーティングとサニタイズを通します。
 
+普通のリポジトリを汚さず開発時だけ使う場合は、global registry + local state を使えます。
+
+```bash
+uvx --from harnessops hops project link --storage local --profile generic-code
+uvx --from harnessops hops project resolve --json
+uvx --from harnessops hops doctor --check-overlay
+uvx --from harnessops hops install-codex-plugin
+```
+
+この導線では対象repoに `.harnessops/`、`harness-feedback/`、`harness-lab/` を作らず、`~/.harnessops/projects/<project-id>/` に状態を置きます。共有が必要になった時だけ `hops local pack/import/merge` を使います。詳しくは [docs/global-local-state.md](docs/global-local-state.md) を読んでください。
+
 ## 名前
 
 - GitHub repository: `Nkzono99/harnessops`
@@ -26,6 +37,7 @@ HarnessOps は3つのリポジトリ役割を分けます。
 ## 読む順番
 
 - 人間がAI Agent経由で使い始める: [docs/get-started-with-agent.md](docs/get-started-with-agent.md)
+- 普通のrepoを汚さず local state で使う: [docs/global-local-state.md](docs/global-local-state.md)
 - AI Agent向けの運用手順: [docs/agent-user-guide.md](docs/agent-user-guide.md)
 - Codex App automationで日次改善ループを回す: [docs/daily-steward-automation.md](docs/daily-steward-automation.md)
 - target repositoryへ組み込むAgentに渡す文書: [docs/target-integration-agent-brief.md](docs/target-integration-agent-brief.md)
@@ -39,6 +51,7 @@ HarnessOps は3つのリポジトリ役割を分けます。
 ## 安全上の前提
 
 - `hops` が HarnessOps 状態変更の正本です。Agentやプラグインは、`.harnessops/`、`harness-feedback/`、`harness-lab/` の構造を直接組み替えません。
+- Agent向けには repo-local skill と global Codex plugin の2系統があります。どちらも状態変更は `uvx --from harnessops hops ...` に委譲します。global plugin には failure記録、routing、GitHub Issue下書き/作成、local-state pack/import/merge の skill を同梱します。
 - 未サニタイズのフィードバックは既定で外部出力されません。
 - 採用済み判断には、証拠、回帰リスク、ガードパスが必要です。
 - 生成ビューは更新されますが、人が作成した `records/` 配下の履歴はビュー更新で再生成されません。

@@ -10,7 +10,7 @@ from harnessops.core.paths import find_root
 from harnessops.core.project import load_project
 from harnessops.core.record_index import find_record
 from harnessops.core.record_io import dump_record, read_record
-from harnessops.core.render import refresh_views
+from harnessops.core.render import refresh_project_views
 from harnessops.core.routing import classify_text
 
 
@@ -34,7 +34,7 @@ def route_command(
     if record_path:
         frontmatter["disposition"] = disposition
         record_path.write_text(dump_record(frontmatter, body), encoding="utf-8")
-        refresh_views(root, project.overlay_path)
+        refresh_project_views(project)
     if json_output:
         typer.echo(json.dumps(disposition, indent=2, sort_keys=True))
     else:
