@@ -2,7 +2,7 @@
 id: IMP0036
 record_type: improvement_dossier
 created_at: '2026-05-18T03:18:35+09:00'
-updated_at: '2026-05-18T03:21:04+09:00'
+updated_at: '2026-05-20T03:23:05+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -29,6 +29,10 @@ investigation:
   kind: codebase
   summary: Steward preflight already exposes supervisor_plan.lane_result_optional_fields.artifacts and lane_artifact_contracts.open-meta-scan with artifacts.meta_scan keys; open-meta handoff names the structured fields; subagent_plan.spawn_recommendations now emits actual supervisor lane names while retaining signal details separately under signals.
   evidence_ref:
+- created_at: '2026-05-20T03:23:05+09:00'
+  kind: codebase
+  summary: Run 20260520-030313 consumed structured open-meta artifacts successfully, but the queue still ranks IMP0001-IMP0005 as five separate adopted-without-implemented-guard items and RS0006 still advertises a dossier command that IMP0036 already satisfies. Treat the remaining pressure as priority-lane queue grouping and stale research-scan retirement, not another lane artifact contract change.
+  evidence_ref: .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json; uv run --with-editable . hops lab review queue --json; harness-lab/improvements/IMP0036-fb0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md
 links:
   issue_url:
 ---
@@ -72,6 +76,7 @@ Steward run preflight should expose optional structured lane artifacts for open-
 ## Investigation
 
 - 2026-05-18T03:19:08+09:00 [codebase] Steward preflight already exposes supervisor_plan.lane_result_optional_fields.artifacts and lane_artifact_contracts.open-meta-scan with artifacts.meta_scan keys; open-meta handoff names the structured fields; subagent_plan.spawn_recommendations now emits actual supervisor lane names while retaining signal details separately under signals.
+- 2026-05-20T03:23:05+09:00 [codebase] Run 20260520-030313 consumed structured open-meta artifacts successfully, but the queue still ranks IMP0001-IMP0005 as five separate adopted-without-implemented-guard items and RS0006 still advertises a dossier command that IMP0036 already satisfies. Treat the remaining pressure as priority-lane queue grouping and stale research-scan retirement, not another lane artifact contract change. (evidence: .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json; uv run --with-editable . hops lab review queue --json; harness-lab/improvements/IMP0036-fb0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md)
 
 ## Research Scans
 

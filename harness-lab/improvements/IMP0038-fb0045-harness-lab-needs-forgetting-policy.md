@@ -2,7 +2,7 @@
 id: IMP0038
 record_type: improvement_dossier
 created_at: '2026-05-19T03:22:20+09:00'
-updated_at: '2026-05-19T03:33:21+09:00'
+updated_at: '2026-05-20T03:23:17+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -28,6 +28,10 @@ investigation:
   kind: codebase
   summary: Today's daily steward has fresh snapshot and semantic memory, but lab memory lint still reports needs-abstraction from file_count>256; issue discovery also found no open GitHub issues while RS0004 still carries old remote-close candidates. Treat this as source-preserving active-memory and queue-retirement pressure, not another snapshot compaction pass.
   evidence_ref: harness-lab/knowledge/lab-memory.yml; uv run --with-editable . hops lab memory lint --warn-only; gh issue list --repo Nkzono99/harnessops --state all --limit 20
+- created_at: '2026-05-20T03:23:16+09:00'
+  kind: codebase
+  summary: 'Run 20260520-030313 shows the remaining lab-health pressure is split: maintenance refreshed memory, later issue work made semantic memory stale again, and file_count remains above threshold. Because IMP0038 already guards source-preserving active queue and memory exclusion, the follow-on should distinguish physical file-count pressure from an active-memory budget before adding new compaction mechanics.'
+  evidence_ref: .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json; harness-lab/knowledge/lab-memory-input.yml; tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
 links:
   issue_url:
 ---
@@ -71,6 +75,7 @@ Design a source-preserving forgetting lane that can mark stale local-only or sup
 ## Investigation
 
 - 2026-05-19T03:22:41+09:00 [codebase] Today's daily steward has fresh snapshot and semantic memory, but lab memory lint still reports needs-abstraction from file_count>256; issue discovery also found no open GitHub issues while RS0004 still carries old remote-close candidates. Treat this as source-preserving active-memory and queue-retirement pressure, not another snapshot compaction pass. (evidence: harness-lab/knowledge/lab-memory.yml; uv run --with-editable . hops lab memory lint --warn-only; gh issue list --repo Nkzono99/harnessops --state all --limit 20)
+- 2026-05-20T03:23:16+09:00 [codebase] Run 20260520-030313 shows the remaining lab-health pressure is split: maintenance refreshed memory, later issue work made semantic memory stale again, and file_count remains above threshold. Because IMP0038 already guards source-preserving active queue and memory exclusion, the follow-on should distinguish physical file-count pressure from an active-memory budget before adding new compaction mechanics. (evidence: .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json; harness-lab/knowledge/lab-memory-input.yml; tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory)
 
 ## Research Scans
 

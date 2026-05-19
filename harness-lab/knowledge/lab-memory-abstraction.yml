@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
-updated_at: '2026-05-19T03:10:00+09:00'
-source_digest: d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23
+updated_at: '2026-05-20T03:06:25+09:00'
+source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
 sources:
 - IMP0001
 - IMP0002
@@ -39,10 +39,11 @@ sources:
 - IMP0035
 - IMP0036
 - IMP0037
+- IMP0038
+- IMP0039
 - RS0001
 - RS0002
 - RS0003
-- RS0004
 - RS0005
 - RS0006
 outputs:
@@ -53,7 +54,7 @@ outputs:
 input_bundle:
   yml: harness-lab/knowledge/lab-memory-input.yml
   markdown: harness-lab/knowledge/lab-memory-input.md
-  prepared_at: '2026-05-19T03:04:46+09:00'
+  prepared_at: '2026-05-20T03:05:41+09:00'
 lint_reason: triggers-present
 manual_run: true
 notes:
@@ -74,6 +75,8 @@ notes:
 - IMP0035 added repository-compatible github-flow merge methods while preserving required-check gating.
 - IMP0036 converted daily steward lane artifacts and spawn recommendations into a machine-checkable contract.
 - IMP0037 added global/local HarnessOps state so ordinary repositories can participate without committed HarnessOps files.
+- IMP0038 added source-preserving retirement so stale or superseded material can leave active queue/memory without deleting source records.
+- IMP0039 added CLI-owned packaged skill asset sync with check mode to replace manual Codex/Claude skill copy work.
 - RS0006 added consolidation-first routing pressure for daily steward invention/priority lanes.
 contradiction_watch: []
 open_questions: []

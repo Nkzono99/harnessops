@@ -2,7 +2,7 @@
 id: IMP0002
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:08+09:00'
-updated_at: '2026-05-13T02:42:00+09:00'
+updated_at: '2026-05-20T03:28:29+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -16,12 +16,13 @@ hypotheses:
 - H0006
 decisions:
 - D0007
+research_scans: []
 classification:
   capability: unclassified
   failure_class: unclassified
 guard:
-  status: not-defined
-  path:
+  status: implemented
+  path: tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file
 investigation: []
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/6
@@ -105,6 +106,11 @@ The current behavior can leave target repositories with old HOPS skills while re
 
 調査メモはまだありません。
 
+## Research Scans
+
+research scan はまだありません。
+
+
 ## Evaluation
 
 ### E0006: E0006: FB0006-make-update-harness-conflict-aware-for-agent-bridge-files を評価
@@ -171,8 +177,8 @@ unmodified と locally edited を安全に区別できない場合、または m
 
 ## Guard
 
-- status: not-defined
-- path: None
+- status: implemented
+- path: tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file
 
 ## Links
 

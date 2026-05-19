@@ -2,7 +2,7 @@
 id: IMP0005
 record_type: improvement_dossier
 created_at: '2026-05-13T00:35:12+09:00'
-updated_at: '2026-05-13T02:42:04+09:00'
+updated_at: '2026-05-20T03:28:56+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -16,12 +16,13 @@ hypotheses:
 - H0009
 decisions:
 - D0010
+research_scans: []
 classification:
   capability: github_issue_import
   failure_class: unicode_decode_failure
 guard:
-  status: not-defined
-  path:
+  status: implemented
+  path: tests/test_cli/test_mvp_flow.py::test_feedback_import_issue_captures_github_context
 investigation: []
 links:
   issue_url:
@@ -66,6 +67,11 @@ Decode gh issue JSON as UTF-8 explicitly, or capture bytes and decode UTF-8, the
 ## Investigation
 
 調査メモはまだありません。
+
+## Research Scans
+
+research scan はまだありません。
+
 
 ## Evaluation
 
@@ -133,8 +139,8 @@ cp932 相当の Windows locale を想定した test で Unicode body を返す g
 
 ## Guard
 
-- status: not-defined
-- path: None
+- status: implemented
+- path: tests/test_cli/test_mvp_flow.py::test_feedback_import_issue_captures_github_context
 
 ## Links
 

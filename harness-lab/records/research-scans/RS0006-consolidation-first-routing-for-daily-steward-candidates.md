@@ -2,7 +2,7 @@
 id: RS0006
 record_type: research_scan
 created_at: '2026-05-18T03:16:43+09:00'
-status: captured
+status: archived
 scope: harnessops-core daily steward invention and priority lanes
 existing_dossier: FB0050
 classification:
@@ -33,6 +33,11 @@ candidates:
   recommendation: queue behind lane contract work
   next_command: hops lab dossier --from FB0045
 recommendation: Queue a bounded consolidation-first policy through existing FB0050/FB0045 records; priority lane should prefer FB0050 dossier/eval before any new capture.
+retirement:
+- created_at: '2026-05-20T03:23:43+09:00'
+  status: archived
+  reason: 'Superseded as an active queue item: FB0050 already has IMP0036/E0040/H0040/D0041 and the current run records follow-on queue pressure in RS0008 while preserving RS0006 as source evidence.'
+  evidence_ref: IMP0036; RS0008; .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json
 ---
 
 # RS0006: Consolidation-first routing for daily steward candidates

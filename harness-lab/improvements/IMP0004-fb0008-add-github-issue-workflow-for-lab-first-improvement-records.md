@@ -2,7 +2,7 @@
 id: IMP0004
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:29+09:00'
-updated_at: '2026-05-13T02:42:03+09:00'
+updated_at: '2026-05-20T03:28:47+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -16,12 +16,13 @@ hypotheses:
 - H0008
 decisions:
 - D0009
+research_scans: []
 classification:
   capability: unclassified
   failure_class: unclassified
 guard:
-  status: not-defined
-  path:
+  status: implemented
+  path: tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url
 investigation: []
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/8
@@ -124,6 +125,11 @@ If HarnessOps wants agents to capture non-issue-driven improvements in `harness-
 
 調査メモはまだありません。
 
+## Research Scans
+
+research scan はまだありません。
+
+
 ## Evaluation
 
 ### E0008: E0008: FB0008-add-github-issue-workflow-for-lab-first-improvement-records を評価
@@ -190,8 +196,8 @@ FB0001 のような lab capture 由来 record から issue draft を生成し、
 
 ## Guard
 
-- status: not-defined
-- path: None
+- status: implemented
+- path: tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url
 
 ## Links
 

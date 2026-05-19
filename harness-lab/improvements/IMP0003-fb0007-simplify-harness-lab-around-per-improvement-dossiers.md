@@ -2,7 +2,7 @@
 id: IMP0003
 record_type: improvement_dossier
 created_at: '2026-05-13T00:21:17+09:00'
-updated_at: '2026-05-13T02:42:02+09:00'
+updated_at: '2026-05-20T03:28:38+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -16,12 +16,13 @@ hypotheses:
 - H0007
 decisions:
 - D0008
+research_scans: []
 classification:
   capability: unclassified
   failure_class: unclassified
 guard:
-  status: not-defined
-  path:
+  status: implemented
+  path: tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file
 investigation: []
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/7
@@ -129,6 +130,11 @@ The current typed records (`FB`, `E`, `H`, `X`, `D`) could remain as an advanced
 
 調査メモはまだありません。
 
+## Research Scans
+
+research scan はまだありません。
+
+
 ## Evaluation
 
 ### E0007: E0007: FB0007-simplify-harness-lab-around-per-improvement-dossiers を評価
@@ -195,8 +201,8 @@ dossier が自由記述ノートになり、評価ケースや採用判断の証
 
 ## Guard
 
-- status: not-defined
-- path: None
+- status: implemented
+- path: tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file
 
 ## Links
 

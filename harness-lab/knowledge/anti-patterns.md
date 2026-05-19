@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-19T03:10:00+09:00
-Source digest: `d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23`
+Updated: 2026-05-20T03:06:25+09:00
+Source digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -57,9 +57,16 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Manual Packaged Skill Sync
 
 - Avoid when: repo-local HOPS skills are edited and then copied by hand into packaged Codex/Claude asset directories.
-- Sources: `FB0051`
+- Sources: `IMP0039`
 - Why it fails: one host or a retired skill can drift silently, and tests that touch only one packaged host may still pass.
 - Guard: use `hops agent sync-packaged-skills --check` before validation and normal `hops agent sync-packaged-skills` to update both packaged hosts.
+
+## Compacting Without Reducing Active Memory
+
+- Avoid when: lab memory lint stays under file-count pressure after deterministic snapshot and semantic abstraction are fresh.
+- Sources: `IMP0038`, `RS0006`
+- Why it fails: another abstraction pass can update the digest while leaving stale or superseded material in the active queue and working memory.
+- Guard: use source-preserving retirement or active-memory exclusion for stale local-only or superseded records, and prefer consolidation through existing FB/IMP/RS items before creating more queue roots.
 
 ## Treating Boilerplate As Evidence
 

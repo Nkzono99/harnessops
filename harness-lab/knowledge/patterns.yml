@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-19T03:10:00+09:00'
-source_digest: d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23
+updated_at: '2026-05-20T03:06:25+09:00'
+source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -85,6 +85,25 @@ patterns:
   counterexamples:
   - source: IMP0015
     note: Relying only on a skill loses cheap digest checks and machine-readable source indexes.
+- id: source_preserving_active_memory_retirement
+  name: Source-preserving active memory retirement
+  capability: harness_lab_traceability
+  failure_class: missing_lab_capture
+  applies_when:
+  - Lab memory lint remains under file-count pressure after snapshots and semantic abstraction are current.
+  - Records, scans, or queue items are superseded, local-only, stale, or low-signal but still need auditability.
+  avoid_when:
+  - The source is still an active adoption, rejection, validation, or remote-action dependency.
+  - The operator is only refreshing the abstraction digest; use compact/prepare first.
+  evidence:
+  - source: IMP0038
+    note: Source-preserving retire keeps the source file and reason while excluding retired material from active queue and memory surfaces.
+  guard:
+  - path: tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
+    sources: [IMP0038]
+  counterexamples:
+  - source: IMP0038
+    note: Deleting old records would reduce file count but destroy the audit trail that decisions and future abstractions require.
 - id: deterministic_health_intake
   name: Deterministic health intake before steward routing
   capability: daily_steward_orchestration
@@ -364,13 +383,13 @@ patterns:
   avoid_when:
   - A target or project repository is only installing repo-local skills; use `hops agent bridge` or `hops update-harness --agent-bridge` there.
   evidence:
-  - source: FB0051
+  - source: IMP0039
     note: Manual copy work left Claude packaged assets drifted; `hops agent sync-packaged-skills --check` detects drift and normal execution synchronizes both hosts.
   guard:
   - path: tests/test_cli/test_agent.py
-    sources: [FB0051]
+    sources: [IMP0039]
   counterexamples:
-  - source: FB0051
+  - source: IMP0039
     note: Updating only Codex assets or only touched skills lets packaged hosts drift despite repo-local skill tests passing.
 - id: doctor_aligned_generated_view_refresh
   name: Doctor-aligned generated view refresh
