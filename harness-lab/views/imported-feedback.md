@@ -54,3 +54,4 @@
 - `FB0051` triaged agent_asset_packaging manual_packaged_skill_sync_drift
 - `FB0052` triaged unclassified unclassified
 - `FB0053` triaged harness_lab_traceability missing_lab_capture
+- `FB0054` triaged unclassified unclassified

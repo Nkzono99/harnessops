@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-19T03:36:42+09:00'
+updated_at: '2026-05-20T03:05:30+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -10,7 +10,7 @@ compaction:
     max_improvements: 50
   metrics:
     file_count: 369
-    byte_count: 1042930
+    byte_count: 1042954
     record_count: 184
     feedback_count: 53
     eval_case_count: 41

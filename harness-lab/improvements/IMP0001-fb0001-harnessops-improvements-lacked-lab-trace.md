@@ -2,7 +2,7 @@
 id: IMP0001
 record_type: improvement_dossier
 created_at: '2026-05-13T00:20:57+09:00'
-updated_at: '2026-05-13T02:41:53+09:00'
+updated_at: '2026-05-20T03:28:19+09:00'
 status: adopted
 source_type: observation
 scope: harnessops-core
@@ -16,12 +16,13 @@ hypotheses:
 - H0001
 decisions:
 - D0001
+research_scans: []
 classification:
   capability: harness_lab_traceability
   failure_class: missing_lab_capture
 guard:
-  status: not-defined
-  path:
+  status: implemented
+  path: tests/test_cli/test_mvp_flow.py::test_lab_capture_records_local_improvement
 investigation: []
 links:
   issue_url:
@@ -66,6 +67,11 @@ Provide a first-class lab capture command and update agent, release, and lab ski
 ## Investigation
 
 調査メモはまだありません。
+
+## Research Scans
+
+research scan はまだありません。
+
 
 ## Evaluation
 
@@ -133,8 +139,8 @@ If agents still bypass lab records or the command creates low-value noise, simpl
 
 ## Guard
 
-- status: not-defined
-- path: None
+- status: implemented
+- path: tests/test_cli/test_mvp_flow.py::test_lab_capture_records_local_improvement
 
 ## Links
 

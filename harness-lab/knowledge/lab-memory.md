@@ -5,11 +5,11 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-19T03:36:42+09:00
+- updated_at: 2026-05-20T03:05:30+09:00
 - mode: forced
 - triggers: file_count>256
 - file_count: 369 / threshold 256
-- byte_count: 1042930 / threshold 2000000
+- byte_count: 1042954 / threshold 2000000
 - improvement_count: 38 / threshold 50
 - source_digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
 

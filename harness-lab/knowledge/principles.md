@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-19T03:10:00+09:00
-Source digest: `d07f7af9dc86f34f5009ddd43ba78b8ba67b53260128bf3e41821c36573cdc23`
+Updated: 2026-05-20T03:06:25+09:00
+Source digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -40,7 +40,7 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Managed Artifacts Must Be Honest About Staleness And Local Edits
 
 - Principle: update commands for managed bridge or generated artifacts must distinguish unchanged, updated, conflicted, stale, and locally edited states.
-- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`, `FB0038`, `FB0051`
+- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`, `FB0038`, `IMP0039`
 - Applies when: refreshing agent bridge files, generated records, generated views, update guidance, or any managed file that users may edit.
 - Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts; an update notice that compares only one version pair and omits the recommended `uvx --refresh-package` path; generated cache files appearing as untracked repo noise; manually copying repo-local skills to packaged agent assets and missing one host.
 - Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, make refresh commands cover the same managed artifact set that doctor validates, keep update notices tied to recorded/current/latest version checks plus explicit migrate/doctor follow-up, maintain a marker-managed `.gitignore` block for HarnessOps transient paths, and provide `--check` commands for repeated package-sync work.
@@ -64,10 +64,10 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Memory Compaction Separates Triggering From Abstraction
 
 - Principle: cheap deterministic snapshots should answer whether and where to compact; agent-guided abstraction should decide what durable principle, pattern, anti-pattern, or evaluation rule survives.
-- Sources: `IMP0014`, `IMP0015`
+- Sources: `IMP0014`, `IMP0015`, `IMP0038`
 - Applies when: lab size grows, source digest changes, targets are missing or stale, or a human manually asks for memory compaction.
-- Counterexamples: replacing deterministic snapshots with free-form skill memory loses digest checks; treating snapshots as semantic memory loses contradiction handling.
-- Guard: run lint/prepare, read the input bundle and source records, update abstract outputs with source IDs, then set `lab-memory-abstraction.yml` to the input source digest.
+- Counterexamples: replacing deterministic snapshots with free-form skill memory loses digest checks; treating snapshots as semantic memory loses contradiction handling; repeatedly refreshing abstraction does not reduce active file-count pressure when old low-signal records should be retired or excluded from working memory.
+- Guard: run lint/prepare, read the input bundle and source records, update abstract outputs with source IDs, then set `lab-memory-abstraction.yml` to the input source digest; when pressure remains after fresh abstraction, route source-preserving retirement or active-memory exclusion instead of deleting records.
 
 ## Deterministic Intake Should Surface Actionable Health, Not Decide The Work
 
