@@ -55,3 +55,4 @@
 - `FB0052` triaged unclassified unclassified
 - `FB0053` triaged harness_lab_traceability missing_lab_capture
 - `FB0054` triaged unclassified unclassified
+- `FB0055` triaged unclassified unclassified

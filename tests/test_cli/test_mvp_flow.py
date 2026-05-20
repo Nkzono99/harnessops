@@ -424,6 +424,52 @@ def test_update_harness_repairs_harnessops_gitignore_block(copy_fixture, monkeyp
     assert ".harnessops/tmp/" in gitignore
 
 
+def test_update_harness_preserves_gitignore_newlines_and_skips_normalized_noop(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    gitignore_path = root / ".gitignore"
+    gitignore_path.write_bytes(
+        (
+            "dist/\r\n"
+            "\r\n"
+            "# BEGIN harnessops\r\n"
+            ".harnessops/cache/*\r\n"
+            "!.harnessops/cache/.gitkeep\r\n"
+            ".harnessops/tmp/\r\n"
+            "# END harnessops\r\n"
+        ).encode("utf-8")
+    )
+    before = gitignore_path.read_bytes()
+
+    result = run_cli(["update-harness"])
+
+    assert "gitignore: updated .gitignore" not in result.output
+    assert gitignore_path.read_bytes() == before
+
+
+def test_update_harness_preserves_gitignore_newlines_when_repairing_block(copy_fixture, monkeypatch):
+    root = copy_fixture("runops-project-minimal")
+    monkeypatch.chdir(root)
+    run_cli(["init", "--profile", "runops-project"])
+    gitignore_path = root / ".gitignore"
+    gitignore_path.write_bytes(
+        (
+            "dist/\r\n"
+            ".harnessops/cache/*\r\n"
+            "!.harnessops/cache/.gitkeep\r\n"
+        ).encode("utf-8")
+    )
+
+    result = run_cli(["update-harness"])
+
+    gitignore = gitignore_path.read_bytes()
+    assert "gitignore: updated .gitignore" in result.output
+    assert b"# BEGIN harnessops\r\n" in gitignore
+    assert gitignore.count(b"\r\n") == gitignore.count(b"\n")
+    assert b".harnessops/tmp/\r\n" in gitignore
+
+
 def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatch):
     root = copy_fixture("runops-project-minimal")
     monkeypatch.chdir(root)

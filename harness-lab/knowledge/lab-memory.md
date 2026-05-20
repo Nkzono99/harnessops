@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-20T03:05:30+09:00
+- updated_at: 2026-05-21T03:05:01+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 369 / threshold 256
-- byte_count: 1042954 / threshold 2000000
+- file_count: 377 / threshold 256
+- byte_count: 1066865 / threshold 2000000
 - improvement_count: 38 / threshold 50
-- source_digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
+- source_digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
 
 ## How To Use
 
@@ -78,6 +78,7 @@
 - sources: `IMP0005`
 - status_counts: adopted=1
 - average_scores: anti_theater=5.0, evaluability=5.0, impact=3.0, maintainability=5.0, mechanism_clarity=5.0, minimality=5.0, operator_burden=5.0, privacy_sanitization_risk=1.0, regression_risk=2.0
+- guards: IMP0005:implemented:tests/test_cli/test_mvp_flow.py::test_feedback_import_issue_captures_github_context
 - lesson IMP0005 (adopted): Implemented explicit UTF-8 decoding for gh issue view during feedback import, with replacement on invalid bytes and TypeError fallback handling. Regression test now imports Unicode Japanese issue body/comment and asserts encoding=utf-8 is used. Verified with...
 
 ### harness_lab_traceability
@@ -85,7 +86,7 @@
 - sources: `IMP0001`, `IMP0017`, `IMP0019`, `IMP0020`, `IMP0026`, `IMP0031`, `IMP0037`, `IMP0038`
 - status_counts: active=1, adopted=7
 - average_scores: anti_theater=4.71, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=4.57, minimality=4.14, operator_burden=1.43, privacy_sanitization_risk=1.14, regression_risk=1.57
-- guards: IMP0017:implemented:tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once, IMP0019:implemented:tests/test_agent_harness_contract.py::test_pypi_publish_workflow_uses_node24_ready_actions, IMP0020:implemented:tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged, IMP0026:implemented:src/harnessops/core/upgrade_chain.py, IMP0031:implemented:tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents, IMP0037:implemented:tests/test_cli/test_mvp_flow.py::test_project_link_storage_local_keeps_repo_clean;tests/test_cli/test_mvp_flow.py::test_agent_user_install_writes_global_codex_plugin;tests/test_agent_harness_contract.py::test_global_plugin_is_packaged_without_root_plugin_surface, IMP0038:implemented:tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
+- guards: IMP0001:implemented:tests/test_cli/test_mvp_flow.py::test_lab_capture_records_local_improvement, IMP0017:implemented:tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once, IMP0019:implemented:tests/test_agent_harness_contract.py::test_pypi_publish_workflow_uses_node24_ready_actions, IMP0020:implemented:tests/test_agent_harness_contract.py::test_meta_improvement_research_skill_is_packaged, IMP0026:implemented:src/harnessops/core/upgrade_chain.py, IMP0031:implemented:tests/test_agent_harness_contract.py::test_daily_steward_automation_prompt_is_documented; tests/test_agent_harness_contract.py::test_daily_steward_skill_is_packaged_for_agents, IMP0037:implemented:tests/test_cli/test_mvp_flow.py::test_project_link_storage_local_keeps_repo_clean;tests/test_cli/test_mvp_flow.py::test_agent_user_install_writes_global_codex_plugin;tests/test_agent_harness_contract.py::test_global_plugin_is_packaged_without_root_plugin_surface, IMP0038:implemented:tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
 - lesson IMP0001 (adopted): CLI tests exercise lab capture and eval conversion. Contract tests assert bridge, packaged skills, release skill, and docs mention hops lab capture. This record captures the previously missing lab trace.
 - lesson IMP0017 (adopted): Focused regression tests show stale harnessops_version emits a hops-update-harness notice once and suppresses it for update-harness itself; a real doctor run in this repository surfaced the stale 0.1.2 -> 0.1.3 lock.
 - lesson IMP0019 (adopted): Updated the PyPI publish workflow to actions/checkout@v5 and actions/setup-python@v6 while preserving the pypi environment, id-token permission, Python 3.11, build, twine check, and publish steps. Added a workflow contract test. Focused test, full pytest, ruf...
@@ -192,7 +193,7 @@
 - sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`, `IMP0032`, `IMP0035`
 - status_counts: adopted=9
 - average_scores: anti_theater=4.56, evaluability=4.33, impact=4.0, maintainability=3.78, mechanism_clarity=4.11, minimality=3.78, operator_burden=2.11, privacy_sanitization_risk=1.11, regression_risk=1.89
-- guards: IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:implemented:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py, IMP0035:implemented:tests/test_cli/test_mvp_flow.py
+- guards: IMP0002:implemented:tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file, IMP0003:implemented:tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file, IMP0004:implemented:tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url, IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:implemented:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py, IMP0035:implemented:tests/test_cli/test_mvp_flow.py
 - lesson IMP0002 (adopted): Implemented conflict-aware agent bridge refresh: managed bridge hashes are stored in lock metadata; unmodified stale files update automatically, local edits produce .new files, --force-agent-bridge overwrites explicitly, and JSON/text output reports checked,...
 - lesson IMP0003 (adopted): Implemented lab dossiers as a generated compatibility layer: hops lab dossier --from <FB/E/H/D> creates or updates harness-lab/improvements/IMP*.md from normalized records, refreshes views/improvements.md, preserves FB/E/H/D as the source of truth, and docume...
 - lesson IMP0004 (adopted): Implemented lab-first GitHub issue promotion: hops lab issue draft/create --from <FB/E/H/D/IMP> builds a sanitized issue body from the generated dossier, writes local markdown drafts, searches duplicates, requires --confirm-create for remote creation, and wri...
@@ -213,6 +214,11 @@
 
 ## Guard Index
 
+- `IMP0001` harness_lab_traceability/missing_lab_capture: implemented tests/test_cli/test_mvp_flow.py::test_lab_capture_records_local_improvement
+- `IMP0002` unclassified/unclassified: implemented tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file
+- `IMP0003` unclassified/unclassified: implemented tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file
+- `IMP0004` unclassified/unclassified: implemented tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url
+- `IMP0005` github_issue_import/unicode_decode_failure: implemented tests/test_cli/test_mvp_flow.py::test_feedback_import_issue_captures_github_context
 - `IMP0006` improvement_loop_design/ambiguous_improvement_workflow: implemented tests/test_cli/test_mvp_flow.py
 - `IMP0007` meta_hypothesis_scan/missed_second_order_observation: implemented tests/test_agent_harness_contract.py
 - `IMP0008` meta_improvement_research/missing_research_skill: implemented tests/test_agent_harness_contract.py
@@ -251,7 +257,7 @@
 - `RS0002` generated_view_management/stale_generated_view_repair_gap: capture the stale generated-view repair gap before implementation; prefer one fix that makes refresh/status behavior match doctor-managed artifacts and gives operators an explicit next command. (3 candidates)
 - `RS0003` release-and-agent-bridge/post-release-residual-risk: Prioritize the release workflow Node24 migration first because it has an external deadline before June 2 2026; then treat issue #9 as a residual extension of IMP0018 rather than a new broad bridge rewrite. (3 candidates)
 - `RS0005` daily_steward_orchestration/count_based_preflight_misses_stale_lab_health: propose a narrow deterministic preflight extension: include lab_health only for lab repos, reuse existing lint output, and keep downstream judgment in the librarian lane. (1 candidates)
-- `RS0006` daily_steward_supervision/autonomous_record_growth_without_selection_pressure: Queue a bounded consolidation-first policy through existing FB0050/FB0045 records; priority lane should prefer FB0050 dossier/eval before any new capture. (2 candidates)
+- `RS0008` daily_steward_supervision/queue_selection_pressure: Priority lane should advance one existing queue packet, preferably grouped IMP0001-IMP0005 guard metadata or an existing active dossier, and avoid new roots for memory freshness until active-vs-physical budget is defined. (3 candidates)
 
 ## External Evidence
 
