@@ -2,7 +2,7 @@
 id: IMP0035
 record_type: improvement_dossier
 created_at: '2026-05-18T03:08:59+09:00'
-updated_at: '2026-05-18T03:10:01+09:00'
+updated_at: '2026-05-20T09:47:48+09:00'
 status: adopted
 source_type: github-issue
 scope: harnessops-core
@@ -23,7 +23,11 @@ classification:
 guard:
   status: implemented
   path: tests/test_cli/test_mvp_flow.py
-investigation: []
+investigation:
+- created_at: '2026-05-20T09:47:47+09:00'
+  kind: release-verification
+  summary: 'Issue #29 recurrence shows published v0.1.14 still makes target repos use gh pr merge --merge by default through uvx; release v0.1.15 is required so default github-flow merge uses auto method selection in downstream steward runs.'
+  evidence_ref: https://github.com/Nkzono99/harnessops/issues/29#issuecomment-4491362881
 links:
   issue_url: https://github.com/Nkzono99/harnessops/issues/29
 ---
@@ -104,7 +108,7 @@ Possible shape:
 
 ## Investigation
 
-調査メモはまだありません。
+- 2026-05-20T09:47:47+09:00 [release-verification] Issue #29 recurrence shows published v0.1.14 still makes target repos use gh pr merge --merge by default through uvx; release v0.1.15 is required so default github-flow merge uses auto method selection in downstream steward runs. (evidence: https://github.com/Nkzono99/harnessops/issues/29#issuecomment-4491362881)
 
 ## Research Scans
 
