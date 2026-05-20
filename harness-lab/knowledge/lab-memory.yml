@@ -1,6 +1,6 @@
 schema_version: '0.1'
 kind: harness_lab_knowledge
-updated_at: '2026-05-20T03:05:30+09:00'
+updated_at: '2026-05-21T03:05:01+09:00'
 mutable: true
 compaction:
   mode: forced
@@ -9,20 +9,20 @@ compaction:
     max_bytes: 2000000
     max_improvements: 50
   metrics:
-    file_count: 369
-    byte_count: 1042954
-    record_count: 184
-    feedback_count: 53
-    eval_case_count: 41
-    hypothesis_count: 41
-    decision_count: 42
-    research_scan_count: 7
+    file_count: 377
+    byte_count: 1066865
+    record_count: 189
+    feedback_count: 54
+    eval_case_count: 42
+    hypothesis_count: 42
+    decision_count: 43
+    research_scan_count: 8
     improvement_count: 38
-    manual_eval_count: 41
+    manual_eval_count: 42
   triggers:
   - file_count>256
 sources:
-  source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
+  source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
   improvements:
   - IMP0001
   - IMP0002
@@ -244,7 +244,10 @@ knowledge:
         operator_burden: 5.0
         privacy_sanitization_risk: 1.0
         regression_risk: 2.0
-      guards: []
+      guards:
+      - source: IMP0005
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py::test_feedback_import_issue_captures_github_context
       lessons:
       - source: IMP0005
         status: adopted
@@ -275,6 +278,9 @@ knowledge:
         privacy_sanitization_risk: 1.14
         regression_risk: 1.57
       guards:
+      - source: IMP0001
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py::test_lab_capture_records_local_improvement
       - source: IMP0017
         status: implemented
         path: tests/test_cli/test_mvp_flow.py::test_hops_usage_notices_stale_harnessops_lock_once
@@ -639,6 +645,15 @@ knowledge:
         privacy_sanitization_risk: 1.11
         regression_risk: 1.89
       guards:
+      - source: IMP0002
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file
+      - source: IMP0003
+        status: implemented
+        path: tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file
+      - source: IMP0004
+        status: implemented
+        path: tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url
       - source: IMP0018
         status: implemented
         path: tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract
@@ -783,25 +798,54 @@ knowledge:
       relation: extends
       recommendation: propose
       next_command: hops lab new-eval-case --from FB0035
-  - id: RS0006
-    title: 'RS0006: Consolidation-first routing for daily steward candidates'
-    path: harness-lab/records/research-scans/RS0006-consolidation-first-routing-for-daily-steward-candidates.md
+  - id: RS0008
+    title: 'RS0008: Route post-write steward queue pressure'
+    path: harness-lab/records/research-scans/RS0008-route-post-write-steward-queue-pressure.md
     status: captured
     scope: harnessops-core daily steward invention and priority lanes
     capability: daily_steward_supervision
-    failure_class: autonomous_record_growth_without_selection_pressure
-    recommendation: Queue a bounded consolidation-first policy through existing FB0050/FB0045 records; priority lane should prefer FB0050 dossier/eval before any new capture.
-    candidate_count: 2
+    failure_class: queue_selection_pressure
+    recommendation: Priority lane should advance one existing queue packet, preferably grouped IMP0001-IMP0005 guard metadata or an existing active dossier, and avoid new roots for memory freshness until active-vs-physical budget is defined.
+    candidate_count: 3
     candidates:
-    - title: Add consolidation-first queue policy to invention/priority lanes
+    - title: Group IMP0001-IMP0005 guard backfills as one metadata cleanup packet
       relation: extends
-      recommendation: propose after FB0050 dossier exists
-      next_command: hops lab dossier --from FB0050
-    - title: Design source-preserving archive/exclude policy for stale local-only lab material
+      recommendation: selected_for_execution for priority lane if it chooses guard metadata work
+      next_command: hops lab review queue --json
+    - title: Treat post-write memory freshness as end-of-write synthesis evidence, not an early-maintenance failure
       relation: extends
-      recommendation: queue behind lane contract work
-      next_command: hops lab dossier --from FB0045
+      recommendation: queued_for_later behind active queue work
+      next_command: hops lab investigate --from IMP0038 --kind codebase --summary <finding>
+    - title: Retire stale RS0006 active queue command now that IMP0036 exists
+      relation: parks
+      recommendation: record_only queue hygiene
+      next_command: hops lab retire --from RS0006 --reason <reason>
   guard_index:
+  - source: IMP0001
+    capability: harness_lab_traceability
+    failure_class: missing_lab_capture
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py::test_lab_capture_records_local_improvement
+  - source: IMP0002
+    capability: unclassified
+    failure_class: unclassified
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file
+  - source: IMP0003
+    capability: unclassified
+    failure_class: unclassified
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file
+  - source: IMP0004
+    capability: unclassified
+    failure_class: unclassified
+    status: implemented
+    path: tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url
+  - source: IMP0005
+    capability: github_issue_import
+    failure_class: unicode_decode_failure
+    status: implemented
+    path: tests/test_cli/test_mvp_flow.py::test_feedback_import_issue_captures_github_context
   - source: IMP0006
     capability: improvement_loop_design
     failure_class: ambiguous_improvement_workflow

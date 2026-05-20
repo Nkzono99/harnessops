@@ -7,7 +7,7 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
+- source_digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
 - pressure: file_count>256
 - triggers: file_count>256, semantic_memory_stale
 
@@ -74,6 +74,11 @@ Provide a first-class lab capture command and update agent, release, and lab ski
 
 調査メモはまだありません。
 
+## Research Scans
+
+research scan はまだありません。
+
+
 ## Evaluation
 
 ### E0001: E0001: FB0001-harnessops-improvements-lacked-lab-trace を評価
@@ -88,7 +93,7 @@ Provide a first-class lab capture command and update agent, release, and lab ski
 - manual_eval_yml: `harness-lab/views/eval-results/E0001-manual-score.yml`
 - manual_eval_md: `harness-lab/views/eval-results/E0001-manual-score.md`
 - scores: impact=4, mechanism_clarity=4, evaluability=5, minimality=4, regression_risk=0, operator_burden=0, anti_theater=4, maintainability=4, privacy_sanitization_risk=0
-- notes: CLI tests exercise lab capture and eval conversion. Contract tests assert bridge, packaged skills, release skill, and...
+- notes: CLI tests exercise lab capture and eval conversion. Contract tests asser...
 
 ### `IMP0002` unclassified/unclassified
 - path: `harness-lab/improvements/IMP0002-fb0006-make-update-harness-conflict-aware-for-agent-bridge-files.md`
@@ -320,6 +325,11 @@ Decode gh issue JSON as UTF-8 explicitly, or capture bytes and decode UTF-8, the
 
 調査メモはまだありません。
 
+## Research Scans
+
+research scan はまだありません。
+
+
 ## Evaluation
 
 ### E0009: E0009: FB0009-github-issue-import-fails-on-windows-console-decoding を評価
@@ -333,7 +343,7 @@ Decode gh issue JSON as UTF-8 explicitly, or capture bytes and decode UTF-8, the
 
 - manual_eval_yml: `harness-lab/views/eval-results/E0009-manual-score.yml`
 - manual_eval_md: `harness-lab/views/eval-results/E0009-manual-score.md`
-- scores: impact=3, mechanism_clarity=5, evaluability=5, minimality=5, regression_risk=2, operator_burden=5, anti_theater=5, maintainability=5, privacy_sani...
+- scores: impact=3, mechanism_clarity=5, evaluability=5, minimality=5, regression_risk=2, operator_burden=5, an...
 
 ### `IMP0006` improvement_loop_design/ambiguous_improvement_workflow
 - path: `harness-lab/improvements/IMP0006-fb0010-redesign-standard-improvement-loop-around-investigation-and-themes.md`
@@ -2125,18 +2135,7 @@ Design a source-preserving forgetting lane that can mark stale local-only or sup
 ## Investigation
 
 - 2026-05-19T03:22:41+09:00 [codebase] Today's daily steward has fresh snapshot and semantic memory, but lab memory lint still reports needs-abstraction from file_count>256; issue discovery also found no open GitHub issues while RS0004 still carries old remote-close candidates. Treat this as source-preserving active-memory and queue-retirement pressure, not another snapshot compaction pass. (evidence: harness-lab/knowledge/lab-memory.yml; uv run --with-editable . hops lab memory lint --warn-only; gh issue list --repo Nkzono99/harnessops --state all --limit 20)
-
-## Research Scans
-
-research scan はまだありません。
-
-
-## Evaluation
-
-### E0041: E0041: FB0045-harness-lab-needs-forgetting-policy を評価
-
-
-- source: `harness-lab/records/eval-cases/E004...
+- 2026-05-20T03:23:16+09:00 [codebase] Run 20260520-030313 shows the remaining lab-health pressure is split: maintenance refreshed memory, later issue work made semantic memo...
 
 ### `IMP0039` agent_asset_packaging/manual_packaged_skill_sync_drift
 - path: `harness-lab/improvements/IMP0039-fb0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md`
@@ -2362,30 +2361,29 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 
 - `hops lab new-eval-case --from FB0035`
 
-### `RS0006` daily_steward_supervision/autonomous_record_growth_without_selection_pressure
-- path: `harness-lab/records/research-scans/RS0006-consolidation-first-routing-for-daily-steward-candidates.md`
+### `RS0008` daily_steward_supervision/queue_selection_pressure
+- path: `harness-lab/records/research-scans/RS0008-route-post-write-steward-queue-pressure.md`
 - status: captured
 
-# RS0006: Consolidation-first routing for daily steward candidates
+# RS0008: Route post-write steward queue pressure
 
 ## Scope
 
 - scope: harnessops-core daily steward invention and priority lanes
-- existing_dossier: FB0050
+- existing_dossier: IMP0036/IMP0038/RS0006
 - capability: daily_steward_supervision
-- failure_class: autonomous_record_growth_without_selection_pressure
+- failure_class: queue_selection_pressure
 
 ## Evidence
 
 ### Local
 
-- Open-meta scan for run 20260518-030245-7e9269e warned that the daily steward can reward producing records faster than retiring, merging, rejecting, or testing them (ref: automation lane handoff)
-- Current queue has 25 items and lab health still reports needs-abstraction from file_count>256 after maintenance compaction (ref: hops lab review queue --json; supervisor preflight)
+- Current run used open-meta artifacts, then inherited post-write memory staleness and 23 active queue items (ref: .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json)
+- Queue lists IMP0001-IMP0005 as identical adopted-without-implemented-guard cleanup items (ref: uv run --with-editable . hops lab review queue --json)
 
 ### Codebase
 
-- hops-research-improvements already requires horizon/generalization and park/reject routing before new captures (ref: .agents/skills/hops-research-improvements/SKILL.md)
-- FB0050 captures implicit lane contract risk; FB0045 captures missing source-preserving forgetting policy (ref: harness-lab/records/feedback/FB0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md; harness-lab/records/feedback/FB0045-harness-lab-needs-forgetting-policy.md)
+- IMP0036 already implements the structured artifacts contract; IMP0038 already implements source-preserving retirement from active queue and memory (ref: harness-lab/improvements/IMP0036-fb0050-daily-steward-lane-results-need-structured-artifacts-and-lane-aligned-recommendations.md; harness-lab/improvements/IMP0038-fb0045-harness-lab-needs-forgetting-policy.md)
 
 ### External
 
@@ -2393,14 +2391,15 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 
 ### Risk And Counterexample
 
-- Over-correcting could make invention suppress useful raw discoveries; keep open-meta noisy and enforce consolidation only in downstream routing (ref: open-meta counterframe)
+- Over-correcting could hide useful raw ideas or turn finalize into another maintenance pass; keep open-meta divergent and apply grouping only in priority selection (ref: open-meta counterframes for run 20260520-030313)
 
 ## Candidates
 
 | candidate | relation | recommendation | next_command |
 |---|---|---|---|
-| Add consolidation-first queue policy to invention/priority lanes | extends | propose after FB0050 dossier exists | hops lab dossier --from FB0050 |
-| Design source-preserving archive/exclude policy for stale local-only lab material | extends | queue behind lane contract work | hops lab dossi...
+| Group IMP0001-IMP0005 guard backfills as one metadata cleanup packet | extends | selected_for_execution for priority lane if it chooses guard metadata work | hops lab review queue --json |
+| Treat post-write memory freshness as end-of-write synthesis evidence, not an early-maintenance failure | extends | queued_for_later behind active queue work | hops lab investigate --from IMP0038 --kind codebase --summary <finding> |
+| Retire stale RS0006 act...
 
 ## Abstraction Manifest Template
 
@@ -2408,7 +2407,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
+source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
 sources:
 - IMP0001
 - IMP0002
@@ -2452,7 +2451,7 @@ sources:
 - RS0002
 - RS0003
 - RS0005
-- RS0006
+- RS0008
 outputs:
 - harness-lab/knowledge/principles.md
 - harness-lab/knowledge/patterns.yml

@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-20T03:06:25+09:00
-Source digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
+Updated: 2026-05-21T03:06:30+09:00
+Source digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -72,7 +72,7 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Deterministic Intake Should Surface Actionable Health, Not Decide The Work
 
 - Principle: scheduled or recurring intake commands should expose read-only health signals that affect routing, while leaving synthesis, abstraction, and implementation to the appropriate lane or skill.
-- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`, `IMP0036`, `RS0006`
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`, `IMP0036`, `RS0008`
 - Applies when: adding daily steward preflight fields, lane triggers, lab health summaries, stale memory checks, automation run ledgers, or branch/merge completion rules.
 - Counterexamples: overlay counts alone can trigger a vague librarian lane while hiding stale snapshot or semantic-memory state; a preflight that writes memory or ranks every candidate would turn deterministic intake into a workflow engine; a scheduled run that pushes a branch but never attempts the authorized PR/merge path leaves validated work half-finished; prose-only lane artifacts make downstream lanes infer result shape from wording.
 - Guard: keep preflight read-only, include source-linked `lab_health` status and recommended commands for lab repos, skip lab memory probing in project repos, route `needs-abstraction` to `hops-compact-lab-memory`, expose machine-checkable lane artifact contracts where downstream lanes consume them, prefer consolidation through existing records before new captures, and require validation plus protected-branch checks before automation merges.
@@ -96,7 +96,7 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Steward Automation Needs Discovery Pressure
 
 - Principle: a clean autonomous steward run should create or advance a queue instead of treating status-only no-op as success.
-- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`, `IMP0034`, `FB0050`, `IMP0036`, `RS0006`
+- Sources: `FB0037`, `FB0038`, `IMP0023`, `IMP0031`, `IMP0034`, `FB0050`, `IMP0036`, `RS0008`
 - Applies when: configuring daily automation, deciding whether to run `hops-open-meta-scan`, splitting record/implementation/merge gates, setting work-packet budgets, or handling update-harness/latest-version work.
-- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; hiding open meta scan inside invention makes raw ideas invisible to the supervisor ledger; leaving raw ideas in prose-only lane results makes downstream invention depend on formatting; requiring implementation-level guards before research-scan or classify prevents queue creation; rewarding new records faster than retiring, merging, rejecting, or testing them increases lab pressure.
-- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; make `open-meta-scan` an explicit lane whose raw ideas are reviewed by invention before priority work; preserve raw ideas as structured lane artifacts; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap; route invention through consolidation-first review of existing FB/IMP/RS items before capturing new work.
+- Counterexamples: gating open invention to rare triggers leaves healthy repositories in preflight/doctor/no-op loops; hiding open meta scan inside invention makes raw ideas invisible to the supervisor ledger; leaving raw ideas in prose-only lane results makes downstream invention depend on formatting; requiring implementation-level guards before research-scan or classify prevents queue creation; rewarding new records faster than retiring, merging, rejecting, or testing them increases lab pressure; treating post-write memory freshness as early maintenance failure can distract from active queue work.
+- Guard: use global, record, implementation, and merge gates separately; run proactive discovery when reactive work and queue are thin; make `open-meta-scan` an explicit lane whose raw ideas are reviewed by invention before priority work; preserve raw ideas as structured lane artifacts; treat HarnessOps latest/update-harness as signal-driven work instead of a mandatory start step; control execution by risk tier and work-packet budget rather than one systemic-candidate cap; route invention through consolidation-first review of existing FB/IMP/RS items before capturing new work, and let priority choose one existing queue packet before adding memory-freshness-only roots.

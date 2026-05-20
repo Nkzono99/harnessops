@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-20T03:06:25+09:00'
-source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
+updated_at: '2026-05-21T03:06:30+09:00'
+source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -249,24 +249,25 @@ patterns:
 - id: consolidation_first_steward_routing
   name: Consolidation-first steward routing
   capability: daily_steward_supervision
-  failure_class: autonomous_record_growth_without_selection_pressure
+  failure_class: queue_selection_pressure
   applies_when:
   - A daily steward run produces raw ideas, research scans, or candidate work while lab file-count pressure is already high.
   - Existing feedback, improvement dossiers, or research scans can absorb the candidate without creating a new queue root.
   avoid_when:
   - The observation is a new failure class with no existing source record and would be lost without capture.
   - The lane is explicitly read-only and should only return raw ideas for later routing.
+  - The only signal is post-write memory freshness and active queue work is still available.
   evidence:
-  - source: RS0006
-    note: Open-meta warned that autonomous runs can reward producing records faster than retiring, merging, rejecting, or testing them.
+  - source: RS0008
+    note: Post-write queue pressure should drive priority toward one existing packet, such as grouped guard backfills or active dossiers, before adding new memory-freshness roots.
   - source: IMP0036
     note: Structured lane artifacts make it possible for downstream lanes to route raw ideas without parsing prose.
   guard:
   - path: tests/test_cli/test_steward.py
     sources: [IMP0036]
   counterexamples:
-  - source: RS0006
-    note: Over-correcting can suppress useful raw discoveries; keep open-meta noisy and enforce consolidation in downstream routing.
+  - source: RS0008
+    note: Over-correcting can hide useful raw ideas or make finalize another maintenance pass; keep open-meta divergent and apply grouping only in priority selection.
 - id: required_check_aware_github_flow
   name: Required-check-aware GitHub Flow
   capability: github_flow_automation

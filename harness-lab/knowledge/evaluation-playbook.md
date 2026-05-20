@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-20T03:06:25+09:00
-Source digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
+Updated: 2026-05-21T03:06:30+09:00
+Source digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -34,7 +34,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Daily steward should not return status-only no-op on clean runs until it has processed reactive work, advanced queue work, run proactive discovery, or exhausted explicit budget. Source: `FB0037`
 - Daily steward preflight should include `hops-open-meta-scan` as an explicit supervisor lane before invention, expose its raw ideas as `artifacts.meta_scan`, and keep spawn recommendations aligned to real supervisor lane names. Sources: `IMP0034`, `FB0050`
 - Daily steward lane-result consumers should rely on machine-checkable artifact contracts, not prose handoff shape. Source: `IMP0036`
-- Daily steward routing should prefer consolidation through existing FB/IMP/RS records before creating new records when lab pressure is high. Source: `RS0006`
+- Daily steward routing should prefer consolidation through existing FB/IMP/RS records before creating new records when lab pressure is high; post-write memory freshness should not displace an available active queue packet. Source: `RS0008`
 - Source-preserving retirement should keep source files and retirement reasons while excluding retired items from active queue and memory surfaces. Source: `IMP0038`
 - HarnessOps latest/update-harness work should be signal-driven, and init/link/update-harness should maintain `.gitignore` hygiene for `.harnessops/cache/*` without hiding canonical `.harnessops` state. Source: `FB0038`
 - GitHub Flow merge diagnostics should distinguish missing required checks from failing or pending checks, and PR CI should provide a concrete required-check target before branch protection is tightened. Source: `FB0041`
@@ -70,7 +70,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject GitHub Flow merge changes that assume merge commits are always allowed or bypass required-check gating while trying alternate merge methods. Source: `IMP0035`
 - Reject agent conduit guidance that omits the invocation path or lets project repositories create lab state instead of feedback/export records. Source: `FB0042`
 - Reject global/local state changes that dirty ordinary repositories with HarnessOps files or hide canonical repo-local state in repos that opted into it. Source: `IMP0037`
-- Reject steward routing changes that turn open-meta into record spam instead of consolidating through existing feedback, dossiers, or research scans. Source: `RS0006`
+- Reject steward routing changes that turn open-meta into record spam, or route post-write memory freshness ahead of active queue work, instead of consolidating through existing feedback, dossiers, or research scans. Source: `RS0008`
 - Reject memory-pressure handling that deletes source records or only refreshes abstraction when active-memory retirement is the real pressure. Source: `IMP0038`
 
 ## Guard Catalogue

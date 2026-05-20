@@ -1,7 +1,7 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-20T03:06:25+09:00
-Source digest: `e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3`
+Updated: 2026-05-21T03:06:30+09:00
+Source digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
@@ -15,7 +15,7 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Treating Counts As Health
 
 - Avoid when: a steward, dashboard, or automation preflight reports only record counts and generic lane triggers while hiding stale memory, stale generated views, missing abstraction, guard gaps, or pending migration state.
-- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`, `IMP0036`, `RS0006`
+- Sources: `IMP0023`, `IMP0029`, `RS0005`, `IMP0015`, `IMP0031`, `IMP0036`, `RS0008`
 - Why it fails: counts prove that records exist, not that the lab is usable today; the next agent may skip librarian work even though the source digest has moved.
 - Guard: expose read-only health signals such as `lab_health.status`, pressure triggers, stale snapshot/abstraction flags, recommended commands, and structured lane artifact contracts, then delegate compaction, abstraction, or consolidation to the proper lane; keep remote completion gates separate from intake and require validation/checks before merge.
 
@@ -36,9 +36,9 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Treating No-Op As Daily Success
 
 - Avoid when: a clean autonomous run with remote authority reports only preflight/doctor state because no obvious reactive work was waiting.
-- Sources: `FB0037`, `FB0038`, `IMP0034`, `FB0050`, `IMP0036`, `RS0006`
-- Why it fails: healthy repositories slowly train the automation into status polling, and hidden or prose-only open scans make raw ideas disappear before invention can review or record them; unbounded creation of new records raises lab pressure without retiring work.
-- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, preserve raw ideas as structured lane artifacts, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, prefer consolidation through existing records before new captures, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
+- Sources: `FB0037`, `FB0038`, `IMP0034`, `FB0050`, `IMP0036`, `RS0008`
+- Why it fails: healthy repositories slowly train the automation into status polling, and hidden or prose-only open scans make raw ideas disappear before invention can review or record them; unbounded creation of new records raises lab pressure without retiring work; post-write memory freshness can be mistaken for higher-priority maintenance than active queue execution.
+- Guard: make proactive discovery mandatory when reactive work and queue are thin, keep `hops-open-meta-scan` as its own supervisor lane, preserve raw ideas as structured lane artifacts, split record/implementation/merge gates, handle latest/update-harness only when stale state is signaled, prefer consolidation through existing records before new captures, let priority advance one bounded existing packet, and reserve no-op for blockers, failed validation, exhausted budget, or explicit discovery failure.
 
 ## Dirtying Ordinary Repositories With Local HarnessOps State
 
@@ -64,7 +64,7 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 ## Compacting Without Reducing Active Memory
 
 - Avoid when: lab memory lint stays under file-count pressure after deterministic snapshot and semantic abstraction are fresh.
-- Sources: `IMP0038`, `RS0006`
+- Sources: `IMP0038`, `RS0008`
 - Why it fails: another abstraction pass can update the digest while leaving stale or superseded material in the active queue and working memory.
 - Guard: use source-preserving retirement or active-memory exclusion for stale local-only or superseded records, and prefer consolidation through existing FB/IMP/RS items before creating more queue roots.
 
