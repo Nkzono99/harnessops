@@ -5,13 +5,13 @@
 
 ## Compaction State
 
-- updated_at: 2026-05-21T03:05:01+09:00
+- updated_at: 2026-05-22T03:04:15+09:00
 - mode: forced
 - triggers: file_count>256
-- file_count: 377 / threshold 256
-- byte_count: 1066865 / threshold 2000000
-- improvement_count: 38 / threshold 50
-- source_digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
+- file_count: 391 / threshold 256
+- byte_count: 1106317 / threshold 2000000
+- improvement_count: 39 / threshold 50
+- source_digest: `98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553`
 
 ## How To Use
 
@@ -24,9 +24,10 @@
 ### agent_asset_packaging
 #### manual_packaged_skill_sync_drift
 - sources: `IMP0039`
-- status_counts: active=1
-- average_scores: none
-- lesson IMP0039 (active): The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or update...
+- status_counts: adopted=1
+- average_scores: anti_theater=5.0, evaluability=5.0, impact=4.0, maintainability=4.0, mechanism_clarity=5.0, minimality=5.0, operator_burden=1.0, privacy_sanitization_risk=0.0, regression_risk=2.0
+- guards: IMP0039:implemented:tests/test_cli/test_agent.py::test_agent_sync_packaged_skills_cli_check_reports_drift;tests/test_agent_harness_contract.py::test_packaged_agent_assets_match_repo_local_skills
+- lesson IMP0039 (adopted): hops agent sync-packaged-skills --check --json returned ok=true with no missing, drifted, or retired Codex/Claude assets; tests/test_cli/test_agent.py passed 2 tests; tests/test_agent_harness_contract.py -k packaged_agent_assets_match_repo_local_skills passed...
 
 ### cli_ergonomics
 #### command_surface_sprawl
@@ -190,10 +191,10 @@
 
 ### unclassified
 #### unclassified
-- sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`, `IMP0032`, `IMP0035`
-- status_counts: adopted=9
-- average_scores: anti_theater=4.56, evaluability=4.33, impact=4.0, maintainability=3.78, mechanism_clarity=4.11, minimality=3.78, operator_burden=2.11, privacy_sanitization_risk=1.11, regression_risk=1.89
-- guards: IMP0002:implemented:tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file, IMP0003:implemented:tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file, IMP0004:implemented:tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url, IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:implemented:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py, IMP0035:implemented:tests/test_cli/test_mvp_flow.py
+- sources: `IMP0002`, `IMP0003`, `IMP0004`, `IMP0018`, `IMP0021`, `IMP0024`, `IMP0025`, `IMP0032`, `IMP0035`, `IMP0040`
+- status_counts: adopted=10
+- average_scores: anti_theater=4.1, evaluability=3.9, impact=4.0, maintainability=3.4, mechanism_clarity=4.2, minimality=3.4, operator_burden=1.9, privacy_sanitization_risk=1.0, regression_risk=2.1
+- guards: IMP0002:implemented:tests/test_cli/test_mvp_flow.py::test_update_harness_refreshes_unmodified_stale_agent_bridge;tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_edited_agent_bridge_file_as_new;tests/test_cli/test_mvp_flow.py::test_update_harness_force_overwrites_edited_agent_bridge_file, IMP0003:implemented:tests/test_cli/test_mvp_flow.py::test_lab_dossier_creates_single_improvement_file, IMP0004:implemented:tests/test_cli/test_safety.py::test_lab_issue_draft_sanitizes_lab_first_record;tests/test_cli/test_safety.py::test_lab_issue_create_writes_back_created_issue_url, IMP0018:implemented:tests/test_agent_harness_contract.py::test_generated_bridge_explains_hops_contract, IMP0021:implemented:tests/test_agent_harness_contract.py, IMP0024:implemented:tests/test_cli/test_mvp_flow.py::test_doctor_warns_about_stale_editable_bridge_fallback, IMP0025:implemented:tests/test_cli/test_mvp_flow.py::test_agent_bridge_generation, IMP0032:implemented:tests/test_agent_harness_contract.py, IMP0035:implemented:tests/test_cli/test_mvp_flow.py, IMP0040:implemented:tests/test_cli/test_mvp_flow.py
 - lesson IMP0002 (adopted): Implemented conflict-aware agent bridge refresh: managed bridge hashes are stored in lock metadata; unmodified stale files update automatically, local edits produce .new files, --force-agent-bridge overwrites explicitly, and JSON/text output reports checked,...
 - lesson IMP0003 (adopted): Implemented lab dossiers as a generated compatibility layer: hops lab dossier --from <FB/E/H/D> creates or updates harness-lab/improvements/IMP*.md from normalized records, refreshes views/improvements.md, preserves FB/E/H/D as the source of truth, and docume...
 - lesson IMP0004 (adopted): Implemented lab-first GitHub issue promotion: hops lab issue draft/create --from <FB/E/H/D/IMP> builds a sanitized issue body from the generated dossier, writes local markdown drafts, searches duplicates, requires --confirm-create for remote creation, and wri...
@@ -203,6 +204,7 @@
 - lesson IMP0025 (adopted): Validated role-scoped bridge behavior with focused agent bridge/update-harness tests plus full suite: ruff check ., pytest -q (90 passed), hops doctor --check-overlay --check-records, hops migrate --check.
 - lesson IMP0032 (adopted): Updated hops-issue-triage with no-argument open issue discovery, priority buckets, close-candidate heuristics, remote-action authority boundary, and completion close conventions. Daily steward now delegates no-argument open issue discovery to hops-issue-triag...
 - lesson IMP0035 (adopted): Implemented github-flow merge --method auto|merge|squash|rebase, preserved required-check gating, and added focused CLI tests covering squash auto-selection, explicit rebase, and clear merge-method failure reporting.
+- lesson IMP0040 (adopted): Implemented byte-preserving .gitignore no-op detection and newline preservation. Validation passed: uv run pytest tests/test_cli/test_mvp_flow.py; git diff --check; hops doctor --check-overlay --check-records; hops migrate --check.
 
 ### uvx_update_guidance
 #### stale_hops_update_path
@@ -250,6 +252,8 @@
 - `IMP0036` daily_steward_supervision/implicit_lane_contract: implemented tests/test_cli/test_steward.py
 - `IMP0037` harness_lab_traceability/missing_lab_capture: implemented tests/test_cli/test_mvp_flow.py::test_project_link_storage_local_keeps_repo_clean;tests/test_cli/test_mvp_flow.py::test_agent_user_install_writes_global_codex_plugin;tests/test_agent_harness_contract.py::test_global_plugin_is_packaged_without_root_plugin_surface
 - `IMP0038` harness_lab_traceability/missing_lab_capture: implemented tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
+- `IMP0039` agent_asset_packaging/manual_packaged_skill_sync_drift: implemented tests/test_cli/test_agent.py::test_agent_sync_packaged_skills_cli_check_reports_drift;tests/test_agent_harness_contract.py::test_packaged_agent_assets_match_repo_local_skills
+- `IMP0040` unclassified/unclassified: implemented tests/test_cli/test_mvp_flow.py
 
 ## Research Scans
 
@@ -279,7 +283,6 @@
 
 - `IMP0033` status=parked maturity=investigated: evaluation-or-decision-needed
 - `IMP0037` status=active maturity=investigated: evaluation-or-decision-needed
-- `IMP0039` status=active maturity=investigated: evaluation-or-decision-needed
 
 ## Curator Notes
 <!-- harnessops:curator-notes:start -->

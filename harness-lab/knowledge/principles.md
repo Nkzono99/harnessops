@@ -1,7 +1,7 @@
 # Harness Lab Principles
 
-Updated: 2026-05-21T03:06:30+09:00
-Source digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
+Updated: 2026-05-22T03:08:11+09:00
+Source digest: `98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553`
 
 This file is mutable abstract knowledge. It is not adoption evidence. For decisions, return to the source records and dossiers named below.
 
@@ -40,10 +40,10 @@ This file is mutable abstract knowledge. It is not adoption evidence. For decisi
 ## Managed Artifacts Must Be Honest About Staleness And Local Edits
 
 - Principle: update commands for managed bridge or generated artifacts must distinguish unchanged, updated, conflicted, stale, and locally edited states.
-- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`, `FB0038`, `IMP0039`
+- Sources: `IMP0002`, `IMP0011`, `IMP0016`, `RS0002`, `IMP0030`, `FB0038`, `IMP0039`, `IMP0040`
 - Applies when: refreshing agent bridge files, generated records, generated views, update guidance, or any managed file that users may edit.
-- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts; an update notice that compares only one version pair and omits the recommended `uvx --refresh-package` path; generated cache files appearing as untracked repo noise; manually copying repo-local skills to packaged agent assets and missing one host.
-- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, make refresh commands cover the same managed artifact set that doctor validates, keep update notices tied to recorded/current/latest version checks plus explicit migrate/doctor follow-up, maintain a marker-managed `.gitignore` block for HarnessOps transient paths, and provide `--check` commands for repeated package-sync work.
+- Counterexamples: reporting `ok` while leaving stale skills in place; concurrent lab commands creating duplicate dossiers for one source feedback; a repair command that refreshes only dynamic generated views while doctor still warns on other managed artifacts; an update notice that compares only one version pair and omits the recommended `uvx --refresh-package` path; generated cache files appearing as untracked repo noise; manually copying repo-local skills to packaged agent assets and missing one host; rewriting `.gitignore` with line-ending-only churn or trailing whitespace.
+- Guard: store packaged hashes or source-feedback locks where needed, write `.new` on local conflicts, have doctor detect duplicate canonical mappings, make refresh commands cover the same managed artifact set that doctor validates, keep update notices tied to recorded/current/latest version checks plus explicit migrate/doctor follow-up, maintain a marker-managed `.gitignore` block for HarnessOps transient paths, preserve existing newline style and skip normalized no-op writes, and provide `--check` commands for repeated package-sync work.
 
 ## Remote And External Paths Must Be Encoding-Safe And Sanitized
 

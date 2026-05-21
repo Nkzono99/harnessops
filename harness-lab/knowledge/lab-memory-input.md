@@ -7,9 +7,9 @@
 
 - status: needs-abstraction
 - reason: triggers-present
-- source_digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
+- source_digest: `98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553`
 - pressure: file_count>256
-- triggers: file_count>256, semantic_memory_stale
+- triggers: file_count>256
 
 ## Skill Instructions
 
@@ -2139,22 +2139,22 @@ Design a source-preserving forgetting lane that can mark stale local-only or sup
 
 ### `IMP0039` agent_asset_packaging/manual_packaged_skill_sync_drift
 - path: `harness-lab/improvements/IMP0039-fb0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md`
-- status: active
-- maturity: investigated
+- status: adopted
+- maturity: adopted
 - relation: extends
 
 # IMP0039: FB0051: Packaged skill asset sync should be a CLI, not manual copy work
 
 ## Status
 
-- status: active
-- maturity: investigated
+- status: adopted
+- maturity: adopted
 - source_type: codebase
 - scope: harnessops-core
 - relation: extends
-- promotion_level: target-lab-case
+- promotion_level: harnessops-protocol
 - source_feedback: `FB0051`
-- linked_records: `FB0051`
+- linked_records: `FB0051`, `E0044`, `H0044`, `D0045`
 
 ## Source Observation
 
@@ -2181,11 +2181,63 @@ Provide a command that syncs .agents/skills/hops-* into packaged agent assets fo
 
 ## Investigation
 
-- 2026-05-19T03:23:27+09:00 [codebase] The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or updated assets. This makes FB0051 a validation-standardization candidate rather than a manual copy task. (evidence: uv run --with-editable . hops agent sync-packaged-skills --help; uv run --with-editable . hops agent sync-packaged-skills --check --json)
+- 2026-05-19T03:23:27+09:00 [codebase] The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or updated assets. This makes FB0051 a validation-standardization candidate rather than a manual copy task. (evidence: uv run --with-editable . hops agent sync-packaged-skills --help; uv run --with-editable . hops agent sync-packaged-skills --check --json)...
 
-## Research Scans
+### `IMP0040` unclassified/unclassified
+- path: `harness-lab/improvements/IMP0040-fb0055-update-harness-should-avoid-gitignore-line-ending-and-whitespace-churn.md`
+- status: adopted
+- maturity: adopted
+- relation: new
 
-researc...
+# IMP0040: FB0055: update-harness should avoid .gitignore line-ending and whitespace churn
+
+## Status
+
+- status: adopted
+- maturity: adopted
+- source_type: issue
+- scope: harnessops-core
+- relation: new
+- promotion_level: target-lab-case
+- source_feedback: `FB0055`
+- linked_records: `FB0055`, `E0043`, `H0043`, `D0044`
+
+## Source Observation
+
+Source: `harness-lab/records/feedback/FB0055-update-harness-should-avoid-gitignore-line-ending-and-whitespace-churn.md`
+
+# FB0055: update-harness should avoid .gitignore line-ending and whitespace churn
+
+## 概要
+
+GitHub issue: https://github.com/Nkzono99/harnessops/issues/39
+author: Nkzono99
+labels: bug, enhancement
+created_at: 2026-05-20T01:08:47Z
+updated_at: 2026-05-20T01:08:47Z
+
+## Issue本文
+## Summary
+
+Transferred from runops issue #86: https://github.com/Nkzono99/runops/issues/86
+
+After `hops update-harness`, runops observed a large `.gitignore` diff that appeared to be mostly line-ending churn rather than meaningful content change. `git diff --check` also reported trailing whitespace in generated/managed output, requiring manual cleanup.
+
+For managed artifact updates, `.gitignore` and similar existing files should avoid needless line-ending or whitespace churn so reviews focus on real harness changes.
+
+## Expected behavior
+
+When `hops update-harness` touches existing files:
+
+- Preserve the existing line-ending style, or skip the write when normalized content is unchanged.
+- Do not emit trailing whitespace from managed templates.
+- Detect and report generated/managed whitespace issues after update.
+
+## Acceptance criteria
+
+- If `.gitignore` content is unchanged, update-harness does not produce a large line-ending-only diff.
+- Generated or managed files do not introduce trailing whitespace.
+- Existing user-managed files receive onl...
 
 ### `RS0001` meta_improvement_research/unstructured_research_scan_results
 - path: `harness-lab/records/research-scans/RS0001-structure-meta-improvement-research-scan-outputs.md`
@@ -2407,7 +2459,7 @@ propose a narrow deterministic preflight extension: include lab_health only for 
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction
 updated_at: <ISO-8601 timestamp>
-source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
+source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
 sources:
 - IMP0001
 - IMP0002
@@ -2447,6 +2499,7 @@ sources:
 - IMP0037
 - IMP0038
 - IMP0039
+- IMP0040
 - RS0001
 - RS0002
 - RS0003

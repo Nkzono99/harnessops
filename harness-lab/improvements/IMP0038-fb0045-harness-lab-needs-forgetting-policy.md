@@ -2,7 +2,7 @@
 id: IMP0038
 record_type: improvement_dossier
 created_at: '2026-05-19T03:22:20+09:00'
-updated_at: '2026-05-21T03:27:12+09:00'
+updated_at: '2026-05-22T03:32:20+09:00'
 status: adopted
 source_type: friction
 scope: harnessops-core
@@ -36,6 +36,10 @@ investigation:
   kind: codebase
   summary: 'Run 20260521-030246 repeats the active-vs-physical split: maintenance refreshed deterministic and semantic memory, then issue execution added FB0055/E0043/H0043/D0044/IMP0040 and made memory stale again while file_count pressure remains. Treat freshness as post-write synthesis evidence and keep physical archive deletion separate from active queue and memory retirement.'
   evidence_ref: supervisor lane summaries for run 20260521-030246-c658a9d; uv run --with-editable . hops lab review queue --json; harness-lab/records/research-scans/RS0008-route-post-write-steward-queue-pressure.md
+- created_at: '2026-05-22T03:32:20+09:00'
+  kind: codebase
+  summary: 'Run 20260522-030226 repeats the healthy post-write freshness pattern: maintenance refreshed lab memory, issue execution then added FB0056/E0045/H0045/D0046/IMP0041, and the active queue still has existing candidates. Treat memory staleness after writes as end-of-run synthesis input unless active-memory exclusion or physical archive criteria are explicitly violated.'
+  evidence_ref: supervisor lane summaries for run 20260522-030226-2b11cc3; uv run --with-editable . hops lab review queue --json; harness-lab/records/research-scans/RS0008-route-post-write-steward-queue-pressure.md
 links:
   issue_url:
 ---
@@ -81,6 +85,7 @@ Design a source-preserving forgetting lane that can mark stale local-only or sup
 - 2026-05-19T03:22:41+09:00 [codebase] Today's daily steward has fresh snapshot and semantic memory, but lab memory lint still reports needs-abstraction from file_count>256; issue discovery also found no open GitHub issues while RS0004 still carries old remote-close candidates. Treat this as source-preserving active-memory and queue-retirement pressure, not another snapshot compaction pass. (evidence: harness-lab/knowledge/lab-memory.yml; uv run --with-editable . hops lab memory lint --warn-only; gh issue list --repo Nkzono99/harnessops --state all --limit 20)
 - 2026-05-20T03:23:16+09:00 [codebase] Run 20260520-030313 shows the remaining lab-health pressure is split: maintenance refreshed memory, later issue work made semantic memory stale again, and file_count remains above threshold. Because IMP0038 already guards source-preserving active queue and memory exclusion, the follow-on should distinguish physical file-count pressure from an active-memory budget before adding new compaction mechanics. (evidence: .harnessops/cache/steward-runs/20260520-030313-fdb26c1.json; harness-lab/knowledge/lab-memory-input.yml; tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory)
 - 2026-05-21T03:27:11+09:00 [codebase] Run 20260521-030246 repeats the active-vs-physical split: maintenance refreshed deterministic and semantic memory, then issue execution added FB0055/E0043/H0043/D0044/IMP0040 and made memory stale again while file_count pressure remains. Treat freshness as post-write synthesis evidence and keep physical archive deletion separate from active queue and memory retirement. (evidence: supervisor lane summaries for run 20260521-030246-c658a9d; uv run --with-editable . hops lab review queue --json; harness-lab/records/research-scans/RS0008-route-post-write-steward-queue-pressure.md)
+- 2026-05-22T03:32:20+09:00 [codebase] Run 20260522-030226 repeats the healthy post-write freshness pattern: maintenance refreshed lab memory, issue execution then added FB0056/E0045/H0045/D0046/IMP0041, and the active queue still has existing candidates. Treat memory staleness after writes as end-of-run synthesis input unless active-memory exclusion or physical archive criteria are explicitly violated. (evidence: supervisor lane summaries for run 20260522-030226-2b11cc3; uv run --with-editable . hops lab review queue --json; harness-lab/records/research-scans/RS0008-route-post-write-steward-queue-pressure.md)
 
 ## Research Scans
 

@@ -125,6 +125,15 @@ def _allowed_merge_methods(repo_policy: dict[str, Any]) -> list[str]:
     return allowed
 
 
+def _branch_deleted_status(root: Path, head_ref: str) -> tuple[bool | None, dict[str, Any]]:
+    command = _run(["git", "ls-remote", "--exit-code", "--heads", "origin", head_ref], cwd=root)
+    if command["returncode"] == 0:
+        return False, command
+    if command["returncode"] == 2:
+        return True, command
+    return None, command
+
+
 def _resolve_merge_method(
     method: str,
     *,
@@ -375,7 +384,7 @@ def merge_pr(
     view_args = ["gh", "pr", "view"]
     if target:
         view_args.append(target)
-    view_args.extend(["--json", "isDraft,mergeStateStatus,state,headRefName"])
+    view_args.extend(["--json", "baseRefName,headRefName,isDraft,mergeStateStatus,number,state,url"])
     view = _run(view_args, cwd=root)
     _append_command(result, view)
     if view["returncode"] != 0:
@@ -387,6 +396,7 @@ def merge_pr(
         result.update({"ok": False, "reason": "gh pr view returned invalid JSON"})
         _exit(result, json_output=json_output)
 
+    result["pre_merge_pr"] = pr_info
     result["pr"] = pr_info
     if pr_info.get("isDraft"):
         result.update({"ok": False, "reason": "PR is draft"})
@@ -432,6 +442,41 @@ def merge_pr(
             else "; repository policy may disallow this method"
         )
         result["reason"] = f"gh pr merge failed using {selected_method}{policy}"
+        _exit(result, json_output=json_output)
+
+    post_target = str(pr_info.get("number") or target)
+    post_view_args = ["gh", "pr", "view"]
+    if post_target:
+        post_view_args.append(post_target)
+    post_view_args.extend(["--json", "baseRefName,headRefName,mergeCommit,mergedAt,number,state,url"])
+    post_view = _run(post_view_args, cwd=root)
+    _append_command(result, post_view)
+    if post_view["returncode"] != 0:
+        result["post_merge_lookup_error"] = "gh pr view after merge failed"
+        _exit(result, json_output=json_output)
+    try:
+        post_pr_info = json.loads(post_view["stdout"])
+    except json.JSONDecodeError:
+        result["post_merge_lookup_error"] = "gh pr view after merge returned invalid JSON"
+        _exit(result, json_output=json_output)
+
+    result["post_merge_pr"] = post_pr_info
+    result["pr"] = post_pr_info
+    result["merged"] = post_pr_info.get("state") == "MERGED" or bool(post_pr_info.get("mergedAt"))
+    result["mergedAt"] = post_pr_info.get("mergedAt")
+    result["mergeCommit"] = post_pr_info.get("mergeCommit")
+    result["headRefName"] = post_pr_info.get("headRefName")
+    result["baseRefName"] = post_pr_info.get("baseRefName")
+    result["url"] = post_pr_info.get("url")
+    result["deleteBranchRequested"] = delete_branch
+    if delete_branch and post_pr_info.get("headRefName"):
+        deleted, branch_check = _branch_deleted_status(root, str(post_pr_info["headRefName"]))
+        _append_command(result, branch_check)
+        result["deletedBranch"] = deleted
+        if deleted is None:
+            result["branch_delete_check_error"] = "git ls-remote failed"
+    else:
+        result["deletedBranch"] = False
     _exit(result, json_output=json_output)
 
 

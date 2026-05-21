@@ -1,7 +1,7 @@
 # Harness Lab Evaluation Playbook
 
-Updated: 2026-05-21T03:06:30+09:00
-Source digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
+Updated: 2026-05-22T03:08:11+09:00
+Source digest: `98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553`
 
 This playbook captures evaluation habits that survived across adopted improvements. It guides new evaluations, but source records remain authoritative.
 
@@ -42,6 +42,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Generated AGENTS.md/CLAUDE.md and update-harness guidance should expose the minimal HarnessOps invocation plus role-specific routing for target/meta versus project repositories. Source: `FB0042`
 - Global/local HarnessOps usage should keep ordinary repositories clean by storing local-only state under the global registry/HOPS_HOME path. Source: `IMP0037`
 - Packaged agent skill assets should be synchronized by `hops agent sync-packaged-skills --check` rather than manual file copy. Source: `IMP0039`
+- update-harness should skip normalized no-op `.gitignore` writes, preserve existing newline style when repairing the block, and leave `git diff --check` clean. Source: `IMP0040`
 - Research scans should stay deliberate and structured rather than becoming a record for every small idea. Sources: `IMP0008`, `IMP0009`, `RS0001`
 - `hops lab refresh-views` should clear doctor-managed lab generated-view warnings for README, backlog, dynamic lab views, research scans, and score trajectory without losing dynamic view content. Sources: `RS0002`, `IMP0016`
 
@@ -72,6 +73,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - Reject global/local state changes that dirty ordinary repositories with HarnessOps files or hide canonical repo-local state in repos that opted into it. Source: `IMP0037`
 - Reject steward routing changes that turn open-meta into record spam, or route post-write memory freshness ahead of active queue work, instead of consolidating through existing feedback, dossiers, or research scans. Source: `RS0008`
 - Reject memory-pressure handling that deletes source records or only refreshes abstraction when active-memory retirement is the real pressure. Source: `IMP0038`
+- Reject managed artifact refresh changes that create line-ending-only diffs or trailing-whitespace validation failures for unchanged `.gitignore` content. Source: `IMP0040`
 
 ## Guard Catalogue
 
@@ -88,7 +90,7 @@ This playbook captures evaluation habits that survived across adopted improvemen
 - `tests/test_cli/test_mvp_flow.py` and `tests/test_agent_harness_contract.py`: guard global registry/local storage and packaged global Codex plugin behavior. Source: `IMP0037`
 - `tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory`: guards source-preserving retirement from active queue and memory surfaces. Source: `IMP0038`
 - `tests/test_cli/test_agent.py`: guards packaged skill asset sync, drift detection, host coverage, and retired skill cleanup for `hops agent sync-packaged-skills`. Source: `IMP0039`
-- `tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project` and `tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block`: guard HarnessOps `.gitignore` cache hygiene. Source: `FB0038`
+- `tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project`, `tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block`, `tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_gitignore_newlines_and_skips_normalized_noop`, and `tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_gitignore_newlines_when_repairing_block`: guard HarnessOps `.gitignore` cache hygiene and newline-preserving no-op repair. Sources: `FB0038`, `IMP0040`
 - `.github/workflows/pr-ci.yml`, `src/harnessops/cli/github_flow.py`, and related CLI tests: guard required-check-aware GitHub Flow diagnostics. Source: `FB0041`
 - `tests/test_agent_harness_contract.py` and packaged update-harness skill assets: guard compact role-aware agent conduit guidance. Source: `FB0042`
 - Full `hops doctor --check-overlay --check-records` and `hops migrate --check` remain release-level checks for layout and managed-artifact consistency. Sources: `IMP0001`, `IMP0002`, `IMP0004`, `IMP0005`, `IMP0006`

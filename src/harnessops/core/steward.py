@@ -22,9 +22,31 @@ LANE_RESULT_CONTRACT = [
 ]
 LANE_RESULT_OPTIONAL_FIELDS = {
     "artifacts": "Structured lane-specific handoff data for later lanes.",
+    "remote_actions": (
+        "Typed finalize-facing remote actions for GitHub issues, PRs, labels, "
+        "merges, releases, or other remote writes. Omit when the lane has no "
+        "remote intent."
+    ),
 }
 LANE_RESULT_STATUSES = {"completed", "no-op", "blocked", "failed-validation"}
 RUN_END_STATUSES = {"completed", "blocked", "failed-validation", "no-op"}
+REMOTE_ACTION_REQUIRED_FIELDS = ["action", "target", "intent"]
+REMOTE_ACTION_PRIVACY_STATUSES = {
+    "blocked",
+    "not-applicable",
+    "not-reviewed",
+    "sanitized",
+}
+REMOTE_ACTION_CONTRACT = {
+    "path": "remote_actions[]",
+    "required_fields": REMOTE_ACTION_REQUIRED_FIELDS,
+    "optional_fields": [
+        "condition",
+        "privacy",
+        "remote_text",
+    ],
+    "privacy_statuses": sorted(REMOTE_ACTION_PRIVACY_STATUSES),
+}
 OPEN_META_SCAN_ARTIFACT_CONTRACT = {
     "path": "artifacts.meta_scan",
     "required_fields": [
@@ -412,7 +434,10 @@ def _lane_handoff(lane: dict[str, str]) -> str:
     base = (
         f"Use repo-local skill `.agents/skills/{lane['skill']}/SKILL.md`. "
         "Use the supervisor preflight JSON, prior lane summaries, runtime authority, "
-        "and project role summary as inputs. Return the lane result contract."
+        "and project role summary as inputs. Return the lane result contract. "
+        "If the lane requests finalize-time remote work, put typed objects under "
+        "optional remote_actions with action, target, intent, and optional "
+        "condition/privacy/remote_text fields."
     )
     if lane["lane"] == "open-meta-scan":
         return (
@@ -449,6 +474,7 @@ def _supervisor_plan(project: Project, *, update_policy: str) -> dict[str, Any]:
         "update_policy": update_policy,
         "lane_result_contract": LANE_RESULT_CONTRACT,
         "lane_result_optional_fields": LANE_RESULT_OPTIONAL_FIELDS,
+        "lane_remote_action_contract": REMOTE_ACTION_CONTRACT,
         "lane_artifact_contracts": {
             "open-meta-scan": OPEN_META_SCAN_ARTIFACT_CONTRACT,
         },
@@ -569,6 +595,28 @@ def steward_run_start(
     }
 
 
+def _validate_remote_actions(value: Any) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(value, list):
+        return ["remote_actions must be a list"]
+    for index, item in enumerate(value):
+        prefix = f"remote_actions[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        for field in REMOTE_ACTION_REQUIRED_FIELDS:
+            if not isinstance(item.get(field), str) or not item.get(field, "").strip():
+                errors.append(f"{prefix} missing required field: {field}")
+        for field in ("condition", "remote_text"):
+            if field in item and item[field] is not None and not isinstance(item[field], str):
+                errors.append(f"{prefix}.{field} must be a string")
+        privacy = item.get("privacy")
+        if privacy is not None and privacy not in REMOTE_ACTION_PRIVACY_STATUSES:
+            allowed = ", ".join(sorted(REMOTE_ACTION_PRIVACY_STATUSES))
+            errors.append(f"{prefix}.privacy must be one of: {allowed}")
+    return errors
+
+
 def validate_lane_result(result: Any, *, lane: str | None = None) -> dict[str, Any]:
     errors: list[str] = []
     if not isinstance(result, dict):
@@ -577,6 +625,7 @@ def validate_lane_result(result: Any, *, lane: str | None = None) -> dict[str, A
             "errors": ["lane result must be a JSON object"],
             "required_fields": LANE_RESULT_CONTRACT,
             "optional_fields": LANE_RESULT_OPTIONAL_FIELDS,
+            "remote_action_contract": REMOTE_ACTION_CONTRACT,
         }
 
     for field in LANE_RESULT_CONTRACT:
@@ -599,6 +648,9 @@ def validate_lane_result(result: Any, *, lane: str | None = None) -> dict[str, A
     if "artifacts" in result and not isinstance(result["artifacts"], dict):
         errors.append("artifacts must be an object")
 
+    if "remote_actions" in result:
+        errors.extend(_validate_remote_actions(result["remote_actions"]))
+
     if lane in {"open-meta-scan", "hops-open-meta-scan"}:
         artifacts = result.get("artifacts")
         meta_scan = artifacts.get("meta_scan") if isinstance(artifacts, dict) else None
@@ -618,6 +670,7 @@ def validate_lane_result(result: Any, *, lane: str | None = None) -> dict[str, A
         "required_fields": LANE_RESULT_CONTRACT,
         "optional_fields": LANE_RESULT_OPTIONAL_FIELDS,
         "allowed_statuses": sorted(LANE_RESULT_STATUSES),
+        "remote_action_contract": REMOTE_ACTION_CONTRACT,
         "artifact_contracts": {
             "open-meta-scan": OPEN_META_SCAN_ARTIFACT_CONTRACT,
         },
