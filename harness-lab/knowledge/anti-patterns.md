@@ -1,16 +1,16 @@
 # Harness Lab Anti-Patterns
 
-Updated: 2026-05-21T03:06:30+09:00
-Source digest: `fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1`
+Updated: 2026-05-22T03:08:11+09:00
+Source digest: `98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553`
 
 These are reusable failure shapes to avoid. Each item names source IDs so decisions can return to canonical records.
 
 ## Reporting Success While Leaving State Stale
 
 - Avoid when: an update or doctor path says `ok` but leaves stale managed files, duplicate dossiers, stale generated views, or shadowed record IDs unresolved.
-- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`, `IMP0029`, `IMP0030`
+- Sources: `IMP0002`, `IMP0011`, `IMP0012`, `IMP0015`, `RS0002`, `IMP0016`, `IMP0029`, `IMP0030`, `IMP0040`
 - Why it fails: operators trust the tool and stop looking, while the next agent inherits obsolete guidance or resolves an ID to the wrong artifact.
-- Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, keep memory stale state visible, make repair commands cover the same generated artifacts that doctor validates, and keep update notices pointed at the recorded/current/latest version mismatch plus the uvx refresh path.
+- Guard: report updated/unchanged/conflicted/stale counts, prefer canonical ID lookup, add doctor checks for duplicate canonical mappings, keep memory stale state visible, make repair commands cover the same generated artifacts that doctor validates, keep update notices pointed at the recorded/current/latest version mismatch plus the uvx refresh path, and avoid line-ending-only or whitespace-only managed-file rewrites.
 
 ## Treating Counts As Health
 
@@ -53,6 +53,13 @@ These are reusable failure shapes to avoid. Each item names source IDs so decisi
 - Sources: `FB0038`
 - Why it fails: cache churn can stop dirty-worktree automation and hides the difference between canonical HarnessOps state and local runtime state.
 - Guard: init/link/update-harness should maintain a marker-managed `.gitignore` block that ignores cache contents while preserving `.harnessops/cache/.gitkeep`.
+
+## Review-Obscuring Managed Artifact Churn
+
+- Avoid when: update-harness rewrites an existing managed file even though normalized content is unchanged, or changes line endings/trailing whitespace while repairing a small marker-managed block.
+- Sources: `IMP0040`
+- Why it fails: reviewers see a large diff and `git diff --check` noise instead of the real harness change, so safe automation becomes harder to validate.
+- Guard: compare normalized `.gitignore` content before writing, preserve the file's existing newline style when repair is necessary, and keep whitespace checks in validation.
 
 ## Manual Packaged Skill Sync
 

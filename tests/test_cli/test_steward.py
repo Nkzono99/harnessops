@@ -52,6 +52,8 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
         "stop_reason",
     ]
     assert plan["lane_result_optional_fields"]["artifacts"]
+    assert plan["lane_result_optional_fields"]["remote_actions"]
+    assert plan["lane_remote_action_contract"]["path"] == "remote_actions[]"
     assert plan["lane_artifact_contracts"]["open-meta-scan"]["path"] == "artifacts.meta_scan"
     assert recommendation_lanes == {lane["lane"] for lane in plan["lanes"]}
     assert [lane["skill"] for lane in plan["lanes"]] == [
@@ -68,6 +70,7 @@ def test_steward_preflight_json_reports_run_ledger(copy_fixture, monkeypatch):
     assert "artifacts.meta_scan" in open_meta_lane["handoff"]
     assert "changed_files" in open_meta_lane["handoff"]
     assert "Return the lane result contract" in plan["lanes"][0]["handoff"]
+    assert "optional remote_actions" in plan["lanes"][0]["handoff"]
     assert "Run the hops-daily-steward supervisor" in payload["next_agent_step"]
 
 
@@ -147,6 +150,47 @@ def test_steward_run_validates_lane_result_json(copy_fixture, monkeypatch):
     )
     payload = json.loads(result.output)
     assert payload["ok"] is True
+
+    with_remote_action = _valid_lane_result()
+    with_remote_action["remote_actions"] = [
+        {
+            "action": "github_issue_close",
+            "target": "#40",
+            "intent": "Close after the automation PR is merged",
+            "condition": "validation passes and merge completes",
+            "privacy": "not-applicable",
+        }
+    ]
+    result = run_cli(
+        [
+            "steward",
+            "run",
+            "validate-lane-result",
+            "--result-json",
+            json.dumps(with_remote_action),
+            "--json",
+        ]
+    )
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+
+    malformed_remote_action = _valid_lane_result()
+    malformed_remote_action["remote_actions"] = [{"action": "github_issue_close", "target": "#40"}]
+    result = runner.invoke(
+        app,
+        [
+            "steward",
+            "run",
+            "validate-lane-result",
+            "--result-json",
+            json.dumps(malformed_remote_action),
+            "--json",
+        ],
+    )
+    payload = json.loads(result.output)
+    assert result.exit_code == 1
+    assert payload["ok"] is False
+    assert "remote_actions[0] missing required field: intent" in payload["errors"]
 
     valid_open_meta = json.dumps(_valid_open_meta_lane_result())
     result = run_cli(

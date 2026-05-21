@@ -644,14 +644,46 @@ def test_github_flow_merge_auto_uses_squash_when_merge_commits_disabled(copy_fix
     monkeypatch.chdir(root)
     run_cli(["init", "--profile", "runops-upstream"])
     seen: list[list[str]] = []
+    view_calls = 0
 
     def fake_run(args, *, cwd):
+        nonlocal view_calls
         seen.append(args)
         if args[:3] == ["gh", "pr", "view"]:
+            view_calls += 1
+            if view_calls == 2:
+                return {
+                    "args": args,
+                    "returncode": 0,
+                    "stdout": json.dumps(
+                        {
+                            "baseRefName": "main",
+                            "headRefName": "codex/steward/test",
+                            "mergeCommit": {"oid": "abc123"},
+                            "mergedAt": "2026-05-22T00:00:00Z",
+                            "number": 12,
+                            "state": "MERGED",
+                            "url": "https://github.com/Nkzono99/runops/pull/12",
+                        }
+                    )
+                    + "\n",
+                    "stderr": "",
+                }
             return {
                 "args": args,
                 "returncode": 0,
-                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stdout": json.dumps(
+                    {
+                        "baseRefName": "main",
+                        "headRefName": "codex/steward/test",
+                        "isDraft": False,
+                        "mergeStateStatus": "CLEAN",
+                        "number": 12,
+                        "state": "OPEN",
+                        "url": "https://github.com/Nkzono99/runops/pull/12",
+                    }
+                )
+                + "\n",
                 "stderr": "",
             }
         if args[:3] == ["gh", "pr", "checks"]:
@@ -672,6 +704,8 @@ def test_github_flow_merge_auto_uses_squash_when_merge_commits_disabled(copy_fix
             }
         if args[:3] == ["gh", "pr", "merge"]:
             return {"args": args, "returncode": 0, "stdout": "", "stderr": ""}
+        if args[:3] == ["git", "ls-remote", "--exit-code"]:
+            return {"args": args, "returncode": 2, "stdout": "", "stderr": ""}
         raise AssertionError(args)
 
     monkeypatch.setattr(github_flow_cli, "_run", fake_run)
@@ -682,6 +716,12 @@ def test_github_flow_merge_auto_uses_squash_when_merge_commits_disabled(copy_fix
     payload = json.loads(result.output)
     assert payload["ok"] is True
     assert payload["merge_method"] == "squash"
+    assert payload["pre_merge_pr"]["state"] == "OPEN"
+    assert payload["post_merge_pr"]["state"] == "MERGED"
+    assert payload["pr"]["state"] == "MERGED"
+    assert payload["merged"] is True
+    assert payload["mergeCommit"]["oid"] == "abc123"
+    assert payload["deletedBranch"] is True
     assert ["gh", "pr", "merge", "12", "--squash", "--delete-branch"] in seen
 
 
@@ -690,20 +730,54 @@ def test_github_flow_merge_explicit_rebase_method(copy_fixture, monkeypatch):
     monkeypatch.chdir(root)
     run_cli(["init", "--profile", "runops-upstream"])
     seen: list[list[str]] = []
+    view_calls = 0
 
     def fake_run(args, *, cwd):
+        nonlocal view_calls
         seen.append(args)
         if args[:3] == ["gh", "pr", "view"]:
+            view_calls += 1
+            if view_calls == 2:
+                return {
+                    "args": args,
+                    "returncode": 0,
+                    "stdout": json.dumps(
+                        {
+                            "baseRefName": "main",
+                            "headRefName": "codex/steward/test",
+                            "mergeCommit": {"oid": "def456"},
+                            "mergedAt": "2026-05-22T00:00:00Z",
+                            "number": 12,
+                            "state": "MERGED",
+                            "url": "https://github.com/Nkzono99/runops/pull/12",
+                        }
+                    )
+                    + "\n",
+                    "stderr": "",
+                }
             return {
                 "args": args,
                 "returncode": 0,
-                "stdout": json.dumps({"isDraft": False, "mergeStateStatus": "CLEAN", "state": "OPEN"}) + "\n",
+                "stdout": json.dumps(
+                    {
+                        "baseRefName": "main",
+                        "headRefName": "codex/steward/test",
+                        "isDraft": False,
+                        "mergeStateStatus": "CLEAN",
+                        "number": 12,
+                        "state": "OPEN",
+                        "url": "https://github.com/Nkzono99/runops/pull/12",
+                    }
+                )
+                + "\n",
                 "stderr": "",
             }
         if args[:3] == ["gh", "pr", "checks"]:
             return {"args": args, "returncode": 0, "stdout": "pr-ci\tpass\n", "stderr": ""}
         if args[:3] == ["gh", "pr", "merge"]:
             return {"args": args, "returncode": 0, "stdout": "", "stderr": ""}
+        if args[:3] == ["git", "ls-remote", "--exit-code"]:
+            return {"args": args, "returncode": 2, "stdout": "", "stderr": ""}
         raise AssertionError(args)
 
     monkeypatch.setattr(github_flow_cli, "_run", fake_run)
@@ -714,6 +788,8 @@ def test_github_flow_merge_explicit_rebase_method(copy_fixture, monkeypatch):
     payload = json.loads(result.output)
     assert payload["ok"] is True
     assert payload["merge_method"] == "rebase"
+    assert payload["pr"]["state"] == "MERGED"
+    assert payload["mergeCommit"]["oid"] == "def456"
     assert ["gh", "pr", "merge", "12", "--rebase", "--delete-branch"] in seen
 
 

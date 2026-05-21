@@ -1,43 +1,42 @@
 schema_version: '0.1'
 kind: harness_lab_memory_abstraction_input
-updated_at: '2026-05-21T03:06:08+09:00'
+updated_at: '2026-05-22T03:07:46+09:00'
 lint:
   schema_version: '0.1'
   kind: harness_lab_memory_lint
   status: needs-abstraction
   reason: triggers-present
-  updated_at: '2026-05-21T03:06:07+09:00'
+  updated_at: '2026-05-22T03:07:44+09:00'
   metrics: &id002
-    file_count: 377
-    byte_count: 1074046
-    record_count: 189
-    feedback_count: 54
-    eval_case_count: 42
-    hypothesis_count: 42
-    decision_count: 43
+    file_count: 391
+    byte_count: 1116671
+    record_count: 196
+    feedback_count: 55
+    eval_case_count: 44
+    hypothesis_count: 44
+    decision_count: 45
     research_scan_count: 8
-    improvement_count: 38
-    manual_eval_count: 42
+    improvement_count: 39
+    manual_eval_count: 44
   thresholds: &id001
     max_files: 256
     max_bytes: 2000000
     max_improvements: 50
-  source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
+  source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
   pressure:
   - file_count>256
   triggers: &id003
   - file_count>256
-  - semantic_memory_stale
   snapshot:
     exists: true
     path: harness-lab/knowledge/lab-memory.yml
-    source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
+    source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
     stale: false
   abstraction:
     exists: true
     path: harness-lab/knowledge/lab-memory-abstraction.yml
-    source_digest: e755a800c8a0910e2e60dddae2f014a96211f47860e6e7278f9302a007ec36a3
-    stale: true
+    source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
+    stale: false
     targets:
     - path: harness-lab/knowledge/principles.md
       exists: true
@@ -68,7 +67,7 @@ abstraction_targets:
 deterministic_snapshot:
   schema_version: '0.1'
   kind: harness_lab_knowledge
-  updated_at: '2026-05-21T03:06:07+09:00'
+  updated_at: '2026-05-22T03:07:44+09:00'
   mutable: true
   compaction:
     mode: abstraction-input
@@ -76,7 +75,7 @@ deterministic_snapshot:
     metrics: *id002
     triggers: *id003
   sources:
-    source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
+    source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
     improvements:
     - IMP0001
     - IMP0002
@@ -116,12 +115,13 @@ deterministic_snapshot:
     - IMP0037
     - IMP0038
     - IMP0039
+    - IMP0040
   knowledge:
     summary:
-      improvement_count: 38
+      improvement_count: 39
       status_counts:
-        active: 2
-        adopted: 35
+        active: 1
+        adopted: 37
         parked: 1
       capability_count: 17
     capabilities:
@@ -131,13 +131,25 @@ deterministic_snapshot:
         improvements:
         - IMP0039
         status_counts:
-          active: 1
-        average_scores: {}
-        guards: []
+          adopted: 1
+        average_scores:
+          anti_theater: 5.0
+          evaluability: 5.0
+          impact: 4.0
+          maintainability: 4.0
+          mechanism_clarity: 5.0
+          minimality: 5.0
+          operator_burden: 1.0
+          privacy_sanitization_risk: 0.0
+          regression_risk: 2.0
+        guards:
+        - source: IMP0039
+          status: implemented
+          path: tests/test_cli/test_agent.py::test_agent_sync_packaged_skills_cli_check_reports_drift;tests/test_agent_harness_contract.py::test_packaged_agent_assets_match_repo_local_skills
         lessons:
         - source: IMP0039
-          status: active
-          lesson: The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or update...
+          status: adopted
+          lesson: hops agent sync-packaged-skills --check --json returned ok=true with no missing, drifted, or retired Codex/Claude assets; tests/test_cli/test_agent.py passed 2 tests; tests/test_agent_harness_contract.py -k packaged_agent_assets_match_repo_local_skills passed...
     - capability: cli_ergonomics
       failure_classes:
       - failure_class: command_surface_sprawl
@@ -686,18 +698,19 @@ deterministic_snapshot:
         - IMP0025
         - IMP0032
         - IMP0035
+        - IMP0040
         status_counts:
-          adopted: 9
+          adopted: 10
         average_scores:
-          anti_theater: 4.56
-          evaluability: 4.33
+          anti_theater: 4.1
+          evaluability: 3.9
           impact: 4.0
-          maintainability: 3.78
-          mechanism_clarity: 4.11
-          minimality: 3.78
-          operator_burden: 2.11
-          privacy_sanitization_risk: 1.11
-          regression_risk: 1.89
+          maintainability: 3.4
+          mechanism_clarity: 4.2
+          minimality: 3.4
+          operator_burden: 1.9
+          privacy_sanitization_risk: 1.0
+          regression_risk: 2.1
         guards:
         - source: IMP0002
           status: implemented
@@ -724,6 +737,9 @@ deterministic_snapshot:
           status: implemented
           path: tests/test_agent_harness_contract.py
         - source: IMP0035
+          status: implemented
+          path: tests/test_cli/test_mvp_flow.py
+        - source: IMP0040
           status: implemented
           path: tests/test_cli/test_mvp_flow.py
         lessons:
@@ -754,6 +770,9 @@ deterministic_snapshot:
         - source: IMP0035
           status: adopted
           lesson: Implemented github-flow merge --method auto|merge|squash|rebase, preserved required-check gating, and added focused CLI tests covering squash auto-selection, explicit rebase, and clear merge-method failure reporting.
+        - source: IMP0040
+          status: adopted
+          lesson: 'Implemented byte-preserving .gitignore no-op detection and newline preservation. Validation passed: uv run pytest tests/test_cli/test_mvp_flow.py; git diff --check; hops doctor --check-overlay --check-records; hops migrate --check.'
     - capability: uvx_update_guidance
       failure_classes:
       - failure_class: stale_hops_update_path
@@ -1055,6 +1074,16 @@ deterministic_snapshot:
       failure_class: missing_lab_capture
       status: implemented
       path: tests/test_cli/test_lab_usage.py::test_lab_retire_preserves_record_and_excludes_active_queue_and_memory
+    - source: IMP0039
+      capability: agent_asset_packaging
+      failure_class: manual_packaged_skill_sync_drift
+      status: implemented
+      path: tests/test_cli/test_agent.py::test_agent_sync_packaged_skills_cli_check_reports_drift;tests/test_agent_harness_contract.py::test_packaged_agent_assets_match_repo_local_skills
+    - source: IMP0040
+      capability: unclassified
+      failure_class: unclassified
+      status: implemented
+      path: tests/test_cli/test_mvp_flow.py
     external_evidence:
     - source: IMP0006
       summary: Compared the current loop with PDSA, SRE postmortem/action-item practice, ADR decision records, issue triage, and Technology Radar maturity rings; the missing HarnessOps concepts are explicit investigation, theme classification, maturity,...
@@ -1095,11 +1124,6 @@ deterministic_snapshot:
       status: active
       next: evaluation-or-decision-needed
       path: harness-lab/improvements/IMP0037-fb0053-global-local-harnessops-usage-without-repository-files.md
-    - source: IMP0039
-      maturity: investigated
-      status: active
-      next: evaluation-or-decision-needed
-      path: harness-lab/improvements/IMP0039-fb0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md
 sources:
 - id: IMP0001
   record_type: improvement_dossier
@@ -1543,20 +1567,32 @@ sources:
   promotion_level: shipped-behavior
   capability: harness_lab_traceability
   failure_class: missing_lab_capture
-  digest: sha256:6ac70f7063d9d7b678ff8d5c0e580fdcdafc1e01d3cafc502caf7967af8a8876
+  digest: sha256:5d9b1f16649063bf73ac69b8add7691708f786c610e1357109729223fc9bc7e5
   excerpt: "# IMP0038: FB0045: Harness lab needs forgetting policy\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: friction\n- scope: harnessops-core\n- relation: extends\n- promotion_level: shipped-behavior\n- source_feedback: `FB0045`\n- linked_records: `FB0045`, `E0041`, `H0041`, `D0042`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0045-harness-lab-needs-forgetting-policy.md`\n\n# FB0045: Harness lab needs forgetting policy\n\n## 概要\n\nHarness-lab currently supports recording, deterministic compaction, semantic abstraction, and source-linked extraction, but growth pressure will keep increasing because old low-signal records are never retired, archived, summarized away, or marked out of working memory.\n\n## 再現\n\nローカル改善作業中に観測。\n\n## 期待する上流変更\n\nDesign a source-preserving forgetting lane that can mark stale local-only or superseded lab material as archived or excluded from active memory without destroying auditability.\n\n## Target Capability\n\n- capability: harness_lab_traceability\n- failure_class: missing_lab_capture\n\n## Investigation\n\n- 2026-05-19T03:22:41+09:00 [codebase] Today's daily steward has fresh snapshot and semantic memory, but lab memory lint still reports needs-abstraction from file_count>256; issue discovery also found no open GitHub issues while RS0004 still carries old remote-close candidates. Treat this as source-preserving active-memory and queue-retirement pressure, not another snapshot compaction pass. (evidence: harness-lab/knowledge/lab-memory.yml; uv run --with-editable . hops lab memory lint --warn-only; gh issue list --repo Nkzono99/harnessops --state all --limit 20)\n- 2026-05-20T03:23:16+09:00 [codebase] Run 20260520-030313 shows the remaining lab-health pressure is split: maintenance refreshed memory, later issue work made semantic memo..."
 - id: IMP0039
   record_type: improvement_dossier
   title: 'IMP0039: FB0051: Packaged skill asset sync should be a CLI, not manual copy work'
   path: harness-lab/improvements/IMP0039-fb0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md
-  status: active
-  maturity: investigated
+  status: adopted
+  maturity: adopted
   relation: extends
-  promotion_level: target-lab-case
+  promotion_level: harnessops-protocol
   capability: agent_asset_packaging
   failure_class: manual_packaged_skill_sync_drift
-  digest: sha256:403652fbdb84acb2e32c630b82089d599b69cd2d8d0eb8b5f467af234296c0a3
-  excerpt: "# IMP0039: FB0051: Packaged skill asset sync should be a CLI, not manual copy work\n\n## Status\n\n- status: active\n- maturity: investigated\n- source_type: codebase\n- scope: harnessops-core\n- relation: extends\n- promotion_level: target-lab-case\n- source_feedback: `FB0051`\n- linked_records: `FB0051`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md`\n\n# FB0051: Packaged skill asset sync should be a CLI, not manual copy work\n\n## 概要\n\nUpdating repo-local HOPS skills requires keeping packaged Codex and Claude assets in lockstep. Manual copy work already left Claude assets drifted, so routine sync and CI-style drift detection should be owned by a HOPS CLI command.\n\n## 再現\n\nEdit a repo-local skill, run the old manual copy workflow, and observe that one host can drift. The new hops agent sync-packaged-skills --check detects the drift.\n\n## 期待する上流変更\n\nProvide a command that syncs .agents/skills/hops-* into packaged agent assets for codex and claude, with a --check mode that detects missing, drifted, or retired skills without writing.\n\n## Target Capability\n\n- capability: agent_asset_packaging\n- failure_class: manual_packaged_skill_sync_drift\n\n## Investigation\n\n- 2026-05-19T03:23:27+09:00 [codebase] The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or updated assets. This makes FB0051 a validation-standardization candidate rather than a manual copy task. (evidence: uv run --with-editable . hops agent sync-packaged-skills --help; uv run --with-editable . hops agent sync-packaged-skills --check --json)\n\n## Research Scans\n\nresearc..."
+  digest: sha256:412e0c5a86466a4438da6653b78cf2d8ef4588631af5cb6ee6cb4b4c39f159cb
+  excerpt: "# IMP0039: FB0051: Packaged skill asset sync should be a CLI, not manual copy work\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: codebase\n- scope: harnessops-core\n- relation: extends\n- promotion_level: harnessops-protocol\n- source_feedback: `FB0051`\n- linked_records: `FB0051`, `E0044`, `H0044`, `D0045`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0051-packaged-skill-asset-sync-should-be-a-cli-not-manual-copy-work.md`\n\n# FB0051: Packaged skill asset sync should be a CLI, not manual copy work\n\n## 概要\n\nUpdating repo-local HOPS skills requires keeping packaged Codex and Claude assets in lockstep. Manual copy work already left Claude assets drifted, so routine sync and CI-style drift detection should be owned by a HOPS CLI command.\n\n## 再現\n\nEdit a repo-local skill, run the old manual copy workflow, and observe that one host can drift. The new hops agent sync-packaged-skills --check detects the drift.\n\n## 期待する上流変更\n\nProvide a command that syncs .agents/skills/hops-* into packaged agent assets for codex and claude, with a --check mode that detects missing, drifted, or retired skills without writing.\n\n## Target Capability\n\n- capability: agent_asset_packaging\n- failure_class: manual_packaged_skill_sync_drift\n\n## Investigation\n\n- 2026-05-19T03:23:27+09:00 [codebase] The CLI surface now has hops agent sync-packaged-skills with --codex, --claude, --check, and --json options; a read-only check over current Codex and Claude packaged HOPS skills returned ok=true with no missing, drifted, retired, or updated assets. This makes FB0051 a validation-standardization candidate rather than a manual copy task. (evidence: uv run --with-editable . hops agent sync-packaged-skills --help; uv run --with-editable . hops agent sync-packaged-skills --check --json)..."
+- id: IMP0040
+  record_type: improvement_dossier
+  title: 'IMP0040: FB0055: update-harness should avoid .gitignore line-ending and whitespace churn'
+  path: harness-lab/improvements/IMP0040-fb0055-update-harness-should-avoid-gitignore-line-ending-and-whitespace-churn.md
+  status: adopted
+  maturity: adopted
+  relation: new
+  promotion_level: target-lab-case
+  capability: unclassified
+  failure_class: unclassified
+  digest: sha256:9029d90050913a84e978941e2b016f1a229531a22fdabffdb772a5d3fc19dbf1
+  excerpt: "# IMP0040: FB0055: update-harness should avoid .gitignore line-ending and whitespace churn\n\n## Status\n\n- status: adopted\n- maturity: adopted\n- source_type: issue\n- scope: harnessops-core\n- relation: new\n- promotion_level: target-lab-case\n- source_feedback: `FB0055`\n- linked_records: `FB0055`, `E0043`, `H0043`, `D0044`\n\n## Source Observation\n\nSource: `harness-lab/records/feedback/FB0055-update-harness-should-avoid-gitignore-line-ending-and-whitespace-churn.md`\n\n# FB0055: update-harness should avoid .gitignore line-ending and whitespace churn\n\n## 概要\n\nGitHub issue: https://github.com/Nkzono99/harnessops/issues/39\nauthor: Nkzono99\nlabels: bug, enhancement\ncreated_at: 2026-05-20T01:08:47Z\nupdated_at: 2026-05-20T01:08:47Z\n\n## Issue本文\n## Summary\n\nTransferred from runops issue #86: https://github.com/Nkzono99/runops/issues/86\n\nAfter `hops update-harness`, runops observed a large `.gitignore` diff that appeared to be mostly line-ending churn rather than meaningful content change. `git diff --check` also reported trailing whitespace in generated/managed output, requiring manual cleanup.\n\nFor managed artifact updates, `.gitignore` and similar existing files should avoid needless line-ending or whitespace churn so reviews focus on real harness changes.\n\n## Expected behavior\n\nWhen `hops update-harness` touches existing files:\n\n- Preserve the existing line-ending style, or skip the write when normalized content is unchanged.\n- Do not emit trailing whitespace from managed templates.\n- Detect and report generated/managed whitespace issues after update.\n\n## Acceptance criteria\n\n- If `.gitignore` content is unchanged, update-harness does not produce a large line-ending-only diff.\n- Generated or managed files do not introduce trailing whitespace.\n- Existing user-managed files receive onl..."
 - id: RS0001
   record_type: research_scan
   title: 'RS0001: Structure meta improvement research scan outputs'
@@ -1621,7 +1657,7 @@ abstraction_manifest_template:
   schema_version: '0.1'
   kind: harness_lab_memory_abstraction
   updated_at: <ISO-8601 timestamp>
-  source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
+  source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
   sources:
   - IMP0001
   - IMP0002
@@ -1661,6 +1697,7 @@ abstraction_manifest_template:
   - IMP0037
   - IMP0038
   - IMP0039
+  - IMP0040
   - RS0001
   - RS0002
   - RS0003

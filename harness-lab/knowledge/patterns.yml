@@ -1,7 +1,7 @@
 schema_version: '0.1'
 kind: harness_lab_patterns
-updated_at: '2026-05-21T03:06:30+09:00'
-source_digest: fb168e267950bd252d4fa8728d4c8edb8524d43a5ac1b8d9b81fc1db0e8ee6a1
+updated_at: '2026-05-22T03:08:11+09:00'
+source_digest: 98d48bbefb9827a09bc08d3b22272fe464d25b4cac2c33a19a6a3d3eaf026553
 patterns:
 - id: lab_first_improvement_loop
   name: Lab-first improvement loop
@@ -328,12 +328,16 @@ patterns:
   evidence:
   - source: FB0038
     note: HarnessOps already writes `.harnessops/cache/update-notice.json`; init/link/update-harness should maintain a marker-managed ignore block instead of leaving users to discover untracked cache files.
+  - source: IMP0040
+    note: `update-harness` should skip normalized no-op `.gitignore` writes and preserve existing newline style so managed ignore repair does not create review-obscuring churn.
   guard:
-  - path: tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project; tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block
-    sources: [FB0038]
+  - path: tests/test_cli/test_mvp_flow.py::test_init_doctor_migrate_project; tests/test_cli/test_mvp_flow.py::test_update_harness_repairs_harnessops_gitignore_block; tests/test_cli/test_mvp_flow.py::test_update_harness_preserves_gitignore_newlines_and_skips_normalized_noop
+    sources: [FB0038, IMP0040]
   counterexamples:
   - source: FB0038
     note: Ignoring all of `.harnessops/` would hide canonical lock/project/migration state and break the audit trail.
+  - source: IMP0040
+    note: A semantically unchanged ignore block can still create a large diff if the writer normalizes line endings or emits trailing whitespace.
 - id: concise_review_surface
   name: Concise generated review surface
   capability: lab_evaluation_review
@@ -368,12 +372,16 @@ patterns:
     note: Managed bridge hashes let unmodified stale files update while local edits get `.new` files.
   - source: IMP0011
     note: Source-feedback locking and doctor uniqueness checks prevent duplicate dossier creation under concurrent lab commands.
+  - source: IMP0040
+    note: Normalized no-op detection lets an existing managed file remain byte-identical when the desired content is already present.
   guard:
   - path: tests/test_cli/test_mvp_flow.py
-    sources: [IMP0011]
+    sources: [IMP0011, IMP0040]
   counterexamples:
   - source: IMP0002
     note: A blunt force mode can refresh stale files but cannot protect local edits.
+  - source: IMP0040
+    note: Treating all rewrites as harmless can replace meaningful review diffs with line-ending churn.
 - id: packaged_skill_asset_sync
   name: Packaged skill asset sync
   capability: agent_asset_packaging
@@ -387,7 +395,7 @@ patterns:
   - source: IMP0039
     note: Manual copy work left Claude packaged assets drifted; `hops agent sync-packaged-skills --check` detects drift and normal execution synchronizes both hosts.
   guard:
-  - path: tests/test_cli/test_agent.py
+  - path: tests/test_cli/test_agent.py::test_agent_sync_packaged_skills_cli_check_reports_drift; tests/test_agent_harness_contract.py::test_packaged_agent_assets_match_repo_local_skills
     sources: [IMP0039]
   counterexamples:
   - source: IMP0039

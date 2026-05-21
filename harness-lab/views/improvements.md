@@ -40,3 +40,5 @@
 - `IMP0038` adopted maturity=adopted scope=harnessops-core promotion=shipped-behavior source=FB0045 harness_lab_traceability missing_lab_capture
 - `IMP0039` adopted maturity=adopted scope=harnessops-core promotion=harnessops-protocol source=FB0051 agent_asset_packaging manual_packaged_skill_sync_drift
 - `IMP0040` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0055 unclassified unclassified
+- `IMP0041` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0056 unclassified unclassified
+- `IMP0042` adopted maturity=adopted scope=harnessops-core promotion=target-lab-case source=FB0044 harness_lab_traceability missing_lab_capture
