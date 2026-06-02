@@ -404,8 +404,8 @@ def create_eval_case(project: Project, *, feedback_id: str, title: str, capabili
         or section(feedback_body, "期待する上流改善")
         or "期待される変更は source feedback を参照してください。"
     )
-    feedback_rel = feedback_path.relative_to(project.root).as_posix()
-    fixture_rel = fixture.relative_to(project.root).as_posix()
+    feedback_rel = project.display_path(feedback_path)
+    fixture_rel = project.display_path(fixture)
     frontmatter = {
         "id": record_id,
         "record_type": "eval_case",

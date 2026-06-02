@@ -9,6 +9,7 @@ except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib  # type: ignore
 
 from harnessops.core.lock import load_lock, sha256_file
+from harnessops.core.paths import resolve_project_path
 from harnessops.core.project import Project
 from harnessops.core.record_io import read_record
 from harnessops.core.record_types import ID_PREFIXES
@@ -195,7 +196,7 @@ def doctor(project: Project, *, check_records: bool = False) -> dict[str, Any]:
         errors.append("lock の overlay path が project.toml と一致しません")
     managed = lock.get("managed_files", {}) if isinstance(lock.get("managed_files"), dict) else {}
     for rel, expected_hash in managed.items():
-        path = project.metadata_root / rel
+        path = resolve_project_path(project.metadata_root, rel)
         if not path.exists():
             errors.append(f"管理対象ファイルがありません: {rel}")
         elif sha256_file(path) != expected_hash:

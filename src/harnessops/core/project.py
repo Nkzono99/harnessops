@@ -11,6 +11,8 @@ except ModuleNotFoundError:  # pragma: no cover
 
 import tomli_w
 
+from harnessops.core.paths import join_display_path, resolve_overlay_path
+
 
 @dataclass(frozen=True)
 class Project:
@@ -42,7 +44,7 @@ class Project:
 
     @property
     def overlay_dir(self) -> Path:
-        return self.storage_root / self.overlay_path
+        return resolve_overlay_path(self.storage_root, self.overlay_path)
 
     @property
     def metadata_root(self) -> Path:
@@ -50,6 +52,12 @@ class Project:
 
     def display_path(self, path: Path) -> str:
         resolved = path.resolve()
+        if self.overlay_storage != "local":
+            try:
+                relative = resolved.relative_to(self.overlay_dir)
+                return join_display_path(self.overlay_path, relative)
+            except ValueError:
+                pass
         try:
             return resolved.relative_to(self.root.resolve()).as_posix()
         except ValueError:
