@@ -46,6 +46,7 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
     result_dir = project.overlay_dir / "views" / "eval-results"
     result_dir.mkdir(parents=True, exist_ok=True)
     eval_id = str(frontmatter.get("id", case_id))
+    source_record = project.display_path(case_path)
     data: dict[str, Any] = {
         "schema_version": "0.1",
         "record_type": "manual_eval_result",
@@ -54,7 +55,7 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
         "experiment": experiment,
         "scores": scores,
         "notes": notes,
-        "source_record": case_path.relative_to(project.root).as_posix(),
+        "source_record": source_record,
     }
     yml_path = result_dir / f"{eval_id}-manual-score.yml"
     md_path = result_dir / f"{eval_id}-manual-score.md"
@@ -63,7 +64,7 @@ def write_manual_eval(project: Project, *, case_id: str, scores: dict[str, int],
     markdown = (
         GENERATED_MARKER
         + f"# 手動評価結果: {eval_id}\n\n"
-        + f"送信元: `{case_path.relative_to(project.root).as_posix()}`\n\n"
+        + f"送信元: `{source_record}`\n\n"
         + "## スコア\n\n"
         + dimensions
         + "\n\n## メモ\n\n"

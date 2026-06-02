@@ -4,18 +4,19 @@ from pathlib import Path
 
 from harnessops.core.lock import load_lock, sha256_file, write_lock
 from harnessops.core.overlay import GENERATED_MARKER
+from harnessops.core.paths import display_overlay_file, resolve_overlay_path
 from harnessops.core.project import Project
 from harnessops.core.record_io import read_record
 
 
-def _refresh_managed_hashes(root: Path, written: list[Path]) -> None:
+def _refresh_managed_hashes(root: Path, overlay_rel: str, written: list[Path]) -> None:
     lock = load_lock(root)
     managed = lock.get("managed_files")
     if not isinstance(managed, dict):
         return
     changed = False
     for path in written:
-        rel = path.relative_to(root).as_posix()
+        rel = display_overlay_file(root, overlay_rel, path)
         if rel in managed or path.read_text(encoding="utf-8").startswith(GENERATED_MARKER):
             managed[rel] = sha256_file(path)
             changed = True
@@ -25,7 +26,7 @@ def _refresh_managed_hashes(root: Path, written: list[Path]) -> None:
 
 
 def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
-    overlay = root / overlay_rel
+    overlay = resolve_overlay_path(root, overlay_rel)
     written: list[Path] = []
     if overlay.name == "harness-feedback":
         failures = []
@@ -103,7 +104,7 @@ def refresh_views(root: Path, overlay_rel: str) -> list[Path]:
             newline="\n",
         )
         written.append(research_view)
-    _refresh_managed_hashes(root, written)
+    _refresh_managed_hashes(root, overlay_rel, written)
     return written
 
 

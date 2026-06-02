@@ -9,6 +9,7 @@ from harnessops.core.github_flow import default_github_flow_config
 from harnessops.core.lock import build_lock, load_lock, sha256_file, sha256_text, write_lock
 from harnessops.core.managed_files import conflict_path
 from harnessops.core.manifest import write_manifest
+from harnessops.core.paths import display_overlay_file, join_display_path, resolve_overlay_path, resolve_project_path
 from harnessops.core.project import write_project
 from harnessops.profiles.registry import profile_fingerprint as registry_profile_fingerprint
 
@@ -138,18 +139,18 @@ def overlay_dirs(overlay_mode: str) -> list[str]:
 def generated_overlay_files(overlay_mode: str, overlay_rel: str) -> dict[str, str]:
     if overlay_mode in {"feedback-source", "local-and-feedback"}:
         return {
-            f"{overlay_rel}/README.md": FEEDBACK_README,
-            f"{overlay_rel}/views/upstream-feedback.md": GENERATED_MARKER + "# 上流フィードバック\n\n上流フィードバックレコードはまだありません。\n",
-            f"{overlay_rel}/views/open-routing.md": GENERATED_MARKER + "# 未完了ルーティング\n\n未完了のルーティングレコードはまだありません。\n",
-            f"{overlay_rel}/views/exported-feedback.md": GENERATED_MARKER + "# エクスポート済みフィードバック\n\nエクスポート済みフィードバックバンドルはまだありません。\n",
+            join_display_path(overlay_rel, "README.md"): FEEDBACK_README,
+            join_display_path(overlay_rel, "views/upstream-feedback.md"): GENERATED_MARKER + "# 上流フィードバック\n\n上流フィードバックレコードはまだありません。\n",
+            join_display_path(overlay_rel, "views/open-routing.md"): GENERATED_MARKER + "# 未完了ルーティング\n\n未完了のルーティングレコードはまだありません。\n",
+            join_display_path(overlay_rel, "views/exported-feedback.md"): GENERATED_MARKER + "# エクスポート済みフィードバック\n\nエクスポート済みフィードバックバンドルはまだありません。\n",
         }
     return {
-        f"{overlay_rel}/README.md": LAB_README,
-        f"{overlay_rel}/views/imported-feedback.md": GENERATED_MARKER + "# インポート済みフィードバック\n\nインポート済みフィードバックレコードはまだありません。\n",
-        f"{overlay_rel}/views/backlog.md": GENERATED_MARKER + "# バックログ\n\n評価ケースのない受理済みフィードバックはありません。\n",
-        f"{overlay_rel}/views/improvements.md": GENERATED_MARKER + "# 改善dossier\n\n改善dossierはまだありません。\n",
-        f"{overlay_rel}/views/research-scans.md": GENERATED_MARKER + "# Research scans\n\nresearch scan はまだありません。\n",
-        f"{overlay_rel}/views/score-trajectory.md": GENERATED_MARKER + "# スコア推移\n\nスコア履歴はまだありません。\n",
+        join_display_path(overlay_rel, "README.md"): LAB_README,
+        join_display_path(overlay_rel, "views/imported-feedback.md"): GENERATED_MARKER + "# インポート済みフィードバック\n\nインポート済みフィードバックレコードはまだありません。\n",
+        join_display_path(overlay_rel, "views/backlog.md"): GENERATED_MARKER + "# バックログ\n\n評価ケースのない受理済みフィードバックはありません。\n",
+        join_display_path(overlay_rel, "views/improvements.md"): GENERATED_MARKER + "# 改善dossier\n\n改善dossierはまだありません。\n",
+        join_display_path(overlay_rel, "views/research-scans.md"): GENERATED_MARKER + "# Research scans\n\nresearch scan はまだありません。\n",
+        join_display_path(overlay_rel, "views/score-trajectory.md"): GENERATED_MARKER + "# スコア推移\n\nスコア履歴はまだありません。\n",
     }
 
 
@@ -167,12 +168,12 @@ def refresh_managed_files(
     updated: list[str] = []
     written_new: list[dict[str, str]] = []
     unchanged: list[str] = []
-    overlay_root = root / overlay_rel
+    overlay_root = resolve_overlay_path(root, overlay_rel)
     if not dry_run:
         for rel in overlay_dirs(overlay_mode):
             _touch_gitkeep(overlay_root / rel)
     for rel, text in generated_overlay_files(overlay_mode, overlay_rel).items():
-        path = root / rel
+        path = resolve_project_path(root, rel)
         template_hash = sha256_text(text)
         old_hash = old_managed.get(rel)
         if not path.exists():
@@ -198,7 +199,7 @@ def refresh_managed_files(
             conflict = conflict_path(path, text)
             if not dry_run:
                 conflict.write_text(text, encoding="utf-8", newline="\n")
-            written_new.append({"path": rel, "new": conflict.relative_to(root).as_posix()})
+            written_new.append({"path": rel, "new": display_overlay_file(root, overlay_rel, conflict)})
     if not dry_run:
         old_lock.setdefault("schema_version", "0.1")
         old_lock.setdefault("layout_version", "0.1")
@@ -260,12 +261,12 @@ def init_overlay(
     write_project(root, project_data)
 
     managed: dict[str, str] = {}
-    overlay_root = root / overlay_rel
+    overlay_root = resolve_overlay_path(root, overlay_rel)
     for rel in overlay_dirs(overlay_mode):
         _touch_gitkeep(overlay_root / rel)
     files = generated_overlay_files(overlay_mode, overlay_rel)
     for rel, text in files.items():
-        path = root / rel
+        path = resolve_project_path(root, rel)
         _write_generated(path, text, force=force, old_hash=old_managed.get(rel))
         managed[rel] = sha256_file(path)
 

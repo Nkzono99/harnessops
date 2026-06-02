@@ -9,6 +9,8 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib  # type: ignore
 
+import pytest
+
 from harnessops import __version__
 from typer.testing import CliRunner
 
@@ -468,6 +470,30 @@ def test_update_harness_preserves_gitignore_newlines_when_repairing_block(copy_f
     assert b"# BEGIN harnessops\r\n" in gitignore
     assert gitignore.count(b"\r\n") == gitignore.count(b"\n")
     assert b".harnessops/tmp/\r\n" in gitignore
+
+
+@pytest.mark.parametrize("path_kind", ["relative", "absolute"])
+def test_external_overlay_path_doctor_refresh_and_update(copy_fixture, monkeypatch, path_kind):
+    root = copy_fixture("harnessops-core-minimal")
+    external = root.parent / f"outside-harness-lab-{path_kind}"
+    overlay_path = f"../{external.name}" if path_kind == "relative" else external.as_posix()
+    monkeypatch.chdir(root)
+
+    run_cli(["init", "--profile", "harnessops-core", "--path", overlay_path])
+
+    expected_view = f"{overlay_path}/views/imported-feedback.md"
+    assert (external / "README.md").exists()
+    run_cli(["doctor", "--check-overlay", "--check-records"])
+    refresh = run_cli(["lab", "refresh-views"])
+    assert expected_view in refresh.output
+
+    update = run_cli(["update-harness", "--json"])
+    payload = json.loads(update.output)
+    assert payload["ok"]
+    assert payload["doctor"]["ok"]
+    lock = json.loads((root / ".harnessops/lock.json").read_text(encoding="utf-8"))
+    assert lock["overlay"]["path"] == overlay_path
+    assert expected_view in lock["managed_files"]
 
 
 def test_update_harness_can_add_repo_local_agent_bridge(copy_fixture, monkeypatch):
