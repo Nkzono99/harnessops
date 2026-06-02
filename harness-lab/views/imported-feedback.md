@@ -57,3 +57,4 @@
 - `FB0054` triaged unclassified unclassified
 - `FB0055` triaged unclassified unclassified
 - `FB0056` triaged unclassified unclassified
+- `FB0057` triaged external_overlay_paths path_resolution
